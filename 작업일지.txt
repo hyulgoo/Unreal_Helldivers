@@ -1,0 +1,18 @@
+[25/04/01]
+Command 입력 관련 스위즐축 입력값되게 수정, 현재 GA에 Command Add 안되는 중
+[25/04/01]
+Command 해결 완료, 현재 던지고 나서 CommandList 초기화 안되는 중. 스트라타젬 충돌 설정 수정 필요
+[25/04/03]
+스트라타젬 던지는 것까지 해결 완료, 젬 이펙트 관련 설계 중
+[25/04/07]
+이글 궤적 설계 완료 폭격 작업해야함.
+[25/04/10]
+이글 폭탄 구현 완료 궤도 작업 중
+[25/04/15]
+에임 따라가기 구현 완료(현재 TurnInPlace쪽 만져줘야함) / PlayerHUD 작업 중
+[25/04/16]
+PlayerHUD 작업 중 GAS 기반으로 하는데 Weapon 관련 정보는 어떻게 할지 고민 중
+[25/04/21]
+StratagemHUD 기본 완성 CommandInput마다 UI 갱신 기능 만들어야 함.
+[25/04/21]
+StratagemHUD Appear, Disappear 기능 구현 중 Tag 사용해야 하는데 StratagemInputMode GA 쪽에서 호출해도 응답 없음.
