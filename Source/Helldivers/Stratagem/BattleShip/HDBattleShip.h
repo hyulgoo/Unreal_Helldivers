@@ -18,15 +18,16 @@ class HELLDIVERS_API AHDBattleShip : public AActor
 public:	
 	explicit AHDBattleShip();
 
-	void						ActivateStratagem(const FName StratagemName, const FVector& Position );
+	void							ActivateStratagem(const FName StratagemName, const FTransform& Transform, const float StratagemActiveDelay);
 
 protected:
-	virtual void				BeginPlay() override;
+	virtual void					BeginPlay() override;
 
 private:
-	FHDStratagemEffectData*		FindStratagemEffectData(const FName StratagemName) const;
-	void						OrbitalStrikeWithDelay(FHDStratagemEffectData* StratagemEffectData, const int32 BombIndex);
-	void						EagleStrike(FHDStratagemEffectData* StratagemEffectData);
+	FHDStratagemEffectData*			FindStratagemEffectData(const FName StratagemName) const;
+
+	void							OrbitalStrikeWithDelay(const FHDStratagemEffectData& StratagemEffectData, int32 BombIndex);
+	void							EagleStrike(FHDStratagemEffectData* StratagemEffectData);
 
 private:
 	UPROPERTY(VisibleAnywhere)
@@ -42,6 +43,7 @@ private:
 
 	// StratagemEffectData
 	UDataTable*						StratagemEffectDataTable;
-    FVector 						StratagemPosition;
+    FTransform 						StratagemTransform;
 	uint8							CurrentStratagemIndex;
+	FTimerHandle					ActiveStratagemTimerHandle;
 };

@@ -20,6 +20,7 @@ class HELLDIVERS_API UHDStratagemInfoUserWidget : public UUserWidget
 public:
 	void		InitializeStratagemInfoWidget(UTexture2D* IconTexture, const TArray<EHDCommandInput>& CommandList, const TMap<EHDCommandInput, UTexture2D*> CommandIconList);
 	void		ActiveCommandIconByNum(const int32 InputNum);
+	void		SetAllWidgetCapacity(const float Opacity);
 
 protected:
     UPROPERTY(meta = (BindWidget))

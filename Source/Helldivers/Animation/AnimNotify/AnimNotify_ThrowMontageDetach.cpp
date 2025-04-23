@@ -24,9 +24,7 @@ void UAnimNotify_ThrowMontageDetach::Notify(USkeletalMeshComponent* MeshComp, UA
         AHDStratagem* Stratagem = CharacterCommandInterface->GetStratagem();
         if (Stratagem)
         {
-            FVector ThrowDirection = FVector(1.f, 0.f, 1.f);
-            ThrowDirection.Normalize();
-            Stratagem->AddImpulseToStratagem(ThrowDirection);
+            Stratagem->AddImpulseToStratagem(Stratagem->GetActorRotation().Vector());
         }
     }
 }

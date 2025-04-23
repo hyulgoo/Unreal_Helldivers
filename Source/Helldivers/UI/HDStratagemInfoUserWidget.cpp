@@ -53,3 +53,14 @@ void UHDStratagemInfoUserWidget::ActiveCommandIconByNum(const int32 InputNum)
         CommandIconWidgetList[Index]->SetRenderOpacity(Index < InputNum ? 0.5f : 1.f);
     }
 }
+
+void UHDStratagemInfoUserWidget::SetAllWidgetCapacity(const float Opacity)
+{
+    Img_StratagemIcon->SetRenderOpacity(Opacity);
+    TB_StratagemName->SetRenderOpacity(Opacity);
+    const int32 CommandIconWidgetListNum = CommandIconWidgetList.Num(); 
+    for (int32 Index = 0; Index < CommandIconWidgetListNum; ++Index)
+    {
+        CommandIconWidgetList[Index]->SetRenderOpacity(Opacity);
+    }
+}

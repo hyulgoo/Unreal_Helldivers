@@ -7,12 +7,13 @@
 #include "BattleShip/HDBattleShip.h"
 #include "Kismet/GameplayStatics.h"
 #include "Game/HDGameState.h"
+#include "Define/HDDefine.h"
 
 AHDStratagem::AHDStratagem()
+    : ThrowDirection(FVector())
+    , ThrowImpulse(3000.f)
+    , StratagemName(FName())
 {
-    PointLaserVisibleTime = 5.f;
-    ThrowImpulse = 3000.f;
-
     PrimaryActorTick.bCanEverTick = true;
 
     CollisionSphere = CreateDefaultSubobject<USphereComponent>(TEXT("CollisionSphere"));
@@ -57,27 +58,19 @@ void AHDStratagem::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrim
             if (HitComp && HitComp->IsSimulatingPhysics())
             {
                 AHDGameState* GameState = Cast<AHDGameState>(UGameplayStatics::GetGameState(GetWorld()));
-                if(GameState == nullptr)
-                {
-                    UE_LOG(LogTemp, Error, TEXT("GameState is nullptr!"));
-                    return;
-                }
+                NULL_CHECK(GameState);
 
                 AHDBattleShip* BattleShip = GameState->GetBattleShip();
-                if (BattleShip == nullptr)
-                {
-                    UE_LOG(LogTemp, Error, TEXT("BattleShip is nullptr!"));
-                    return;
-                }
-
-                const FVector& StratagemLocation = GetActorLocation();
-                BattleShip->ActivateStratagem(StratagemName, StratagemLocation);
+                NULL_CHECK(BattleShip);
+                FTransform Transform = GetActorTransform();
+                Transform.SetRotation(ThrowDirection.Rotation().Quaternion());
+                BattleShip->ActivateStratagem(StratagemName, Transform, StratagemActiveDelay);
 
                 SetActorLocation(Hit.ImpactPoint);
                 HitComp->SetAllPhysicsAngularVelocityInDegrees(FVector::ZeroVector);
                 HitComp->SetSimulatePhysics(false);
                 SpawnPointLaser();
-                SetLifeSpan(PointLaserVisibleTime);
+                SetLifeSpan(StratagemActiveDelay);
             }
         }
     }
@@ -86,29 +79,16 @@ void AHDStratagem::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrim
 void AHDStratagem::SpawnPointLaser()
 {
     UWorld* World = GetWorld();
-    if(IsValid(World) == false)
-    {
-        ensureMsgf(false, TEXT("World is Invalid!"));
-        return;
-    }
-    
-    if(PointLaserNiagara == nullptr)
-    {
-        UE_LOG(LogTemp, Warning, TEXT("PointLaserNiagara is nullptr!"));
-        return;
-    }
+    VALID_CHECK(World);
+
+    NULL_CHECK(PointLaserNiagara);
 
     const FVector Start = FVector::ZeroVector;
     const FVector End = FVector::UpVector * 80000.f;
     NiagaraComponent = UNiagaraFunctionLibrary::SpawnSystemAtLocation(World, PointLaserNiagara, GetActorLocation());
-
-    if (IsValid(NiagaraComponent) == false)
-    {
-        UE_LOG(LogTemp, Warning, TEXT("NiagaraComponent is nullptr!"));
-        return;
-    }
+    NULL_CHECK(NiagaraComponent);
 
     NiagaraComponent->SetVectorParameter(TEXT("Beam Start"), Start);
-    NiagaraComponent->SetVectorParameter(TEXT("Beam End"), End);
-    NiagaraComponent->SetFloatParameter(TEXT("VisibleTime"), PointLaserVisibleTime);
+    NiagaraComponent->SetVectorParameter(TEXT("Beam End"),   End);
+    NiagaraComponent->SetFloatParameter(TEXT("VisibleTime"), StratagemActiveDelay);
 }

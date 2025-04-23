@@ -34,6 +34,9 @@ public:
 
 	UPROPERTY(EditAnywhere, Category = SpringArm)
 	float		TargetArmLength;
+	
+	UPROPERTY(EditAnywhere, Category = SpringArm)
+	FVector		TargetOffset;
 
 	UPROPERTY(EditAnywhere, Category = SpringArm)
 	FRotator	RelativeRotation;

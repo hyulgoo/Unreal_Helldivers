@@ -15,13 +15,13 @@
 
 void UHDStratagemHUDUserWidget::SetStratagemListHUD(UDataTable* StratagemDataTable)
 {
-
     FVector2D ViewportSize = FVector2D();
     if (GEngine && GEngine->GameViewport)
     {
         GEngine->GameViewport->GetViewportSize(ViewportSize);
     }
-    const float MoveDistance = (ViewportSize.X / 2.f);
+
+    WidgetAppearDistance = (ViewportSize.X / 2.f);
 
     if (StratagemIconList.IsEmpty() || RemainImageList.IsEmpty() || CommandIconList.IsEmpty())
     {
@@ -56,6 +56,10 @@ void UHDStratagemHUDUserWidget::SetStratagemListHUD(UDataTable* StratagemDataTab
 
         VB_StratagemList->AddChildToVerticalBox(StratagemIndoWidget);
     }
+
+    FVector2D CurrentPos = RenderTransform.Translation;
+    CurrentPos.X -= WidgetAppearDistance;
+    SetRenderTranslation(CurrentPos);
 }
 
 void UHDStratagemHUDUserWidget::SetHUDActiveByCurrentInputMatchList(const TArray<FName>& MatchStratagemList, const int32 CurrentInputNum)
@@ -68,45 +72,42 @@ void UHDStratagemHUDUserWidget::SetHUDActiveByCurrentInputMatchList(const TArray
         }
         else
         {
-            StratagemInfoWidget->SetRenderOpacity(0.5f);
+            StratagemInfoWidget->SetAllWidgetCapacity(0.5f);
         }
     }
 }
 
-void UHDStratagemHUDUserWidget::SetAllWidgetOpacity(UWidget* Widget, const float Opacity)
+void UHDStratagemHUDUserWidget::SetAllWidgetOpacity(const float Opacity)
 {
-    NULL_CHECK(Widget);
-
-    Widget->SetRenderOpacity(Opacity);
-
-    if (UPanelWidget* Panel = Cast<UPanelWidget>(Widget))
+    for(UHDStratagemInfoUserWidget* StratagemInfoWidget : StratagemInfoWidgetList)
     {
-        const int32 ChildCount = Panel->GetChildrenCount();
-        for (int32 i = 0; i < ChildCount; ++i)
-        {
-            UWidget* Child = Panel->GetChildAt(i);
-            SetAllWidgetOpacity(Child, Opacity);
-        }
+        StratagemInfoWidget->SetAllWidgetCapacity(Opacity);
     }
 }
 
 void UHDStratagemHUDUserWidget::WidgetAppear(const bool bAppear)
 {
     MoveState = bAppear ? EHDStratagemWidgetMoveState::APPEAR : EHDStratagemWidgetMoveState::DISAPPEAR;
+
+    SetAllWidgetOpacity(bAppear ? 1.f : 0.5f);
 }
 
 void UHDStratagemHUDUserWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 {
     Super::NativeTick(MyGeometry, InDeltaTime);
 
-    if(MoveState == EHDStratagemWidgetMoveState::NONE)
+    if(MoveState != EHDStratagemWidgetMoveState::NONE)
     {
-        return;
-    }
+        const FVector2D CurrentPos = RenderTransform.Translation;
+        const FVector2D DesiredPos = MoveState == EHDStratagemWidgetMoveState::APPEAR ? FVector2D(0, 0) : FVector2D(-WidgetAppearDistance, 0);
 
-    FVector2D CurrentPos = RenderTransform.Translation;
-    FVector2D DesiredPos = MoveState == EHDStratagemWidgetMoveState::APPEAR ? FVector2D(0, 0) : FVector2D(-WidgetAppearDistance, 0);
+        if (CurrentPos == DesiredPos)
+        {
+            MoveState = EHDStratagemWidgetMoveState::NONE;
+            return;
+        }
 
-    FVector2D NewPos = FMath::Vector2DInterpTo(CurrentPos, DesiredPos, InDeltaTime, 10.f);
-    SetRenderTranslation(NewPos);
+        const FVector2D NewPos = FMath::Vector2DInterpTo(CurrentPos, DesiredPos, InDeltaTime, 20.f);
+        SetRenderTranslation(NewPos);
+    }   
 }

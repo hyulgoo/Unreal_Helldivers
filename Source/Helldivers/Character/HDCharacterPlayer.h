@@ -185,6 +185,8 @@ private:
 	
 	UPROPERTY(EditAnywhere, Category = Stratagem, Meta = (AllowPrivateAccess = "true"))
 	FName						SelectedStratagemName;
+
+	float						SelecteddStratagemActiveDelay;
 	
 	UPROPERTY(EditAnywhere, Category = Stratagem, Meta = (AllowPrivateAccess = "true"))
 	TArray<FName>				CommandMatchStratagemNameList;

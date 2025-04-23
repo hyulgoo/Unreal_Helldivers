@@ -39,34 +39,47 @@ AHDBattleShip::AHDBattleShip()
     }
 }
 
-void AHDBattleShip::ActivateStratagem(const FName StratagemName, const FVector& Position)
+void AHDBattleShip::ActivateStratagem(const FName StratagemName, const FTransform& Transform, const float StratagemActiveDelay)
 {
     FHDStratagemEffectData* StratagemEffectData = FindStratagemEffectData(StratagemName);
-    if (StratagemEffectData == nullptr)
-    {
-        return;
-    }
+    NULL_CHECK(StratagemEffectData);
 
-    StratagemPosition = Position;
+    StratagemTransform = Transform;
 
-    FTimerHandle TimerHandle;
     if (StratagemEffectData->bIsEagle)
     {
-        GetWorldTimerManager().SetTimer(
-            TimerHandle,
-            FTimerDelegate::CreateUObject(this, &AHDBattleShip::EagleStrike, StratagemEffectData),
-            StratagemEffectData->StratagemDelay,
-            false
-        );
+        FTimerDelegate Delegate = FTimerDelegate::CreateLambda(
+            [this, StratagemEffectData, Transform]()
+            {
+                EagleStrike(StratagemEffectData);
+            });
+        if(Delegate.IsBound())
+        {
+            GetWorldTimerManager().SetTimer(
+                ActiveStratagemTimerHandle,
+                Delegate,
+                StratagemActiveDelay,
+                false
+            );
+        }
     }
     else
     {
-        GetWorldTimerManager().SetTimer(
-            TimerHandle,
-            FTimerDelegate::CreateUObject(this, &AHDBattleShip::OrbitalStrikeWithDelay, StratagemEffectData, static_cast<int32>(0)),
-            StratagemEffectData->StratagemDelay,
-            false
-        );
+        const int32 BombIndex = 0;
+        FTimerDelegate Delegate = FTimerDelegate::CreateLambda(
+            [this, StratagemEffectData, BombIndex]()
+            {
+                OrbitalStrikeWithDelay(*StratagemEffectData, BombIndex);
+            });
+        if (Delegate.IsBound())
+        {
+            GetWorldTimerManager().SetTimer(
+                ActiveStratagemTimerHandle,
+                Delegate,
+                StratagemActiveDelay,
+                false
+            );
+        }
     }
 }
 
@@ -93,48 +106,48 @@ FHDStratagemEffectData* AHDBattleShip::FindStratagemEffectData(const FName Strat
     return StratagemData;
 }
 
-void AHDBattleShip::OrbitalStrikeWithDelay(FHDStratagemEffectData* StratagemEffectData, const int32 BombIndex)
+void AHDBattleShip::OrbitalStrikeWithDelay(const FHDStratagemEffectData& StratagemEffectData, int32 BombIndex)
 {
     NULL_CHECK(StratagemEffectDataTable);
 
-    int32 NumberOfProjectileToBeSpawn = StratagemEffectData->SpecifyProjectileSpawnCount;
-    if(StratagemEffectData->ProjectileDropLocation.IsEmpty() == false)
+    int32 NumberOfProjectileToBeSpawn = StratagemEffectData.SpecifyProjectileSpawnCount;
+    if(StratagemEffectData.ProjectileDropLocation.IsEmpty() == false)
     {
-        NumberOfProjectileToBeSpawn = StratagemEffectData->ProjectileDropLocation.Num();
+        NumberOfProjectileToBeSpawn = StratagemEffectData.ProjectileDropLocation.Num();
     }
 
     if (BombIndex > NumberOfProjectileToBeSpawn)
     {
-        UE_LOG(LogTemp, Error, TEXT("Index Invalid!"));
+        UE_LOG(LogTemp, Error, TEXT("BombIndex is Invalid!"));
         return;
     }
 
     UWorld* World = GetWorld();
     VALID_CHECK(World);
 
-    TSubclassOf<AHDProjectile> ProjectileClass = StratagemEffectData->StratagemProjectileType == EHDStratagemProjectile::Bullet ? 
+    TSubclassOf<AHDProjectile> ProjectileClass = StratagemEffectData.StratagemProjectileType == EHDStratagemProjectile::Bullet ? 
                                                     ProjectileBulletClass : ProjectileBombClass;
     NULL_CHECK(ProjectileClass);
 
     FVector FinalDropTargetPosition = FVector();
-    if (StratagemEffectData->bUseRandomRange)
+    if (StratagemEffectData.bUseRandomRange)
     {
         const float Angle       = FMath::FRandRange(0.f, 2.f * PI);
-        const float Distance    = FMath::Sqrt(FMath::FRand()) * StratagemEffectData->RandomPositionRange;
+        const float Distance    = FMath::Sqrt(FMath::FRand()) * StratagemEffectData.RandomPositionRange;
         const float RandomX     = FMath::Cos(Angle) * Distance;
         const float RandomY     = FMath::Sin(Angle) * Distance;
-        FinalDropTargetPosition = StratagemPosition + FVector(RandomX, RandomY, 0.f);
+        FinalDropTargetPosition = StratagemTransform.GetLocation() + FVector(RandomX, RandomY, 0.f);
     }
     else
     {
-        if(StratagemEffectData->ProjectileDropLocation.IsEmpty())
+        if(StratagemEffectData.ProjectileDropLocation.IsEmpty())
         {
             UE_LOG(LogTemp, Error, TEXT("No RandomRangeUse but ProjectileDropLocationList is Empty!"));
             return;
         }
 
-        const FVector2D& DropPosition2D = StratagemEffectData->ProjectileDropLocation[BombIndex];
-        FinalDropTargetPosition = StratagemPosition + FVector(DropPosition2D.X, DropPosition2D.Y, 0.f);
+        const FVector2D& DropPosition2D = StratagemEffectData.ProjectileDropLocation[BombIndex];
+        FinalDropTargetPosition = StratagemTransform.GetLocation() + FVector(DropPosition2D.X, DropPosition2D.Y, 0.f);
     }
 
     const FVector& SpawnLocation    = GetActorLocation();
@@ -150,7 +163,7 @@ void AHDBattleShip::OrbitalStrikeWithDelay(FHDStratagemEffectData* StratagemEffe
         ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn
     );
 
-    SpawnProjectile->Damage = StratagemEffectData->ProjectileDamage;
+    SpawnProjectile->Damage = StratagemEffectData.ProjectileDamage;
     SpawnProjectile->InitialSpeed = Impulse;
 
     UGameplayStatics::FinishSpawningActor(SpawnProjectile, SpawnTransform);
@@ -158,10 +171,16 @@ void AHDBattleShip::OrbitalStrikeWithDelay(FHDStratagemEffectData* StratagemEffe
     if (BombIndex + 1 < NumberOfProjectileToBeSpawn)
     {
         FTimerHandle TimerHandle;
+        const int32 NextBombIndex = BombIndex + 1;
+        FTimerDelegate Delegate = FTimerDelegate::CreateLambda(
+            [this, StratagemEffectData, NextBombIndex]()
+            {
+                OrbitalStrikeWithDelay(StratagemEffectData, NextBombIndex);
+            });
         World->GetTimerManager().SetTimer(
             TimerHandle,
-            FTimerDelegate::CreateUObject(this, &AHDBattleShip::OrbitalStrikeWithDelay, StratagemEffectData, BombIndex + 1),
-            StratagemEffectData->OrbitalDuration / NumberOfProjectileToBeSpawn,
+            Delegate,
+            StratagemEffectData.OrbitalDuration / NumberOfProjectileToBeSpawn,
             false
         );
     }
@@ -174,13 +193,18 @@ void AHDBattleShip::EagleStrike(FHDStratagemEffectData* StratagemEffectData)
     UWorld* World = GetWorld();
     VALID_CHECK(World);
 
+    if(StratagemTransform.IsValid() == false)
+    {
+        UE_LOG(LogTemp, Error, TEXT("StratagemTransform is Invalid!"));
+        return;
+    }
+
     const FVector SpawnLocation = GetActorLocation();
     if (IsValid(EagleFighter) == false)
     {
-        const FTransform SpawnTransform(GetActorRotation(), SpawnLocation);
         EagleFighter = World->SpawnActorDeferred<AHDEagleFighter>(
             EagleFighterClass,
-            SpawnTransform,
+            StratagemTransform,
             nullptr,
             nullptr,
             ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn
@@ -190,17 +214,17 @@ void AHDBattleShip::EagleStrike(FHDStratagemEffectData* StratagemEffectData)
 
         EagleFighter->FlightStartLocation       = SpawnLocation;
         EagleFighter->StratagemEffectData       = StratagemEffectData;
-        EagleFighter->ProjectileTargetLocation  = StratagemPosition;
+        EagleFighter->ProjectileTargetLocation  = StratagemTransform.GetLocation();
         EagleFighter->ProjectileBombClass       = ProjectileBombClass;
         EagleFighter->ProjectileBulletClass     = ProjectileBulletClass;
 
-        UGameplayStatics::FinishSpawningActor(EagleFighter, SpawnTransform);
+        UGameplayStatics::FinishSpawningActor(EagleFighter, StratagemTransform);
     }
     else
     {
         EagleFighter->FlightStartLocation       = SpawnLocation;
-        EagleFighter->StratagemEffectData       = StratagemEffectData;
-        EagleFighter->ProjectileTargetLocation  = StratagemPosition;
+        EagleFighter->StratagemEffectData      = StratagemEffectData;
+        EagleFighter->ProjectileTargetLocation  = StratagemTransform.GetLocation();
 
         EagleFighter->SetActiveEagleFlighter(true);
     }

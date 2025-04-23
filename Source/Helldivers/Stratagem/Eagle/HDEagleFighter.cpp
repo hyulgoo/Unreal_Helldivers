@@ -75,16 +75,16 @@ void AHDEagleFighter::SetSplnePoints()
     switch (EagleAirStrikeDirection)
     {
     case EHDEagleAirStrikeDirection::Front:
-        Direction = FVector::ForwardVector;
+        Direction = GetActorRotation().Vector();
         break;
     case EHDEagleAirStrikeDirection::Left:
-        Direction = FVector::LeftVector;
+        Direction = -FRotationMatrix(GetActorRotation()).GetScaledAxis(EAxis::Y);
         break;
     case EHDEagleAirStrikeDirection::Right:
-        Direction = FVector::RightVector;
+        Direction = FRotationMatrix(GetActorRotation()).GetScaledAxis(EAxis::Y);
         break;
     case EHDEagleAirStrikeDirection::Back:
-        Direction = FVector::BackwardVector;
+        Direction = -GetActorRotation().Vector();
         break;
     }
 
@@ -165,8 +165,8 @@ void AHDEagleFighter::DropBombWithDelayAndReturn(const int32 Index)
         return;
     }
 
-    TSubclassOf<AHDProjectile> ProjectileClass = StratagemEffectData->StratagemProjectileType == EHDStratagemProjectile::Bullet ?
-                                                    ProjectileBulletClass : ProjectileBombClass;
+    TSubclassOf<AHDProjectile> ProjectileClass = StratagemEffectData->StratagemProjectileType == EHDStratagemProjectile::Bullet 
+                                                    ? ProjectileBulletClass : ProjectileBombClass;
     CreateProjectile(ProjectileClass, Index);
 
     if (Index + 1 < NumberOfProjectileToBeSpawn)
@@ -231,6 +231,7 @@ void AHDEagleFighter::CreateProjectile(TSubclassOf<AHDProjectile> ProjectileClas
                 nullptr,
                 ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn
             );
+            NULL_CHECK(SpawnProjectile);
 
             SpawnProjectile->Damage = StratagemEffectData->ProjectileDamage;
             SpawnProjectile->InitialSpeed = Impulse;

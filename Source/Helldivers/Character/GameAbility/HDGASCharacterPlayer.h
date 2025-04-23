@@ -33,7 +33,7 @@ protected:
     void										GASInputReleased(const int32 InputId);
 
 	void										InputStratagemCommand(const FInputActionValue& Value);
-	void										HandleGameplayEvent(FGameplayTag EventTag, const FGameplayEventData* Payload);
+	void										HandleGameplayEvent(const FGameplayEventData* EventData);
 
 private:
 	UPROPERTY(EditAnywhere, Category = GAS)

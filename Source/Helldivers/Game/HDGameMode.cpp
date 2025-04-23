@@ -4,7 +4,7 @@
 
 AHDGameMode::AHDGameMode()
 {
-	static ConstructorHelpers::FClassFinder<APawn> DefaultPawnClassRef(TEXT("/Game/Helldivers/Blueprint/BP_HDGASCharacterPlayer.BP_HDGASCharacterPlayer_C"));
+	static ConstructorHelpers::FClassFinder<APawn> DefaultPawnClassRef(TEXT("/Game/Helldivers/Blueprint/Character/BP_HDGASCharacterPlayer.BP_HDGASCharacterPlayer_C"));
 	if (DefaultPawnClassRef.Class)
 	{
 		DefaultPawnClass = DefaultPawnClassRef.Class;

@@ -2,10 +2,10 @@
 
 #include "CoreMinimal.h"
 #include "Engine/DataTable.h"
+#include "Stratagem/Types/StratagemProjectileTypes.h"
 #include "HDStratagemEffectData.generated.h"
 
 enum class EHDEagleAirStrikeDirection : uint8;
-enum class EHDStratagemProjectile : uint8;
 
 USTRUCT(BlueprintType)
 struct FHDStratagemEffectData : public FTableRowBase
@@ -16,9 +16,6 @@ public:
     FHDStratagemEffectData() = default;
 
 public:
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Default")
-    float                       StratagemDelay;
-
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Eagle")
     uint8                       bIsEagle : 1;
     

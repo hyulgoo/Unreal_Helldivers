@@ -16,11 +16,11 @@ class HELLDIVERS_API AHDGameState : public AGameStateBase
 public:
 	explicit AHDGameState() = default;
 
-    AHDBattleShip* GetBattleShip() const { return BattleShip; }
-    void SetBattleShip(AHDBattleShip* NewBattleShip) { BattleShip = NewBattleShip; }
+    AHDBattleShip*  GetBattleShip() const { return BattleShip; }
+    void            SetBattleShip(AHDBattleShip* NewBattleShip) { BattleShip = NewBattleShip; }
 
 protected:
-    virtual void BeginPlay() override;
+    virtual void    BeginPlay() override;
 
 private:
     UPROPERTY(BlueprintReadOnly, Meta = (AllowPrivateAccess = "true"))

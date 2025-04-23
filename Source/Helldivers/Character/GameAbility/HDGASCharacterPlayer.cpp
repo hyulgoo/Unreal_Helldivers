@@ -26,34 +26,36 @@ void AHDGASCharacterPlayer::PossessedBy(AController* NewController)
     Super::PossessedBy(NewController);
 
     AHDGASPlayerState* GASPlayerState = GetPlayerState<AHDGASPlayerState>();
-    if (IsValid(GASPlayerState))
+    VALID_CHECK(GASPlayerState);
+
+    AbilitySystemComponent = GASPlayerState->GetAbilitySystemComponent();
+    AbilitySystemComponent->InitAbilityActorInfo(GASPlayerState, this);
+
+    for (const auto& StartAbility : StartAbilities)
     {
-        AbilitySystemComponent = GASPlayerState->GetAbilitySystemComponent();
-        AbilitySystemComponent->InitAbilityActorInfo(GASPlayerState, this);
+        FGameplayAbilitySpec StartSpec(StartAbility);
+        AbilitySystemComponent->GiveAbility(StartSpec);
+    }
 
-        for (const auto& StartAbility : StartAbilities)
-        {
-            FGameplayAbilitySpec StartSpec(StartAbility);
-            AbilitySystemComponent->GiveAbility(StartSpec);
-        }
+    for (const auto& StartInputAbility : StartInputAbilities)
+    {
+        FGameplayAbilitySpec StartSpec(StartInputAbility.Value);
+        StartSpec.InputID = StartInputAbility.Key;
+        AbilitySystemComponent->GiveAbility(StartSpec);
+    }
 
-        for (const auto& StartInputAbility : StartInputAbilities)
-        {
-            FGameplayAbilitySpec StartSpec(StartInputAbility.Value);
-            StartSpec.InputID = StartInputAbility.Key;
-            AbilitySystemComponent->GiveAbility(StartSpec);
-        }
+    SetupGASInputComponent();
 
-        SetupGASInputComponent();
+    FGameplayEffectContextHandle EffectContextHandle = AbilitySystemComponent->MakeEffectContext();
+    EffectContextHandle.AddSourceObject(this);
+    FGameplayEffectSpecHandle EffectSpecHandle = AbilitySystemComponent->MakeOutgoingSpec(InitStatEffect, static_cast<int>(ArmorType), EffectContextHandle);
 
-        FGameplayEffectContextHandle EffectContextHandle = AbilitySystemComponent->MakeEffectContext();
-        EffectContextHandle.AddSourceObject(this);
-        FGameplayEffectSpecHandle EffectSpecHandle = AbilitySystemComponent->MakeOutgoingSpec(InitStatEffect, static_cast<int>(ArmorType), EffectContextHandle);
+    AHDPlayerController* HDPlayerController = CastChecked<AHDPlayerController>(NewController);
+    //HDPlayerController->ConsoleCommand(TEXT("showdebug abilitysystem"));
+    HDPlayerController->CreateHUDWidget(AbilitySystemComponent);
 
-        AHDPlayerController* HDPlayerController = CastChecked<AHDPlayerController>(NewController);
-        //HDPlayerController->ConsoleCommand(TEXT("showdebug abilitysystem"));
-        HDPlayerController->CreateHUDWidget(AbilitySystemComponent);
-    }    
+    AbilitySystemComponent->GenericGameplayEventCallbacks.FindOrAdd(HDTAG_EVENT_STRATAGEMHUD_APPEAR).AddUObject(this, &AHDGASCharacterPlayer::HandleGameplayEvent);
+    AbilitySystemComponent->GenericGameplayEventCallbacks.FindOrAdd(HDTAG_EVENT_STRATAGEMHUD_DISAPPEAR).AddUObject(this, &AHDGASCharacterPlayer::HandleGameplayEvent);
 }
 
 void AHDGASCharacterPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -156,24 +158,15 @@ void AHDGASCharacterPlayer::InputStratagemCommand(const FInputActionValue& Value
     }
 }
 
-void AHDGASCharacterPlayer::HandleGameplayEvent(FGameplayTag EventTag, const FGameplayEventData* Payload)
+void AHDGASCharacterPlayer::HandleGameplayEvent(const FGameplayEventData* EventData)
 {
-    if (EventTag.MatchesTagExact(HDTAG_EVENT_STRATAGEMHUD_APPEAR))
+    const bool bActive = EventData->EventTag.MatchesTagExact(HDTAG_EVENT_STRATAGEMHUD_APPEAR) ? true : false;
+
+    AHDPlayerController* PlayerController = Cast<AHDPlayerController>(Super::GetController());
+    NULL_CHECK(PlayerController);
+
+    if (PlayerController->IsLocalController())
     {
-        AHDPlayerController* PlayerController = Cast<AHDPlayerController>(GetController());
-        NULL_CHECK(PlayerController);
-        if (PlayerController->IsLocalController())
-        {
-            PlayerController->SetStratagemHUDAppear(true);
-        }
-    }
-    else if (EventTag.MatchesTagExact(HDTAG_EVENT_STRATAGEMHUD_DISAPPEAR))
-    {
-        AHDPlayerController* PlayerController = Cast<AHDPlayerController>(GetController());
-        NULL_CHECK(PlayerController);
-        if (PlayerController->IsLocalController())
-        {
-            PlayerController->SetStratagemHUDAppear(false);
-        }
+        PlayerController->SetStratagemHUDAppear(bActive);
     }
 }

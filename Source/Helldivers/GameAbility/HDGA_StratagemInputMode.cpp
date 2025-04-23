@@ -4,6 +4,7 @@
 #include "Interface/HDCharacterCommandInterface.h"
 #include "Define/HDDefine.h"
 #include "AbilitySystemComponent.h"
+#include "Tag/HDGameplayTag.h"
 
 UHDGA_StratagemInputMode::UHDGA_StratagemInputMode()
 {
@@ -20,7 +21,7 @@ void UHDGA_StratagemInputMode::ActivateAbility(const FGameplayAbilitySpecHandle 
     Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 
     FGameplayEventData EventData;
-    EventData.EventTag = FGameplayTag::RequestGameplayTag(FName("Event.StratagemHUD.Active"));
+    EventData.EventTag = HDTAG_EVENT_STRATAGEMHUD_APPEAR;
     EventData.Instigator = GetAvatarActorFromActorInfo();
     EventData.Target = GetAvatarActorFromActorInfo();
 
@@ -40,7 +41,7 @@ void UHDGA_StratagemInputMode::InputReleased(const FGameplayAbilitySpecHandle Ha
     }
 
     FGameplayEventData EventData;
-    EventData.EventTag = FGameplayTag::RequestGameplayTag(FName("Event.StratagemHUD.Deactive"));
+    EventData.EventTag = HDTAG_EVENT_STRATAGEMHUD_DISAPPEAR;
     EventData.Instigator = GetAvatarActorFromActorInfo();
     EventData.Target = GetAvatarActorFromActorInfo();
 

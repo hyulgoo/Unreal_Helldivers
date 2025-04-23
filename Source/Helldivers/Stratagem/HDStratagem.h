@@ -43,7 +43,7 @@ private:
 	TObjectPtr<UNiagaraComponent>		NiagaraComponent;
 	
 	UPROPERTY(EditAnywhere)
-	float								PointLaserVisibleTime;
+	float								StratagemActiveDelay;
 
 	FVector								ThrowDirection;
 	float								ThrowImpulse;

@@ -157,14 +157,12 @@ void AHDCharacterPlayer::SetCharacterControl(const EHDCharacterControlType NewCh
 
 void AHDCharacterPlayer::SetWeaponActive(const bool bActive)
 {
-    if(IsValid(Weapon) == false)
+    if (IsValid(Weapon))
     {
-        return;
-    }
-
-    Weapon->SetActorTickEnabled(bActive);
-    Weapon->SetActorHiddenInGame(bActive == false);
-    Weapon->SetActorEnableCollision(bActive);
+        Weapon->SetActorTickEnabled(bActive);
+        Weapon->SetActorHiddenInGame(bActive == false);
+        Weapon->SetActorEnableCollision(bActive);
+    }  
 }
 
 void AHDCharacterPlayer::SetCharacterControlData(UHDCharacterControlData* CharacterControlData)
@@ -172,6 +170,7 @@ void AHDCharacterPlayer::SetCharacterControlData(UHDCharacterControlData* Charac
     Super::SetCharacterControlData(CharacterControlData);
 
     CameraBoom->TargetArmLength         = CharacterControlData->TargetArmLength;
+    CameraBoom->TargetOffset            = CharacterControlData->TargetOffset;
     CameraBoom->SetRelativeRotation(CharacterControlData->RelativeRotation);
     CameraBoom->SetRelativeLocation(CharacterControlData->RelativeLocation);
     CameraBoom->bUsePawnControlRotation = CharacterControlData->bUsePawnControlRotation;
@@ -249,6 +248,7 @@ void AHDCharacterPlayer::AddStratagemCommand(const EHDCommandInput NewInput)
             if (CurrentInputCommandList.Num() == CommandList.Num())
             {
                 SelectedStratagemName = StratagemDataName;
+                SelecteddStratagemActiveDelay = StratagemData->StratagemDelay;
             }
 
             CommandMatchStratagemNameList.Add(StratagemDataName);
@@ -272,22 +272,23 @@ void AHDCharacterPlayer::ThrowStratagem()
         PlayThrowMontage();
 
         UWorld* World = GetWorld();
+        VALID_CHECK(World);
+
         const USkeletalMeshSocket* RightHandSocket = CharacterMesh->GetSocketByName(FName("RightHandSocket"));
-        if (World && RightHandSocket)
-        {
-            FActorSpawnParameters SpawnParams;
-            SpawnParams.Owner = this;
-            SpawnParams.Instigator = CastChecked<APawn>(this);
+        NULL_CHECK(RightHandSocket);
 
-            const FTransform SocketTransform = RightHandSocket->GetSocketTransform(CharacterMesh);
-            const FRotator TargetRotation = (HitTarget - SocketTransform.GetLocation()).Rotation();
-            Stratagem = World->SpawnActor<AHDStratagem>(StratagemClass, SocketTransform.GetLocation(), TargetRotation, SpawnParams);
-            RightHandSocket->AttachActor(Stratagem, CharacterMesh);
-            Stratagem->SetOwner(this);
-            Stratagem->StratagemName = SelectedStratagemName;
+        FActorSpawnParameters SpawnParams;
+        SpawnParams.Owner = this;
+        SpawnParams.Instigator = CastChecked<APawn>(this);
 
-            UE_LOG(LogTemp, Error, TEXT("%s"),*SelectedStratagemName.ToString());
-        }
+        const FTransform SocketTransform = RightHandSocket->GetSocketTransform(CharacterMesh);
+        FRotator TargetRotation = (HitTarget - SocketTransform.GetLocation()).Rotation();
+        TargetRotation.Roll = 0;
+        Stratagem = World->SpawnActor<AHDStratagem>(StratagemClass, SocketTransform.GetLocation(), TargetRotation, SpawnParams);
+        RightHandSocket->AttachActor(Stratagem, CharacterMesh);
+        Stratagem->SetOwner(this);
+        Stratagem->StratagemName = SelectedStratagemName;
+        Stratagem->StratagemActiveDelay = SelecteddStratagemActiveDelay;
     }
 
     SelectedStratagemName = FName();
@@ -359,12 +360,14 @@ void AHDCharacterPlayer::TurnInPlace(float DeltaTime)
 
 void AHDCharacterPlayer::SpawnDefaultWeapon()
 {
+    NULL_CHECK(DefaultWeaponClass);
+
     UWorld* World = GetWorld();
     VALID_CHECK(World);
-
-    NULL_CHECK(DefaultWeaponClass);
     
     AHDWeapon* SpawnWeapon = World->SpawnActor<AHDWeapon>(DefaultWeaponClass);
+    NULL_CHECK(SpawnWeapon);
+
     EquipWeapon(SpawnWeapon);
 }
 
