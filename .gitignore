@@ -72,3 +72,9 @@ Plugins/**/Intermediate/*
 
 # Cache files for the editor to use
 DerivedDataCache/*
+
+# Visual Studio 관련 불필요한 파일
+*.suo
+*.user
+*.pdb
+*.ipch
