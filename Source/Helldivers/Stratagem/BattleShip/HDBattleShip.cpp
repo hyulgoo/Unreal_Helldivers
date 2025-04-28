@@ -10,6 +10,10 @@
 #include "Define/HDDefine.h"
 
 AHDBattleShip::AHDBattleShip()
+    : StratagemTransform(FTransform())
+    , CurrentStratagemIndex(0)
+    , ActiveStratagemTimerHandle(FTimerHandle())
+    , bCanUseStratagem(false)
 {
     UStaticMeshComponent* BattleShipMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("BattleShipMesh"));
     SetRootComponent(BattleShipMesh);
@@ -45,14 +49,17 @@ void AHDBattleShip::ActivateStratagem(const FName StratagemName, const FTransfor
     NULL_CHECK(StratagemEffectData);
 
     StratagemTransform = Transform;
+    ActiveStratagemTimerHandle.Invalidate();
 
     if (StratagemEffectData->bIsEagle)
     {
         FTimerDelegate Delegate = FTimerDelegate::CreateLambda(
             [this, StratagemEffectData, Transform]()
             {
-                EagleStrike(StratagemEffectData);
-            });
+                EagleStrike(*StratagemEffectData);
+            }
+        );
+
         if(Delegate.IsBound())
         {
             GetWorldTimerManager().SetTimer(
@@ -70,7 +77,9 @@ void AHDBattleShip::ActivateStratagem(const FName StratagemName, const FTransfor
             [this, StratagemEffectData, BombIndex]()
             {
                 OrbitalStrikeWithDelay(*StratagemEffectData, BombIndex);
-            });
+            }
+        );
+
         if (Delegate.IsBound())
         {
             GetWorldTimerManager().SetTimer(
@@ -110,12 +119,8 @@ void AHDBattleShip::OrbitalStrikeWithDelay(const FHDStratagemEffectData& Stratag
 {
     NULL_CHECK(StratagemEffectDataTable);
 
-    int32 NumberOfProjectileToBeSpawn = StratagemEffectData.SpecifyProjectileSpawnCount;
-    if(StratagemEffectData.ProjectileDropLocation.IsEmpty() == false)
-    {
-        NumberOfProjectileToBeSpawn = StratagemEffectData.ProjectileDropLocation.Num();
-    }
-
+    const int32 NumberOfProjectileToBeSpawn = StratagemEffectData.ProjectileDropLocation.IsEmpty() 
+        ? StratagemEffectData.SpecifyProjectileSpawnCount : StratagemEffectData.ProjectileDropLocation.Num();
     if (BombIndex > NumberOfProjectileToBeSpawn)
     {
         UE_LOG(LogTemp, Error, TEXT("BombIndex is Invalid!"));
@@ -125,8 +130,8 @@ void AHDBattleShip::OrbitalStrikeWithDelay(const FHDStratagemEffectData& Stratag
     UWorld* World = GetWorld();
     VALID_CHECK(World);
 
-    TSubclassOf<AHDProjectile> ProjectileClass = StratagemEffectData.StratagemProjectileType == EHDStratagemProjectile::Bullet ? 
-                                                    ProjectileBulletClass : ProjectileBombClass;
+    TSubclassOf<AHDProjectile> ProjectileClass = StratagemEffectData.StratagemProjectileType == EHDStratagemProjectile::Bullet 
+                                                    ? ProjectileBulletClass : ProjectileBombClass;
     NULL_CHECK(ProjectileClass);
 
     FVector FinalDropTargetPosition = FVector();
@@ -186,7 +191,7 @@ void AHDBattleShip::OrbitalStrikeWithDelay(const FHDStratagemEffectData& Stratag
     }
 }
 
-void AHDBattleShip::EagleStrike(FHDStratagemEffectData* StratagemEffectData)
+void AHDBattleShip::EagleStrike(const FHDStratagemEffectData& StratagemEffectData)
 {
     NULL_CHECK(EagleFighterClass);
 
@@ -223,7 +228,7 @@ void AHDBattleShip::EagleStrike(FHDStratagemEffectData* StratagemEffectData)
     else
     {
         EagleFighter->FlightStartLocation       = SpawnLocation;
-        EagleFighter->StratagemEffectData      = StratagemEffectData;
+        EagleFighter->StratagemEffectData       = StratagemEffectData;
         EagleFighter->ProjectileTargetLocation  = StratagemTransform.GetLocation();
 
         EagleFighter->SetActiveEagleFlighter(true);

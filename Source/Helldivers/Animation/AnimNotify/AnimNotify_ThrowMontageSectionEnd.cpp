@@ -2,6 +2,7 @@
 
 #include "AnimNotify_ThrowMontageSectionEnd.h"
 #include "Interface/HDWeaponInterface.h"
+#include "Define/HDDefine.h"
 
 FString UAnimNotify_ThrowMontageSectionEnd::GetNotifyName_Implementation() const
 {
@@ -12,18 +13,12 @@ void UAnimNotify_ThrowMontageSectionEnd::Notify(USkeletalMeshComponent* MeshComp
 {
 	Super::Notify(MeshComp, Animation, EventReference);
 
-	if (MeshComp == nullptr)
-	{
-		return;
-	}
+	NULL_CHECK(MeshComp);
 
 	AActor* OwnerActor = MeshComp->GetOwner();
-	if (OwnerActor)
-	{
-		IHDWeaponInterface* WeaponInterface = Cast<IHDWeaponInterface>(OwnerActor);
-		if (WeaponInterface)
-		{
-			WeaponInterface->SetWeaponActive(true);
-		}
-	}
+	NULL_CHECK(OwnerActor);
+
+    IHDWeaponInterface* WeaponInterface = Cast<IHDWeaponInterface>(OwnerActor);
+    NULL_CHECK(WeaponInterface);
+    WeaponInterface->SetWeaponActive(true);
 }

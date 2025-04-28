@@ -78,3 +78,5 @@ DerivedDataCache/*
 *.user
 *.pdb
 *.ipch
+
+Demos/*

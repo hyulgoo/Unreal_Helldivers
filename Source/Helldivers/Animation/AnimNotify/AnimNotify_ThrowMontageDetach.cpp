@@ -3,6 +3,7 @@
 #include "AnimNotify_ThrowMontageDetach.h"
 #include "Interface/HDCharacterCommandInterface.h"
 #include "Stratagem/HDStratagem.h"
+#include "Define/HDDefine.h"
 
 FString UAnimNotify_ThrowMontageDetach::GetNotifyName_Implementation() const
 {
@@ -13,18 +14,17 @@ void UAnimNotify_ThrowMontageDetach::Notify(USkeletalMeshComponent* MeshComp, UA
 {
     Super::Notify(MeshComp, Animation, EventReference);
 
-    if(MeshComp == nullptr)
-    {
-        return;
-    }
+    NULL_CHECK(MeshComp);
 
     IHDCharacterCommandInterface* CharacterCommandInterface = Cast<IHDCharacterCommandInterface>(MeshComp->GetOwner());
-    if (CharacterCommandInterface)
-    {
-        AHDStratagem* Stratagem = CharacterCommandInterface->GetStratagem();
-        if (Stratagem)
-        {
-            Stratagem->AddImpulseToStratagem(Stratagem->GetActorRotation().Vector());
-        }
-    }
+    NULL_CHECK(CharacterCommandInterface);
+
+    AHDStratagem* Stratagem = CharacterCommandInterface->GetStratagem();
+    NULL_CHECK(Stratagem);
+
+    FVector ThrowDirection = CharacterCommandInterface->GetThrowDirection();
+    ThrowDirection.Normalize();
+    UE_LOG(LogTemp, Warning, TEXT("Stratagem ThrowDirection : %s"), *ThrowDirection.ToString());
+
+    Stratagem->AddImpulseToStratagem(ThrowDirection);
 }

@@ -21,13 +21,13 @@ public:
 	void							ActivateStratagem(const FName StratagemName, const FTransform& Transform, const float StratagemActiveDelay);
 
 protected:
-	virtual void					BeginPlay() override;
+	virtual void					BeginPlay() override final;
 
 private:
 	FHDStratagemEffectData*			FindStratagemEffectData(const FName StratagemName) const;
 
 	void							OrbitalStrikeWithDelay(const FHDStratagemEffectData& StratagemEffectData, int32 BombIndex);
-	void							EagleStrike(FHDStratagemEffectData* StratagemEffectData);
+	void							EagleStrike(const FHDStratagemEffectData& StratagemEffectData);
 
 private:
 	UPROPERTY(VisibleAnywhere)
@@ -42,8 +42,11 @@ private:
     TSubclassOf<AHDProjectile>	    ProjectileBulletClass;
 
 	// StratagemEffectData
-	UDataTable*						StratagemEffectDataTable;
+    UPROPERTY(VisibleAnywhere)
+	TObjectPtr<UDataTable>			StratagemEffectDataTable;
+
     FTransform 						StratagemTransform;
 	uint8							CurrentStratagemIndex;
 	FTimerHandle					ActiveStratagemTimerHandle;
+	bool							bCanUseStratagem;
 };

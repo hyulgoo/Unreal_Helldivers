@@ -62,11 +62,12 @@ void AHDStratagem::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrim
 
                 AHDBattleShip* BattleShip = GameState->GetBattleShip();
                 NULL_CHECK(BattleShip);
+
+                SetActorLocation(Hit.ImpactPoint);
                 FTransform Transform = GetActorTransform();
                 Transform.SetRotation(ThrowDirection.Rotation().Quaternion());
                 BattleShip->ActivateStratagem(StratagemName, Transform, StratagemActiveDelay);
 
-                SetActorLocation(Hit.ImpactPoint);
                 HitComp->SetAllPhysicsAngularVelocityInDegrees(FVector::ZeroVector);
                 HitComp->SetSimulatePhysics(false);
                 SpawnPointLaser();

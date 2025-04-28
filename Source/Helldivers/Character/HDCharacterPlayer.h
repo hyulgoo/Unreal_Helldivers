@@ -66,7 +66,7 @@ protected:
 
 	// CharacterCommandInterface
 	virtual AHDStratagem*					GetStratagem() const override final						{ return Stratagem; }
-	virtual const FVector					GetThrowDirection() const override final				{ return HitTarget; }
+	virtual const FVector&					GetThrowDirection() const override final				{ return HitTarget; }
 	virtual void							ThrowStratagem() override final;
 
 	// CommandInput
@@ -147,25 +147,25 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UInputAction>	ThrowStratagemAction;
 	
-	EHDCharacterControlType		CurrentCharacterControlType;
-	EHDArmorType				ArmorType = EHDArmorType::Medium;
+    EHDCharacterControlType		CurrentCharacterControlType;
+    EHDArmorType				ArmorType = EHDArmorType::Medium;
 	
 	UPROPERTY(VisibleAnywhere, Category = Stratagem, Meta = (AllowPrivateAccess = "true"))
 	TArray<EHDCommandInput>		CurrentInputCommandList;
 
 private:
-	float						ViewportAimOffset_Yaw	= 0.f;
-    FRotator					StartingAimRotation		= FRotator();
-    float						AimOffset_Yaw			= 0.f;
-    float						AimOffset_Pitch			= 0.f;
-	float						InterpAimOffset_Yaw		= 0.f;
-    bool						bIsShoulder				= false;
-	bool						bUseRotateRootBone		= false;
-	EHDTurningInPlace			TurningInPlace			= EHDTurningInPlace::NotTurning;
-	EHDCombatState				CombatState				= EHDCombatState::Unoccupied;
+	float						ViewportAimOffset_Yaw;
+    FRotator					StartingAimRotation;
+    float						AimOffset_Yaw;
+    float						AimOffset_Pitch;
+	float						InterpAimOffset_Yaw;
+    bool						bIsShoulder;
+	bool						bUseRotateRootBone;
+	EHDTurningInPlace			TurningInPlace;
+	EHDCombatState				CombatState;
 
-	bool						bCanFire				= true;
-	bool						bIsFireButtonPressed	= false;
+	bool						bCanFire;
+	bool						bIsFireButtonPressed;
 		
 	UPROPERTY(EditAnywhere, Category = Weapon, Meta = (AllowPrivateAccess = "true"))
 	TSubclassOf<AHDWeapon>		DefaultWeaponClass;
@@ -173,8 +173,8 @@ private:
 	UPROPERTY(EditAnywhere, Category = Weapon, Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<AHDWeapon>		Weapon;
 	
-	EWeaponType					WeaponType				= EWeaponType::Count;
-	FVector						HitTarget				= FVector();
+	EWeaponType					WeaponType;
+	FVector						HitTarget;
 	FTimerHandle				FireTimer;
 	
 	UPROPERTY(EditAnywhere, Category = Stratagem, Meta = (AllowPrivateAccess = "true"))
@@ -190,20 +190,22 @@ private:
 	
 	UPROPERTY(EditAnywhere, Category = Stratagem, Meta = (AllowPrivateAccess = "true"))
 	TArray<FName>				CommandMatchStratagemNameList;
-
+	
+	UPROPERTY(EditAnywhere, Category = Stratagem, Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UDataTable>		AvaliableStratagemDataTable;
+
 	FTimerHandle				ThrowTimer;
 
 	// HUD, Crosshair
-	float						DefaultFOV				= 55.f;
+	float						DefaultFOV;
 
 	UPROPERTY(EditAnywhere, Category = FOV)
-	float						ZoomedFOV				= 30.f;
+	float						ZoomedFOV;
 
-	float						CurrentFOV				= 0.f;
+	float						CurrentFOV;
 
 	UPROPERTY(EditAnywhere, Category = FOV)
-	float						ZoomInterpSpeed			= 20.f;
+	float						ZoomInterpSpeed;
 
-    float						ErgonomicFactor			= 0.f;
+    float						ErgonomicFactor;
 };

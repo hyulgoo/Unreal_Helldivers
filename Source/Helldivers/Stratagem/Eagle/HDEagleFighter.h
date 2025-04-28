@@ -5,12 +5,11 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "Components/TimelineComponent.h"
+#include "GameData/HDStratagemEffectData.h"
 #include "HDEagleFighter.generated.h"
 
 class USplineComponent;
 class AHDProjectile;
-struct FHDStratagemEffectData;
-enum class EHDEagleAirStrikeDirection : uint8;
 
 UCLASS()
 class HELLDIVERS_API AHDEagleFighter : public AActor
@@ -33,7 +32,7 @@ private:
     void            HandleTimelineFinished();
 
     void            InitEagleFlighter();
-    void            SetSplnePoints();
+    void            SetSplnePoints(const bool bReturn);
     void            SetActiveEagleFlighter(const bool bIsActive);
     void            DropBombWithDelayAndReturn(const int32 Index);
     void            CreateProjectile(TSubclassOf<AHDProjectile> ProjectileClass, const int32 Index);
@@ -51,9 +50,10 @@ private:
     FOnTimelineFloat                    InterpFunction;
     FOnTimelineEvent                    TimelineFinished;
 
-    FVector                             FlightStartLocation         = FVector();
-    bool                                bIsAirStrikeDone            = false;
-    float                               SplineLength                = 0.f;    
+    FVector                             FlightStartLocation;
+    FVector                             FlightDirection;
+    bool                                bIsAirStrikeDone;
+    float                               SplineLength;
 
     // Projectile
     UPROPERTY(VisibleAnywhere)
@@ -62,9 +62,7 @@ private:
     UPROPERTY(VisibleAnywhere)
     TSubclassOf<AHDProjectile>	        ProjectileBulletClass;
 
-    FHDStratagemEffectData*             StratagemEffectData         = nullptr;
-    FVector                             ProjectileTargetLocation    = FVector();
-    float                               ProjectileDurationofFlight  = 1.f;
-
-    EHDEagleAirStrikeDirection          EagleAirStrikeDirection;
+    FHDStratagemEffectData              StratagemEffectData;
+    FVector                             ProjectileTargetLocation;
+    float                               ProjectileDurationofFlight;
 };

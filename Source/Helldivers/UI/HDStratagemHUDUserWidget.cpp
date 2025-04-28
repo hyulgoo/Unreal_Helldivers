@@ -57,7 +57,7 @@ void UHDStratagemHUDUserWidget::SetStratagemListHUD(UDataTable* StratagemDataTab
         VB_StratagemList->AddChildToVerticalBox(StratagemIndoWidget);
     }
 
-    FVector2D CurrentPos = RenderTransform.Translation;
+    FVector2D CurrentPos = GetRenderTransform().Translation;
     CurrentPos.X -= WidgetAppearDistance;
     SetRenderTranslation(CurrentPos);
 }
@@ -98,7 +98,7 @@ void UHDStratagemHUDUserWidget::NativeTick(const FGeometry& MyGeometry, float In
 
     if(MoveState != EHDStratagemWidgetMoveState::NONE)
     {
-        const FVector2D CurrentPos = RenderTransform.Translation;
+        const FVector2D CurrentPos = GetRenderTransform().Translation;
         const FVector2D DesiredPos = MoveState == EHDStratagemWidgetMoveState::APPEAR ? FVector2D(0, 0) : FVector2D(-WidgetAppearDistance, 0);
 
         if (CurrentPos == DesiredPos)
