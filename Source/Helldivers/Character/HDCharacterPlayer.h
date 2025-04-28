@@ -154,11 +154,13 @@ protected:
 	TArray<EHDCommandInput>		CurrentInputCommandList;
 
 private:
-	float						ViewportAimOffset_Yaw;
     FRotator					StartingAimRotation;
+	float						LastFrame_Yaw;
     float						AimOffset_Yaw;
     float						AimOffset_Pitch;
 	float						InterpAimOffset_Yaw;
+	float						AimOffsetYawCompensation;
+	float						TurnThreshold;
     bool						bIsShoulder;
 	bool						bUseRotateRootBone;
 	EHDTurningInPlace			TurningInPlace;

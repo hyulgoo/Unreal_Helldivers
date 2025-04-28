@@ -11,6 +11,10 @@
 #include "GameAbility/Effect/HDGE_FireDamage.h"
 
 AHDProjectile::AHDProjectile()
+    : Damage(0.f)
+    , HeadShotDamageRate(0.f)
+    , InitialSpeed(15000.f)
+    , ImpactParticlesScale(1.f)
 {
     PrimaryActorTick.bCanEverTick = true;
 
@@ -92,6 +96,7 @@ void AHDProjectile::SpawnTrailSystem()
             FName(),
             GetActorLocation(),
             GetActorRotation(),
+            FVector(ImpactParticlesScale, ImpactParticlesScale, ImpactParticlesScale),
             EAttachLocation::KeepWorldPosition
         );
     }

@@ -11,6 +11,8 @@
 #include "Weapon/HDWeapon.h"
 #include "Define/HDDefine.h"
 
+#define AimOffset_Yaw_CorrectionFigure 30.f
+
 UHDAnimInstance::UHDAnimInstance()
     : CharacterRotationLastFrame()
     , CharacterRotation()
@@ -62,9 +64,9 @@ void UHDAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
     IHDCharacterMovementInterface* CharacterMovementInterface = Cast<IHDCharacterMovementInterface>(Owner);
     if (CharacterMovementInterface)
     {
-        AimOffset_Yaw       = CharacterMovementInterface->GetAimOffset_Yaw();
-        AimOffset_Pitch     = CharacterMovementInterface->GetAimOffset_Pitch();
         bIsShouldering      = CharacterMovementInterface->IsShouldering();
+        AimOffset_Yaw       = bIsShouldering ? AimOffset_Yaw_CorrectionFigure : CharacterMovementInterface->GetAimOffset_Yaw() + AimOffset_Yaw_CorrectionFigure;
+        AimOffset_Pitch     = CharacterMovementInterface->GetAimOffset_Pitch();
         bIsRotateRootBone   = CharacterMovementInterface->IsUseRotateBone();
         TurningInPlace      = CharacterMovementInterface->GetTurningInPlace();
     }

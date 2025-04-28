@@ -10,9 +10,9 @@
 #include "Define/HDDefine.h"
 
 AHDBattleShip::AHDBattleShip()
-    : StratagemTransform(FTransform())
+    : StratagemTransform()
     , CurrentStratagemIndex(0)
-    , ActiveStratagemTimerHandle(FTimerHandle())
+    , ActiveStratagemTimerHandle()
     , bCanUseStratagem(false)
 {
     UStaticMeshComponent* BattleShipMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("BattleShipMesh"));
@@ -231,6 +231,6 @@ void AHDBattleShip::EagleStrike(const FHDStratagemEffectData& StratagemEffectDat
         EagleFighter->StratagemEffectData       = StratagemEffectData;
         EagleFighter->ProjectileTargetLocation  = StratagemTransform.GetLocation();
 
-        EagleFighter->SetActiveEagleFlighter(true);
+        EagleFighter->SetActiveEagleFighter(true);
     }
 }

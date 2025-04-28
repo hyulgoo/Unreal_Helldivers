@@ -14,12 +14,12 @@
 AHDEagleFighter::AHDEagleFighter()
     : InterpFunction()
     , TimelineFinished()
-    , FlightStartLocation(FVector())
-    , FlightDirection(FVector())
+    , FlightStartLocation()
+    , FlightDirection()
     , bIsAirStrikeDone(false)
     , SplineLength(0.f)
-    , StratagemEffectData(FHDStratagemEffectData())
-    , ProjectileTargetLocation(FVector())
+    , StratagemEffectData()
+    , ProjectileTargetLocation()
     , ProjectileDurationofFlight(0.f)
 {
     PrimaryActorTick.bCanEverTick = true;
@@ -45,7 +45,7 @@ void AHDEagleFighter::BeginPlay()
 {
     Super::BeginPlay();
 
-    InitEagleFlighter();
+    InitEagleFighter();
 }
 
 void AHDEagleFighter::HandleTimelineProgress(const float TimelineRatio)
@@ -67,55 +67,53 @@ void AHDEagleFighter::HandleTimelineProgress(const float TimelineRatio)
 void AHDEagleFighter::HandleTimelineFinished()
 {
     // 복귀 완료 후 비활성화
-    SetActiveEagleFlighter(false);
+    SetActiveEagleFighter(false);
 }
 
-void AHDEagleFighter::InitEagleFlighter()
+void AHDEagleFighter::InitEagleFighter()
 {
     bIsAirStrikeDone = false;
-    SetSplnePoints(false);
+    SetSplnePoints();
     TimelineComponent->PlayFromStart();
 }
 
-void AHDEagleFighter::SetSplnePoints(const bool bReturn)
+void AHDEagleFighter::SetSplnePoints()
 {
     NULL_CHECK(SplineComponent);
 
-    if(bReturn == false)
-    {
-        FlightDirection = FVector::ZeroVector;
-        switch (StratagemEffectData.EagleAirStrikeDirection)
-        {
-        case EHDEagleAirStrikeDirection::Front:
-            FlightDirection = GetActorRotation().Vector();
-            break;
-        case EHDEagleAirStrikeDirection::Left:
-            FlightDirection = -FRotationMatrix(GetActorRotation()).GetScaledAxis(EAxis::Y);
-            break;
-        case EHDEagleAirStrikeDirection::Right:
-            FlightDirection = FRotationMatrix(GetActorRotation()).GetScaledAxis(EAxis::Y);
-            break;
-        case EHDEagleAirStrikeDirection::Back:
-            FlightDirection = -GetActorRotation().Vector();
-            break;
-        }
-
-        if (StratagemEffectData.EagleAirStrikeDirection == EHDEagleAirStrikeDirection::Count)
-        {
-            UE_LOG(LogTemp, Warning, TEXT("EagleAirStrikeDirection is Invalid!"));
-            return;
-        }
+    const FVector CurrentRotation = GetActorRotation().Vector();
+    switch (StratagemEffectData.EagleAirStrikeDirection)
+    {            
+    case EHDEagleAirStrikeDirection::Front:
+        FlightDirection = CurrentRotation;
+        break;
+    case EHDEagleAirStrikeDirection::Left:
+        FlightDirection = FVector(CurrentRotation.Y, -CurrentRotation.X, 0.f);
+        break;
+    case EHDEagleAirStrikeDirection::Right:
+        FlightDirection = FVector(-CurrentRotation.Y, CurrentRotation.X, 0.f);
+        break;
+    case EHDEagleAirStrikeDirection::Back:
+        FlightDirection = -CurrentRotation;
+        break;
     }
-    
+
+    if (StratagemEffectData.EagleAirStrikeDirection == EHDEagleAirStrikeDirection::Count)
+    {
+        UE_LOG(LogTemp, Warning, TEXT("EagleAirStrikeDirection is Invalid!"));
+        return;
+    }
+
+    UE_LOG(LogTemp, Warning, TEXT("FlightDirection : %s"), *FlightDirection.ToString());
     const FVector Start = FlightStartLocation;
-    const FVector Mid   = ProjectileTargetLocation + (FVector::UpVector * 10000.f);
+    const FVector Mid = ProjectileTargetLocation + (FVector::UpVector * 10000.f);
 
     const FVector HeightOffset  = FVector(0.f, 0.f, (Start.Z - Mid.Z) / 4.f);
-    const FVector ArcOffset     = FlightDirection * (35000.f * bReturn ? -1.f : 1.f);
+    const FVector ArcOffset     = FlightDirection * 35000.f;
 
-    const FVector MidPoint1 = (HeightOffset * 3.f) + (ArcOffset *  1.f);
-    const FVector MidPoint2 = (HeightOffset * 2.f) + (ArcOffset *  2.f);
-    const FVector MidPoint3 = (HeightOffset * 1.f) + (ArcOffset *  1.f);
+    const FVector MidPoint1 = (HeightOffset * 3.f) + (ArcOffset * 1.f);
+    const FVector MidPoint2 = (HeightOffset * 2.f) + (ArcOffset * 2.f);
+    const FVector MidPoint3 = (HeightOffset * 1.f) + (ArcOffset * 1.f);
     const FVector MidPoint4 = (HeightOffset * 1.f) + (ArcOffset * -1.f);
     const FVector MidPoint5 = (HeightOffset * 2.f) + (ArcOffset * -2.f);
     const FVector MidPoint6 = (HeightOffset * 3.f) + (ArcOffset * -1.f);
@@ -142,7 +140,7 @@ void AHDEagleFighter::SetSplnePoints(const bool bReturn)
     SplineLength = SplineComponent->GetSplineLength();
 }
 
-void AHDEagleFighter::SetActiveEagleFlighter(const bool bIsActive)
+void AHDEagleFighter::SetActiveEagleFighter(const bool bIsActive)
 {
     SetActorHiddenInGame(bIsActive == false);
     SetActorTickEnabled(bIsActive);
@@ -150,7 +148,7 @@ void AHDEagleFighter::SetActiveEagleFlighter(const bool bIsActive)
 
     if(bIsActive)
     {
-        InitEagleFlighter();
+        InitEagleFighter();
     }
 }
 
@@ -187,11 +185,6 @@ void AHDEagleFighter::DropBombWithDelayAndReturn(const int32 Index)
             false
         );
     }
-    else if(Index + 1 == NumberOfProjectileToBeSpawn)
-    {
-        SetSplnePoints(true);
-        TimelineComponent->PlayFromStart();
-    }
 }
 
 void AHDEagleFighter::CreateProjectile(TSubclassOf<AHDProjectile> ProjectileClass, const int32 ProjectileIndex)
@@ -222,15 +215,14 @@ void AHDEagleFighter::CreateProjectile(TSubclassOf<AHDProjectile> ProjectileClas
 
     if (StratagemEffectData.bMultipleSpawn)
     {
-        const int32 ProjectileMultiSpawnCount = StratagemEffectData.MultiSpawnDropLocation.Num();
         FVector2D MultipleSpawnLocationDiff = FVector2D();
-        for (int32 Index = 0; Index < ProjectileMultiSpawnCount; ++Index)
+        for(const FVector2D& DropPosition : StratagemEffectData.MultiSpawnDropLocation)
         {
-            MultipleSpawnLocationDiff   = DropLocation2D + StratagemEffectData.MultiSpawnDropLocation[Index];
-            FinalDropTargetLocation     = ProjectileTargetLocation + FVector(MultipleSpawnLocationDiff.X, MultipleSpawnLocationDiff.Y, 0.f);
-            ToTarget                    = FinalDropTargetLocation - EagleLocation;
-            Impulse                     = ToTarget.Length() * (1.f + (1.f - ProjectileIndex * StratagemEffectData.SpecifyProjectileSpawnDelay));
-            SpawnTransform              = FTransform(ToTarget.Rotation(), EagleLocation);
+            MultipleSpawnLocationDiff = DropLocation2D + DropPosition;
+            FinalDropTargetLocation = ProjectileTargetLocation + FVector(MultipleSpawnLocationDiff.X, MultipleSpawnLocationDiff.Y, 0.f);
+            ToTarget = FinalDropTargetLocation - EagleLocation;
+            Impulse = ToTarget.Length() * (1.f + (1.f - ProjectileIndex * StratagemEffectData.SpecifyProjectileSpawnDelay));
+            SpawnTransform = FTransform(ToTarget.Rotation(), EagleLocation);
 
             SpawnProjectile = World->SpawnActorDeferred<AHDProjectile>(
                 ProjectileClass,

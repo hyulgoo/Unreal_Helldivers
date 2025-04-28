@@ -79,6 +79,8 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category = "GAS")
 	TSubclassOf<UGameplayEffect>				FireDamageEffect;
+
+	float										ImpactParticlesScale;
 	
 private:
 	UPROPERTY(EditAnywhere)

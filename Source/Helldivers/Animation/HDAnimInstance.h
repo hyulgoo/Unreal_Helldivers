@@ -18,9 +18,11 @@ class HELLDIVERS_API UHDAnimInstance : public UAnimInstance
 public:
     explicit UHDAnimInstance();
 
+	void			SetUseUpperSlot(const bool bUse) { bIsUpperSlotValid = bUse; }
+
 protected:
-    virtual void NativeInitializeAnimation() override final;
-    virtual void NativeUpdateAnimation(float DeltaSeconds) override final;
+    virtual void	NativeInitializeAnimation() override final;
+    virtual void	NativeUpdateAnimation(float DeltaSeconds) override final;
 
 protected:
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Movement)
@@ -89,6 +91,9 @@ protected:
 
 	UPROPERTY(BlueprintReadOnly, Category = Aim)
 	float Lean;
+	
+	UPROPERTY(BlueprintReadOnly, Category = Throw)
+	uint8 bIsUpperSlotValid : 1;
 
 	FRotator CharacterRotationLastFrame;
 	FRotator CharacterRotation;

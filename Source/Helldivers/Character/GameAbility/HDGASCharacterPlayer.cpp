@@ -51,7 +51,7 @@ void AHDGASCharacterPlayer::PossessedBy(AController* NewController)
     FGameplayEffectSpecHandle EffectSpecHandle = AbilitySystemComponent->MakeOutgoingSpec(InitStatEffect, static_cast<int>(ArmorType), EffectContextHandle);
 
     AHDPlayerController* HDPlayerController = CastChecked<AHDPlayerController>(NewController);
-    //HDPlayerController->ConsoleCommand(TEXT("showdebug abilitysystem"));
+    HDPlayerController->ConsoleCommand(TEXT("showdebug abilitysystem"));
     HDPlayerController->CreateHUDWidget(AbilitySystemComponent);
 
     AbilitySystemComponent->GenericGameplayEventCallbacks.FindOrAdd(HDTAG_EVENT_STRATAGEMHUD_APPEAR).AddUObject(this, &AHDGASCharacterPlayer::HandleGameplayEvent);

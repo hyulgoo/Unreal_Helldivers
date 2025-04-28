@@ -31,9 +31,9 @@ private:
     UFUNCTION()
     void            HandleTimelineFinished();
 
-    void            InitEagleFlighter();
-    void            SetSplnePoints(const bool bReturn);
-    void            SetActiveEagleFlighter(const bool bIsActive);
+    void            InitEagleFighter();
+    void            SetSplnePoints();
+    void            SetActiveEagleFighter(const bool bIsActive);
     void            DropBombWithDelayAndReturn(const int32 Index);
     void            CreateProjectile(TSubclassOf<AHDProjectile> ProjectileClass, const int32 Index);
 

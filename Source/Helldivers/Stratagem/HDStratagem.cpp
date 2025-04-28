@@ -37,9 +37,9 @@ void AHDStratagem::AddImpulseToStratagem(const FVector& NewThrowDirection)
     DetachFromActor(FDetachmentTransformRules::KeepRelativeTransform);
     SetOwner(nullptr);
 
+    ThrowDirection = NewThrowDirection;
     CollisionSphere->SetSimulatePhysics(true);
     CollisionSphere->SetNotifyRigidBodyCollision(true);
-    ThrowDirection = NewThrowDirection;
     CollisionSphere->AddImpulse(ThrowDirection * ThrowImpulse);
 }
 
@@ -63,9 +63,10 @@ void AHDStratagem::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrim
                 AHDBattleShip* BattleShip = GameState->GetBattleShip();
                 NULL_CHECK(BattleShip);
 
-                SetActorLocation(Hit.ImpactPoint);
-                FTransform Transform = GetActorTransform();
-                Transform.SetRotation(ThrowDirection.Rotation().Quaternion());
+                ThrowDirection.Z = 0.f;
+                ThrowDirection.Normalize();
+
+                FTransform Transform(ThrowDirection.Rotation(), Hit.ImpactPoint);
                 BattleShip->ActivateStratagem(StratagemName, Transform, StratagemActiveDelay);
 
                 HitComp->SetAllPhysicsAngularVelocityInDegrees(FVector::ZeroVector);

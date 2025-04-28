@@ -16,20 +16,23 @@
 #include "GameData/HDStratagemData.h"
 #include "Define/HDDefine.h"
 #include "Controller/HDPlayerController.h"
+#include "Animation/HDAnimInstance.h"
 
 AHDCharacterPlayer::AHDCharacterPlayer()
     : CurrentCharacterControlType()
     , ArmorType(EHDArmorType::Medium)
-    , ViewportAimOffset_Yaw(0.f)
-    , StartingAimRotation(FRotator())
+    , StartingAimRotation()
+    , LastFrame_Yaw(0.f)
     , AimOffset_Yaw(0.f)
     , AimOffset_Pitch(0.f)
     , InterpAimOffset_Yaw(0.f)
+    , AimOffsetYawCompensation(0.f)
+    , TurnThreshold(90.f)
     , bIsShoulder(false)
     , bUseRotateRootBone(false)
     , TurningInPlace(EHDTurningInPlace::NotTurning)
     , WeaponType(EWeaponType::Count)
-    , HitTarget(FVector())
+    , HitTarget()
     , FireTimer()
     , SelecteddStratagemActiveDelay(0.f)
     , ThrowTimer()
@@ -112,6 +115,7 @@ AHDCharacterPlayer::AHDCharacterPlayer()
     }
 
     CurrentCharacterControlType = EHDCharacterControlType::ThirdPerson;
+    bUseControllerRotationYaw = false;
 }
 
 void AHDCharacterPlayer::BeginPlay()
@@ -164,14 +168,13 @@ void AHDCharacterPlayer::SetCharacterControl(const EHDCharacterControlType NewCh
     SetCharacterControlData(NewCharacterControl);
 
     APlayerController* PlayerController = CastChecked<APlayerController>(GetController());
-    if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer()))
+    UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer());
+    NULL_CHECK(Subsystem);
+    Subsystem->ClearAllMappings();
+    UInputMappingContext* NewMappingContext = NewCharacterControl->InputMappingContext;
+    if (NewMappingContext)
     {
-        Subsystem->ClearAllMappings();
-        UInputMappingContext* NewMappingContext = NewCharacterControl->InputMappingContext;
-        if (NewMappingContext)
-        {
-            Subsystem->AddMappingContext(NewMappingContext, 0);
-        }
+        Subsystem->AddMappingContext(NewMappingContext, 0);
     }
 
     CurrentCharacterControlType = NewCharacterControlType;
@@ -181,6 +184,10 @@ void AHDCharacterPlayer::SetWeaponActive(const bool bActive)
 {
     if (IsValid(Weapon))
     {
+        UHDAnimInstance* HDCharacterInstance = Cast<UHDAnimInstance>(GetMesh()->GetAnimInstance());
+        NULL_CHECK(HDCharacterInstance);
+        HDCharacterInstance->SetUseUpperSlot(bActive == false);
+
         Weapon->SetActorTickEnabled(bActive);
         Weapon->SetActorHiddenInGame(bActive == false);
         Weapon->SetActorEnableCollision(bActive);
@@ -193,8 +200,7 @@ void AHDCharacterPlayer::SetCharacterControlData(UHDCharacterControlData* Charac
 
     CameraBoom->TargetArmLength         = CharacterControlData->TargetArmLength;
     CameraBoom->TargetOffset            = CharacterControlData->TargetOffset;
-    CameraBoom->SetRelativeRotation(CharacterControlData->RelativeRotation);
-    CameraBoom->SetRelativeLocation(CharacterControlData->RelativeLocation);
+    CameraBoom->SetRelativeTransform(FTransform(CharacterControlData->RelativeRotation, CharacterControlData->RelativeLocation));
     CameraBoom->bUsePawnControlRotation = CharacterControlData->bUsePawnControlRotation;
     CameraBoom->bInheritPitch           = CharacterControlData->bInheritPitch;
     CameraBoom->bInheritYaw             = CharacterControlData->bInheritYaw;
@@ -330,56 +336,63 @@ void AHDCharacterPlayer::AimOffset(float DeltaTime)
     const float Speed = Velocity.Size();
     const bool bIsFalling = GetCharacterMovement()->IsFalling();
     const FRotator BaseAimRoatation = GetBaseAimRotation();
-    const FRotator CurrentRotation = FRotator(0.f, BaseAimRoatation.Yaw, 0.f);
-    const FRotator DeltaAimRotation = UKismetMathLibrary::NormalizedDeltaRotator(CurrentRotation, StartingAimRotation);
-    ViewportAimOffset_Yaw = DeltaAimRotation.Yaw;
 
     if (Speed == 0.f && bIsFalling == false)
     {
-        bUseRotateRootBone = true;
+        bUseRotateRootBone = false;
+        const FRotator CurrentRotation = FRotator(0.f, BaseAimRoatation.Yaw, 0.f);
+        const FRotator DeltaAimRotation = UKismetMathLibrary::NormalizedDeltaRotator(CurrentRotation, StartingAimRotation);
         AimOffset_Yaw = DeltaAimRotation.Yaw;
         if (TurningInPlace == EHDTurningInPlace::NotTurning)
         {
             InterpAimOffset_Yaw = AimOffset_Yaw;
         }
-        bUseControllerRotationYaw = false;
+        bUseControllerRotationYaw = true;
         TurnInPlace(DeltaTime);
     }
 
     if (Speed > 0.f || bIsFalling)
     {
-        StartingAimRotation = FRotator(0.f, BaseAimRoatation.Yaw, 0.f);
         bUseRotateRootBone = false;
+        const FRotator CurrentRotation = FRotator(0.f, BaseAimRoatation.Yaw, 0.f);
+        const FRotator DeltaAimRotation = UKismetMathLibrary::NormalizedDeltaRotator(CurrentRotation, StartingAimRotation);
+        AimOffset_Yaw = FMath::Clamp(DeltaAimRotation.Yaw, -90.f, 90.f);
         bUseControllerRotationYaw = false;
         TurningInPlace = EHDTurningInPlace::NotTurning;
+        StartingAimRotation = FRotator(0.f, GetBaseAimRotation().Yaw, 0.f);
     }
 
+    //const float DeltaYaw = UKismetMathLibrary::NormalizedDeltaRotator(FRotator(0.f, BaseAimRoatation.Yaw, 0.f), FRotator(0.f, LastFrame_Yaw, 0.f)).Yaw;
+    //AimOffset_Yaw -= DeltaYaw;
+    //InterpAimOffset_Yaw -= DeltaYaw;
+    //
+    //LastFrame_Yaw = BaseAimRoatation.Yaw;
+
     AimOffset_Pitch = BaseAimRoatation.Pitch;
-    AimOffset_Yaw = FMath::FInterpTo(AimOffset_Yaw, ViewportAimOffset_Yaw, DeltaTime, ErgonomicFactor / 10.f);
 }
 
 void AHDCharacterPlayer::TurnInPlace(float DeltaTime)
 {
-    if (AimOffset_Yaw > 90.f)
+    if (AimOffset_Yaw > TurnThreshold)
     {
         TurningInPlace = EHDTurningInPlace::Turn_Right;
     }
-    else if (AimOffset_Yaw < -90.f)
+    else if (AimOffset_Yaw < -TurnThreshold)
     {
         TurningInPlace = EHDTurningInPlace::Turn_Left;
     }
 
+    // Rotate Aim
+    InterpAimOffset_Yaw = FMath::FInterpTo(InterpAimOffset_Yaw, 0.f, DeltaTime, ErgonomicFactor / 15.f);
+    AimOffset_Yaw = InterpAimOffset_Yaw;
+
     if (TurningInPlace != EHDTurningInPlace::NotTurning)
     {
-        // Rotate Aim
-        InterpAimOffset_Yaw = FMath::FInterpTo(InterpAimOffset_Yaw, 0.f, DeltaTime, ErgonomicFactor);
-        AimOffset_Yaw = InterpAimOffset_Yaw;
-        //FRotator CurrentRotation = GetActorRotation();
-        //FRotator SmoothRotation = FMath::RInterpTo(CurrentRotation, De)
         if (FMath::Abs(AimOffset_Yaw) < 15.f)
         {
-            TurningInPlace = EHDTurningInPlace::NotTurning;
+            AimOffset_Yaw = 15.f;
             StartingAimRotation = FRotator(0.f, GetBaseAimRotation().Yaw, 0.f);
+            TurningInPlace = EHDTurningInPlace::NotTurning;
         }
     }
 }
