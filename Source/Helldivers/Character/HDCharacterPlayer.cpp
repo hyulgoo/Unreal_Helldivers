@@ -18,9 +18,31 @@
 #include "Controller/HDPlayerController.h"
 
 AHDCharacterPlayer::AHDCharacterPlayer()
+    : CurrentCharacterControlType()
+    , ArmorType(EHDArmorType::Medium)
+    , ViewportAimOffset_Yaw(0.f)
+    , StartingAimRotation(FRotator())
+    , AimOffset_Yaw(0.f)
+    , AimOffset_Pitch(0.f)
+    , InterpAimOffset_Yaw(0.f)
+    , bIsShoulder(false)
+    , bUseRotateRootBone(false)
+    , TurningInPlace(EHDTurningInPlace::NotTurning)
+    , WeaponType(EWeaponType::Count)
+    , HitTarget(FVector())
+    , FireTimer()
+    , SelecteddStratagemActiveDelay(0.f)
+    , ThrowTimer()
+    , DefaultFOV(55.f)
+    , ZoomedFOV(30.f)
+    , CurrentFOV(0.f)
+    , ZoomInterpSpeed(20.f)
+    , ErgonomicFactor(0.f)
 {
+    CombatState = EHDCombatState::Unoccupied;
     PrimaryActorTick.bCanEverTick = true;
-
+    bCanFire = true;
+    bIsFireButtonPressed = false; 
     GetCharacterMovement()->bOrientRotationToMovement = true;
     bUseControllerRotationYaw = false;
 
@@ -315,7 +337,12 @@ void AHDCharacterPlayer::AimOffset(float DeltaTime)
     if (Speed == 0.f && bIsFalling == false)
     {
         bUseRotateRootBone = true;
-        bUseControllerRotationYaw = true;
+        AimOffset_Yaw = DeltaAimRotation.Yaw;
+        if (TurningInPlace == EHDTurningInPlace::NotTurning)
+        {
+            InterpAimOffset_Yaw = AimOffset_Yaw;
+        }
+        bUseControllerRotationYaw = false;
         TurnInPlace(DeltaTime);
     }
 
@@ -329,10 +356,6 @@ void AHDCharacterPlayer::AimOffset(float DeltaTime)
 
     AimOffset_Pitch = BaseAimRoatation.Pitch;
     AimOffset_Yaw = FMath::FInterpTo(AimOffset_Yaw, ViewportAimOffset_Yaw, DeltaTime, ErgonomicFactor / 10.f);
-
-    // Rotate Aim
-    //InterpAimOffset_Yaw = FMath::FInterpTo(InterpAimOffset_Yaw, 0.f, DeltaTime, ErgonomicFactor);
-    //AimOffset_Yaw = InterpAimOffset_Yaw;
 }
 
 void AHDCharacterPlayer::TurnInPlace(float DeltaTime)
@@ -346,16 +369,19 @@ void AHDCharacterPlayer::TurnInPlace(float DeltaTime)
         TurningInPlace = EHDTurningInPlace::Turn_Left;
     }
 
-    if (TurningInPlace == EHDTurningInPlace::NotTurning)
+    if (TurningInPlace != EHDTurningInPlace::NotTurning)
     {
-        return;
+        // Rotate Aim
+        InterpAimOffset_Yaw = FMath::FInterpTo(InterpAimOffset_Yaw, 0.f, DeltaTime, ErgonomicFactor);
+        AimOffset_Yaw = InterpAimOffset_Yaw;
+        //FRotator CurrentRotation = GetActorRotation();
+        //FRotator SmoothRotation = FMath::RInterpTo(CurrentRotation, De)
+        if (FMath::Abs(AimOffset_Yaw) < 15.f)
+        {
+            TurningInPlace = EHDTurningInPlace::NotTurning;
+            StartingAimRotation = FRotator(0.f, GetBaseAimRotation().Yaw, 0.f);
+        }
     }
-    
-    if (FMath::Abs(AimOffset_Yaw) < 15.f)
-    {
-        TurningInPlace = EHDTurningInPlace::NotTurning;
-        StartingAimRotation = FRotator(0.f, GetBaseAimRotation().Yaw, 0.f);
-    }    
 }
 
 void AHDCharacterPlayer::SpawnDefaultWeapon()

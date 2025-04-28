@@ -8,6 +8,7 @@
 #include "CharacterTypes/HDCharacterControlTypes.h"
 
 AHDCharacterBase::AHDCharacterBase()
+	: DeadEventDelayTime(5.f)
 {
 	// Pawn
 	bUseControllerRotationPitch = false;

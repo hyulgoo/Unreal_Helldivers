@@ -37,5 +37,5 @@ protected:
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Montage, Meta = (AllowPrivateAccess = "true"))
     TObjectPtr<UAnimMontage>    DeadMontage;
     
-    float                       DeadEventDelayTime = 5.f;
+    float                       DeadEventDelayTime;
 };

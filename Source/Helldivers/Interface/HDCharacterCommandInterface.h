@@ -21,6 +21,6 @@ class HELLDIVERS_API IHDCharacterCommandInterface
 
 public:
 	virtual AHDStratagem*	GetStratagem() const = 0;
-	virtual const FVector   GetThrowDirection() const = 0;
+	virtual const FVector&  GetThrowDirection() const = 0;
 	virtual void			ThrowStratagem() = 0;
 };

@@ -12,6 +12,9 @@
 #include "Define/HDDefine.h"
 
 UHDAnimInstance::UHDAnimInstance()
+    : CharacterRotationLastFrame()
+    , CharacterRotation()
+    , DeltaRotation()
 {
     MovingThreshould = 3.0f;
     JumpingThreshould = 100.0f;
