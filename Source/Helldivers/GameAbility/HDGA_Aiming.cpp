@@ -29,6 +29,6 @@ void UHDGA_Aiming::ActivateAbility(const FGameplayAbilitySpecHandle Handle, cons
     IHDCharacterMovementInterface* CharacterAimingInterface = Cast<IHDCharacterMovementInterface>(ActorInfo->AvatarActor.Get());
     if (CharacterAimingInterface)
     {
-        CharacterAimingInterface->ChanageCharacterControlType();
+        CharacterAimingInterface->ChangeCharacterControlType();
     }
 }

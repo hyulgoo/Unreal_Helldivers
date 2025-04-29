@@ -6,8 +6,6 @@
 
 UHDGA_Rotate::UHDGA_Rotate()
 {
-	SetAssetTags(FGameplayTagContainer(HDTAG_ACTOR_ROTATE));
-	ActivationOwnedTags.AddTag(HDTAG_ACTOR_ISROTATING);
 }
 
 void UHDGA_Rotate::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)

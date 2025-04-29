@@ -26,22 +26,16 @@ void AHDGASCharacterPlayer::PossessedBy(AController* NewController)
     Super::PossessedBy(NewController);
 
     AHDGASPlayerState* GASPlayerState = GetPlayerState<AHDGASPlayerState>();
-    VALID_CHECK(GASPlayerState);
+    NULL_CHECK(GASPlayerState);
 
     AbilitySystemComponent = GASPlayerState->GetAbilitySystemComponent();
+    NULL_CHECK(AbilitySystemComponent);
+
     AbilitySystemComponent->InitAbilityActorInfo(GASPlayerState, this);
 
-    for (const auto& StartAbility : StartAbilities)
+    for (const TSubclassOf<UGameplayAbility>& StartAbility : StartAbilities)
     {
-        FGameplayAbilitySpec StartSpec(StartAbility);
-        AbilitySystemComponent->GiveAbility(StartSpec);
-    }
-
-    for (const auto& StartInputAbility : StartInputAbilities)
-    {
-        FGameplayAbilitySpec StartSpec(StartInputAbility.Value);
-        StartSpec.InputID = StartInputAbility.Key;
-        AbilitySystemComponent->GiveAbility(StartSpec);
+        AbilitySystemComponent->GiveAbility(StartAbility);
     }
 
     SetupGASInputComponent();
@@ -54,8 +48,17 @@ void AHDGASCharacterPlayer::PossessedBy(AController* NewController)
     HDPlayerController->ConsoleCommand(TEXT("showdebug abilitysystem"));
     HDPlayerController->CreateHUDWidget(AbilitySystemComponent);
 
-    AbilitySystemComponent->GenericGameplayEventCallbacks.FindOrAdd(HDTAG_EVENT_STRATAGEMHUD_APPEAR).AddUObject(this, &AHDGASCharacterPlayer::HandleGameplayEvent);
-    AbilitySystemComponent->GenericGameplayEventCallbacks.FindOrAdd(HDTAG_EVENT_STRATAGEMHUD_DISAPPEAR).AddUObject(this, &AHDGASCharacterPlayer::HandleGameplayEvent);
+    if(EventCallTags.Num() != EventActions.Num())
+    {
+        UE_LOG(LogTemp, Warning, TEXT("EventCallTags Num and TaggedEventActionList Num is Not Equal"));
+    }
+
+    for(const FGameplayTag& EventCallTag : EventCallTags.GetGameplayTagArray())
+    {
+        AbilitySystemComponent->GenericGameplayEventCallbacks.FindOrAdd(EventCallTag).AddUObject(this, &AHDGASCharacterPlayer::HandleGameplayEvent);
+    }
+
+    EventActions
 }
 
 void AHDGASCharacterPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -67,56 +70,75 @@ void AHDGASCharacterPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInp
 
 void AHDGASCharacterPlayer::SetupGASInputComponent()
 {
-    if (IsValid(AbilitySystemComponent) && IsValid(InputComponent))
+    VALID_CHECK(AbilitySystemComponent);
+    VALID_CHECK(InputComponent);
+
+    UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(InputComponent);
+    NULL_CHECK(EnhancedInputComponent);
+
+    for (const FTaggedInputAction& TaggedInputAction : TaggedInputActions)
     {
-        UEnhancedInputComponent* EnhancedInputComponent = CastChecked<UEnhancedInputComponent>(InputComponent);
-        EnhancedInputComponent->BindAction(JumpAction,          ETriggerEvent::Triggered, this, &AHDGASCharacterPlayer::GASInputPressed,    GA_NUM_JUMP);
-        EnhancedInputComponent->BindAction(JumpAction,          ETriggerEvent::Completed, this, &AHDGASCharacterPlayer::GASInputReleased,   GA_NUM_JUMP);
-        EnhancedInputComponent->BindAction(ShoulderAction,      ETriggerEvent::Triggered, this, &AHDGASCharacterPlayer::GASInputPressed,    GA_NUM_SHOULDER);
-        EnhancedInputComponent->BindAction(ShoulderAction,      ETriggerEvent::Completed, this, &AHDGASCharacterPlayer::GASInputReleased,   GA_NUM_SHOULDER);
-        EnhancedInputComponent->BindAction(FireAction,          ETriggerEvent::Triggered, this, &AHDGASCharacterPlayer::GASInputPressed,    GA_NUM_FIRE);
-        EnhancedInputComponent->BindAction(FireAction,          ETriggerEvent::Completed, this, &AHDGASCharacterPlayer::GASInputReleased,   GA_NUM_FIRE);
-        EnhancedInputComponent->BindAction(StratagemModeAction, ETriggerEvent::Triggered, this, &AHDGASCharacterPlayer::GASInputPressed,    GA_NUM_STRATAGEM_INPUTMODE);
-        EnhancedInputComponent->BindAction(StratagemModeAction, ETriggerEvent::Completed, this, &AHDGASCharacterPlayer::GASInputReleased,   GA_NUM_STRATAGEM_INPUTMODE);
-        EnhancedInputComponent->BindAction(InputCommandAction,  ETriggerEvent::Triggered, this, &AHDGASCharacterPlayer::InputStratagemCommand);
+        if (TaggedInputAction.InputAction && TaggedInputAction.InputTag.IsValid())
+        {
+            EnhancedInputComponent->BindAction(TaggedInputAction.InputAction, ETriggerEvent::Triggered, this, &AHDGASCharacterPlayer::GASInputPressed, TaggedInputAction.InputTag);
+            EnhancedInputComponent->BindAction(TaggedInputAction.InputAction, ETriggerEvent::Completed, this, &AHDGASCharacterPlayer::GASInputReleased, TaggedInputAction.InputTag);
+        }
     }
 }
 
-void AHDGASCharacterPlayer::GASInputPressed(int32 InputId)
+void AHDGASCharacterPlayer::GASInputPressed(FGameplayTag Tag)
 {
-    FGameplayAbilitySpec* Spec = AbilitySystemComponent->FindAbilitySpecFromInputID(InputId);
-    if (Spec)
+    VALID_CHECK(AbilitySystemComponent);
+
+    for (FGameplayAbilitySpec& Spec : AbilitySystemComponent->GetActivatableAbilities())
     {
-        Spec->InputPressed = true;
-        if (Spec->IsActive())
+        UHDGameplayAbility* HDAbility = Cast<UHDGameplayAbility>(Spec.Ability);
+        if (HDAbility == nullptr)
         {
-            AbilitySystemComponent->AbilitySpecInputPressed(*Spec);
+            continue;
+        }
+
+        const FGameplayTagContainer& InputTagContainer = HDAbility->GetAssetInputTags();
+        if (InputTagContainer.IsValid() == false || InputTagContainer.HasTagExact(Tag) == false)
+        {
+            continue;
+        }
+
+        Spec.InputPressed = true;
+        if (Spec.IsActive())
+        {
+            AbilitySystemComponent->AbilitySpecInputPressed(Spec);
         }
         else
         {
-            AbilitySystemComponent->TryActivateAbility(Spec->Handle);
+            AbilitySystemComponent->TryActivateAbility(Spec.Handle);
         }
-    }
-    else
-    {
-        ensureMsgf(Spec, TEXT("Fail To Find AbilitySpec[%d]"), InputId);
     }
 }
 
-void AHDGASCharacterPlayer::GASInputReleased(int32 InputId)
+void AHDGASCharacterPlayer::GASInputReleased(FGameplayTag Tag)
 {
-    FGameplayAbilitySpec* Spec = AbilitySystemComponent->FindAbilitySpecFromInputID(InputId);
-    if(Spec)
+    VALID_CHECK(AbilitySystemComponent);
+
+    for (FGameplayAbilitySpec& Spec : AbilitySystemComponent->GetActivatableAbilities())
     {
-        Spec->InputPressed = false;
-        if (Spec->IsActive())
+        UHDGameplayAbility* HDAbility = Cast<UHDGameplayAbility>(Spec.Ability);
+        if (HDAbility == nullptr)
         {
-            AbilitySystemComponent->AbilitySpecInputReleased(*Spec);
+            continue;
         }
-    }
-    else
-    {
-        ensureMsgf(Spec, TEXT("Fail To Find AbilitySpec[%d]"), InputId);       
+
+        const FGameplayTagContainer& InputTagContainer = HDAbility->GetAssetInputTags();
+        if (InputTagContainer.IsValid() == false || InputTagContainer.HasTagExact(Tag) == false)
+        {
+            continue;
+        }
+
+        Spec.InputPressed = false;
+        if (Spec.IsActive())
+        {
+            AbilitySystemComponent->AbilitySpecInputReleased(Spec);
+        }
     }
 }
 
@@ -127,21 +149,13 @@ void AHDGASCharacterPlayer::InputStratagemCommand(const FInputActionValue& Value
     {
         EHDCommandInput NewCommand = EHDCommandInput::Count;
         const FVector2D Input = Value.Get<FVector2D>();
-        if (Input.Y > 0.5f)
+        if(FMath::Abs(Input.Y) > 0.5f)
         {
-            NewCommand = EHDCommandInput::Up;
+            NewCommand = Input.Y > 0.f ? EHDCommandInput::Up : EHDCommandInput::Down;
         }
-        else if (Input.Y < -0.5f)
+        else if (FMath::Abs(Input.X) > 0.5f)
         {
-            NewCommand = EHDCommandInput::Down;
-        }
-        else if (Input.X > 0.5f)
-        {
-            NewCommand = EHDCommandInput::Right;
-        }
-        else if (Input.X < -0.5f)
-        {
-            NewCommand = EHDCommandInput::Left;
+            NewCommand = Input.X > 0.f ? EHDCommandInput::Right : EHDCommandInput::Left;
         }
 
         if (NewCommand == EHDCommandInput::Count)
@@ -154,19 +168,28 @@ void AHDGASCharacterPlayer::InputStratagemCommand(const FInputActionValue& Value
     }
     else
     {
-        ensureMsgf(Spec, TEXT("Fail To Find StratagemInputMode AbilitySpec"));
+        ensureMsgf(Spec, TEXT("StratagemInputMode AbilitySpec is Deactive"));
     }
 }
 
-void AHDGASCharacterPlayer::HandleGameplayEvent(const FGameplayEventData* EventData)
+void AHDGASCharacterPlayer::HandleGameplayEvent(const FGameplayEventData* Payload)
 {
-    const bool bActive = EventData->EventTag.MatchesTagExact(HDTAG_EVENT_STRATAGEMHUD_APPEAR) ? true : false;
-
-    AHDPlayerController* PlayerController = Cast<AHDPlayerController>(Super::GetController());
-    NULL_CHECK(PlayerController);
-
-    if (PlayerController->IsLocalController())
+    if (Payload->EventTag.MatchesTagExact(HDTAG_EVENT_STRATAGEMHUD_APPEAR))
     {
-        PlayerController->SetStratagemHUDAppear(bActive);
+        AHDPlayerController* PlayerController = Cast<AHDPlayerController>(GetController());
+        NULL_CHECK(PlayerController);
+        if (PlayerController->IsLocalController())
+        {
+            PlayerController->SetStratagemHUDAppear(true);
+        }
+    }
+    else if (Payload->EventTag.MatchesTagExact(HDTAG_EVENT_STRATAGEMHUD_DISAPPEAR))
+    {
+        AHDPlayerController* PlayerController = Cast<AHDPlayerController>(GetController());
+        NULL_CHECK(PlayerController);
+        if (PlayerController->IsLocalController())
+        {
+            PlayerController->SetStratagemHUDAppear(false);
+        }
     }
 }

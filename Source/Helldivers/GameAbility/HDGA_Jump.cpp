@@ -2,7 +2,7 @@
 
 #include "GameAbility/HDGA_Jump.h"
 #include "GameFramework/Character.h"
-#include "GameAbility/AbilityTask/HDAT_JumpAndWaitForLanding.h"
+#include "Define/HDDefine.h"
 
 UHDGA_Jump::UHDGA_Jump()
 {
@@ -27,6 +27,8 @@ void UHDGA_Jump::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const 
 
 void UHDGA_Jump::InputReleased(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo)
 {
-	ACharacter* Character = CastChecked<ACharacter>(ActorInfo->AvatarActor.Get());
+	ACharacter* Character = Cast<ACharacter>(ActorInfo->AvatarActor.Get());
+	VALID_CHECK(Character);
+
 	Character->StopJumping();
 }

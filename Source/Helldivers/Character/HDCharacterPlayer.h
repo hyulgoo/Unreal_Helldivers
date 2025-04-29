@@ -59,7 +59,7 @@ protected:
     virtual void							SetShouldering(const bool bSetAiming) override final	{ bIsShoulder = bSetAiming; }
 
 	virtual const EHDCharacterControlType	GetCharacterControlType() const							{ return CurrentCharacterControlType; }
-	virtual void							ChanageCharacterControlType();
+	virtual void							ChangeCharacterControlType();
 
 	virtual const EHDTurningInPlace			GetTurningInPlace() const override final				{ return TurningInPlace; }
 	virtual const bool						IsUseRotateBone() const override final					{ return bUseRotateRootBone; }
@@ -73,6 +73,8 @@ protected:
 	FORCEINLINE TArray<FName>				GetCommandMatchStratagemNameList() const 				{ return CommandMatchStratagemNameList; }
 	FORCEINLINE FName						GetSelectedStraragemName() const						{ return SelectedStratagemName; }
 	virtual void							AddStratagemCommand(const EHDCommandInput NewInput);
+
+	virtual void							SetSprint(const bool bSprint) override final;
 	
 private:
     void									AimOffset(float DeltaTime);
@@ -109,9 +111,6 @@ protected:
 
 	// Input Section
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<UInputAction>	JumpAction;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UInputAction>	ChangeControlAction;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = "true"))
@@ -126,21 +125,6 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UInputAction>	FirstPersonLookAction;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<UInputAction>	FireAction;
-	
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<UInputAction>	ShoulderAction;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<UInputAction>	SkillAction;
-	
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<UInputAction>	ThrowGrenadeAction;
-	
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<UInputAction>	StratagemModeAction;
-	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UInputAction>	InputCommandAction;
 	

@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "Character/HDCharacterPlayer.h"
 #include "AbilitySystemInterface.h"
+#include "GameAbility/Struct/HDTaggedInputAction.h"
 #include "HDGASCharacterPlayer.generated.h"
 
 class UAbilitySystemComponent;
@@ -28,12 +29,12 @@ public:
 	virtual void								SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override final;
 
 protected:
-	void										SetupGASInputComponent();
-	void										GASInputPressed(const int32 InputId);
-    void										GASInputReleased(const int32 InputId);
+    void										SetupGASInputComponent();
+    void										GASInputPressed(FGameplayTag Tag);
+    void										GASInputReleased(FGameplayTag Tag);
 
 	void										InputStratagemCommand(const FInputActionValue& Value);
-	void										HandleGameplayEvent(const FGameplayEventData* EventData);
+	void										HandleGameplayEvent(const FGameplayEventData* Payload);
 
 private:
 	UPROPERTY(EditAnywhere, Category = GAS)
@@ -46,5 +47,11 @@ private:
 	TArray<TSubclassOf<UGameplayAbility>>		StartAbilities;
 	
 	UPROPERTY(EditAnywhere, Category = GAS)
-	TMap<int32, TSubclassOf<UGameplayAbility>>	StartInputAbilities;	
+	TArray<FTaggedInputAction>					TaggedInputActions;
+	
+	UPROPERTY(EditAnywhere, Category = GAS)
+	FGameplayTagContainer						EventCallTags;
+		
+	UPROPERTY(EditAnywhere, Category = GAS)
+	TArray<TSubclassOf<UInputAction>>			EventActions;
 };

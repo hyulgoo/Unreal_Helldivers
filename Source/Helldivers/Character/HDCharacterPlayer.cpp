@@ -60,12 +60,6 @@ AHDCharacterPlayer::AHDCharacterPlayer()
     FollowCamera->bUsePawnControlRotation = false;
 
     // Input
-    static ConstructorHelpers::FObjectFinder<UInputAction> InputActionJumpRef(TEXT("/Script/EnhancedInput.InputAction'/Game/Helldivers/Input/Action/IA_Jump.IA_Jump'"));
-    if (InputActionJumpRef.Succeeded())
-    {
-        JumpAction = InputActionJumpRef.Object;
-    }
-
     static ConstructorHelpers::FObjectFinder<UInputAction> InputChangeActionControlRef(TEXT("/Script/EnhancedInput.InputAction'/Game/Helldivers/Input/Action/IA_ChangeControl.IA_ChangeControl'"));
     if (InputChangeActionControlRef.Succeeded())
     {
@@ -96,18 +90,6 @@ AHDCharacterPlayer::AHDCharacterPlayer()
         FirstPersonMoveAction = InputActionFirstPersonMoveRef.Object;
     }
 
-    static ConstructorHelpers::FObjectFinder<UInputAction> InputActionAimingRef(TEXT("/Script/EnhancedInput.InputAction'/Game/Helldivers/Input/Action/IA_Shoulder.IA_Shoulder'"));
-    if (InputActionAimingRef.Succeeded())
-    {
-        ShoulderAction = InputActionAimingRef.Object;
-    }
-
-    static ConstructorHelpers::FObjectFinder<UInputAction> InputActionFireRef(TEXT("/Script/EnhancedInput.InputAction'/Game/Helldivers/Input/Action/IA_FIre.IA_FIre'"));
-    if (InputActionFireRef.Succeeded())
-    {
-        FireAction = InputActionFireRef.Object;
-    }
-
     static ConstructorHelpers::FObjectFinder<UDataTable> StratagemDataListRef(TEXT("/Script/Engine.DataTable'/Game/Helldivers/GameData/DT_StratagenData.DT_StratagenData'"));
     if (StratagemDataListRef.Succeeded())
     {
@@ -130,12 +112,13 @@ void AHDCharacterPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 {
     Super::SetupPlayerInputComponent(PlayerInputComponent);
 
-    UEnhancedInputComponent* EnhancedInputComponent = CastChecked<UEnhancedInputComponent>(PlayerInputComponent);
+    UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(PlayerInputComponent);
+    VALID_CHECK(EnhancedInputComponent);
     EnhancedInputComponent->BindAction(ThirdPersonMoveAction, ETriggerEvent::Triggered, this, &AHDCharacterPlayer::ThirdPersonMove);
     EnhancedInputComponent->BindAction(ThirdPersonLookAction, ETriggerEvent::Triggered, this, &AHDCharacterPlayer::ThirdPersonLook);
     EnhancedInputComponent->BindAction(FirstPersonMoveAction, ETriggerEvent::Triggered, this, &AHDCharacterPlayer::FirstPersonMove);
     EnhancedInputComponent->BindAction(FirstPersonLookAction, ETriggerEvent::Triggered, this, &AHDCharacterPlayer::FirstPersonLook);
-    EnhancedInputComponent->BindAction(ChangeControlAction,   ETriggerEvent::Triggered, this, &AHDCharacterPlayer::ChanageCharacterControlType);
+    EnhancedInputComponent->BindAction(ChangeControlAction,   ETriggerEvent::Triggered, this, &AHDCharacterPlayer::ChangeCharacterControlType);
 }
 
 void AHDCharacterPlayer::Tick(float DeltaTime)
@@ -149,7 +132,7 @@ void AHDCharacterPlayer::Tick(float DeltaTime)
     HitTarget = HitResult.ImpactPoint;
 }
 
-void AHDCharacterPlayer::ChanageCharacterControlType()
+void AHDCharacterPlayer::ChangeCharacterControlType()
 {
     if (CurrentCharacterControlType == EHDCharacterControlType::FirstPerson)
     {
@@ -286,6 +269,10 @@ void AHDCharacterPlayer::AddStratagemCommand(const EHDCommandInput NewInput)
     AHDPlayerController* PlayerController = Cast<AHDPlayerController>(GetController());
     NULL_CHECK(PlayerController);
     PlayerController->SetHUDActiveByCurrentInputMatchList(CommandMatchStratagemNameList, CurrentInputCommandList.Num());
+}
+
+void AHDCharacterPlayer::SetSprint(const bool bSprint)
+{
 }
 
 void AHDCharacterPlayer::ThrowStratagem()

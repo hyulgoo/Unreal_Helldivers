@@ -31,9 +31,11 @@ public:
 
 	// CharacterControl
 	virtual const EHDCharacterControlType	GetCharacterControlType() const = 0;
-	virtual void							ChanageCharacterControlType() = 0;
+	virtual void							ChangeCharacterControlType() = 0;
 
 	// Turn In Place
 	virtual const EHDTurningInPlace			GetTurningInPlace() const = 0;
 	virtual const bool						IsUseRotateBone() const = 0;
+
+	virtual void							SetSprint(const bool bSprint) = 0;
 };
