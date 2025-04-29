@@ -80,4 +80,5 @@ DerivedDataCache/*
 *.ipch
 
 Demos/*
-Content/Asset/CT_Components/Demos/
+Content/Asset/CT_Components/Demos/*
+Content/CT_Components/Demos/

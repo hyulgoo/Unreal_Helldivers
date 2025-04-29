@@ -9,11 +9,27 @@
 #include "HDGASCharacterPlayer.generated.h"
 
 class UAbilitySystemComponent;
-class UInputComponent;
+class UEnhancedInputComponent;
 class UGameplayAbility;
 class UGameplayEffect;
 struct FGameplayTag;
 struct FGameplayEventData;
+
+USTRUCT(BlueprintType)
+struct FTagEventBindInfo
+{
+    GENERATED_BODY()
+
+public:
+    UPROPERTY(EditDefaultsOnly)
+    FName						BindFunctionName;
+
+    UPROPERTY(EditDefaultsOnly)
+    TObjectPtr<UInputAction>	InputAction;
+
+    UPROPERTY(EditDefaultsOnly)
+    FGameplayTag				EventConditionTag;
+};
 
 UCLASS()
 class HELLDIVERS_API AHDGASCharacterPlayer : public AHDCharacterPlayer, public IAbilitySystemInterface
@@ -25,15 +41,19 @@ public:
 
 public:
     virtual UAbilitySystemComponent*			GetAbilitySystemComponent() const override final;
-    virtual void								PossessedBy(AController* NewController) override final;
-	virtual void								SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override final;
 
 protected:
-    void										SetupGASInputComponent();
-    void										GASInputPressed(FGameplayTag Tag);
-    void										GASInputReleased(FGameplayTag Tag);
+	virtual void								PossessedBy(AController* NewController) override final;
+    virtual void								SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override final;
+	void		                                CreateGASWidget(AController* PlayerController);
+    void										SetupGASInputComponent(UEnhancedInputComponent* EnhancedInputComponent);
+	void										SetGASEventInputComponent(UEnhancedInputComponent* EnhancedInputComponent);
+    void										GASInputPressed(const FGameplayTag Tag);
+    void										GASInputReleased(const FGameplayTag Tag);
 
+    UFUNCTION()
 	void										InputStratagemCommand(const FInputActionValue& Value);
+
 	void										HandleGameplayEvent(const FGameplayEventData* Payload);
 
 private:
@@ -53,5 +73,5 @@ private:
 	FGameplayTagContainer						EventCallTags;
 		
 	UPROPERTY(EditAnywhere, Category = GAS)
-	TArray<TSubclassOf<UInputAction>>			EventActions;
+	TArray<FTagEventBindInfo>					TagEventBindInfoList;
 };

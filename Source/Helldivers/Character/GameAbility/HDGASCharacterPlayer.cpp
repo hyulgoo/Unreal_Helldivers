@@ -6,7 +6,6 @@
 #include "Player/HDGASPlayerState.h"
 #include "EnhancedInputComponent.h"
 #include "GameAbility/HDGA_StratagemInputMode.h"
-#include "GameAbility/Define/HDGA_Number.h"
 #include "Controller/HDPlayerController.h"
 #include "Define/HDDefine.h"
 #include "Tag/HDGameplayTag.h"
@@ -25,6 +24,13 @@ void AHDGASCharacterPlayer::PossessedBy(AController* NewController)
 {
     Super::PossessedBy(NewController);
 
+    CreateGASWidget(NewController);
+}
+
+void AHDGASCharacterPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
+{
+    Super::SetupPlayerInputComponent(PlayerInputComponent);
+
     AHDGASPlayerState* GASPlayerState = GetPlayerState<AHDGASPlayerState>();
     NULL_CHECK(GASPlayerState);
 
@@ -38,42 +44,28 @@ void AHDGASCharacterPlayer::PossessedBy(AController* NewController)
         AbilitySystemComponent->GiveAbility(StartAbility);
     }
 
-    SetupGASInputComponent();
+    UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(InputComponent);
+    NULL_CHECK(EnhancedInputComponent);
+
+    SetupGASInputComponent(EnhancedInputComponent);
+    SetGASEventInputComponent(EnhancedInputComponent);
+}
+
+void AHDGASCharacterPlayer::CreateGASWidget(AController* PlayerController)
+{
+    AHDPlayerController* HDPlayerController = CastChecked<AHDPlayerController>(PlayerController);
+    HDPlayerController->ConsoleCommand(TEXT("showdebug abilitysystem"));
+    HDPlayerController->CreateHUDWidget(AbilitySystemComponent);
+}
+
+void AHDGASCharacterPlayer::SetupGASInputComponent(UEnhancedInputComponent* EnhancedInputComponent)
+{
+    VALID_CHECK(AbilitySystemComponent);
 
     FGameplayEffectContextHandle EffectContextHandle = AbilitySystemComponent->MakeEffectContext();
     EffectContextHandle.AddSourceObject(this);
     FGameplayEffectSpecHandle EffectSpecHandle = AbilitySystemComponent->MakeOutgoingSpec(InitStatEffect, static_cast<int>(ArmorType), EffectContextHandle);
 
-    AHDPlayerController* HDPlayerController = CastChecked<AHDPlayerController>(NewController);
-    HDPlayerController->ConsoleCommand(TEXT("showdebug abilitysystem"));
-    HDPlayerController->CreateHUDWidget(AbilitySystemComponent);
-
-    if(EventCallTags.Num() != EventActions.Num())
-    {
-        UE_LOG(LogTemp, Warning, TEXT("EventCallTags Num and TaggedEventActionList Num is Not Equal"));
-    }
-
-    for(const FGameplayTag& EventCallTag : EventCallTags.GetGameplayTagArray())
-    {
-        AbilitySystemComponent->GenericGameplayEventCallbacks.FindOrAdd(EventCallTag).AddUObject(this, &AHDGASCharacterPlayer::HandleGameplayEvent);
-    }
-
-    EventActions
-}
-
-void AHDGASCharacterPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
-{
-    Super::SetupPlayerInputComponent(PlayerInputComponent);
-
-    SetupGASInputComponent();
-}
-
-void AHDGASCharacterPlayer::SetupGASInputComponent()
-{
-    VALID_CHECK(AbilitySystemComponent);
-    VALID_CHECK(InputComponent);
-
-    UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(InputComponent);
     NULL_CHECK(EnhancedInputComponent);
 
     for (const FTaggedInputAction& TaggedInputAction : TaggedInputActions)
@@ -86,7 +78,25 @@ void AHDGASCharacterPlayer::SetupGASInputComponent()
     }
 }
 
-void AHDGASCharacterPlayer::GASInputPressed(FGameplayTag Tag)
+void AHDGASCharacterPlayer::SetGASEventInputComponent(UEnhancedInputComponent* EnhancedInputComponent)
+{
+    NULL_CHECK(EnhancedInputComponent);
+
+    for (const FGameplayTag& EventCallTag : EventCallTags.GetGameplayTagArray())
+    {
+        AbilitySystemComponent->GenericGameplayEventCallbacks.FindOrAdd(EventCallTag).AddUObject(this, &AHDGASCharacterPlayer::HandleGameplayEvent);
+    }
+
+    for (const FTagEventBindInfo& TagEventBindInfo : TagEventBindInfoList)
+    {
+       if(TagEventBindInfo.BindFunctionName.IsValid() && TagEventBindInfo.InputAction)
+       {
+           EnhancedInputComponent->BindAction(TagEventBindInfo.InputAction, ETriggerEvent::Triggered, this, TagEventBindInfo.BindFunctionName);
+       }
+    }
+}
+
+void AHDGASCharacterPlayer::GASInputPressed(const FGameplayTag Tag)
 {
     VALID_CHECK(AbilitySystemComponent);
 
@@ -116,7 +126,7 @@ void AHDGASCharacterPlayer::GASInputPressed(FGameplayTag Tag)
     }
 }
 
-void AHDGASCharacterPlayer::GASInputReleased(FGameplayTag Tag)
+void AHDGASCharacterPlayer::GASInputReleased(const FGameplayTag Tag)
 {
     VALID_CHECK(AbilitySystemComponent);
 
@@ -144,8 +154,7 @@ void AHDGASCharacterPlayer::GASInputReleased(FGameplayTag Tag)
 
 void AHDGASCharacterPlayer::InputStratagemCommand(const FInputActionValue& Value)
 {
-    FGameplayAbilitySpec* Spec = AbilitySystemComponent->FindAbilitySpecFromInputID(GA_NUM_STRATAGEM_INPUTMODE);
-    if (Spec->IsActive())
+    if (AbilitySystemComponent->HasMatchingGameplayTag(HDTAG_EVENT_STRATAGEMHUD_INPUTMODE))
     {
         EHDCommandInput NewCommand = EHDCommandInput::Count;
         const FVector2D Input = Value.Get<FVector2D>();
@@ -168,7 +177,7 @@ void AHDGASCharacterPlayer::InputStratagemCommand(const FInputActionValue& Value
     }
     else
     {
-        ensureMsgf(Spec, TEXT("StratagemInputMode AbilitySpec is Deactive"));
+        ensureMsgf(nullptr, TEXT("StratagemInputMode Ability is Deactive"));
     }
 }
 
@@ -178,6 +187,7 @@ void AHDGASCharacterPlayer::HandleGameplayEvent(const FGameplayEventData* Payloa
     {
         AHDPlayerController* PlayerController = Cast<AHDPlayerController>(GetController());
         NULL_CHECK(PlayerController);
+
         if (PlayerController->IsLocalController())
         {
             PlayerController->SetStratagemHUDAppear(true);
@@ -187,6 +197,7 @@ void AHDGASCharacterPlayer::HandleGameplayEvent(const FGameplayEventData* Payloa
     {
         AHDPlayerController* PlayerController = Cast<AHDPlayerController>(GetController());
         NULL_CHECK(PlayerController);
+
         if (PlayerController->IsLocalController())
         {
             PlayerController->SetStratagemHUDAppear(false);
