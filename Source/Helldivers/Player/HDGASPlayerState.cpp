@@ -3,12 +3,12 @@
 
 #include "Player/HDGASPlayerState.h"
 #include "AbilitySystemComponent.h"
-#include "Attribute/HDCharacterAttributeSet.h"
+#include "Attribute/HDPlayerSpeedAttributeSet.h"
 
 AHDGASPlayerState::AHDGASPlayerState()
 {
     AbilitySystemComponent = CreateDefaultSubobject<UAbilitySystemComponent>(TEXT("AbilitySystemComponent"));
-    AttributeSet = CreateDefaultSubobject<UHDCharacterAttributeSet>(TEXT("CharacterAttributeSet"));
+    AttributeSet = CreateDefaultSubobject<UHDPlayerSpeedAttributeSet>(TEXT("PlayerSpeedAttributeSet"));
 }
 
 UAbilitySystemComponent* AHDGASPlayerState::GetAbilitySystemComponent() const

@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "GameAbility/HDGA_Sprint.h"
-#include "Attribute/HDCharacterAttributeSet.h"
+#include "Attribute/HDPlayerSpeedAttributeSet.h"
 #include "Interface/HDCharacterMovementInterface.h"
 #include "Define/HDDefine.h"
 

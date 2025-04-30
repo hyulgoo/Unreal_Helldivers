@@ -7,7 +7,7 @@
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "Character/GameAbility/HDGASCharacterPlayer.h"
 #include "AbilitySystemComponent.h"
-#include "Attribute/HDCharacterAttributeSet.h"
+#include "Attribute/HDPlayerSpeedAttributeSet.h"
 #include "GameAbility/Effect/HDGE_ApplyDamage.h"
 
 AHDProjectile::AHDProjectile()

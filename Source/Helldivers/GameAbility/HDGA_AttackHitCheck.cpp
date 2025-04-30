@@ -4,7 +4,7 @@
 #include "AbilitySystemBlueprintLibrary.h"
 #include "GameAbility/AbilityTask/HDAT_Trace.h"
 #include "GameAbility/TargetActor/HDTA_Trace.h"
-#include "Attribute/HDCharacterAttributeSet.h"
+#include "Attribute/HDPlayerSpeedAttributeSet.h"
 #include "Weapon/Projectile/HDProjectile.h"
 #include "Define/HDDefine.h"
 
@@ -26,21 +26,21 @@ void UHDGA_AttackHitCheck::OnTraceResultCallback(const FGameplayAbilityTargetDat
 {
 	if (UAbilitySystemBlueprintLibrary::TargetDataHasHitResult(TargetDataHandle, 0))
 	{
-		UAbilitySystemComponent* SourceASC = GetAbilitySystemComponentFromActorInfo();
-		NULL_CHECK(SourceASC);
-
-        AHDProjectile* SourceProjectile = Cast<AHDProjectile>(SourceASC->GetOwner());
-		NULL_CHECK(SourceProjectile);
-
-		FHitResult HitResult = UAbilitySystemBlueprintLibrary::GetHitResultFromTargetData(TargetDataHandle, 0);
-		UAbilitySystemComponent* TargetASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(HitResult.GetActor());
-		NULL_CHECK(TargetASC);
-
-		UHDCharacterAttributeSet* TargetAttribute = const_cast<UHDCharacterAttributeSet*>(TargetASC->GetSet<UHDCharacterAttributeSet>());
-        NULL_CHECK(TargetAttribute);
-
-		const float ProjectileDamage = SourceProjectile->Damage;
-		TargetAttribute->SetCurrentHealth(TargetAttribute->GetCurrentHealth() - ProjectileDamage);
+		//UAbilitySystemComponent* SourceASC = GetAbilitySystemComponentFromActorInfo();
+		//NULL_CHECK(SourceASC);
+		//
+        //AHDProjectile* SourceProjectile = Cast<AHDProjectile>(SourceASC->GetOwner());
+		//NULL_CHECK(SourceProjectile);
+		//
+		//FHitResult HitResult = UAbilitySystemBlueprintLibrary::GetHitResultFromTargetData(TargetDataHandle, 0);
+		//UAbilitySystemComponent* TargetASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(HitResult.GetActor());
+		//NULL_CHECK(TargetASC);
+		//
+		//UHDCharacterPlayerSpeedAttributeSet* TargetAttribute = const_cast<UHDCharacterPlayerSpeedAttributeSet*>(TargetASC->GetSet<UHDCharacterPlayerSpeedAttributeSet>());
+        //NULL_CHECK(TargetAttribute);
+		//
+		//const float ProjectileDamage = SourceProjectile->Damage;
+		//TargetAttribute->SetCurrentHealth(TargetAttribute->GetCurrentHealth() - ProjectileDamage);
 	}
 
 	const bool bReplicatedEndAbility = true;

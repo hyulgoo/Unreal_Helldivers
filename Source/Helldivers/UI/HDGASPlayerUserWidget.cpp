@@ -2,7 +2,7 @@
 
 
 #include "UI/HDGASPlayerUserWidget.h"
-#include "Attribute/HDCharacterAttributeSet.h"
+#include "Attribute/HDPlayerSpeedAttributeSet.h"
 #include "Components/ProgressBar.h"
 #include "Components/TextBlock.h"
 #include "Components/Image.h"
@@ -15,19 +15,19 @@ void UHDGASPlayerUserWidget::SetAbilitySystemComponent(UAbilitySystemComponent* 
 
     NULL_CHECK(AbilitySystemComponent);
     
-    AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(UHDCharacterAttributeSet::GetCurrentHealthAttribute()).AddUObject(this, &UHDGASPlayerUserWidget::OnHealthChangeds);
-    AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(UHDCharacterAttributeSet::GetMaxHealthAttribute()).AddUObject(this, &UHDGASPlayerUserWidget::OnMaxHealthChangeds);
-
-    const UHDCharacterAttributeSet* AttributeSet = AbilitySystemComponent->GetSet<UHDCharacterAttributeSet>();
-    NULL_CHECK(AttributeSet);
-
-    CurrentHealth = AttributeSet->GetCurrentHealth();
-    CurrentMaxHealth = AttributeSet->GetMaxHealth();
-    if (CurrentMaxHealth <= 0.f)
-    {
-        UE_LOG(LogTemp, Error, TEXT("MaxHealth is Invalid!"));
-        return;
-    }
+    //AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(UHDCharacterPlayerSpeedAttributeSet::GetCurrentHealthAttribute()).AddUObject(this, &UHDGASPlayerUserWidget::OnHealthChangeds);
+    //AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(UHDCharacterPlayerSpeedAttributeSet::GetMaxHealthAttribute()).AddUObject(this, &UHDGASPlayerUserWidget::OnMaxHealthChangeds);
+    //
+    //const UHDCharacterPlayerSpeedAttributeSet* AttributeSet = AbilitySystemComponent->GetSet<UHDCharacterPlayerSpeedAttributeSet>();
+    //NULL_CHECK(AttributeSet);
+    //
+    //CurrentHealth = AttributeSet->GetCurrentHealth();
+    //CurrentMaxHealth = AttributeSet->GetMaxHealth();
+    //if (CurrentMaxHealth <= 0.f)
+    //{
+    //    UE_LOG(LogTemp, Error, TEXT("MaxHealth is Invalid!"));
+    //    return;
+    //}
 }
 
 void UHDGASPlayerUserWidget::OnHealthChangeds(const FOnAttributeChangeData& ChangeData)
