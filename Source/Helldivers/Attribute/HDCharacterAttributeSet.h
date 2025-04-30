@@ -21,9 +21,13 @@ class HELLDIVERS_API UHDCharacterAttributeSet : public UAttributeSet
 public:
 	explicit UHDCharacterAttributeSet();
 
-	ATTRIBUTE_ACCESSORS(UHDCharacterAttributeSet, Health);
+	ATTRIBUTE_ACCESSORS(UHDCharacterAttributeSet, CurrentHealth);
 	ATTRIBUTE_ACCESSORS(UHDCharacterAttributeSet, MaxHealth);
-	ATTRIBUTE_ACCESSORS(UHDCharacterAttributeSet, Speed);
+	ATTRIBUTE_ACCESSORS(UHDCharacterAttributeSet, CurrentSpeed);
+	ATTRIBUTE_ACCESSORS(UHDCharacterAttributeSet, CrawlingSpeed);
+	ATTRIBUTE_ACCESSORS(UHDCharacterAttributeSet, CrouchSpeed);
+	ATTRIBUTE_ACCESSORS(UHDCharacterAttributeSet, WalkSpeed);
+	ATTRIBUTE_ACCESSORS(UHDCharacterAttributeSet, SprintSpeed);
 
 	virtual void PreAttributeChange(const FGameplayAttribute& Attribute, float& NewValue) override;
 	//virtual void PostAttributeChange(const FGameplayAttribute& Attribute, float OldValue, float NewValue) override;
@@ -31,12 +35,24 @@ public:
 	virtual void PostGameplayEffectExecute(const struct FGameplayEffectModCallbackData& Data) override;
 	
 protected:	
-	UPROPERTY(BlueprintReadOnly, Category = Health, Meta = (AllowPrivateAccess = "true"))
-	FGameplayAttributeData Health;
+	UPROPERTY(BlueprintReadOnly, Category = CurrentHealth, Meta = (AllowPrivateAccess = "true"))
+	FGameplayAttributeData CurrentHealth;
 
-	UPROPERTY(BlueprintReadOnly, Category = Health, Meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(BlueprintReadOnly, Category = CurrentHealth, Meta = (AllowPrivateAccess = "true"))
 	FGameplayAttributeData MaxHealth;
 	
-	UPROPERTY(BlueprintReadOnly, Category = Speed, Meta = (AllowPrivateAccess = "true"))
-	FGameplayAttributeData Speed;
+	UPROPERTY(BlueprintReadOnly, Category = CurrentSpeed, Meta = (AllowPrivateAccess = "true"))
+	FGameplayAttributeData CurrentSpeed;
+		
+    UPROPERTY(BlueprintReadOnly, Category = CurrentSpeed, Meta = (AllowPrivateAccess = "true"))
+    FGameplayAttributeData CrawlingSpeed;
+	
+	UPROPERTY(BlueprintReadOnly, Category = CurrentSpeed, Meta = (AllowPrivateAccess = "true"))
+	FGameplayAttributeData CrouchSpeed;
+
+	UPROPERTY(BlueprintReadOnly, Category = CurrentSpeed, Meta = (AllowPrivateAccess = "true"))
+	FGameplayAttributeData WalkSpeed;
+	
+	UPROPERTY(BlueprintReadOnly, Category = CurrentSpeed, Meta = (AllowPrivateAccess = "true"))
+	FGameplayAttributeData SprintSpeed;
 };

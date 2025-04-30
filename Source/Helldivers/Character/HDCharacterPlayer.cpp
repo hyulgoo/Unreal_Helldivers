@@ -29,6 +29,7 @@ AHDCharacterPlayer::AHDCharacterPlayer()
     , AimOffsetYawCompensation(0.f)
     , TurnThreshold(90.f)
     , bIsShoulder(false)
+    , bIsSprint(false)
     , bUseRotateRootBone(false)
     , TurningInPlace(EHDTurningInPlace::NotTurning)
     , WeaponType(EWeaponType::Count)
@@ -148,11 +149,13 @@ void AHDCharacterPlayer::SetCharacterControl(const EHDCharacterControlType NewCh
 {
     UHDCharacterControlData* NewCharacterControl = CharacterControlManager[NewCharacterControlType];
     VALID_CHECK(NewCharacterControl);
+
     SetCharacterControlData(NewCharacterControl);
 
     APlayerController* PlayerController = CastChecked<APlayerController>(GetController());
     UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer());
     NULL_CHECK(Subsystem);
+
     Subsystem->ClearAllMappings();
     UInputMappingContext* NewMappingContext = NewCharacterControl->InputMappingContext;
     if (NewMappingContext)
@@ -169,6 +172,7 @@ void AHDCharacterPlayer::SetWeaponActive(const bool bActive)
     {
         UHDAnimInstance* HDCharacterInstance = Cast<UHDAnimInstance>(GetMesh()->GetAnimInstance());
         NULL_CHECK(HDCharacterInstance);
+
         HDCharacterInstance->SetUseUpperSlot(bActive == false);
 
         Weapon->SetActorTickEnabled(bActive);
@@ -212,6 +216,7 @@ void AHDCharacterPlayer::EquipWeapon(AHDWeapon* NewWeapon)
 
     AHDPlayerController* PlayerController = Cast<AHDPlayerController>(GetController());
     NULL_CHECK(PlayerController);
+
     PlayerController->SetWeaponHUDInfo(Weapon);
 }
 
@@ -271,10 +276,6 @@ void AHDCharacterPlayer::AddStratagemCommand(const EHDCommandInput NewInput)
     PlayerController->SetHUDActiveByCurrentInputMatchList(CommandMatchStratagemNameList, CurrentInputCommandList.Num());
 }
 
-void AHDCharacterPlayer::SetSprint(const bool bSprint)
-{
-}
-
 void AHDCharacterPlayer::ThrowStratagem()
 {   
     USkeletalMeshComponent* CharacterMesh = GetMesh();
@@ -311,7 +312,7 @@ void AHDCharacterPlayer::ThrowStratagem()
     CurrentInputCommandList.Empty();
 }
 
-void AHDCharacterPlayer::AimOffset(float DeltaTime)
+void AHDCharacterPlayer::AimOffset(const float DeltaTime)
 {
     if (IsValid(Weapon) == false)
     {
@@ -369,12 +370,11 @@ void AHDCharacterPlayer::TurnInPlace(float DeltaTime)
         TurningInPlace = EHDTurningInPlace::Turn_Left;
     }
 
-    // Rotate Aim
-    InterpAimOffset_Yaw = FMath::FInterpTo(InterpAimOffset_Yaw, 0.f, DeltaTime, ErgonomicFactor / 15.f);
-    AimOffset_Yaw = InterpAimOffset_Yaw;
-
     if (TurningInPlace != EHDTurningInPlace::NotTurning)
     {
+        // Rotate Aim
+        InterpAimOffset_Yaw = FMath::FInterpTo(InterpAimOffset_Yaw, 0.f, DeltaTime, ErgonomicFactor / 15.f);
+        AimOffset_Yaw = InterpAimOffset_Yaw;
         if (FMath::Abs(AimOffset_Yaw) < 15.f)
         {
             AimOffset_Yaw = 15.f;

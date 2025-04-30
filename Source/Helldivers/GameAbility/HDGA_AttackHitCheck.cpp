@@ -40,7 +40,7 @@ void UHDGA_AttackHitCheck::OnTraceResultCallback(const FGameplayAbilityTargetDat
         NULL_CHECK(TargetAttribute);
 
 		const float ProjectileDamage = SourceProjectile->Damage;
-		TargetAttribute->SetHealth(TargetAttribute->GetHealth() - ProjectileDamage);
+		TargetAttribute->SetCurrentHealth(TargetAttribute->GetCurrentHealth() - ProjectileDamage);
 	}
 
 	const bool bReplicatedEndAbility = true;

@@ -15,13 +15,13 @@ void UHDGASPlayerUserWidget::SetAbilitySystemComponent(UAbilitySystemComponent* 
 
     NULL_CHECK(AbilitySystemComponent);
     
-    AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(UHDCharacterAttributeSet::GetHealthAttribute()).AddUObject(this, &UHDGASPlayerUserWidget::OnHealthChangeds);
+    AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(UHDCharacterAttributeSet::GetCurrentHealthAttribute()).AddUObject(this, &UHDGASPlayerUserWidget::OnHealthChangeds);
     AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(UHDCharacterAttributeSet::GetMaxHealthAttribute()).AddUObject(this, &UHDGASPlayerUserWidget::OnMaxHealthChangeds);
 
     const UHDCharacterAttributeSet* AttributeSet = AbilitySystemComponent->GetSet<UHDCharacterAttributeSet>();
     NULL_CHECK(AttributeSet);
 
-    CurrentHealth = AttributeSet->GetHealth();
+    CurrentHealth = AttributeSet->GetCurrentHealth();
     CurrentMaxHealth = AttributeSet->GetMaxHealth();
     if (CurrentMaxHealth <= 0.f)
     {

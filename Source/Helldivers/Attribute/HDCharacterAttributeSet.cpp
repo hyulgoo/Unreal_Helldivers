@@ -3,11 +3,11 @@
 #include "Attribute/HDCharacterAttributeSet.h"
 
 UHDCharacterAttributeSet::UHDCharacterAttributeSet()
-	: Health(0.f)
+	: CurrentHealth(0.f)
 	, MaxHealth(100.f)
-	, Speed(100.f)
 {
-	InitHealth(GetMaxHealth());
+	InitCurrentHealth(GetMaxHealth());
+	InitCurrentSpeed(GetWalkSpeed());
 }
 
 void UHDCharacterAttributeSet::PreAttributeChange(const FGameplayAttribute& Attribute, float& NewValue)

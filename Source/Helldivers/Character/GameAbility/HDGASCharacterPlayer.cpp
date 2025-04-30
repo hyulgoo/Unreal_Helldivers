@@ -53,6 +53,7 @@ void AHDGASCharacterPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInp
 
 void AHDGASCharacterPlayer::CreateGASWidget(AController* PlayerController)
 {
+    // showdebug abilitysystemµµ ÇÔ
     AHDPlayerController* HDPlayerController = CastChecked<AHDPlayerController>(PlayerController);
     HDPlayerController->ConsoleCommand(TEXT("showdebug abilitysystem"));
     HDPlayerController->CreateHUDWidget(AbilitySystemComponent);
@@ -175,32 +176,27 @@ void AHDGASCharacterPlayer::InputStratagemCommand(const FInputActionValue& Value
 
         AddStratagemCommand(NewCommand);
     }
-    else
-    {
-        ensureMsgf(nullptr, TEXT("StratagemInputMode Ability is Deactive"));
-    }
 }
 
 void AHDGASCharacterPlayer::HandleGameplayEvent(const FGameplayEventData* Payload)
 {
     if (Payload->EventTag.MatchesTagExact(HDTAG_EVENT_STRATAGEMHUD_APPEAR))
     {
-        AHDPlayerController* PlayerController = Cast<AHDPlayerController>(GetController());
-        NULL_CHECK(PlayerController);
-
-        if (PlayerController->IsLocalController())
-        {
-            PlayerController->SetStratagemHUDAppear(true);
-        }
+        SetStratagemHUDAppear(true);
     }
     else if (Payload->EventTag.MatchesTagExact(HDTAG_EVENT_STRATAGEMHUD_DISAPPEAR))
     {
-        AHDPlayerController* PlayerController = Cast<AHDPlayerController>(GetController());
-        NULL_CHECK(PlayerController);
+        SetStratagemHUDAppear(false);
+    }
+}
 
-        if (PlayerController->IsLocalController())
-        {
-            PlayerController->SetStratagemHUDAppear(false);
-        }
+void AHDGASCharacterPlayer::SetStratagemHUDAppear(const bool bAppear)
+{
+    AHDPlayerController* PlayerController = Cast<AHDPlayerController>(GetController());
+    NULL_CHECK(PlayerController);
+
+    if (PlayerController->IsLocalController())
+    {
+        PlayerController->SetStratagemHUDAppear(bAppear);
     }
 }

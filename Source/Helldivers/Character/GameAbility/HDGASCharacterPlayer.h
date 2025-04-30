@@ -57,6 +57,9 @@ protected:
 	void										HandleGameplayEvent(const FGameplayEventData* Payload);
 
 private:
+	void										SetStratagemHUDAppear(const bool bAppear);
+
+private:
 	UPROPERTY(EditAnywhere, Category = GAS)
     TObjectPtr<UAbilitySystemComponent>			AbilitySystemComponent;
 	

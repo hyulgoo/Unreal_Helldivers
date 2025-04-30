@@ -64,6 +64,9 @@ protected:
 	virtual const EHDTurningInPlace			GetTurningInPlace() const override final				{ return TurningInPlace; }
 	virtual const bool						IsUseRotateBone() const override final					{ return bUseRotateRootBone; }
 
+	virtual const bool						IsSprint() const override final { return bIsSprint; }
+	virtual void							SetSprint(const bool bSprint) override final { bIsSprint = bIsSprint; }
+
 	// CharacterCommandInterface
 	virtual AHDStratagem*					GetStratagem() const override final						{ return Stratagem; }
 	virtual const FVector&					GetThrowDirection() const override final				{ return HitTarget; }
@@ -73,12 +76,10 @@ protected:
 	FORCEINLINE TArray<FName>				GetCommandMatchStratagemNameList() const 				{ return CommandMatchStratagemNameList; }
 	FORCEINLINE FName						GetSelectedStraragemName() const						{ return SelectedStratagemName; }
 	virtual void							AddStratagemCommand(const EHDCommandInput NewInput);
-
-	virtual void							SetSprint(const bool bSprint) override final;
-	
+		
 private:
-    void									AimOffset(float DeltaTime);
-	void									TurnInPlace(float DeltaTime);
+    void									AimOffset(const float DeltaTime);
+	void									TurnInPlace(const float DeltaTime);
 
 	void									SpawnDefaultWeapon();
 
@@ -144,10 +145,16 @@ private:
     float						AimOffset_Pitch;
 	float						InterpAimOffset_Yaw;
 	float						AimOffsetYawCompensation;
+
 	float						TurnThreshold;
+
     bool						bIsShoulder;
+	bool						bIsSprint;
+
 	bool						bUseRotateRootBone;
+
 	EHDTurningInPlace			TurningInPlace;
+
 	EHDCombatState				CombatState;
 
 	bool						bCanFire;

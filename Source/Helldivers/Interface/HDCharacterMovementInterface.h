@@ -37,5 +37,6 @@ public:
 	virtual const EHDTurningInPlace			GetTurningInPlace() const = 0;
 	virtual const bool						IsUseRotateBone() const = 0;
 
+	virtual const bool						IsSprint() const = 0;
 	virtual void							SetSprint(const bool bSprint) = 0;
 };

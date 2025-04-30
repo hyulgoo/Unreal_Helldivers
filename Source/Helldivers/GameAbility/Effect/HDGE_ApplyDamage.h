@@ -4,13 +4,13 @@
 
 #include "CoreMinimal.h"
 #include "GameplayEffect.h"
-#include "HDGE_FireDamage.generated.h"
+#include "HDGE_ApplyDamage.generated.h"
 
 UCLASS()
-class HELLDIVERS_API UHDGE_FireDamage : public UGameplayEffect
+class HELLDIVERS_API UHDGE_ApplyDamage : public UGameplayEffect
 {
 	GENERATED_BODY()
 	
 public:
-	explicit UHDGE_FireDamage();
+	explicit UHDGE_ApplyDamage();
 };

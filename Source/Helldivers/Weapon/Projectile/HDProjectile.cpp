@@ -8,7 +8,7 @@
 #include "Character/GameAbility/HDGASCharacterPlayer.h"
 #include "AbilitySystemComponent.h"
 #include "Attribute/HDCharacterAttributeSet.h"
-#include "GameAbility/Effect/HDGE_FireDamage.h"
+#include "GameAbility/Effect/HDGE_ApplyDamage.h"
 
 AHDProjectile::AHDProjectile()
     : Damage(0.f)
@@ -31,7 +31,7 @@ AHDProjectile::AHDProjectile()
     ProjectileMovementComponent->SetUpdatedComponent(RootComponent);
     ProjectileMovementComponent->bRotationFollowsVelocity = false;
 
-   static ConstructorHelpers::FClassFinder<UHDGE_FireDamage> FireDamageEffectRef(TEXT("/Game/Helldivers/Blueprint/GameAbility/Effect/BP_GE_FireDamage.BP_GE_FireDamage_C"));
+   static ConstructorHelpers::FClassFinder<UHDGE_ApplyDamage> FireDamageEffectRef(TEXT("/Game/Helldivers/Blueprint/GameAbility/Effect/BP_GE_FireDamage.BP_GE_FireDamage_C"));
    if (FireDamageEffectRef.Class)
    {
        FireDamageEffect = FireDamageEffectRef.Class;
