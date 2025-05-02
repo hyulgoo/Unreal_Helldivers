@@ -35,23 +35,23 @@ UCLASS()
 class HELLDIVERS_API AHDGASCharacterPlayer : public AHDCharacterPlayer, public IAbilitySystemInterface
 {
 	GENERATED_BODY()
-	
+
 public:
 	explicit AHDGASCharacterPlayer();
 
 public:
-    virtual UAbilitySystemComponent*			GetAbilitySystemComponent() const override final;
+	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override final;
 
 protected:
 	virtual void								PossessedBy(AController* NewController) override final;
-    virtual void								SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override final;
+	virtual void								SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override final;
 	void		                                CreateGASWidget(AController* PlayerController);
-    void										SetupGASInputComponent(UEnhancedInputComponent* EnhancedInputComponent);
+	void										SetupGASInputComponent(UEnhancedInputComponent* EnhancedInputComponent);
 	void										SetGASEventInputComponent(UEnhancedInputComponent* EnhancedInputComponent);
-    void										GASInputPressed(const FGameplayTag Tag);
-    void										GASInputReleased(const FGameplayTag Tag);
+	void										GASInputPressed(const FGameplayTag Tag);
+	void										GASInputReleased(const FGameplayTag Tag);
 
-    UFUNCTION()
+	UFUNCTION()
 	void										InputStratagemCommand(const FInputActionValue& Value);
 
 	void										HandleGameplayEvent(const FGameplayEventData* Payload);
@@ -59,22 +59,25 @@ protected:
 private:
 	void										SetStratagemHUDAppear(const bool bAppear);
 
+	//void										InitializeAttributeSet();
+	//void										SetSpeedAttributeSet();	
+
 private:
 	UPROPERTY(EditAnywhere, Category = GAS)
-    TObjectPtr<UAbilitySystemComponent>			AbilitySystemComponent;
-	
+	TObjectPtr<UAbilitySystemComponent>			AbilitySystemComponent;
+
 	UPROPERTY(EditAnywhere, Category = GAS)
 	TSubclassOf<UGameplayEffect>				InitStatEffect;
-	
+
 	UPROPERTY(EditAnywhere, Category = GAS)
 	TArray<TSubclassOf<UGameplayAbility>>		StartAbilities;
-	
+
 	UPROPERTY(EditAnywhere, Category = GAS)
 	TArray<FTaggedInputAction>					TaggedInputActions;
-	
+
 	UPROPERTY(EditAnywhere, Category = GAS)
 	FGameplayTagContainer						EventCallTags;
-		
+
 	UPROPERTY(EditAnywhere, Category = GAS)
 	TArray<FTagEventBindInfo>					TagEventBindInfoList;
 };

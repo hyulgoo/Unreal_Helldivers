@@ -4,7 +4,7 @@
 #include "AbilitySystemBlueprintLibrary.h"
 #include "GameAbility/AbilityTask/HDAT_Trace.h"
 #include "GameAbility/TargetActor/HDTA_Trace.h"
-#include "Attribute/HDPlayerSpeedAttributeSet.h"
+#include "Attribute/HDBaseAttributeSet.h"
 #include "Weapon/Projectile/HDProjectile.h"
 #include "Define/HDDefine.h"
 

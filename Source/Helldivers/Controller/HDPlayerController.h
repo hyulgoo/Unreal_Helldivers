@@ -29,6 +29,7 @@ public:
 protected:
     virtual void	BeginPlay() override final;
 
+protected:
 	// Widget Section
 	UPROPERTY(EditAnywhere, Category = UI, Meta = (AllowPrivateAccess = "true"))
 	TSubclassOf<UHDGASPlayerUserWidget>		PlayerHUDWidgetClass;

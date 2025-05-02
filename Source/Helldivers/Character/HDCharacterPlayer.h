@@ -18,6 +18,7 @@
 class UHDCharacterControlData;
 class USpringArmComponent;
 class UCameraComponent;
+class UHDCombatComponent;
 class UInputAction;
 class AHDWeapon;
 class AHDStratagem;
@@ -43,20 +44,19 @@ protected:
 
 	// WeaponInferface
 	virtual void							EquipWeapon(AHDWeapon* NewWeapon) override final;
-	virtual AHDWeapon*						GetWeapon() const override final						{ return Weapon; }
-	virtual const FVector&					GetHitTarget() const override final						{ return HitTarget; }
-	virtual const EHDCombatState			GetCombatState() const override final					{ return CombatState; }
-	virtual void							Fire(const bool IsPressed);
-	virtual void							SetWeaponActive(const bool bActive) override final;
+	virtual AHDWeapon*						GetWeapon() const override final;
+	virtual const FVector&					GetHitTarget() const override final;
+	virtual const EHDCombatState			GetCombatState() const override final;
+    virtual void							Fire(const bool IsPressed);
+    virtual void							SetWeaponActive(const bool bActive) override final;
 
 	virtual void							SetCharacterControlData(UHDCharacterControlData* CharacterControlData) override final;
 
 	// CharacterMovementInterface
-    virtual const float						GetAimOffset_Yaw() const override final					{ return AimOffset_Yaw; }
-    virtual const float						GetAimOffset_Pitch() const override final				{ return AimOffset_Pitch; }
-
-    virtual const bool						IsShouldering() const override final					{ return bIsShoulder; }
-    virtual void							SetShouldering(const bool bSetAiming) override final	{ bIsShoulder = bSetAiming; }
+	virtual const float						GetAimOffset_Yaw() const override final					{ return AimOffset_Yaw; }
+	virtual const float						GetAimOffset_Pitch() const override final				{ return AimOffset_Pitch; }
+    virtual const bool						IsShouldering() const override final;
+    virtual void							SetShouldering(const bool bSetAiming) override final;
 
 	virtual const EHDCharacterControlType	GetCharacterControlType() const							{ return CurrentCharacterControlType; }
 	virtual void							ChangeCharacterControlType();
@@ -64,12 +64,12 @@ protected:
 	virtual const EHDTurningInPlace			GetTurningInPlace() const override final				{ return TurningInPlace; }
 	virtual const bool						IsUseRotateBone() const override final					{ return bUseRotateRootBone; }
 
-	virtual const bool						IsSprint() const override final { return bIsSprint; }
-	virtual void							SetSprint(const bool bSprint) override final { bIsSprint = bIsSprint; }
+	virtual const bool						IsSprint() const override final							{ return bIsSprint; }
+	virtual void							SetSprint(const bool bSprint) override final			{ bIsSprint = bIsSprint; }
 
 	// CharacterCommandInterface
 	virtual AHDStratagem*					GetStratagem() const override final						{ return Stratagem; }
-	virtual const FVector&					GetThrowDirection() const override final				{ return HitTarget; }
+	virtual const FVector&					GetThrowDirection() const override final;
 	virtual void							ThrowStratagem() override final;
 
 	// CommandInput
@@ -96,10 +96,6 @@ private:
 	void									InterpFOV(float DeltaSeconds);
 
 	void									PlayFireMontage(const bool bAiming);
-	const bool 								CanFire();
-	void									StartFireTimer();
-	void									FireTimerFinished();
-
 	void									PlayThrowMontage();
 			
 protected:
@@ -108,97 +104,81 @@ protected:
 	TObjectPtr<USpringArmComponent> CameraBoom;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, Meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<UCameraComponent> FollowCamera;
+	TObjectPtr<UCameraComponent>	FollowCamera;
 
 	// Input Section
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<UInputAction>	ChangeControlAction;
+	TObjectPtr<UInputAction>		ChangeControlAction;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<UInputAction>	ThirdPersonMoveAction;
+	TObjectPtr<UInputAction>		ThirdPersonMoveAction;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<UInputAction>	ThirdPersonLookAction;
+	TObjectPtr<UInputAction>		ThirdPersonLookAction;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<UInputAction>	FirstPersonMoveAction;
+	TObjectPtr<UInputAction>		FirstPersonMoveAction;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<UInputAction>	FirstPersonLookAction;
+	TObjectPtr<UInputAction>		FirstPersonLookAction;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<UInputAction>	InputCommandAction;
+	TObjectPtr<UInputAction>		InputCommandAction;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<UInputAction>	ThrowStratagemAction;
+	TObjectPtr<UInputAction>		ThrowStratagemAction;
 	
-    EHDCharacterControlType		CurrentCharacterControlType;
-    EHDArmorType				ArmorType = EHDArmorType::Medium;
+    EHDCharacterControlType			CurrentCharacterControlType;
+    EHDArmorType					ArmorType = EHDArmorType::Medium;
 	
 	UPROPERTY(VisibleAnywhere, Category = Stratagem, Meta = (AllowPrivateAccess = "true"))
-	TArray<EHDCommandInput>		CurrentInputCommandList;
+	TArray<EHDCommandInput>			CurrentInputCommandList;
+
+	// Combat
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Combat, Meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<UHDCombatComponent>	Combat;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Combat, Meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<AHDWeapon>			Weapon;
+	
+	UPROPERTY(EditAnywhere, Category = Weapon, Meta = (AllowPrivateAccess = "true"))
+	TSubclassOf<AHDWeapon>			DefaultWeaponClass;
 
 private:
-    FRotator					StartingAimRotation;
-	float						LastFrame_Yaw;
-    float						AimOffset_Yaw;
-    float						AimOffset_Pitch;
-	float						InterpAimOffset_Yaw;
-	float						AimOffsetYawCompensation;
+	FRotator						StartingAimRotation;
 
-	float						TurnThreshold;
+	float							LastFrame_Yaw;
+	float							AimOffset_Yaw;
+	float							InterpAimOffset_Yaw;
+	float							AimOffset_Pitch;
+	float							AimOffsetYawCompensation;
 
-    bool						bIsShoulder;
-	bool						bIsSprint;
+	bool							bIsSprint;
+	float							TurnThreshold;
+	bool							bUseRotateRootBone;
 
-	bool						bUseRotateRootBone;
-
-	EHDTurningInPlace			TurningInPlace;
-
-	EHDCombatState				CombatState;
-
-	bool						bCanFire;
-	bool						bIsFireButtonPressed;
+	EHDTurningInPlace				TurningInPlace;
 		
-	UPROPERTY(EditAnywhere, Category = Weapon, Meta = (AllowPrivateAccess = "true"))
-	TSubclassOf<AHDWeapon>		DefaultWeaponClass;
+	UPROPERTY(EditAnywhere, Category = Stratagem, Meta = (AllowPrivateAccess = "true"))
+	TSubclassOf<AHDStratagem>		StratagemClass;
+	
+	UPROPERTY(EditAnywhere, Category = Stratagem, Meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<AHDStratagem>		Stratagem;
+	
+	UPROPERTY(EditAnywhere, Category = Stratagem, Meta = (AllowPrivateAccess = "true"))
+	FName							SelectedStratagemName;
 
-	UPROPERTY(EditAnywhere, Category = Weapon, Meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<AHDWeapon>		Weapon;
-	
-	EWeaponType					WeaponType;
-	FVector						HitTarget;
-	FTimerHandle				FireTimer;
+	float							SelecteddStratagemActiveDelay;
 	
 	UPROPERTY(EditAnywhere, Category = Stratagem, Meta = (AllowPrivateAccess = "true"))
-	TSubclassOf<AHDStratagem>	StratagemClass;
+	TArray<FName>					CommandMatchStratagemNameList;
 	
 	UPROPERTY(EditAnywhere, Category = Stratagem, Meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<AHDStratagem>	Stratagem;
-	
-	UPROPERTY(EditAnywhere, Category = Stratagem, Meta = (AllowPrivateAccess = "true"))
-	FName						SelectedStratagemName;
+	TObjectPtr<UDataTable>			AvaliableStratagemDataTable;
 
-	float						SelecteddStratagemActiveDelay;
-	
-	UPROPERTY(EditAnywhere, Category = Stratagem, Meta = (AllowPrivateAccess = "true"))
-	TArray<FName>				CommandMatchStratagemNameList;
-	
-	UPROPERTY(EditAnywhere, Category = Stratagem, Meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<UDataTable>		AvaliableStratagemDataTable;
-
-	FTimerHandle				ThrowTimer;
+	FTimerHandle					ThrowTimer;
 
 	// HUD, Crosshair
-	float						DefaultFOV;
+	float							DefaultFOV;
 
-	UPROPERTY(EditAnywhere, Category = FOV)
-	float						ZoomedFOV;
-
-	float						CurrentFOV;
-
-	UPROPERTY(EditAnywhere, Category = FOV)
-	float						ZoomInterpSpeed;
-
-    float						ErgonomicFactor;
 };

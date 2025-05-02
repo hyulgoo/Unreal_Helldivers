@@ -8,10 +8,16 @@
 #include "Controller/HDPlayerController.h"
 #include "Define/HDDefine.h"
 #include "Tag/HDGameplayTag.h"
+#include "Attribute/HDBaseAttributeSet.h"
+#include "Attribute/Player/HDPlayerSpeedAttributeSet.h"
 
 AHDGASCharacterPlayer::AHDGASCharacterPlayer()
 {
     PrimaryActorTick.bCanEverTick = true;
+
+    // AttributeSet
+    auto* BaseAttribute = CreateDefaultSubobject<UHDBaseAttributeSet>(TEXT("BaseAttributeSet"));
+    auto* SpeedAttribute = CreateDefaultSubobject<UHDPlayerSpeedAttributeSet>(TEXT("SpeedAttributeSet"));
 }
 
 UAbilitySystemComponent* AHDGASCharacterPlayer::GetAbilitySystemComponent() const

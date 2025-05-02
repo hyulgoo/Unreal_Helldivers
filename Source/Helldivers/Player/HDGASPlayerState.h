@@ -8,7 +8,7 @@
 #include "HDGASPlayerState.generated.h"
 
 class UAbilitySystemComponent;
-class UHDPlayerSpeedAttributeSet;
+class UHDBaseAttributeSet;
 
 UCLASS()
 class HELLDIVERS_API AHDGASPlayerState : public APlayerState, public IAbilitySystemInterface
@@ -18,12 +18,9 @@ class HELLDIVERS_API AHDGASPlayerState : public APlayerState, public IAbilitySys
 public:
     explicit AHDGASPlayerState();
 
-    virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override final;
+    virtual UAbilitySystemComponent*    GetAbilitySystemComponent() const override final;
 
 protected:
     UPROPERTY(EditAnywhere, Category = GAS)
     TObjectPtr<UAbilitySystemComponent> AbilitySystemComponent;
-
-	UPROPERTY()
-	TObjectPtr<UHDPlayerSpeedAttributeSet> AttributeSet;
 };
