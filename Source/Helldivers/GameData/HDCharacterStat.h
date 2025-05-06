@@ -2,7 +2,6 @@
 
 #include "CoreMinimal.h"
 #include "Engine/DataTable.h"
-#include "Character/CharacterTypes/HDArmorTypes.h"
 #include "HDCharacterStat.generated.h"
 
 USTRUCT(BlueprintType)

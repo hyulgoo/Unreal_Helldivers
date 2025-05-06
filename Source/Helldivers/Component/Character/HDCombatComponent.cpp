@@ -4,17 +4,23 @@
 #include "Weapon/HDWeapon.h"
 #include "Engine/SkeletalMeshSocket.h"
 #include "Components/SkeletalMeshComponent.h"
-#include "Character/CharacterTypes/HDCombatState.h"
+#include "Character/CharacterTypes/HDCharacterStateTypes.h"
 #include "Animation/HDAnimInstance.h"
 
 UHDCombatComponent::UHDCombatComponent()
+: bIsShoulder(false)
+, bCanFire(false)
+, bIsFireButtonPressed(false)
+, FireTimer{}
+, CombatState(EHDCombatState::Count)
+, CurrentFOV(0.f)
+, ErgonomicFactor(0.f)
 {
 	PrimaryComponentTick.bCanEverTick = true;
 
 	bCanFire = true;
 	bIsFireButtonPressed = false;
 }
-
 
 void UHDCombatComponent::BeginPlay()
 {

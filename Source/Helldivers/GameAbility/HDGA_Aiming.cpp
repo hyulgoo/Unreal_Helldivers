@@ -2,9 +2,7 @@
 
 
 #include "GameAbility/HDGA_Aiming.h"
-#include "HDGA_Aiming.h"
 #include "Interface/HDCharacterMovementInterface.h"
-#include "Character/CharacterTypes/HDCharacterControlTypes.h"
 
 UHDGA_Aiming::UHDGA_Aiming()
 {

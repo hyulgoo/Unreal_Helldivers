@@ -7,7 +7,7 @@
 #include "Interface/HDCharacterMovementInterface.h"
 #include "Interface/HDWeaponInterface.h"
 #include "Kismet/KismetMathLibrary.h"
-#include "Character/CharacterTypes/HDCombatState.h"
+#include "Character/CharacterTypes/HDCharacterStateTypes.h"
 #include "Weapon/HDWeapon.h"
 #include "Define/HDDefine.h"
 

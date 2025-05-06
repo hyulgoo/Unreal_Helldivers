@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Animation/AnimInstance.h"
-#include "Character/CharacterTypes/HDTurningInPlace.h"
+#include "Character/CharacterTypes/HDCharacterStateTypes.h"
 #include "HDAnimInstance.generated.h"
 
 class ACharacter;

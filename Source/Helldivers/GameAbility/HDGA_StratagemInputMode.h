@@ -4,7 +4,6 @@
 
 #include "CoreMinimal.h"
 #include "GameAbility/HDGameplayAbility.h"
-#include "Character/CharacterTypes/HDCommandTypes.h"
 #include "HDGA_StratagemInputMode.generated.h"
 
 UCLASS()

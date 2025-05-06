@@ -4,15 +4,12 @@
 
 #include "CoreMinimal.h"
 #include "HDCharacterBase.h"
-#include "CharacterTypes/HDArmorTypes.h"
-#include "CharacterTypes/HDTurningInPlace.h"
-#include "CharacterTypes/HDCombatState.h"
+#include "CharacterTypes/HDCharacterStateTypes.h"
 #include "InputActionValue.h"
 #include "Interface/HDCharacterMovementInterface.h"
-#include "Interface/HDWeaponInterface.h"
 #include "Interface/HDCharacterCommandInterface.h"
+#include "Interface/HDWeaponInterface.h"
 #include "Weapon/WeaponTypes.h"
-#include "CharacterTypes/HDCommandTypes.h"
 #include "HDCharacterPlayer.generated.h"
 
 class UHDCharacterControlData;

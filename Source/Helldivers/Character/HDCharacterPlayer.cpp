@@ -3,6 +3,8 @@
 #include "Camera/CameraComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
+#include "CharacterTypes/HDCharacterStateTypes.h"
+#include "Component/Character/HDCombatComponent.h"
 #include "InputMappingContext.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
@@ -11,13 +13,11 @@
 #include "Kismet/GameplayStatics.h"
 #include "Weapon/HDWeapon.h"
 #include "Engine/SkeletalMeshSocket.h"
-#include "CharacterTypes/HDCharacterControlTypes.h"
 #include "Stratagem/HDStratagem.h"
 #include "GameData/HDStratagemData.h"
 #include "Define/HDDefine.h"
 #include "Controller/HDPlayerController.h"
 #include "Animation/HDAnimInstance.h"
-#include "Component/Character/HDCombatComponent.h"
 
 AHDCharacterPlayer::AHDCharacterPlayer()
     : CurrentCharacterControlType()

@@ -5,7 +5,7 @@
 #include "HDCharacterControlData.h"
 #include "Animation/AnimMontage.h"
 #include "Physics/HDCollision.h"
-#include "CharacterTypes/HDCharacterControlTypes.h"
+#include "CharacterTypes/HDCharacterStateTypes.h"
 
 AHDCharacterBase::AHDCharacterBase()
 	: DeadEventDelayTime(5.f)
