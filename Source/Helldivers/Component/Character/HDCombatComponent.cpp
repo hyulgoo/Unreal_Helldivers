@@ -28,6 +28,12 @@ void UHDCombatComponent::BeginPlay()
 	
 }
 
+void UHDCombatComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
+{
+    Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+
+}
+
 void UHDCombatComponent::FireTimerFinished()
 {
     if (IsValid(Weapon) == false)
@@ -47,12 +53,6 @@ void UHDCombatComponent::FireTimerFinished()
     PlayerController->ChangeCapacityHUDInfo(Weapon->GetCapacityCount());*/
 }
 
-void UHDCombatComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
-{
-	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-
-}
-
 const bool UHDCombatComponent::Fire(const bool IsPressed)
 {
     bIsFireButtonPressed = IsPressed;
@@ -65,7 +65,8 @@ const bool UHDCombatComponent::Fire(const bool IsPressed)
     if (CombatState == EHDCombatState::Unoccupied)
     {
         Weapon->Fire(HitTarget);
-        FireTimerFinished();
+        
+        GetWorld()->GetTimerManager().SetTimer(FireTimer, this, &UHDCombatComponent::FireTimerFinished, Weapon->GetFireDelay()) ;
         return true;
     }
 
