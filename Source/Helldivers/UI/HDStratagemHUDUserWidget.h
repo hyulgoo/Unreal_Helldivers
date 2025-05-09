@@ -33,8 +33,6 @@ protected:
 	virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override final;
 	
 protected:
-    UPROPERTY(meta = (BindWidget))
-	TObjectPtr<UImage>								Img_StratagemListBackground;
 	
     UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UVerticalBox>						VB_StratagemList;

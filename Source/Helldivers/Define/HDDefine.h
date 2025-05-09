@@ -1,5 +1,25 @@
 #pragma once
 
+#define CONDITION_CHECK(condition) \
+if(condition) \
+{ \
+    if (WITH_EDITOR == false) \
+    { \
+         UE_LOG(LogTemp, Error, TEXT("[%s]!"), TEXT(#condition)); \
+    } \
+    return; \
+} \
+
+#define CONDITION_CHECK_WITH_RETURNTYPE(condition, ret) \
+if(condition) \
+{ \
+    if (WITH_EDITOR == false) \
+    { \
+         UE_LOG(LogTemp, Error, TEXT("[%s]!"), TEXT(#condition)); \
+    } \
+    return ret; \
+} \
+
 #define NULL_CHECK(ptr) \
 if(ptr == nullptr) \
 { \

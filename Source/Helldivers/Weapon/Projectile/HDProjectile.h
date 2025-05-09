@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "GameplayTagContainer.h"
 #include "GameFramework/Actor.h"
 #include "HDProjectile.generated.h"
 
@@ -53,34 +54,11 @@ protected:
 	UPROPERTY(EditAnywhere)
 	TObjectPtr<UBoxComponent>					CollisionBox;
 	
-	UPROPERTY(EditAnywhere)
-	float										DamageInnerRadius = 200.f;
-
-	UPROPERTY(EditAnywhere)
-	float										DamageOuterRadius = 500.f;
-		
-	UPROPERTY(EditAnywhere)
-	TObjectPtr<UParticleSystem>					Tracer;
-
-	UPROPERTY()
-	TObjectPtr<UParticleSystemComponent>		TracerComponent;
-
-	UPROPERTY(EditAnywhere)
-	TObjectPtr<UNiagaraSystem>					TrailSystem;
-
-	UPROPERTY()
-	TObjectPtr<UNiagaraComponent>				TrailSystemComponent;
-
-	UPROPERTY(EditAnywhere)
-    TObjectPtr<UParticleSystem>					ImpactParticles;
-
-	UPROPERTY(EditAnywhere)
-	TObjectPtr<USoundCue>						ImpactSound;
-
-	UPROPERTY(EditAnywhere, Category = "GAS")
-	TSubclassOf<UGameplayEffect>				FireDamageEffect;
-
-	float										ImpactParticlesScale;
+    UPROPERTY(EditDefaultsOnly, Category="Projectile|Data")
+    TObjectPtr<UDataTable>						ProjectileDataTable;
+	
+    UPROPERTY(EditDefaultsOnly, Category="Projectile|Data")
+    FGameplayTag ProjectileTag;
 	
 private:
 	UPROPERTY(EditAnywhere)

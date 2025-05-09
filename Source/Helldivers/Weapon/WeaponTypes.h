@@ -43,3 +43,11 @@ enum class EStatusEffect : uint8
 	Sturn,
 	Count,
 };
+
+UENUM(BlueprintType)
+enum class EImpactType : uint8
+{
+	Hit,
+	Explode,
+	Penetrate
+};

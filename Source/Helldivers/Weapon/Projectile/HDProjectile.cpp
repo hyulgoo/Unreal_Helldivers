@@ -8,12 +8,13 @@
 #include "Character/GameAbility/HDGASCharacterPlayer.h"
 #include "AbilitySystemComponent.h"
 #include "GameAbility/Effect/HDGE_ApplyDamage.h"
+#include "Define/HDDefine.h"
+#include "GameData/HDProjectileData.h"
 
 AHDProjectile::AHDProjectile()
     : Damage(0.f)
     , HeadShotDamageRate(0.f)
     , InitialSpeed(15000.f)
-    , ImpactParticlesScale(1.f)
 {
     PrimaryActorTick.bCanEverTick = true;
 
@@ -29,12 +30,6 @@ AHDProjectile::AHDProjectile()
     ProjectileMovementComponent = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("ProjectileMovementComponent"));
     ProjectileMovementComponent->SetUpdatedComponent(RootComponent);
     ProjectileMovementComponent->bRotationFollowsVelocity = false;
-
-    static ConstructorHelpers::FClassFinder<UHDGE_ApplyDamage> FireDamageEffectRef(TEXT("/Game/Helldivers/Blueprint/GameAbility/Effect/BP_GE_FireDamage.BP_GE_FireDamage_C"));
-    if (FireDamageEffectRef.Class)
-    {
-        FireDamageEffect = FireDamageEffectRef.Class;
-    }
 }
 
 void AHDProjectile::BeginPlay()
@@ -49,8 +44,6 @@ void AHDProjectile::BeginPlay()
     ProjectileMovementComponent->MaxSpeed = InitialSpeed;
     ProjectileMovementComponent->Velocity = GetActorForwardVector() * InitialSpeed;
     ProjectileMovementComponent->ProjectileGravityScale = 0.f;
-
-    SpawnTrailSystem();
 }
 
 void AHDProjectile::Tick(float DeltaSeconds)
@@ -63,60 +56,49 @@ void AHDProjectile::Destroyed()
     UWorld* World = GetWorld();
     if (World)
     {
-        if (ImpactParticles)
-        {
-            UGameplayStatics::SpawnEmitterAtLocation(World, ImpactParticles, GetActorTransform());
-        }
-
-        if (ImpactSound)
-        {
-            UGameplayStatics::PlaySoundAtLocation(this, ImpactSound, GetActorLocation());
-        }
-
         UE_LOG(LogTemp, Warning, TEXT("DropTargetPosition : %s"), *GetActorLocation().ToString());
     }
 
     Super::Destroyed();
 }
 
-void AHDProjectile::SpawnTrailSystem()
-{
-    if (TrailSystem)
-    {
-        TrailSystemComponent = UNiagaraFunctionLibrary::SpawnSystemAttached(TrailSystem, RootComponent, FName(),
-            GetActorLocation(), GetActorRotation(), EAttachLocation::KeepWorldPosition, false);
-    }
-
-    if (Tracer)
-    {
-        TracerComponent = UGameplayStatics::SpawnEmitterAttached(
-            Tracer,
-            CollisionBox,
-            FName(),
-            GetActorLocation(),
-            GetActorRotation(),
-            FVector(ImpactParticlesScale, ImpactParticlesScale, ImpactParticlesScale),
-            EAttachLocation::KeepWorldPosition
-        );
-    }
-}
-
-void AHDProjectile::ExplodeDamage()
-{
-   APawn* FiringPawn = GetInstigator();
-   if (FiringPawn)
-   {
-       AController* FiringController = FiringPawn->GetController();
-       if (FiringController)
-       {
-           UGameplayStatics::ApplyRadialDamageWithFalloff(this, Damage, 10.f, GetActorLocation(), DamageInnerRadius, DamageOuterRadius, 1.f,
-               UDamageType::StaticClass(), TArray<AActor*>(), this, FiringController);
-       }
-   }
-}
-
 void AHDProjectile::OnBoxHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
+    NULL_CHECK(ProjectileDataTable);
+    NULL_CHECK(OtherActor);
+
+    static const FString ContextString(TEXT("ProjectileDataLookup"));
+    FHDProjectileData* DataRow = ProjectileDataTable->FindRow<FHDProjectileData>(ProjectileTag.GetTagName(), ContextString);
+    NULL_CHECK(DataRow);
+
+    // Get Owner ASC
+    AActor* OwnerActor = GetOwner();
+    NULL_CHECK(OwnerActor);
+    IAbilitySystemInterface* OwnerAbilitySystemInterface = Cast<IAbilitySystemInterface>(OwnerActor);
+    if(OwnerAbilitySystemInterface == nullptr)
+    {
+        return;
+    }
+
+    UAbilitySystemComponent* SourceAbilitySystemComponent = OwnerAbilitySystemInterface->GetAbilitySystemComponent();
+    NULL_CHECK(SourceAbilitySystemComponent);
+
+    // Get Target ASC
+    IAbilitySystemInterface* TargetAbilitySystemInterface = Cast<IAbilitySystemInterface>(OtherActor);
+    if (TargetAbilitySystemInterface == nullptr)
+    {
+        return;
+    }
+
+    UAbilitySystemComponent* TargetAbilitySystemComponent = TargetAbilitySystemInterface->GetAbilitySystemComponent();
+    NULL_CHECK(TargetAbilitySystemComponent);
+
+    
+    for (auto ImpactGameEffect : DataRow->ImpactGameEffectList) 
+    {
+
+    }
+
     AHDGASCharacterPlayer* TargetGASPlayer = Cast<AHDGASCharacterPlayer>(OtherActor);
     if (TargetGASPlayer)
     {

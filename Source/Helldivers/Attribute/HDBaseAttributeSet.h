@@ -20,6 +20,8 @@ class HELLDIVERS_API UHDBaseAttributeSet : public UAttributeSet
 	
 public:
 	ATTRIBUTE_ACCESSORS(UHDBaseAttributeSet, CurrentHealth);
+	ATTRIBUTE_ACCESSORS(UHDBaseAttributeSet, MaxHealth);
+	ATTRIBUTE_ACCESSORS(UHDBaseAttributeSet, Armor);
 
 	virtual void PreAttributeChange(const FGameplayAttribute& Attribute, float& NewValue) override;
 	//virtual void PostAttributeChange(const FGameplayAttribute& Attribute, float OldValue, float NewValue) override;
@@ -32,4 +34,7 @@ public:
 	
 	UPROPERTY(BlueprintReadOnly, Category = CurrentHealth, Meta = (AllowPrivateAccess = "true"))
 	FGameplayAttributeData MaxHealth;
+	
+	UPROPERTY(BlueprintReadOnly, Category = CurrentHealth, Meta = (AllowPrivateAccess = "true"))
+	FGameplayAttributeData Armor;
 };

@@ -32,11 +32,7 @@ void UHDStratagemHUDUserWidget::SetStratagemListHUD(UDataTable* StratagemDataTab
     NULL_CHECK(StratagemDataTable);
 
     const TArray<FName>& StratagemDataNameList = StratagemDataTable->GetRowNames();
-    if(StratagemDataNameList.IsEmpty())
-    {
-        UE_LOG(LogTemp, Warning, TEXT("CommandIconList is Empty!"));
-        return;
-    }
+    CONDITION_CHECK(StratagemDataNameList.IsEmpty());
 
     const FString FindString(TEXT("Lookup"));
     const int32 StratagemDataNameListNum = StratagemDataNameList.Num();

@@ -28,11 +28,7 @@ AHDStratagem::AHDStratagem()
 
 void AHDStratagem::AddImpulseToStratagem(const FVector& NewThrowDirection)
 {
-    if (NewThrowDirection.IsNormalized() == false)
-    {
-        UE_LOG(LogTemp, Error, TEXT("ThrowDirection is not Normalized!"));
-        return;
-    }
+    CONDITION_CHECK(NewThrowDirection.IsNormalized() == false);
 
     DetachFromActor(FDetachmentTransformRules::KeepRelativeTransform);
     SetOwner(nullptr);

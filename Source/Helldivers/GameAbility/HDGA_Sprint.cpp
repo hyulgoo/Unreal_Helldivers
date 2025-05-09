@@ -25,7 +25,6 @@ void UHDGA_Sprint::ActivateAbility(const FGameplayAbilitySpecHandle Handle, cons
         NULL_CHECK(CharacterMovementInterface);
 
         CharacterMovementInterface->SetSprint(true);
-
     }   
 }
 

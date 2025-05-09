@@ -121,11 +121,7 @@ void AHDBattleShip::OrbitalStrikeWithDelay(const FHDStratagemEffectData& Stratag
 
     const int32 NumberOfProjectileToBeSpawn = StratagemEffectData.ProjectileDropLocation.IsEmpty() 
         ? StratagemEffectData.SpecifyProjectileSpawnCount : StratagemEffectData.ProjectileDropLocation.Num();
-    if (BombIndex > NumberOfProjectileToBeSpawn)
-    {
-        UE_LOG(LogTemp, Error, TEXT("BombIndex is Invalid!"));
-        return;
-    }
+    CONDITION_CHECK(BombIndex > NumberOfProjectileToBeSpawn);
 
     UWorld* World = GetWorld();
     VALID_CHECK(World);
@@ -145,11 +141,7 @@ void AHDBattleShip::OrbitalStrikeWithDelay(const FHDStratagemEffectData& Stratag
     }
     else
     {
-        if(StratagemEffectData.ProjectileDropLocation.IsEmpty())
-        {
-            UE_LOG(LogTemp, Error, TEXT("No RandomRangeUse but ProjectileDropLocationList is Empty!"));
-            return;
-        }
+        CONDITION_CHECK(StratagemEffectData.ProjectileDropLocation.IsEmpty());
 
         const FVector2D& DropPosition2D = StratagemEffectData.ProjectileDropLocation[BombIndex];
         FinalDropTargetPosition = StratagemTransform.GetLocation() + FVector(DropPosition2D.X, DropPosition2D.Y, 0.f);
@@ -198,11 +190,7 @@ void AHDBattleShip::EagleStrike(const FHDStratagemEffectData& StratagemEffectDat
     UWorld* World = GetWorld();
     VALID_CHECK(World);
 
-    if(StratagemTransform.IsValid() == false)
-    {
-        UE_LOG(LogTemp, Error, TEXT("StratagemTransform is Invalid!"));
-        return;
-    }
+    CONDITION_CHECK(StratagemTransform.IsValid() == false);
 
     const FVector SpawnLocation = GetActorLocation();
     if (IsValid(EagleFighter) == false)
