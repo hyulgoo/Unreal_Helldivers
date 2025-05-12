@@ -3,11 +3,11 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Weapon/Projectile/HDProjectile.h"
+#include "Weapon/Projectile/HDProjectileBase.h"
 #include "HDBomb.generated.h"
 
 UCLASS()
-class HELLDIVERS_API AHDBomb : public AHDProjectile
+class HELLDIVERS_API AHDBomb : public AHDProjectileBase
 {
 	GENERATED_BODY()
 	

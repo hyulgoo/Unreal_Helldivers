@@ -4,36 +4,33 @@
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "Sound/SoundCue.h"
 #include "Kismet/GameplayStatics.h"
+#include "Define/HDDefine.h"
 
 AHDProjectileGrenade::AHDProjectileGrenade()
 {
-	ProjectileMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Grenade Mesh"));
-	ProjectileMesh->SetupAttachment(RootComponent);
-	ProjectileMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+    ProjectileMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Grenade Mesh"));
+    ProjectileMesh->SetupAttachment(RootComponent);
+    ProjectileMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
-	ProjectileMovementComponent->SetIsReplicated(true);
-	ProjectileMovementComponent->bShouldBounce = true;
+    ProjectileMovementComponent->SetIsReplicated(true);
+    ProjectileMovementComponent->bShouldBounce = true;
 }
 
 void AHDProjectileGrenade::Destroyed()
 {
-	ExplodeDamage();
-	Super::Destroyed();
+    Super::Destroyed();
 }
 
 void AHDProjectileGrenade::BeginPlay()
 {
-	AActor::BeginPlay();
+    AActor::BeginPlay();
 
-	SpawnTrailSystem();
-
-	ProjectileMovementComponent->OnProjectileBounce.AddDynamic(this, &AHDProjectileGrenade::OnBounce);
+    ProjectileMovementComponent->OnProjectileBounce.AddDynamic(this, &AHDProjectileGrenade::OnBounce);
 }
 
 void AHDProjectileGrenade::OnBounce(const FHitResult& ImpactResult, const FVector& ImpactVelocity)
 {
-	if (BounceSound)
-	{
-		UGameplayStatics::PlaySoundAtLocation(this, BounceSound, GetActorLocation());
-	}
+    NULL_CHECK(BounceSound);
+
+    UGameplayStatics::PlaySoundAtLocation(this, BounceSound, GetActorLocation());
 }

@@ -9,7 +9,7 @@
 #include "HDEagleFighter.generated.h"
 
 class USplineComponent;
-class AHDProjectile;
+class AHDProjectileBase;
 
 UCLASS()
 class HELLDIVERS_API AHDEagleFighter : public AActor
@@ -35,7 +35,7 @@ private:
     void            SetSplnePoints();
     void            SetActiveEagleFighter(const bool bIsActive);
     void            DropBombWithDelayAndReturn(const int32 Index);
-    void            CreateProjectile(TSubclassOf<AHDProjectile> ProjectileClass, const int32 Index);
+    void            CreateProjectile(TSubclassOf<AHDProjectileBase> ProjectileClass, const int32 Index);
 
 private:
     UPROPERTY(VisibleAnywhere)
@@ -57,10 +57,10 @@ private:
 
     // Projectile
     UPROPERTY(VisibleAnywhere)
-    TSubclassOf<AHDProjectile>	        ProjectileBombClass;
+    TSubclassOf<AHDProjectileBase>	        ProjectileBombClass;
     
     UPROPERTY(VisibleAnywhere)
-    TSubclassOf<AHDProjectile>	        ProjectileBulletClass;
+    TSubclassOf<AHDProjectileBase>	        ProjectileBulletClass;
 
     FHDStratagemEffectData              StratagemEffectData;
     FVector                             ProjectileTargetLocation;

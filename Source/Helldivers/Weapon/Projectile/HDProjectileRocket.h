@@ -3,13 +3,13 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "HDProjectile.h"
+#include "HDProjectileBase.h"
 #include "HDProjectileRocket.generated.h"
 
 class UHDRocketMovementComponent;
 
 UCLASS()
-class HELLDIVERS_API AHDProjectileRocket : public AHDProjectile
+class HELLDIVERS_API AHDProjectileRocket : public AHDProjectileBase
 {
 	GENERATED_BODY()
 	

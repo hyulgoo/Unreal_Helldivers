@@ -24,6 +24,7 @@ class UTexture2D;
 class USoundCue;
 class UAnimationAsset;
 class AHDCasing;
+class AHDProjectileBase;
 
 UCLASS()
 class HELLDIVERS_API AHDWeapon : public AActor
@@ -71,9 +72,8 @@ private:
 protected:
     EFireType                           FireType = EFireType::Count;
 
-    UPROPERTY(EditAnywhere, Category = Crosshairs, Meta = (AllowPrivateAccess = "true"))
-    TArray<TObjectPtr<UTexture2D>>      CrosshaiTextureList;
-
+    UPROPERTY(EditAnywhere, Category = "Info|Crosshair", Meta = (AllowPrivateAccess = "true"))
+    TMap<ECrosshair, TObjectPtr<UTexture2D>>  CrosshaiTextureList;
 
     UPROPERTY(EditAnywhere)
     float                               ZoomedFOV         = 30.f;
@@ -81,65 +81,56 @@ protected:
     UPROPERTY(EditAnywhere)
     float                               ZoomInterpSpeed   = 20.f;
 
+    UPROPERTY(EditAnywhere, Category = "Info|Default")
+    TSubclassOf<AHDProjectileBase>      ProjectileClass;
 
-    UPROPERTY(EditAnywhere)
-    TObjectPtr<USoundCue>               EquipSound;
-
-    UPROPERTY(EditAnywhere, Category = "Weapon Properties", Meta = (AllowPrivateAccess = "true"))
+    UPROPERTY(EditAnywhere, Category = "Info|Default", Meta = (AllowPrivateAccess = "true"))
     EWeaponType							WeaponType;
 
-    UPROPERTY(VisibleAnywhere, Category = "Weapon Properties")
+    UPROPERTY(VisibleAnywhere, Category = "Info|Default")
     TObjectPtr<USkeletalMeshComponent>	WeaponMesh;
 
     UPROPERTY(VisibleAnywhere, Category = "Weapon Properties")
     TObjectPtr<USphereComponent>		AreaSphere;
 
-
-    UPROPERTY(EditAnywhere, Category = "Weapon Properties")
+    UPROPERTY(EditAnywhere, Category = "Info|Animation")
     TObjectPtr<UAnimationAsset>			FireAnimation;
+    
+    UPROPERTY(EditAnywhere, Category = "Info|Default")
+    TObjectPtr<USoundCue>               EquipSound;
 
-    UPROPERTY(EditAnywhere, Category = "Weapon Properties")
+    UPROPERTY(EditAnywhere, Category = "Info|Default")
     TSubclassOf<AHDCasing>				CasingClass;
 
-    UPROPERTY(EditAnywhere)
+    UPROPERTY(EditAnywhere, Category = "Info|Default")
     TObjectPtr<UTexture2D>				WeaponIconImage;
-
-    
-    UPROPERTY(EditAnywhere, Category = "Weapon Stat", Meta = (AllowPrivateAccess = "true"))
-    float                               Damage;
-
-    UPROPERTY(EditAnywhere, Category = "Weapon Stat", Meta = (AllowPrivateAccess = "true"))
-    float                               HeadShotDamageRate;
-
-    UPROPERTY(EditAnywhere, Category = "Weapon Stat", Meta = (AllowPrivateAccess = "true"))
+        
+    UPROPERTY(EditAnywhere, Category = "Info|Default", Meta = (AllowPrivateAccess = "true"))
     float                               FireDelay;
     
-    UPROPERTY(EditAnywhere, Category = "Weapon Stat", Meta = (AllowPrivateAccess = "true"))
+    UPROPERTY(EditAnywhere, Category = "Info|Default", Meta = (AllowPrivateAccess = "true"))
     float                               ErgonomicFactor;
 
-    UPROPERTY(EditAnywhere, Category = "Weapon Stat", Meta = (AllowPrivateAccess = "true"))
+    UPROPERTY(EditAnywhere, Category = "Info|Current", Meta = (AllowPrivateAccess = "true"))
     int32                               Ammo;
     
-    UPROPERTY(EditAnywhere, Category = "Weapon Stat", Meta = (AllowPrivateAccess = "true"))
+    UPROPERTY(EditAnywhere, Category = "Info|Default", Meta = (AllowPrivateAccess = "true"))
     int32                               MaxAmmo;
     
-    UPROPERTY(EditAnywhere, Category = "Weapon Stat", Meta = (AllowPrivateAccess = "true"))
+    UPROPERTY(EditAnywhere, Category = "Info|Current", Meta = (AllowPrivateAccess = "true"))
     int32                               Capacity;
 
-    UPROPERTY(EditAnywhere, Category = "Weapon Stat", Meta = (AllowPrivateAccess = "true"))
+    UPROPERTY(EditAnywhere, Category = "Info|Default", Meta = (AllowPrivateAccess = "true"))
     int32                               MaxCapacity;
 
-    UPROPERTY(EditAnywhere, Category = "Weapon Stat", Meta = (AllowPrivateAccess = "true"))
+    UPROPERTY(EditAnywhere, Category = "Info|Current", Meta = (AllowPrivateAccess = "true"))
     uint8                               bIsCanUseAutoFire : 1;
     
-    UPROPERTY(EditAnywhere, Category = "Weapon Stat", Meta = (AllowPrivateAccess = "true"))
+    UPROPERTY(EditAnywhere, Category = "Info|Current", Meta = (AllowPrivateAccess = "true"))
     uint8                               bUseScatter : 1;
     
-    UPROPERTY(EditAnywhere, Category = "Weapon Stat", Meta = (AllowPrivateAccess = "true"))
+    UPROPERTY(EditAnywhere, Category = "Info|Default", Meta = (AllowPrivateAccess = "true"))
     uint8                               bIsAutoFire : 1;
 
-    UPROPERTY(EditAnywhere, Category = "Weapon Stat", Meta = (AllowPrivateAccess = "true"))
-    EStatusEffect                       StatusEffect;
-    
-    EWeaponState                        WeaponState = EWeaponState::Drop;
+    EWeaponState                        WeaponState;
 };

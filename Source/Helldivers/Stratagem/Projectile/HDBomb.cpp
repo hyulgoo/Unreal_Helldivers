@@ -8,6 +8,4 @@ AHDBomb::AHDBomb()
 {
     UStaticMeshComponent* BombMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("BombMesh"));
     BombMesh->SetupAttachment(RootComponent);
-
-    ImpactParticlesScale = 5.f;
 }

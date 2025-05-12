@@ -6,7 +6,7 @@
 #include "Weapon/HDWeapon.h"
 #include "HDProjectileWeapon.generated.h"
 
-class AHDProjectile;
+class AHDProjectileBase;
 
 UCLASS()
 class HELLDIVERS_API AHDProjectileWeapon : public AHDWeapon
@@ -17,11 +17,4 @@ public:
     explicit                    AHDProjectileWeapon();
 
     virtual void                Fire(const FVector& HitTarget) override final;
-
-private:
-    UPROPERTY(EditAnywhere)
-    TSubclassOf<AHDProjectile>  ProjectileClass;
-
-    UPROPERTY(EditAnywhere, Category = "Stat", Meta = (AllowPrivateAccess = "true"))
-    float                       ProjectileSpeed;
 };

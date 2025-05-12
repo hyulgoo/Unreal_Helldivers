@@ -1,13 +1,14 @@
 
 #include "Weapon/HDWeapon.h"
+#include "HDCasing.h"
+#include "Define/HDDefine.h"
 #include "Interface/HDWeaponInterface.h"
 #include "Components/SphereComponent.h"
 #include "Engine/SkeletalMeshSocket.h"
 #include "Kismet/KismetMathLibrary.h"
-#include "HDCasing.h"
-#include "Define/HDDefine.h"
 
 AHDWeapon::AHDWeapon()
+	:WeaponState(EWeaponState::Drop)
 {
 	PrimaryActorTick.bCanEverTick = true;
 
@@ -24,8 +25,6 @@ AHDWeapon::AHDWeapon()
 	AreaSphere->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Overlap);
 	AreaSphere->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 	AreaSphere->OnComponentBeginOverlap.AddDynamic(this, &AHDWeapon::OnSphereOverlap);
-
-	ErgonomicFactor = 10.f;
 }
 
 void AHDWeapon::BeginPlay()
@@ -33,6 +32,7 @@ void AHDWeapon::BeginPlay()
 	Super::BeginPlay();
 
 	Ammo = MaxAmmo;
+	Capacity = MaxCapacity;
 }
 
 void AHDWeapon::Fire(const FVector& HitTarget)
@@ -58,11 +58,7 @@ void AHDWeapon::Fire(const FVector& HitTarget)
 const FVector AHDWeapon::TraceEndWithScatter(const FVector& HitTarget)
 {
 	const USkeletalMeshSocket* MuzzleFlashSocket = WeaponMesh->GetSocketByName(FName("MuzzleFlash"));
-	if (MuzzleFlashSocket == nullptr)
-	{
-		UE_LOG(LogTemp, Error, TEXT("Fail to Found MuzzleFlash socket!"));
-		return FVector();
-	}
+	NULL_CHECK_WITH_RETURNTYPE(MuzzleFlashSocket, FVector());
 
 	const FTransform SocketTransform = MuzzleFlashSocket->GetSocketTransform(WeaponMesh);
 	const FVector Start				= SocketTransform.GetLocation();

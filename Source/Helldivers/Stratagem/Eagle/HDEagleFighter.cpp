@@ -4,7 +4,7 @@
 #include "Stratagem/Types/EagleAirStrikeDirectionTypes.h"
 #include "Stratagem/Types/StratagemProjectileTypes.h"
 #include "Components/SplineComponent.h"
-#include "Weapon/Projectile/HDProjectile.h"
+#include "Weapon/Projectile/HDProjectileBase.h"
 #include "GameData/HDStratagemEffectData.h"
 #include "Kismet/GameplayStatics.h"
 #include "Define/HDDefine.h"
@@ -158,7 +158,7 @@ void AHDEagleFighter::DropBombWithDelayAndReturn(const int32 Index)
     CONDITION_CHECK(NumberOfProjectileToBeSpawn < 1);
     CONDITION_CHECK(Index > NumberOfProjectileToBeSpawn);
 
-    TSubclassOf<AHDProjectile> ProjectileClass = StratagemEffectData.StratagemProjectileType == EHDStratagemProjectile::Bullet 
+    TSubclassOf<AHDProjectileBase> ProjectileClass = StratagemEffectData.StratagemProjectileType == EHDStratagemProjectile::Bullet 
                                                     ? ProjectileBulletClass : ProjectileBombClass;
     CreateProjectile(ProjectileClass, Index);
 
@@ -174,7 +174,7 @@ void AHDEagleFighter::DropBombWithDelayAndReturn(const int32 Index)
     }
 }
 
-void AHDEagleFighter::CreateProjectile(TSubclassOf<AHDProjectile> ProjectileClass, const int32 ProjectileIndex)
+void AHDEagleFighter::CreateProjectile(TSubclassOf<AHDProjectileBase> ProjectileClass, const int32 ProjectileIndex)
 {
     UWorld* World = GetWorld();
     VALID_CHECK(World);
@@ -187,16 +187,13 @@ void AHDEagleFighter::CreateProjectile(TSubclassOf<AHDProjectile> ProjectileClas
     float Impulse = ToTarget.Length() * (1.f + (1.f - ProjectileIndex * StratagemEffectData.SpecifyProjectileSpawnDelay));
     FTransform SpawnTransform(ToTarget.Rotation(), EagleLocation);
 
-    AHDProjectile* SpawnProjectile = World->SpawnActorDeferred<AHDProjectile>(
+    AHDProjectileBase* SpawnProjectile = World->SpawnActorDeferred<AHDProjectileBase>(
         ProjectileClass,
         SpawnTransform,
-        nullptr,
+        this,
         nullptr,
         ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn
     );
-
-    SpawnProjectile->Damage = StratagemEffectData.ProjectileDamage;
-    SpawnProjectile->InitialSpeed = Impulse;
 
     UGameplayStatics::FinishSpawningActor(SpawnProjectile, SpawnTransform);
 
@@ -211,17 +208,14 @@ void AHDEagleFighter::CreateProjectile(TSubclassOf<AHDProjectile> ProjectileClas
             Impulse = ToTarget.Length() * (1.f + (1.f - ProjectileIndex * StratagemEffectData.SpecifyProjectileSpawnDelay));
             SpawnTransform = FTransform(ToTarget.Rotation(), EagleLocation);
 
-            SpawnProjectile = World->SpawnActorDeferred<AHDProjectile>(
+            SpawnProjectile = World->SpawnActorDeferred<AHDProjectileBase>(
                 ProjectileClass,
                 SpawnTransform,
-                nullptr,
+                this,
                 nullptr,
                 ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn
             );
             NULL_CHECK(SpawnProjectile);
-
-            SpawnProjectile->Damage = StratagemEffectData.ProjectileDamage;
-            SpawnProjectile->InitialSpeed = Impulse;
 
             UGameplayStatics::FinishSpawningActor(SpawnProjectile, SpawnTransform);
         }

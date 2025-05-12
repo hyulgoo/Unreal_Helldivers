@@ -2,8 +2,7 @@
 
 #include "Weapon/HDProjectileWeapon.h"
 #include "Engine/SkeletalMeshSocket.h"
-#include "Projectile/HDProjectile.h"
-#include "Projectile/HDProjectileBullet.h"
+#include "Projectile/HDProjectileBase.h"
 #include "Kismet/GameplayStatics.h"
 #include "Define/HDDefine.h"
 
@@ -28,16 +27,14 @@ void AHDProjectileWeapon::Fire(const FVector& HitTarget)
     const FVector ToTarget = HitTarget - SocketTransform.GetLocation();
     const FTransform SpawnTransform(ToTarget.Rotation(), SocketTransform.GetLocation());
 
-    AHDProjectile* SpawnedProjectile = World->SpawnActorDeferred<AHDProjectile>(
+    AActor* WeaponOwner = GetOwner();
+    NULL_CHECK(WeaponOwner);
+
+    AHDProjectileBase* SpawnedProjectile = World->SpawnActorDeferred<AHDProjectileBase>(
         ProjectileClass,
         SpawnTransform,
-        nullptr,
-        nullptr,
-        ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn);
-
-    SpawnedProjectile->Damage               = Damage;
-    SpawnedProjectile->HeadShotDamageRate   = HeadShotDamageRate;
-    SpawnedProjectile->InitialSpeed         = ProjectileSpeed;
+        WeaponOwner);
+    NULL_CHECK(SpawnedProjectile);
 
     UGameplayStatics::FinishSpawningActor(SpawnedProjectile, SpawnTransform);
 }

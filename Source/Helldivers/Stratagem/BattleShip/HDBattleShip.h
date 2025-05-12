@@ -7,7 +7,7 @@
 #include "HDBattleShip.generated.h"
 
 class AHDEagleFighter;
-class AHDProjectile;
+class AHDProjectileBase;
 struct FHDStratagemEffectData;
 
 UCLASS()
@@ -36,10 +36,10 @@ private:
 	TObjectPtr<AHDEagleFighter>		EagleFighter;
 
     UPROPERTY(VisibleAnywhere)
-    TSubclassOf<AHDProjectile>	    ProjectileBombClass;
+    TSubclassOf<AHDProjectileBase>	    ProjectileBombClass;
     
     UPROPERTY(VisibleAnywhere)
-    TSubclassOf<AHDProjectile>	    ProjectileBulletClass;
+    TSubclassOf<AHDProjectileBase>	    ProjectileBulletClass;
 
 	// StratagemEffectData
     UPROPERTY(VisibleAnywhere)

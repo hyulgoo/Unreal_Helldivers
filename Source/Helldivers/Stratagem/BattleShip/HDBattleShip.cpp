@@ -6,7 +6,7 @@
 #include "GameData/HDStratagemEffectData.h"
 #include "Game/HDGameState.h"
 #include "Kismet/GameplayStatics.h"
-#include "Weapon/Projectile/HDProjectile.h"
+#include "Weapon/Projectile/HDProjectileBase.h"
 #include "Define/HDDefine.h"
 
 AHDBattleShip::AHDBattleShip()
@@ -30,13 +30,13 @@ AHDBattleShip::AHDBattleShip()
         EagleFighterClass = EagleFighterClassRef.Class;
     }
 
-    static ConstructorHelpers::FClassFinder<AHDProjectile> ProjectileBombClassRef(TEXT("/Game/Helldivers/Blueprint/Stratagem/BP_Bomb.BP_Bomb_C"));
+    static ConstructorHelpers::FClassFinder<AHDProjectileBase> ProjectileBombClassRef(TEXT("/Game/Helldivers/Blueprint/Stratagem/BP_Bomb.BP_Bomb_C"));
     if (ProjectileBombClassRef.Class)
     {
         ProjectileBombClass = ProjectileBombClassRef.Class;
     }
 
-    static ConstructorHelpers::FClassFinder<AHDProjectile> ProjectileBulletClassRef(TEXT("/Game/Helldivers/Blueprint/Stratagem/BP_EagleBullet.BP_EagleBullet_C"));
+    static ConstructorHelpers::FClassFinder<AHDProjectileBase> ProjectileBulletClassRef(TEXT("/Game/Helldivers/Blueprint/Stratagem/BP_EagleBullet.BP_EagleBullet_C"));
     if (ProjectileBulletClassRef.Class)
     {
         ProjectileBulletClass = ProjectileBulletClassRef.Class;
@@ -126,7 +126,7 @@ void AHDBattleShip::OrbitalStrikeWithDelay(const FHDStratagemEffectData& Stratag
     UWorld* World = GetWorld();
     VALID_CHECK(World);
 
-    TSubclassOf<AHDProjectile> ProjectileClass = StratagemEffectData.StratagemProjectileType == EHDStratagemProjectile::Bullet 
+    TSubclassOf<AHDProjectileBase> ProjectileClass = StratagemEffectData.StratagemProjectileType == EHDStratagemProjectile::Bullet 
                                                     ? ProjectileBulletClass : ProjectileBombClass;
     NULL_CHECK(ProjectileClass);
 
@@ -152,16 +152,13 @@ void AHDBattleShip::OrbitalStrikeWithDelay(const FHDStratagemEffectData& Stratag
     const float Impulse             = ToTarget.Length();
     const FTransform SpawnTransform(ToTarget.Rotation(), SpawnLocation);
 
-    AHDProjectile* SpawnProjectile = World->SpawnActorDeferred<AHDProjectile>(
+    AHDProjectileBase* SpawnProjectile = World->SpawnActorDeferred<AHDProjectileBase>(
         ProjectileClass,
         SpawnTransform,
         nullptr,
         nullptr,
         ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn
     );
-
-    SpawnProjectile->Damage = StratagemEffectData.ProjectileDamage;
-    SpawnProjectile->InitialSpeed = Impulse;
 
     UGameplayStatics::FinishSpawningActor(SpawnProjectile, SpawnTransform);
 

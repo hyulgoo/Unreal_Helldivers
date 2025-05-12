@@ -3,11 +3,11 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "HDProjectile.h"
+#include "HDProjectileBase.h"
 #include "HDProjectileGrenade.generated.h"
 
 UCLASS()
-class HELLDIVERS_API AHDProjectileGrenade : public AHDProjectile
+class HELLDIVERS_API AHDProjectileGrenade : public AHDProjectileBase
 {
 	GENERATED_BODY()
 	
@@ -23,6 +23,6 @@ protected:
 	void OnBounce(const FHitResult& ImpactResult, const FVector& ImpactVelocity);
 
 private:
-	UPROPERTY(EditAnywhere)
-	TObjectPtr<USoundCue> BounceSound;
+    UPROPERTY(EditAnywhere)
+    TObjectPtr<USoundCue> BounceSound;
 };
