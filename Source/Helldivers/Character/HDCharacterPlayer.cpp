@@ -36,7 +36,6 @@ AHDCharacterPlayer::AHDCharacterPlayer()
     , ThrowTimer()
     , DefaultFOV(55.f)
 {
-    PrimaryActorTick.bCanEverTick = true;
     GetCharacterMovement()->bOrientRotationToMovement = true;
     bUseControllerRotationYaw = false;
 
@@ -146,7 +145,8 @@ void AHDCharacterPlayer::SetCharacterControl(const EHDCharacterControlType NewCh
 
     SetCharacterControlData(NewCharacterControl);
 
-    APlayerController* PlayerController = CastChecked<APlayerController>(GetController());
+    APlayerController* PlayerController = Cast<APlayerController>(GetController());
+    NULL_CHECK(PlayerController);
     UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer());
     NULL_CHECK(Subsystem);
 
@@ -226,7 +226,6 @@ void AHDCharacterPlayer::EquipWeapon(AHDWeapon* NewWeapon)
 
 AHDWeapon* AHDCharacterPlayer::GetWeapon() const
 {
-    NULL_CHECK_WITH_RETURNTYPE(Weapon, nullptr);
     return Weapon;
 }
 

@@ -3,9 +3,12 @@
 #define CONDITION_CHECK(condition) \
 if(condition) \
 { \
-    if (WITH_EDITOR == false) \
+    if (WITH_EDITOR) \
     { \
-         UE_LOG(LogTemp, Error, TEXT("[%s]!"), TEXT(#condition)); \
+        if (GIsEditor && GWorld && GWorld->IsPlayInEditor()) \
+        { \
+            UE_LOG(LogTemp, Error, TEXT("[%s]!"), TEXT(#condition)); \
+        } \
     } \
     return; \
 } \
@@ -13,9 +16,12 @@ if(condition) \
 #define CONDITION_CHECK_WITH_RETURNTYPE(condition, ret) \
 if(condition) \
 { \
-    if (WITH_EDITOR == false) \
+    if (WITH_EDITOR) \
     { \
-         UE_LOG(LogTemp, Error, TEXT("[%s]!"), TEXT(#condition)); \
+        if (GIsEditor && GWorld && GWorld->IsPlayInEditor()) \
+        { \
+            UE_LOG(LogTemp, Error, TEXT("[%s]!"), TEXT(#condition)); \
+        } \
     } \
     return ret; \
 } \
@@ -23,9 +29,12 @@ if(condition) \
 #define NULL_CHECK(ptr) \
 if(ptr == nullptr) \
 { \
-    if (WITH_EDITOR == false) \
+    if (WITH_EDITOR) \
     { \
-         UE_LOG(LogTemp, Error, TEXT("pointer [%s] is nullptr!"), TEXT(#ptr)); \
+        if (GIsEditor && GWorld && GWorld->IsPlayInEditor()) \
+        { \
+            UE_LOG(LogTemp, Error, TEXT("pointer [%s] is nullptr!"), TEXT(#ptr)); \
+        } \
     } \
     return; \
 } \
@@ -33,18 +42,25 @@ if(ptr == nullptr) \
 #define NULL_CHECK_WITH_RETURNTYPE(ptr, ret) \
 if(ptr == nullptr) \
 { \
-    if (WITH_EDITOR == false) \
+    if (WITH_EDITOR) \
     { \
-        UE_LOG(LogTemp, Error, TEXT("pointer [%s] is nullptr!"), TEXT(#ptr)); \
+        if (GIsEditor && GWorld && GWorld->IsPlayInEditor()) \
+        { \
+            UE_LOG(LogTemp, Error, TEXT("pointer [%s] is nullptr!"), TEXT(#ptr)); \
+        } \
     } \
     return ret; \
 } \
 
 #define VALID_CHECK(ptr) \
-if (IsValid(ptr) == false) { \
-    if (WITH_EDITOR == false) \
+if (IsValid(ptr) == false) \
+{ \
+    if (WITH_EDITOR) \
     { \
-        UE_LOG(LogTemp, Error, TEXT("UObject [%s] is Invalid!"), TEXT(#ptr)); \
+        if (GIsEditor && GWorld && GWorld->IsPlayInEditor()) \
+        { \
+            UE_LOG(LogTemp, Error, TEXT("UObject [%s] is Invalid!"), TEXT(#ptr)); \
+        } \
     } \
     return; \
 } \
@@ -52,9 +68,12 @@ if (IsValid(ptr) == false) { \
 #define VALID_CHECK_WITH_RETURNTYPE(ptr, ret) \
 if (IsValid(ptr) == false) \
 { \
-    if (WITH_EDITOR == false) \
+    if (WITH_EDITOR) \
     { \
-        UE_LOG(LogTemp, Error, TEXT("UObject [%s] is Invalid!"), TEXT(#ptr)); \
+        if (GIsEditor && GWorld && GWorld->IsPlayInEditor()) \
+        { \
+            UE_LOG(LogTemp, Error, TEXT("UObject [%s] is Invalid!"), TEXT(#ptr)); \
+        } \
     } \
     return ret; \
 } \

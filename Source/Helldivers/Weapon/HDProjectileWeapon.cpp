@@ -33,8 +33,8 @@ void AHDProjectileWeapon::Fire(const FVector& HitTarget)
     AHDProjectileBase* SpawnedProjectile = World->SpawnActorDeferred<AHDProjectileBase>(
         ProjectileClass,
         SpawnTransform,
-        WeaponOwner);
+        WeaponOwner,
+        Cast<APawn>(WeaponOwner));
     NULL_CHECK(SpawnedProjectile);
-
     UGameplayStatics::FinishSpawningActor(SpawnedProjectile, SpawnTransform);
 }

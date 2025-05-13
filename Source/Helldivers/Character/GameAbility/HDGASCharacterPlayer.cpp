@@ -13,8 +13,6 @@
 
 AHDGASCharacterPlayer::AHDGASCharacterPlayer()
 {
-    PrimaryActorTick.bCanEverTick = true;
-
     // AttributeSet
     auto* BaseAttribute = CreateDefaultSubobject<UHDBaseAttributeSet>(TEXT("BaseAttributeSet"));
     auto* SpeedAttribute = CreateDefaultSubobject<UHDPlayerSpeedAttributeSet>(TEXT("SpeedAttributeSet"));
@@ -59,7 +57,8 @@ void AHDGASCharacterPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInp
 void AHDGASCharacterPlayer::CreateGASWidget(AController* PlayerController)
 {
     // showdebug abilitysystemµµ ÇÔ
-    AHDPlayerController* HDPlayerController = CastChecked<AHDPlayerController>(PlayerController);
+    AHDPlayerController* HDPlayerController = Cast<AHDPlayerController>(PlayerController);
+    NULL_CHECK(HDPlayerController);
     HDPlayerController->ConsoleCommand(TEXT("showdebug abilitysystem"));
     HDPlayerController->CreateHUDWidget(AbilitySystemComponent);
 }
@@ -160,7 +159,7 @@ void AHDGASCharacterPlayer::GASInputReleased(const FGameplayTag Tag)
 
 void AHDGASCharacterPlayer::InputStratagemCommand(const FInputActionValue& Value)
 {
-    if (AbilitySystemComponent->HasMatchingGameplayTag(HDTAG_EVENT_STRATAGEMHUD_INPUTMODE))
+    if (AbilitySystemComponent->HasMatchingGameplayTag(HDTAG_CHARACTER_STATE__STRATAGEMINPUTMODE))
     {
         EHDCommandInput NewCommand = EHDCommandInput::Count;
         const FVector2D Input = Value.Get<FVector2D>();

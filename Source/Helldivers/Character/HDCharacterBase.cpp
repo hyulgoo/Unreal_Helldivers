@@ -17,7 +17,7 @@ AHDCharacterBase::AHDCharacterBase()
 
 	// Capsule
 	GetCapsuleComponent()->InitCapsuleSize(42.f, 96.f);
-	GetCapsuleComponent()->SetCollisionProfileName(CPROFILE_UCAPSULE);
+	GetCapsuleComponent()->SetCollisionProfileName(COLLISION_PROFILE_HDPLAYER);
 
 	// Movement
 	UCharacterMovementComponent* CharacterMovementComponent = GetCharacterMovement();
@@ -33,7 +33,7 @@ AHDCharacterBase::AHDCharacterBase()
 	USkeletalMeshComponent* SkeletalMeshComponent = GetMesh();
 	SkeletalMeshComponent->SetRelativeLocationAndRotation(FVector(0.f, 0.f, -100.f), FRotator(0.f, -90.f, 0.f));
 	SkeletalMeshComponent->SetAnimationMode(EAnimationMode::AnimationBlueprint);
-	SkeletalMeshComponent->SetCollisionProfileName(TEXT("NoCollision"));
+	SkeletalMeshComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
 	static ConstructorHelpers::FObjectFinder<USkeletalMesh> CharacterMeshRef(TEXT("/Game/Characters/Mannequins/Meshes/SKM_Quinn.SKM_Quinn"));
 	if (CharacterMeshRef.Succeeded())

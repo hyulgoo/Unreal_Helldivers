@@ -13,8 +13,8 @@ UHDGE_ApplyDamage::UHDGE_ApplyDamage()
     HealthModifier.ModifierOp = EGameplayModOp::Additive;
 
     FSetByCallerFloat CallerData;
-    CallerData.DataName = FName(TEXT("Data.Projectile.Damage"));
-    CallerData.DataTag = HDTAG_DATA_PROJECTILE_DAMAGE;
+    CallerData.DataName = FName(TEXT("Data.Damage.Projectile"));
+    CallerData.DataTag = HDTAG_DATA_DAMAGE_PROJECTILE;
     
     HealthModifier.ModifierMagnitude = FGameplayEffectModifierMagnitude(CallerData);
     Modifiers.Add(HealthModifier);

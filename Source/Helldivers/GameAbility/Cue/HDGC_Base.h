@@ -15,14 +15,14 @@ class HELLDIVERS_API UHDGC_Base : public UGameplayCueNotify_Static
 	GENERATED_BODY()
 	
 public:
-	explicit UHDGC_Base();
+	explicit UHDGC_Base() = default;
 
 	virtual bool OnExecute_Implementation(AActor* Target, const FGameplayCueParameters& Parameters) const override final;
 
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "GameplayCue|Pacticle")
-	TObjectPtr<UParticleSystem> ParticleSystem;
+	TObjectPtr<UParticleSystem>		ParticleSystem;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "GameplayCue|Sound")
-	TObjectPtr<USoundBase>		EffectSound;
+	TArray<TObjectPtr<USoundBase>>	EffectSounds;
 };

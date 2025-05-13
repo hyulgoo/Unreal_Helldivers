@@ -2,6 +2,7 @@
 
 
 #include "HDGA_Shoulder.h"
+#include "Define/HDDefine.h"
 #include "GameFramework/Character.h"
 #include "Interface/HDCharacterMovementInterface.h"
 
@@ -20,19 +21,13 @@ void UHDGA_Shoulder::ActivateAbility(const FGameplayAbilitySpecHandle Handle, co
     Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 
     IHDCharacterMovementInterface* CharacterAimingInterface = Cast<IHDCharacterMovementInterface>(ActorInfo->AvatarActor.Get());
-    if (CharacterAimingInterface)
-    {
-        CharacterAimingInterface->SetShouldering(true);
-    }
+    NULL_CHECK(CharacterAimingInterface);
 }
 
 void UHDGA_Shoulder::InputReleased(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo)
 {
     IHDCharacterMovementInterface* CharacterAimingInterface = Cast<IHDCharacterMovementInterface>(ActorInfo->AvatarActor.Get());
-    if (CharacterAimingInterface)
-    {
-        CharacterAimingInterface->SetShouldering(false);
-    }
+    NULL_CHECK(CharacterAimingInterface);
 
     const bool bReplicatedEndAbility = true;
     const bool bWasCancelled = true;

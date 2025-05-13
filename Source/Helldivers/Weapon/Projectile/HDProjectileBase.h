@@ -16,6 +16,7 @@ class UNiagaraComponent;
 class UParticleSystem;
 class USoundCue;
 class UGameplayEffect;
+class UAbilitySystemComponent;
 enum class EImpactType : uint8;
 enum class EStatusEffect : uint8;
 
@@ -36,9 +37,13 @@ protected:
 	virtual void	OnBoxHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
 
 private:
+    void            InitializeBeginPlay();
     void			StartDestroyTimer();
     void			DestroyTimerFinished();
     void            SpawnTrailSystem();
+
+    void            ApplyImpactGameEffect(UAbilitySystemComponent* TargetAbiltySystemComponent);
+    void            ExcuteGameplayCue(UAbilitySystemComponent* OwnerAbilitySystemComponent, const FGameplayTag& Tag, const FHitResult& Hit);
 
 public:	
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Info|Default")
@@ -55,6 +60,12 @@ public:
     
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Info|Default")
     float                                       ImpactDamage;
+
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Info|Default")
+    FGameplayTag                                ImpactBlocklCueTag;
+
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Info|Default")
+    FGameplayTag                                ImpactHitCueTag;
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Info|Status")
     EStatusEffect                               StatusEffect;
@@ -77,8 +88,8 @@ public:
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Info|Explode")
     float                                       ExplodeKnockBackRange;
     
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Info|Explode")
-    FGameplayTag                                ImpactCueTag;
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Info|Knockback")
+    FGameplayTag                                KnockbackTag;
 
 protected:
 	UPROPERTY(EditAnywhere, Category = "Info|Default")

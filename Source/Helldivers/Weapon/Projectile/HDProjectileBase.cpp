@@ -10,6 +10,7 @@
 #include "GameAbility/Effect/HDGE_ApplyDamage.h"
 #include "Define/HDDefine.h"
 #include "Tag/HDGameplayTag.h"
+#include "Physics/HDCollision.h"
 
 AHDProjectileBase::AHDProjectileBase()
 {
@@ -17,11 +18,8 @@ AHDProjectileBase::AHDProjectileBase()
 
     CollisionBox = CreateDefaultSubobject<UBoxComponent>(TEXT("CollisionBox"));
     SetRootComponent(CollisionBox);
-    CollisionBox->SetCollisionObjectType(ECollisionChannel::ECC_WorldDynamic);
-    CollisionBox->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
-    CollisionBox->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
-    CollisionBox->SetCollisionResponseToChannel(ECollisionChannel::ECC_Visibility, ECollisionResponse::ECR_Block);
-    CollisionBox->SetCollisionResponseToChannel(ECollisionChannel::ECC_WorldStatic, ECollisionResponse::ECR_Block);
+    CollisionBox->SetCollisionProfileName(COLLISION_PROFILE_HDPROJECTILE);
+    CollisionBox->IgnoreActorWhenMoving(GetInstigator(), true);
     CollisionBox->OnComponentHit.AddDynamic(this, &AHDProjectileBase::OnBoxHit);
 
     ProjectileMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("ProjectileMesh"));
@@ -37,11 +35,9 @@ void AHDProjectileBase::BeginPlay()
 {
     Super::BeginPlay();
 
-    ProjectileMovementComponent->MaxSpeed = InitSpeed;
-    ProjectileMovementComponent->Velocity = GetActorForwardVector() * InitSpeed;
-    ProjectileMovementComponent->ProjectileGravityScale = 0.f;
-
+    InitializeBeginPlay();
     StartDestroyTimer();
+    SpawnTrailSystem();
 }
 
 void AHDProjectileBase::Tick(float DeltaSeconds)
@@ -61,47 +57,45 @@ void AHDProjectileBase::Destroyed()
 
 void AHDProjectileBase::OnBoxHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
+    CONDITION_CHECK(ImpactBlocklCueTag.IsValid() == false || ImpactHitCueTag.IsValid() == false);
     NULL_CHECK(OtherActor);
+
+    UE_LOG(LogTemp, Warning, TEXT("ProjectileHitActor : %s"), *OtherActor->GetName());
+
+    AActor* OwnerActor = GetOwner();
+    NULL_CHECK(OwnerActor);
+
+    IAbilitySystemInterface* OwnerAbilitySystemInterface = Cast<IAbilitySystemInterface>(OwnerActor);
+    NULL_CHECK(OwnerAbilitySystemInterface);
+
+    UAbilitySystemComponent* OwnerAbilitySystemComponent = OwnerAbilitySystemInterface->GetAbilitySystemComponent();
+    NULL_CHECK(OwnerAbilitySystemComponent);
 
     // Get Target ASC
     IAbilitySystemInterface* TargetAbilitySystemInterface = Cast<IAbilitySystemInterface>(OtherActor);
     if (TargetAbilitySystemInterface)
-    {
-        AActor* OwnerActor = GetOwner();
-        NULL_CHECK(OwnerActor);
-
-        IAbilitySystemInterface* OwnerAbilitySystemInterface = Cast<IAbilitySystemInterface>(OwnerActor);
-        NULL_CHECK(OwnerAbilitySystemInterface);
-
-        UAbilitySystemComponent* SourceAbilitySystemComponent = OwnerAbilitySystemInterface->GetAbilitySystemComponent();
-        NULL_CHECK(SourceAbilitySystemComponent);
-
+    {   
         UAbilitySystemComponent* TargetAbilitySystemComponent = TargetAbilitySystemInterface->GetAbilitySystemComponent();
         NULL_CHECK(TargetAbilitySystemComponent);
 
-        NULL_CHECK(ImpactGameEffect);
-        FGameplayEffectSpecHandle ImpactGameEffectSpecHandle = TargetAbilitySystemComponent->MakeOutgoingSpec(ImpactGameEffect, 1.f, TargetAbilitySystemComponent->MakeEffectContext());
-        if (ImpactGameEffectSpecHandle.IsValid())
-        {
-            ImpactGameEffectSpecHandle.Data->SetSetByCallerMagnitude(HDTAG_DATA_PROJECTILE_DAMAGE, ImpactDamage);
-            TargetAbilitySystemComponent->ApplyGameplayEffectSpecToSelf(*ImpactGameEffectSpecHandle.Data.Get());
-        }
-
-        if(StatusEffect != EStatusEffect::None)
-        {
-            FGameplayEffectSpecHandle StatusGameEffectSpecHandle = TargetAbilitySystemComponent->MakeOutgoingSpec(StatusGameEffect, 1.f, TargetAbilitySystemComponent->MakeEffectContext());
-            if (StatusGameEffectSpecHandle.IsValid())
-            {
-                StatusGameEffectSpecHandle.Data->SetSetByCallerMagnitude(HDTAG_DATA_PROJECTILE_DOTDAMAGE, DotDamage);
-                StatusGameEffectSpecHandle.Data->SetSetByCallerMagnitude(HDTAG_DATA_PROJECTILE_STATUSEFFECTDURATION, StatusDuration);
-                TargetAbilitySystemComponent->ApplyGameplayEffectSpecToSelf(*StatusGameEffectSpecHandle.Data.Get());
-            }
-        }
+        ApplyImpactGameEffect(TargetAbilitySystemComponent);
+        ExcuteGameplayCue(OwnerAbilitySystemComponent, ImpactHitCueTag, Hit);
+    }
+    else
+    {
+        ExcuteGameplayCue(OwnerAbilitySystemComponent, ImpactBlocklCueTag, Hit);
     }
 
-    // TODO EffectCue 발동 (GAS가 없어도 일단 충돌했으면 Destroy)
-    
     Destroy();
+}
+
+void AHDProjectileBase::InitializeBeginPlay()
+{
+    CollisionBox->IgnoreActorWhenMoving(GetInstigator(), true);
+
+    ProjectileMovementComponent->MaxSpeed = InitSpeed;
+    ProjectileMovementComponent->Velocity = GetActorForwardVector() * InitSpeed;
+    ProjectileMovementComponent->ProjectileGravityScale = 0.f;
 }
 
 void AHDProjectileBase::StartDestroyTimer()
@@ -135,4 +129,50 @@ void AHDProjectileBase::SpawnTrailSystem()
             EAttachLocation::KeepWorldPosition
         );
     }
+}
+
+void AHDProjectileBase::ApplyImpactGameEffect(UAbilitySystemComponent* TargetAbiltySystemComponent)
+{
+    NULL_CHECK(ImpactGameEffect);
+
+    FGameplayEffectSpecHandle ImpactGameEffectSpecHandle = TargetAbiltySystemComponent->MakeOutgoingSpec(ImpactGameEffect, 1.f, TargetAbiltySystemComponent->MakeEffectContext());
+    CONDITION_CHECK(ImpactGameEffectSpecHandle.IsValid() == false);
+
+    ImpactGameEffectSpecHandle.Data->SetSetByCallerMagnitude(HDTAG_DATA_DAMAGE_PROJECTILE, ImpactDamage);
+    TargetAbiltySystemComponent->ApplyGameplayEffectSpecToSelf(*ImpactGameEffectSpecHandle.Data.Get());
+
+    if (StatusEffect != EStatusEffect::None)
+    {
+        NULL_CHECK(StatusGameEffect);
+
+        FGameplayEffectSpecHandle StatusGameEffectSpecHandle = TargetAbiltySystemComponent->MakeOutgoingSpec(StatusGameEffect, 1.f, TargetAbiltySystemComponent->MakeEffectContext());
+        CONDITION_CHECK(StatusGameEffectSpecHandle.IsValid() == false);
+
+        StatusGameEffectSpecHandle.Data->SetSetByCallerMagnitude(HDTAG_DATA_DOTDAMAGE_TICKDAMAGE, DotDamage);
+        StatusGameEffectSpecHandle.Data->SetSetByCallerMagnitude(HDTAG_DATA_DOTDAMAGE_DURATION, StatusDuration);
+        TargetAbiltySystemComponent->ApplyGameplayEffectSpecToSelf(*StatusGameEffectSpecHandle.Data.Get());
+    }
+
+    if(KnockbackTag.IsValid())
+    {
+        FGameplayEventData EventData;
+        EventData.EventTag = KnockbackTag;
+        EventData.Instigator = this;
+        EventData.Target = TargetAbiltySystemComponent->GetOwnerActor();
+
+        TargetAbiltySystemComponent->HandleGameplayEvent(EventData.EventTag, &EventData);
+    }
+}
+
+void AHDProjectileBase::ExcuteGameplayCue(UAbilitySystemComponent* OwnerAbilitySystemComponent, const FGameplayTag& Tag, const FHitResult& Hit)
+{
+    NULL_CHECK(OwnerAbilitySystemComponent);
+    CONDITION_CHECK(Tag.IsValid() == false);
+
+    FGameplayCueParameters Params;
+    Params.Location = Hit.ImpactPoint;
+    Params.Normal = Hit.Normal;
+    Params.Instigator = OwnerAbilitySystemComponent->GetOwnerActor();
+    Params.SourceObject = this;
+    OwnerAbilitySystemComponent->ExecuteGameplayCue(Tag, Params);
 }
