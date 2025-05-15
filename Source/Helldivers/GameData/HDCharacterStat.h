@@ -29,12 +29,23 @@ public:
 	}
 
 public:
+	// Base
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Stat)
-	float MaxHp = 0.f;
+	float MaxHealth = 0.f;
+
+	// Speed
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Stat)
+	float CrawlingSpeed = 0.f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Stat)
-	float MovementSpeed = 0.f;
-	
+	float CrouchSpeed = 0.f;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Stat)
-	float MaxStamina = 0.f;	
+	float WalkSpeed = 0.f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Stat)
+	float SprintSpeed = 0.f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Stat)
+	float MaxStamina = 0.f;
 };

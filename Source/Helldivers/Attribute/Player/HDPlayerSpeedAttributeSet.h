@@ -26,6 +26,7 @@ public:
 	ATTRIBUTE_ACCESSORS(UHDPlayerSpeedAttributeSet, CrouchSpeed);
 	ATTRIBUTE_ACCESSORS(UHDPlayerSpeedAttributeSet, WalkSpeed);
 	ATTRIBUTE_ACCESSORS(UHDPlayerSpeedAttributeSet, SprintSpeed);
+	ATTRIBUTE_ACCESSORS(UHDPlayerSpeedAttributeSet, MaxStamina);
 
 	virtual void PreAttributeChange(const FGameplayAttribute& Attribute, float& NewValue) override;
 	//virtual void PostAttributeChange(const FGameplayAttribute& Attribute, float OldValue, float NewValue) override;
@@ -33,18 +34,21 @@ public:
 	virtual void PostGameplayEffectExecute(const struct FGameplayEffectModCallbackData& Data) override;
 	
 public:
-	UPROPERTY(BlueprintReadOnly, Category = CurrentSpeed, Meta = (AllowPrivateAccess = "true"))
-	FGameplayAttributeData CurrentSpeed;
-		
-    UPROPERTY(BlueprintReadOnly, Category = CurrentSpeed, Meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(BlueprintReadOnly, Category = Speed, Meta = (AllowPrivateAccess = "true"))
+	FGameplayAttributeData CurrentSpeed;	
+											
+    UPROPERTY(BlueprintReadOnly, Category = Speed, Meta = (AllowPrivateAccess = "true"))
     FGameplayAttributeData CrawlingSpeed;
-	
-	UPROPERTY(BlueprintReadOnly, Category = CurrentSpeed, Meta = (AllowPrivateAccess = "true"))
-	FGameplayAttributeData CrouchSpeed;
-
-	UPROPERTY(BlueprintReadOnly, Category = CurrentSpeed, Meta = (AllowPrivateAccess = "true"))
-	FGameplayAttributeData WalkSpeed;
-	
-	UPROPERTY(BlueprintReadOnly, Category = CurrentSpeed, Meta = (AllowPrivateAccess = "true"))
-	FGameplayAttributeData SprintSpeed;
+										
+	UPROPERTY(BlueprintReadOnly, Category = Speed, Meta = (AllowPrivateAccess = "true"))
+	FGameplayAttributeData CrouchSpeed;	
+										
+	UPROPERTY(BlueprintReadOnly, Category = Speed, Meta = (AllowPrivateAccess = "true"))
+	FGameplayAttributeData WalkSpeed;	
+										
+	UPROPERTY(BlueprintReadOnly, Category = Speed, Meta = (AllowPrivateAccess = "true"))
+    FGameplayAttributeData SprintSpeed;	
+										
+    UPROPERTY(BlueprintReadOnly, Category = Speed, Meta = (AllowPrivateAccess = "true"))
+    FGameplayAttributeData MaxStamina;
 };

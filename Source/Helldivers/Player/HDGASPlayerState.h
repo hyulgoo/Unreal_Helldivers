@@ -8,7 +8,7 @@
 #include "HDGASPlayerState.generated.h"
 
 class UAbilitySystemComponent;
-class UHDBaseAttributeSet;
+class UHDHealthAttributeSet;
 
 UCLASS()
 class HELLDIVERS_API AHDGASPlayerState : public APlayerState, public IAbilitySystemInterface

@@ -2,7 +2,7 @@
 
 
 #include "UI/HDGASPlayerUserWidget.h"
-#include "Attribute/HDBaseAttributeSet.h"
+#include "Attribute/HDHealthAttributeSet.h"
 #include "Components/ProgressBar.h"
 #include "Components/TextBlock.h"
 #include "Components/Image.h"

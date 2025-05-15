@@ -115,7 +115,7 @@ private:
     TObjectPtr<UNiagaraComponent>               TrailSystemComponent;
 
 	UPROPERTY(EditAnywhere, Category = "Info|Default")
-	float										DestroyTime = 3.f;
+	float										DestroyTime = 10.f;
 
 	FTimerHandle								DestroyTimer;
 };

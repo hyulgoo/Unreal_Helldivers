@@ -44,3 +44,13 @@ enum class EHDTurningInPlace : uint8
 	Turn_Right,
 	Count,
 };
+
+UENUM(BlueprintType)
+enum class EHDCharacterMovementState : uint8
+{
+	Walk,
+	Crawling,
+	Crouch,
+	Sprint,
+	Count,
+};

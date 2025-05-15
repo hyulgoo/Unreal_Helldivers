@@ -2,14 +2,14 @@
 
 #include "HDGE_ApplyDamage.h"
 #include "Tag/HDGameplayTag.h"
-#include "Attribute/HDBaseAttributeSet.h"
+#include "Attribute/HDHealthAttributeSet.h"
 
 UHDGE_ApplyDamage::UHDGE_ApplyDamage()
 {
     DurationPolicy = EGameplayEffectDurationType::Instant;
 
     FGameplayModifierInfo HealthModifier;
-    HealthModifier.Attribute = FGameplayAttribute((UHDBaseAttributeSet::GetCurrentHealthAttribute()));
+    HealthModifier.Attribute = FGameplayAttribute((UHDHealthAttributeSet::GetCurrentHealthAttribute()));
     HealthModifier.ModifierOp = EGameplayModOp::Additive;
 
     FSetByCallerFloat CallerData;

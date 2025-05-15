@@ -8,6 +8,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "Weapon/Projectile/HDProjectileBase.h"
 #include "Define/HDDefine.h"
+#include "AbilitySystemComponent.h"
 
 AHDBattleShip::AHDBattleShip()
     : StratagemTransform()
@@ -15,32 +16,12 @@ AHDBattleShip::AHDBattleShip()
     , ActiveStratagemTimerHandle()
     , bCanUseStratagem(false)
 {
+
     UStaticMeshComponent* BattleShipMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("BattleShipMesh"));
     SetRootComponent(BattleShipMesh);
+    BattleShipMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
-    static ConstructorHelpers::FObjectFinder<UDataTable> StratagemDataListRef(TEXT("/Script/Engine.DataTable'/Game/Helldivers/GameData/DT_StratagemEffectData.DT_StratagemEffectData'"));
-    if (StratagemDataListRef.Succeeded())
-    {
-        StratagemEffectDataTable = StratagemDataListRef.Object;
-    }
-
-    static ConstructorHelpers::FClassFinder<AHDEagleFighter> EagleFighterClassRef(TEXT("/Game/Helldivers/Blueprint/Stratagem/BP_EagleFighter.BP_EagleFighter_C"));
-    if (EagleFighterClassRef.Class)
-    {
-        EagleFighterClass = EagleFighterClassRef.Class;
-    }
-
-    static ConstructorHelpers::FClassFinder<AHDProjectileBase> ProjectileBombClassRef(TEXT("/Game/Helldivers/Blueprint/Stratagem/BP_Bomb.BP_Bomb_C"));
-    if (ProjectileBombClassRef.Class)
-    {
-        ProjectileBombClass = ProjectileBombClassRef.Class;
-    }
-
-    static ConstructorHelpers::FClassFinder<AHDProjectileBase> ProjectileBulletClassRef(TEXT("/Game/Helldivers/Blueprint/Stratagem/BP_EagleBullet.BP_EagleBullet_C"));
-    if (ProjectileBulletClassRef.Class)
-    {
-        ProjectileBulletClass = ProjectileBulletClassRef.Class;
-    }
+    AbilitySystemComponent = CreateDefaultSubobject<UAbilitySystemComponent>(TEXT("AbilitySystemComponent"));
 }
 
 void AHDBattleShip::ActivateStratagem(const FName StratagemName, const FTransform& Transform, const float StratagemActiveDelay)
@@ -90,6 +71,11 @@ void AHDBattleShip::ActivateStratagem(const FName StratagemName, const FTransfor
             );
         }
     }
+}
+
+UAbilitySystemComponent* AHDBattleShip::GetAbilitySystemComponent() const
+{
+    return AbilitySystemComponent;
 }
 
 void AHDBattleShip::BeginPlay()
@@ -149,13 +135,12 @@ void AHDBattleShip::OrbitalStrikeWithDelay(const FHDStratagemEffectData& Stratag
 
     const FVector& SpawnLocation    = GetActorLocation();
     const FVector ToTarget          = FinalDropTargetPosition - SpawnLocation;
-    const float Impulse             = ToTarget.Length();
     const FTransform SpawnTransform(ToTarget.Rotation(), SpawnLocation);
 
     AHDProjectileBase* SpawnProjectile = World->SpawnActorDeferred<AHDProjectileBase>(
         ProjectileClass,
         SpawnTransform,
-        nullptr,
+        this,
         nullptr,
         ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn
     );
@@ -195,7 +180,7 @@ void AHDBattleShip::EagleStrike(const FHDStratagemEffectData& StratagemEffectDat
         EagleFighter = World->SpawnActorDeferred<AHDEagleFighter>(
             EagleFighterClass,
             StratagemTransform,
-            nullptr,
+            this,
             nullptr,
             ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn
         );

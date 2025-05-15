@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "AbilitySystemInterface.h"
 #include "HDBattleShip.generated.h"
 
 class AHDEagleFighter;
@@ -11,42 +12,46 @@ class AHDProjectileBase;
 struct FHDStratagemEffectData;
 
 UCLASS()
-class HELLDIVERS_API AHDBattleShip : public AActor
+class HELLDIVERS_API AHDBattleShip : public AActor, public IAbilitySystemInterface
 {
 	GENERATED_BODY()
 	
 public:	
 	explicit AHDBattleShip();
 
-	void							ActivateStratagem(const FName StratagemName, const FTransform& Transform, const float StratagemActiveDelay);
+    virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
+	void							    ActivateStratagem(const FName StratagemName, const FTransform& Transform, const float StratagemActiveDelay);
 
 protected:
-	virtual void					BeginPlay() override final;
+	virtual void					    BeginPlay() override final;
 
 private:
-	FHDStratagemEffectData*			FindStratagemEffectData(const FName StratagemName) const;
+	FHDStratagemEffectData*			    FindStratagemEffectData(const FName StratagemName) const;
 
-	void							OrbitalStrikeWithDelay(const FHDStratagemEffectData& StratagemEffectData, int32 BombIndex);
-	void							EagleStrike(const FHDStratagemEffectData& StratagemEffectData);
+	void							    OrbitalStrikeWithDelay(const FHDStratagemEffectData& StratagemEffectData, int32 BombIndex);
+	void							    EagleStrike(const FHDStratagemEffectData& StratagemEffectData);
 
-private:
-	UPROPERTY(VisibleAnywhere)
-	TSubclassOf<AHDEagleFighter>	EagleFighterClass;
+protected:
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "GAS")
+    TObjectPtr<UAbilitySystemComponent> AbilitySystemComponent;
 
-	TObjectPtr<AHDEagleFighter>		EagleFighter;
+	UPROPERTY(EditAnywhere)
+    TSubclassOf<AHDEagleFighter>		EagleFighterClass;
 
-    UPROPERTY(VisibleAnywhere)
-    TSubclassOf<AHDProjectileBase>	    ProjectileBombClass;
-    
-    UPROPERTY(VisibleAnywhere)
-    TSubclassOf<AHDProjectileBase>	    ProjectileBulletClass;
+    TObjectPtr<AHDEagleFighter>			EagleFighter;
 
-	// StratagemEffectData
-    UPROPERTY(VisibleAnywhere)
-	TObjectPtr<UDataTable>			StratagemEffectDataTable;
+    UPROPERTY(EditAnywhere)
+    TSubclassOf<AHDProjectileBase>		ProjectileBombClass;
 
-    FTransform 						StratagemTransform;
-	uint8							CurrentStratagemIndex;
-	FTimerHandle					ActiveStratagemTimerHandle;
-	bool							bCanUseStratagem;
+    UPROPERTY(EditAnywhere)
+    TSubclassOf<AHDProjectileBase>		ProjectileBulletClass;
+
+    // StratagemEffectData
+    UPROPERTY(EditAnywhere)
+    TObjectPtr<UDataTable>				StratagemEffectDataTable;
+
+    FTransform 							StratagemTransform;
+    uint8								CurrentStratagemIndex;
+    FTimerHandle						ActiveStratagemTimerHandle;
+    bool								bCanUseStratagem;
 };

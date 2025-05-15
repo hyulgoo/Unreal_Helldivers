@@ -21,7 +21,6 @@
 
 AHDCharacterPlayer::AHDCharacterPlayer()
     : CurrentCharacterControlType()
-    , ArmorType(EHDArmorType::Medium)
     , StartingAimRotation()
     , LastFrame_Yaw(0.f)
     , AimOffset_Yaw(0.f)
@@ -199,11 +198,6 @@ void AHDCharacterPlayer::SetShouldering(const bool bShoulder)
 {
     NULL_CHECK(Combat);
     Combat->bIsShoulder = bShoulder;
-}
-
-void AHDCharacterPlayer::SetArmor(EHDArmorType NewArmorType)
-{
-    //static ConstructorHelpers::FObjectFinder<UHDCharacterArmorData> ArmorDataAssetRef(TEXT(""));
 }
 
 void AHDCharacterPlayer::EquipWeapon(AHDWeapon* NewWeapon)

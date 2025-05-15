@@ -184,16 +184,19 @@ void AHDEagleFighter::CreateProjectile(TSubclassOf<AHDProjectileBase> Projectile
 
     FVector FinalDropTargetLocation = ProjectileTargetLocation + FVector(DropLocation2D.X, DropLocation2D.Y, 0.f);
     FVector ToTarget = FinalDropTargetLocation - EagleLocation;
-    float Impulse = ToTarget.Length() * (1.f + (1.f - ProjectileIndex * StratagemEffectData.SpecifyProjectileSpawnDelay));
     FTransform SpawnTransform(ToTarget.Rotation(), EagleLocation);
+
+    AActor* OwnerActor = GetOwner();
+    NULL_CHECK(OwnerActor);
 
     AHDProjectileBase* SpawnProjectile = World->SpawnActorDeferred<AHDProjectileBase>(
         ProjectileClass,
         SpawnTransform,
-        this,
+        OwnerActor,
         nullptr,
         ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn
     );
+    NULL_CHECK(SpawnProjectile);
 
     UGameplayStatics::FinishSpawningActor(SpawnProjectile, SpawnTransform);
 
@@ -205,13 +208,12 @@ void AHDEagleFighter::CreateProjectile(TSubclassOf<AHDProjectileBase> Projectile
             MultipleSpawnLocationDiff = DropLocation2D + DropPosition;
             FinalDropTargetLocation = ProjectileTargetLocation + FVector(MultipleSpawnLocationDiff.X, MultipleSpawnLocationDiff.Y, 0.f);
             ToTarget = FinalDropTargetLocation - EagleLocation;
-            Impulse = ToTarget.Length() * (1.f + (1.f - ProjectileIndex * StratagemEffectData.SpecifyProjectileSpawnDelay));
             SpawnTransform = FTransform(ToTarget.Rotation(), EagleLocation);
 
             SpawnProjectile = World->SpawnActorDeferred<AHDProjectileBase>(
                 ProjectileClass,
                 SpawnTransform,
-                this,
+                OwnerActor,
                 nullptr,
                 ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn
             );

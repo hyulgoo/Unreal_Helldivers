@@ -3,17 +3,13 @@
 #include "Attribute/Player/HDPlayerSpeedAttributeSet.h"
 
 UHDPlayerSpeedAttributeSet::UHDPlayerSpeedAttributeSet()
-    : CurrentSpeed(0.f)
-    , CrawlingSpeed(0.f)
-    , CrouchSpeed(0.f)
-    , WalkSpeed(0.f)
-    , SprintSpeed(0.f)
 {
 	InitCurrentSpeed(GetWalkSpeed());
 }
 
 void UHDPlayerSpeedAttributeSet::PreAttributeChange(const FGameplayAttribute& Attribute, float& NewValue)
 {
+	NewValue = NewValue < 0.f ? 0.f : NewValue;
 }
 
 bool UHDPlayerSpeedAttributeSet::PreGameplayEffectExecute(FGameplayEffectModCallbackData& Data)

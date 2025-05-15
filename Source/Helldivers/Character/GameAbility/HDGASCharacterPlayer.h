@@ -40,17 +40,19 @@ public:
 	explicit AHDGASCharacterPlayer();
 
 public:
-	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override final;
+	virtual UAbilitySystemComponent*			GetAbilitySystemComponent() const override final;
+	void										SetArmor(EHDArmorType NewArmorType);
 
 protected:
 	virtual void								PossessedBy(AController* NewController) override final;
+	virtual void								BeginPlay() override final;
 	virtual void								SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override final;
 	void		                                CreateGASWidget(AController* PlayerController);
 	void										SetupGASInputComponent(UEnhancedInputComponent* EnhancedInputComponent);
 	void										SetGASEventInputComponent(UEnhancedInputComponent* EnhancedInputComponent);
 	void										GASInputPressed(const FGameplayTag Tag);
 	void										GASInputReleased(const FGameplayTag Tag);
-
+	
 	UFUNCTION()
 	void										InputStratagemCommand(const FInputActionValue& Value);
 
@@ -59,8 +61,7 @@ protected:
 private:
 	void										SetStratagemHUDAppear(const bool bAppear);
 
-	//void										InitializeAttributeSet();
-	//void										SetSpeedAttributeSet();	
+	void										InitializeAttributeSet();
 
 private:
 	UPROPERTY(EditAnywhere, Category = GAS)
@@ -80,4 +81,10 @@ private:
 
 	UPROPERTY(EditAnywhere, Category = GAS)
 	TArray<FTagEventBindInfo>					TagEventBindInfoList;
+
+	// Armor
+	EHDArmorType								ArmorType = EHDArmorType::Count;
+	
+	UPROPERTY(EditAnywhere, Category = Stratagem, Meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<UDataTable>						ArmorTypeStatusDataTable;
 };

@@ -47,9 +47,6 @@ void AHDProjectileBase::Tick(float DeltaSeconds)
 
 void AHDProjectileBase::Destroyed()
 {
-    UWorld* World = GetWorld();
-    VALID_CHECK(World);
-
     UE_LOG(LogTemp, Warning, TEXT("DropTargetPosition : %s"), *GetActorLocation().ToString());
     
     Super::Destroyed();
@@ -116,7 +113,7 @@ void AHDProjectileBase::SpawnTrailSystem()
             GetActorLocation(), GetActorRotation(), EAttachLocation::KeepWorldPosition, false);
         return;
     }
-
+    
     if (Tracer)
     {
         TracerComponent = UGameplayStatics::SpawnEmitterAttached(
@@ -125,7 +122,7 @@ void AHDProjectileBase::SpawnTrailSystem()
             FName(),
             GetActorLocation(),
             GetActorRotation(),
-            FVector(1.f),
+            GetActorScale(),
             EAttachLocation::KeepWorldPosition
         );
     }
@@ -134,21 +131,23 @@ void AHDProjectileBase::SpawnTrailSystem()
 void AHDProjectileBase::ApplyImpactGameEffect(UAbilitySystemComponent* TargetAbiltySystemComponent)
 {
     NULL_CHECK(ImpactGameEffect);
+    VALID_CHECK(TargetAbiltySystemComponent);
 
-    FGameplayEffectSpecHandle ImpactGameEffectSpecHandle = TargetAbiltySystemComponent->MakeOutgoingSpec(ImpactGameEffect, 1.f, TargetAbiltySystemComponent->MakeEffectContext());
+    FGameplayEffectContextHandle Context = TargetAbiltySystemComponent->MakeEffectContext();
+    FGameplayEffectSpecHandle ImpactGameEffectSpecHandle = TargetAbiltySystemComponent->MakeOutgoingSpec(ImpactGameEffect, 1.f, Context);
     CONDITION_CHECK(ImpactGameEffectSpecHandle.IsValid() == false);
 
-    ImpactGameEffectSpecHandle.Data->SetSetByCallerMagnitude(HDTAG_DATA_DAMAGE_PROJECTILE, ImpactDamage);
+    ImpactGameEffectSpecHandle.Data->SetSetByCallerMagnitude(HDTAG_DATA_DAMAGE_PROJECTILE, -ImpactDamage);
     TargetAbiltySystemComponent->ApplyGameplayEffectSpecToSelf(*ImpactGameEffectSpecHandle.Data.Get());
 
     if (StatusEffect != EStatusEffect::None)
     {
         NULL_CHECK(StatusGameEffect);
 
-        FGameplayEffectSpecHandle StatusGameEffectSpecHandle = TargetAbiltySystemComponent->MakeOutgoingSpec(StatusGameEffect, 1.f, TargetAbiltySystemComponent->MakeEffectContext());
+        FGameplayEffectSpecHandle StatusGameEffectSpecHandle = TargetAbiltySystemComponent->MakeOutgoingSpec(StatusGameEffect, 1.f, Context);
         CONDITION_CHECK(StatusGameEffectSpecHandle.IsValid() == false);
 
-        StatusGameEffectSpecHandle.Data->SetSetByCallerMagnitude(HDTAG_DATA_DOTDAMAGE_TICKDAMAGE, DotDamage);
+        StatusGameEffectSpecHandle.Data->SetSetByCallerMagnitude(HDTAG_DATA_DOTDAMAGE_TICKDAMAGE, -DotDamage);
         StatusGameEffectSpecHandle.Data->SetSetByCallerMagnitude(HDTAG_DATA_DOTDAMAGE_DURATION, StatusDuration);
         TargetAbiltySystemComponent->ApplyGameplayEffectSpecToSelf(*StatusGameEffectSpecHandle.Data.Get());
     }

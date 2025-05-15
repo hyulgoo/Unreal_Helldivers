@@ -2,15 +2,20 @@
 
 #include "Attribute/HDBaseAttributeSet.h"
 
-void UHDBaseAttributeSet::PreAttributeChange(const FGameplayAttribute& Attribute, float& NewValue)
+const int32 UHDBaseAttributeSet::GetAttributeNum(UClass* AttributeSetClass) const
 {
-}
+    int32 Count = 0;
+    for(TFieldIterator<FProperty> Iter(AttributeSetClass); Iter; ++Iter)
+    {
+        const FProperty* Property = *Iter;
+        if(const FStructProperty* StructProperty = CastField<FStructProperty>(Property))
+        {
+            if(StructProperty->Struct == TBaseStructure<FGameplayAttributeData>::Get())
+            {
+                ++Count;
+            }
+        }
+    }
 
-bool UHDBaseAttributeSet::PreGameplayEffectExecute(FGameplayEffectModCallbackData& Data)
-{
-    return false;
-}
-
-void UHDBaseAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallbackData& Data)
-{
+    return Count;
 }

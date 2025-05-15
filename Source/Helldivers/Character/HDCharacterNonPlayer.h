@@ -20,11 +20,6 @@ protected:
     virtual void PostInitializeComponents() override final;
     virtual void SetDead() override final;
 
-    void NPCMeshLoadCompleted();
-
 protected:
-    UPROPERTY(Config)
-    TArray<FSoftClassPath> NPCMeshes;
 
-    TSharedPtr<FStreamableHandle> NPCMeshHandle;
 };

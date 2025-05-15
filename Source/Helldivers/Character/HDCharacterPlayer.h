@@ -37,8 +37,6 @@ protected:
     virtual void							SetDead() override;
     virtual void							Tick(float DeltaTime) override;
 
-	void									SetArmor(const EHDArmorType NewArmorType);
-
 	// WeaponInferface
 	virtual void							EquipWeapon(AHDWeapon* NewWeapon) override final;
 	virtual AHDWeapon*						GetWeapon() const override final;
@@ -126,7 +124,6 @@ protected:
 	TObjectPtr<UInputAction>		ThrowStratagemAction;
 	
     EHDCharacterControlType			CurrentCharacterControlType;
-    EHDArmorType					ArmorType = EHDArmorType::Medium;
 	
 	UPROPERTY(VisibleAnywhere, Category = Stratagem, Meta = (AllowPrivateAccess = "true"))
 	TArray<EHDCommandInput>			CurrentInputCommandList;
@@ -177,5 +174,4 @@ private:
 
 	// HUD, Crosshair
 	float							DefaultFOV;
-
 };

@@ -5,11 +5,16 @@
 #include "Particles/ParticleSystem.h"
 #include "Define/HDDefine.h"
 
+UHDGC_Base::UHDGC_Base()
+{
+    ParticleScale = 1.f;
+}
+
 bool UHDGC_Base::OnExecute_Implementation(AActor* Target, const FGameplayCueParameters& Parameters) const
 {
     if (ParticleSystem)
-    {
-        UGameplayStatics::SpawnEmitterAtLocation(Target, ParticleSystem, Parameters.Location, Parameters.Normal.Rotation(), true);
+    {   
+        UGameplayStatics::SpawnEmitterAtLocation(Target, ParticleSystem, Parameters.Location, Parameters.Normal.Rotation(), FVector(ParticleScale));
     }
 
     if (EffectSounds.IsEmpty() == false)
