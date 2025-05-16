@@ -39,12 +39,6 @@ public:
 	FVector		TargetOffset;
 
 	UPROPERTY(EditAnywhere, Category = SpringArm)
-	FRotator	RelativeRotation;
-	
-	UPROPERTY(EditAnywhere, Category = SpringArm)
-	FVector		RelativeLocation;
-
-	UPROPERTY(EditAnywhere, Category = SpringArm)
 	uint32		bUsePawnControlRotation	: 1;
 
 	UPROPERTY(EditAnywhere, Category = SpringArm)

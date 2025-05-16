@@ -93,17 +93,23 @@ AHDCharacterPlayer::AHDCharacterPlayer()
     bUseControllerRotationYaw = false;
 }
 
-void AHDCharacterPlayer::BeginPlay()
+void AHDCharacterPlayer::PostInitializeComponents()
 {
-    Super::BeginPlay();
+    Super::PostInitializeComponents();
 
-    SetCharacterControl(CurrentCharacterControlType);
     SpawnDefaultWeapon();
 }
 
 void AHDCharacterPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
     Super::SetupPlayerInputComponent(PlayerInputComponent);
+
+    SetCharacterControl(CurrentCharacterControlType);
+
+    AHDPlayerController* PlayerController = Cast<AHDPlayerController>(GetController());
+    NULL_CHECK(PlayerController);
+
+    PlayerController->SetWeaponHUDInfo(Weapon);
 
     UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(PlayerInputComponent);
     VALID_CHECK(EnhancedInputComponent);
@@ -180,7 +186,6 @@ void AHDCharacterPlayer::SetCharacterControlData(UHDCharacterControlData* Charac
 
     CameraBoom->TargetArmLength         = CharacterControlData->TargetArmLength;
     CameraBoom->TargetOffset            = CharacterControlData->TargetOffset;
-    CameraBoom->SetRelativeTransform(FTransform(CharacterControlData->RelativeRotation, CharacterControlData->RelativeLocation));
     CameraBoom->bUsePawnControlRotation = CharacterControlData->bUsePawnControlRotation;
     CameraBoom->bInheritPitch           = CharacterControlData->bInheritPitch;
     CameraBoom->bInheritYaw             = CharacterControlData->bInheritYaw;
@@ -211,11 +216,6 @@ void AHDCharacterPlayer::EquipWeapon(AHDWeapon* NewWeapon)
     const USkeletalMeshSocket* RightHandSocket = GetMesh()->GetSocketByName(FName("RightHandSocket"));
     NULL_CHECK(RightHandSocket);
     RightHandSocket->AttachActor(Weapon, GetMesh());
-
-    AHDPlayerController* PlayerController = Cast<AHDPlayerController>(GetController());
-    NULL_CHECK(PlayerController);
-
-    PlayerController->SetWeaponHUDInfo(Weapon);
 }
 
 AHDWeapon* AHDCharacterPlayer::GetWeapon() const
@@ -412,11 +412,11 @@ void AHDCharacterPlayer::SpawnDefaultWeapon()
 
     UWorld* World = GetWorld();
     VALID_CHECK(World);
-    
-    AHDWeapon* SpawnWeapon = World->SpawnActor<AHDWeapon>(DefaultWeaponClass);
-    NULL_CHECK(SpawnWeapon);
 
-    EquipWeapon(SpawnWeapon);
+    Weapon = World->SpawnActor<AHDWeapon>(DefaultWeaponClass);
+    NULL_CHECK(Weapon);
+
+    EquipWeapon(Weapon);
 }
 
 void AHDCharacterPlayer::ThirdPersonMove(const FInputActionValue& Value)

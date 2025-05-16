@@ -28,7 +28,7 @@ void UHDGA_Sprint::ActivateAbility(const FGameplayAbilitySpecHandle Handle, cons
     }   
 }
 
-void UHDGA_Sprint::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled)
+void UHDGA_Sprint::InputReleased(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo)
 {
     if (ActorInfo->AvatarActor.IsValid())
     {
@@ -38,5 +38,7 @@ void UHDGA_Sprint::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGa
         CharacterMovementInterface->SetSprint(false);
     }
 
-    Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
+    const bool bReplicatedEndAbility = true;
+    const bool bWasCancelled = true;
+    Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicatedEndAbility, bWasCancelled);
 }

@@ -28,6 +28,7 @@ public:
 		
 protected:
     virtual void	BeginPlay() override final;
+	virtual void	OnPossess(APawn* Pawn) override;
 
 protected:
 	// Widget Section

@@ -4,7 +4,7 @@
 #include "Define/HDDefine.h"
 #include "UI/HDGASPlayerUserWidget.h"
 #include "UI/HDStratagemHUDUserWidget.h"
-#include "Character/HDCharacterPlayer.h"
+#include "Character/GameAbility/HDGASCharacterPlayer.h"
 #include "Weapon/HDWeapon.h"
 
 void AHDPlayerController::BeginPlay()
@@ -13,6 +13,13 @@ void AHDPlayerController::BeginPlay()
 
 	FInputModeGameOnly GameOnlyInputMode;
 	SetInputMode(GameOnlyInputMode);
+}
+
+void AHDPlayerController::OnPossess(APawn* aPawn)
+{
+    Super::OnPossess(aPawn);
+
+    ConsoleCommand(TEXT("showdebug abilitysystem"));
 }
 
 void AHDPlayerController::CreateHUDWidget(UAbilitySystemComponent* NewAbilitySystemComponent)
@@ -53,6 +60,18 @@ void AHDPlayerController::CreateHUDWidget(UAbilitySystemComponent* NewAbilitySys
 void AHDPlayerController::SetWeaponHUDInfo(AHDWeapon* NewWeapon)
 {
     VALID_CHECK(NewWeapon);
+
+    AActor* WeaponOwner = NewWeapon->GetOwner();
+    NULL_CHECK(WeaponOwner);
+
+    AHDGASCharacterPlayer* GASPlayer = Cast<AHDGASCharacterPlayer>(WeaponOwner);
+    NULL_CHECK(GASPlayer);
+
+    UAbilitySystemComponent* AbilitySystemComponent = GASPlayer->GetAbilitySystemComponent();
+    NULL_CHECK(AbilitySystemComponent);
+
+    CreateHUDWidget(AbilitySystemComponent);
+
     VALID_CHECK(PlayerHUDWidget);
 
     PlayerHUDWidget->SetChangedWeaponAmmoCountInfo(NewWeapon->GetAmmoCount(), NewWeapon->GetMaxAmmoCount());

@@ -14,6 +14,7 @@ class UGameplayAbility;
 class UGameplayEffect;
 struct FGameplayTag;
 struct FGameplayEventData;
+struct FHDCharacterStat;
 
 USTRUCT(BlueprintType)
 struct FTagEventBindInfo
@@ -44,10 +45,7 @@ public:
 	void										SetArmor(EHDArmorType NewArmorType);
 
 protected:
-	virtual void								PossessedBy(AController* NewController) override final;
-	virtual void								BeginPlay() override final;
 	virtual void								SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override final;
-	void		                                CreateGASWidget(AController* PlayerController);
 	void										SetupGASInputComponent(UEnhancedInputComponent* EnhancedInputComponent);
 	void										SetGASEventInputComponent(UEnhancedInputComponent* EnhancedInputComponent);
 	void										GASInputPressed(const FGameplayTag Tag);
@@ -62,6 +60,7 @@ private:
 	void										SetStratagemHUDAppear(const bool bAppear);
 
 	void										InitializeAttributeSet();
+	const FHDCharacterStat*						GetCharacterStatByArmorType(const EHDArmorType ArmorType) const;
 
 private:
 	UPROPERTY(EditAnywhere, Category = GAS)
@@ -85,6 +84,6 @@ private:
 	// Armor
 	EHDArmorType								ArmorType = EHDArmorType::Count;
 	
-	UPROPERTY(EditAnywhere, Category = Stratagem, Meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditAnywhere, Category = GAS)
 	TObjectPtr<UDataTable>						ArmorTypeStatusDataTable;
 };

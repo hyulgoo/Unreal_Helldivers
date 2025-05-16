@@ -16,14 +16,10 @@ class HELLDIVERS_API UHDCombatComponent : public UActorComponent
 public:	
 	explicit                UHDCombatComponent();
 
-    virtual void			TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
     const bool				Fire(const bool IsPressed);
     void                    EquipWeapon(AHDWeapon* NewWeapon);
     AHDWeapon*              GetWeapon() const { return Weapon; }
     const bool 				CanFire();
-
-protected:
-    virtual void			BeginPlay() override;
 
 private:
     void                    FireTimerFinished();

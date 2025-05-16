@@ -16,22 +16,8 @@ UHDCombatComponent::UHDCombatComponent()
 , CurrentFOV(0.f)
 , ErgonomicFactor(0.f)
 {
-	PrimaryComponentTick.bCanEverTick = true;
-
 	bCanFire = true;
 	bIsFireButtonPressed = false;
-}
-
-void UHDCombatComponent::BeginPlay()
-{
-	Super::BeginPlay();
-	
-}
-
-void UHDCombatComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
-{
-    Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-
 }
 
 void UHDCombatComponent::FireTimerFinished()

@@ -19,7 +19,4 @@ public:
 protected:
     virtual void PostInitializeComponents() override final;
     virtual void SetDead() override final;
-
-protected:
-
 };

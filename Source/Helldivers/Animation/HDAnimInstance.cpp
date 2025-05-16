@@ -93,9 +93,10 @@ void UHDAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
                 FRotator LookAtRotation = UKismetMathLibrary::FindLookAtRotation(RightHandTransform.GetLocation(), RightHandTransform.GetLocation() + (RightHandTransform.GetLocation() - WeaponInterface->GetHitTarget()));
                 RightHandRotation = FMath::RInterpTo(RightHandRotation, LookAtRotation, DeltaSeconds, 30.f);
             }
-        }
 
-        bUseFABRIK = WeaponInterface->GetCombatState() != EHDCombatState::ThrowingGrenade;
-        bTransformRightHand = WeaponInterface->GetCombatState() != EHDCombatState::Unoccupied;
+            const EHDCombatState CombatState = WeaponInterface->GetCombatState();
+            bUseFABRIK = CombatState != EHDCombatState::ThrowingGrenade;
+            bTransformRightHand = CombatState != EHDCombatState::Unoccupied;
+        }
     }
 }

@@ -10,7 +10,7 @@
 #include "GameAbility/Effect/HDGE_ApplyDamage.h"
 #include "Define/HDDefine.h"
 #include "Tag/HDGameplayTag.h"
-#include "Physics/HDCollision.h"
+#include "Collision/HDCollision.h"
 
 AHDProjectileBase::AHDProjectileBase()
 {

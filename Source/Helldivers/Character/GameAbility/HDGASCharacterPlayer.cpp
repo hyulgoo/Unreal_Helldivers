@@ -21,24 +21,37 @@ UAbilitySystemComponent* AHDGASCharacterPlayer::GetAbilitySystemComponent() cons
     return AbilitySystemComponent;
 }
 
-
-void AHDGASCharacterPlayer::PossessedBy(AController* NewController)
-{
-    Super::PossessedBy(NewController);
-
-    CreateGASWidget(NewController);
-}
-
-void AHDGASCharacterPlayer::BeginPlay()
-{
-    Super::BeginPlay();
-
-    InitializeAttributeSet();
-}
-
 void AHDGASCharacterPlayer::InitializeAttributeSet()
 {
-    SetArmor(EHDArmorType::Medium);
+    NULL_CHECK(AbilitySystemComponent);
+
+    const FHDCharacterStat* InitCharacterStat = GetCharacterStatByArmorType(EHDArmorType::Medium);
+    NULL_CHECK(InitCharacterStat);
+
+    UHDHealthAttributeSet* HealthAttributeSet = NewObject<UHDHealthAttributeSet>(this);
+    NULL_CHECK(HealthAttributeSet);
+    HealthAttributeSet->MaxHealth.SetBaseValue(InitCharacterStat->MaxHealth);
+
+    AbilitySystemComponent->AddAttributeSetSubobject(HealthAttributeSet);
+
+    UHDPlayerSpeedAttributeSet* SpeedAttribute = NewObject<UHDPlayerSpeedAttributeSet>(this);
+    NULL_CHECK(SpeedAttribute);
+    SpeedAttribute->CrawlingSpeed.SetBaseValue(InitCharacterStat->CrawlingSpeed);
+    SpeedAttribute->CrouchSpeed.SetBaseValue(InitCharacterStat->CrouchSpeed);
+    SpeedAttribute->WalkSpeed.SetBaseValue(InitCharacterStat->WalkSpeed);
+    SpeedAttribute->SprintSpeed.SetBaseValue(InitCharacterStat->SprintSpeed);
+
+    AbilitySystemComponent->AddAttributeSetSubobject(SpeedAttribute);
+}
+
+const FHDCharacterStat* AHDGASCharacterPlayer::GetCharacterStatByArmorType(const EHDArmorType NewArmorType) const
+{
+    NULL_CHECK_WITH_RETURNTYPE(ArmorTypeStatusDataTable, nullptr);
+
+    static const UEnum* EnumPtr = StaticEnum<EHDArmorType>();
+    FString ArmorTypetoString = EnumPtr->GetNameStringByValue(static_cast<int64>(NewArmorType));
+    FHDCharacterStat* ArmorStatus = ArmorTypeStatusDataTable->FindRow<FHDCharacterStat>(FName(ArmorTypetoString), TEXT("ArmorStatus"));
+    return ArmorStatus;
 }
 
 void AHDGASCharacterPlayer::SetArmor(EHDArmorType NewArmorType)
@@ -48,31 +61,28 @@ void AHDGASCharacterPlayer::SetArmor(EHDArmorType NewArmorType)
     CONDITION_CHECK(ArmorType == NewArmorType);
     ArmorType = NewArmorType;
 
-    NULL_CHECK(ArmorTypeStatusDataTable);
-    static const UEnum* EnumPtr = StaticEnum<EHDArmorType>();
-    FString ArmorTypetoString = EnumPtr->GetNameStringByValue(static_cast<int64>(ArmorType));
-    FHDCharacterStat* ArmorStatus = ArmorTypeStatusDataTable->FindRow<FHDCharacterStat>(FName(ArmorTypetoString), TEXT("ArmorStatus"));
+    const FHDCharacterStat* ArmorStatus = GetCharacterStatByArmorType(NewArmorType);
+    NULL_CHECK(ArmorStatus);
 
+    NULL_CHECK(InitStatEffect);
     FGameplayEffectContextHandle Context = AbilitySystemComponent->MakeEffectContext();
     Context.AddSourceObject(this);
 
     FGameplayEffectSpecHandle InitStatusSpec = AbilitySystemComponent->MakeOutgoingSpec(InitStatEffect, 1.f, Context);
     CONDITION_CHECK(InitStatusSpec.IsValid() == false);
 
-    InitStatusSpec.Data->SetSetByCallerMagnitude(HDTAG_DATA_STATUS_MAXHEALTH, ArmorStatus->MaxHealth);
-    InitStatusSpec.Data->SetSetByCallerMagnitude(HDTAG_DATA_STATUS_CRAWLINGSPEED, ArmorStatus->CrawlingSpeed);
-    InitStatusSpec.Data->SetSetByCallerMagnitude(HDTAG_DATA_STATUS_CROUCHSPEED, ArmorStatus->CrouchSpeed);
-    InitStatusSpec.Data->SetSetByCallerMagnitude(HDTAG_DATA_STATUS_WALKSPEED, ArmorStatus->WalkSpeed);
-    InitStatusSpec.Data->SetSetByCallerMagnitude(HDTAG_DATA_STATUS_SPRINTSPEED, ArmorStatus->SprintSpeed);
-    InitStatusSpec.Data->SetSetByCallerMagnitude(HDTAG_DATA_STATUS_MAXSTAMINA, ArmorStatus->MaxStamina);
+    InitStatusSpec.Data->SetSetByCallerMagnitude(HDTAG_DATA_STATUS_MAXHEALTH,       ArmorStatus->MaxHealth);
+    InitStatusSpec.Data->SetSetByCallerMagnitude(HDTAG_DATA_STATUS_CRAWLINGSPEED,   ArmorStatus->CrawlingSpeed);
+    InitStatusSpec.Data->SetSetByCallerMagnitude(HDTAG_DATA_STATUS_CROUCHSPEED,     ArmorStatus->CrouchSpeed);
+    InitStatusSpec.Data->SetSetByCallerMagnitude(HDTAG_DATA_STATUS_WALKSPEED,       ArmorStatus->WalkSpeed);
+    InitStatusSpec.Data->SetSetByCallerMagnitude(HDTAG_DATA_STATUS_SPRINTSPEED,     ArmorStatus->SprintSpeed);
+    InitStatusSpec.Data->SetSetByCallerMagnitude(HDTAG_DATA_STATUS_MAXSTAMINA,      ArmorStatus->MaxStamina);
 
     AbilitySystemComponent->ApplyGameplayEffectSpecToSelf(*InitStatusSpec.Data.Get());
 }
 
 void AHDGASCharacterPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
-    Super::SetupPlayerInputComponent(PlayerInputComponent);
-
     AHDGASPlayerState* GASPlayerState = GetPlayerState<AHDGASPlayerState>();
     NULL_CHECK(GASPlayerState);
 
@@ -91,15 +101,10 @@ void AHDGASCharacterPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInp
 
     SetupGASInputComponent(EnhancedInputComponent);
     SetGASEventInputComponent(EnhancedInputComponent);
-}
 
-void AHDGASCharacterPlayer::CreateGASWidget(AController* PlayerController)
-{
-    // showdebug abilitysystemµµ ÇÔ
-    AHDPlayerController* HDPlayerController = Cast<AHDPlayerController>(PlayerController);
-    NULL_CHECK(HDPlayerController);
-    HDPlayerController->ConsoleCommand(TEXT("showdebug abilitysystem"));
-    HDPlayerController->CreateHUDWidget(AbilitySystemComponent);
+    InitializeAttributeSet();
+
+    Super::SetupPlayerInputComponent(PlayerInputComponent);
 }
 
 void AHDGASCharacterPlayer::SetupGASInputComponent(UEnhancedInputComponent* EnhancedInputComponent)
@@ -125,6 +130,7 @@ void AHDGASCharacterPlayer::SetupGASInputComponent(UEnhancedInputComponent* Enha
 void AHDGASCharacterPlayer::SetGASEventInputComponent(UEnhancedInputComponent* EnhancedInputComponent)
 {
     NULL_CHECK(EnhancedInputComponent);
+    NULL_CHECK(AbilitySystemComponent);
 
     for (const FGameplayTag& EventCallTag : EventCallTags.GetGameplayTagArray())
     {

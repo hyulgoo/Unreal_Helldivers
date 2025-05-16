@@ -33,7 +33,7 @@ public:
 	UDataTable*								GetAvaliableStratagemDataTable()						{ return AvaliableStratagemDataTable; }
 
 protected:
-    virtual void							BeginPlay() override;
+	virtual void							PostInitializeComponents() override;
     virtual void							SetDead() override;
     virtual void							Tick(float DeltaTime) override;
 

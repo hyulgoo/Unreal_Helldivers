@@ -4,7 +4,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "HDCharacterControlData.h"
 #include "Animation/AnimMontage.h"
-#include "Physics/HDCollision.h"
+#include "Collision/HDCollision.h"
 #include "CharacterTypes/HDCharacterStateTypes.h"
 
 AHDCharacterBase::AHDCharacterBase()
