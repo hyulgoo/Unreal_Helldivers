@@ -14,7 +14,7 @@ class HELLDIVERS_API AHDProjectileWeapon : public AHDWeapon
     GENERATED_BODY()
 
 public:
-    explicit                    AHDProjectileWeapon();
+    explicit     AHDProjectileWeapon();
 
-    virtual void                Fire(const FVector& HitTarget) override final;
+    virtual void Fire(const FVector& HitTarget) override final;
 };

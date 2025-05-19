@@ -46,6 +46,6 @@ public:
     float					ErgonomicFactor;
     
 private:
-	UPROPERTY(EditAnywhere, Category = Weapon, Meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditAnywhere, Category = Weapon)
 	TObjectPtr<AHDWeapon>	Weapon;
 };

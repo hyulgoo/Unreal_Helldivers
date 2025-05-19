@@ -145,7 +145,7 @@ void AHDCharacterPlayer::ChangeCharacterControlType()
 
 void AHDCharacterPlayer::SetCharacterControl(const EHDCharacterControlType NewCharacterControlType)
 {
-    UHDCharacterControlData* NewCharacterControl = CharacterControlManager[NewCharacterControlType];
+    UHDCharacterControlData* NewCharacterControl = CharacterControlDataMap[NewCharacterControlType];
     VALID_CHECK(NewCharacterControl);
 
     SetCharacterControlData(NewCharacterControl);
@@ -241,12 +241,12 @@ void AHDCharacterPlayer::PlayFireMontage(const bool bAiming)
     NULL_CHECK(Combat);
 
     UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
-    if (AnimInstance && FireWeaponMontage)
-    {
-        AnimInstance->Montage_Play(FireWeaponMontage);
-        FName SectionName = Combat->bIsShoulder ? FName("Rifle_Aim") : FName("Rifle_Hip");
-        AnimInstance->Montage_JumpToSection(SectionName);
-    }
+    NULL_CHECK(AnimInstance);
+    NULL_CHECK(FireWeaponMontage);
+
+    AnimInstance->Montage_Play(FireWeaponMontage);
+    const FName SectionName = Combat->bIsShoulder ? FName("Rifle_Aim") : FName("Rifle_Hip");
+    AnimInstance->Montage_JumpToSection(SectionName);
 }
 
 void AHDCharacterPlayer::AddStratagemCommand(const EHDCommandInput NewInput)
@@ -302,7 +302,11 @@ void AHDCharacterPlayer::ThrowStratagem()
 {   
     USkeletalMeshComponent* CharacterMesh = GetMesh();
     UAnimInstance* AnimInstance = CharacterMesh->GetAnimInstance();
-    if (AnimInstance && ThrowMontage && StratagemClass && SelectedStratagemName.IsNone() == false)
+    NULL_CHECK(AnimInstance);
+    NULL_CHECK(ThrowMontage);
+    NULL_CHECK(StratagemClass);
+
+    if (SelectedStratagemName.IsNone() == false)
     {
         SetWeaponActive(false);
 

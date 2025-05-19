@@ -95,83 +95,86 @@ private:
 			
 protected:
 	// Camera Section
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, Meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<USpringArmComponent> CameraBoom;
+	UPROPERTY()
+	TObjectPtr<USpringArmComponent>			CameraBoom;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, Meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<UCameraComponent>	FollowCamera;
+	UPROPERTY()
+	TObjectPtr<UCameraComponent>			FollowCamera;
 
 	// Input Section
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<UInputAction>		ChangeControlAction;
+	UPROPERTY(EditAnywhere, Category = "Input")
+	TObjectPtr<UInputAction>				ChangeControlAction;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<UInputAction>		ThirdPersonMoveAction;
+	UPROPERTY(EditAnywhere, Category = "Input")
+	TObjectPtr<UInputAction>				ThirdPersonMoveAction;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<UInputAction>		ThirdPersonLookAction;
+	UPROPERTY(EditAnywhere, Category = "Input")
+	TObjectPtr<UInputAction>				ThirdPersonLookAction;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<UInputAction>		FirstPersonMoveAction;
+	UPROPERTY(EditAnywhere, Category = "Input")
+	TObjectPtr<UInputAction>				FirstPersonMoveAction;
 	
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<UInputAction>		FirstPersonLookAction;
+	UPROPERTY(EditAnywhere, Category = "Input")
+	TObjectPtr<UInputAction>				FirstPersonLookAction;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<UInputAction>		InputCommandAction;
+	UPROPERTY(EditAnywhere, Category = "Input")
+	TObjectPtr<UInputAction>				InputCommandAction;
 	
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<UInputAction>		ThrowStratagemAction;
+	UPROPERTY(EditAnywhere, Category = "Input")
+	TObjectPtr<UInputAction>				ThrowStratagemAction;
 	
-    EHDCharacterControlType			CurrentCharacterControlType;
+    EHDCharacterControlType					CurrentCharacterControlType;
 	
-	UPROPERTY(VisibleAnywhere, Category = Stratagem, Meta = (AllowPrivateAccess = "true"))
-	TArray<EHDCommandInput>			CurrentInputCommandList;
+	UPROPERTY(VisibleAnywhere, Category = "Stratagem")
+	TArray<EHDCommandInput>					CurrentInputCommandList;
 
 	// Combat
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Combat, Meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<UHDCombatComponent>	Combat;
+	UPROPERTY()
+	TObjectPtr<UHDCombatComponent>			Combat;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Combat, Meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<AHDWeapon>			Weapon;
+	UPROPERTY()
+	TObjectPtr<AHDWeapon>					Weapon;
 	
-	UPROPERTY(EditAnywhere, Category = Weapon, Meta = (AllowPrivateAccess = "true"))
-	TSubclassOf<AHDWeapon>			DefaultWeaponClass;
+	UPROPERTY(EditAnywhere, Category = "Weapon")
+	TSubclassOf<AHDWeapon>					DefaultWeaponClass;
 
 private:
-	FRotator						StartingAimRotation;
+	FRotator								StartingAimRotation;
 
-	float							LastFrame_Yaw;
-	float							AimOffset_Yaw;
-	float							InterpAimOffset_Yaw;
-	float							AimOffset_Pitch;
-	float							AimOffsetYawCompensation;
+	float									LastFrame_Yaw;
+	float									AimOffset_Yaw;
+	float									InterpAimOffset_Yaw;
+	float									AimOffset_Pitch;
+	float									AimOffsetYawCompensation;
 
-	bool							bIsSprint;
-	float							TurnThreshold;
-	bool							bUseRotateRootBone;
+	bool									bIsSprint;
+	float									TurnThreshold;
+	bool									bUseRotateRootBone;
 
-	EHDTurningInPlace				TurningInPlace;
+	EHDTurningInPlace						TurningInPlace;
 		
-	UPROPERTY(EditAnywhere, Category = Stratagem, Meta = (AllowPrivateAccess = "true"))
-	TSubclassOf<AHDStratagem>		StratagemClass;
-	
-	UPROPERTY(EditAnywhere, Category = Stratagem, Meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<AHDStratagem>		Stratagem;
-	
-	UPROPERTY(EditAnywhere, Category = Stratagem, Meta = (AllowPrivateAccess = "true"))
-	FName							SelectedStratagemName;
+	UPROPERTY(EditAnywhere, Category = "Stratagem")
+	TSubclassOf<AHDStratagem>				StratagemClass;
 
-	float							SelecteddStratagemActiveDelay;
+	UPROPERTY(EditAnywhere, Category = "Stratagem")
+	TObjectPtr<AHDStratagem>				Stratagem;
 	
-	UPROPERTY(EditAnywhere, Category = Stratagem, Meta = (AllowPrivateAccess = "true"))
-	TArray<FName>					CommandMatchStratagemNameList;
+	UPROPERTY(EditAnywhere, Category = "Stratagem")
+	TObjectPtr<AHDStratagem>				Info;
 	
-	UPROPERTY(EditAnywhere, Category = Stratagem, Meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<UDataTable>			AvaliableStratagemDataTable;
+	UPROPERTY(EditAnywhere, Category = "Stratagem")
+	FName									SelectedStratagemName;
 
-	FTimerHandle					ThrowTimer;
+	float									SelecteddStratagemActiveDelay;
+	
+	UPROPERTY(EditAnywhere, Category = "Stratagem")
+	TArray<FName>							CommandMatchStratagemNameList;
+	
+	UPROPERTY(EditAnywhere, Category = "Stratagem")
+	TObjectPtr<UDataTable>					AvaliableStratagemDataTable;
+
+	FTimerHandle							ThrowTimer;
 
 	// HUD, Crosshair
-	float							DefaultFOV;
+	float									DefaultFOV;
 };

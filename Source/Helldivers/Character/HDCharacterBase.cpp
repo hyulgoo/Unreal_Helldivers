@@ -50,13 +50,13 @@ AHDCharacterBase::AHDCharacterBase()
 	static ConstructorHelpers::FObjectFinder<UHDCharacterControlData> ThirdPersonDataRef(TEXT("/Script/Helldivers.HDCharacterControlData'/Game/Helldivers/CharacterControl/HDC_ThirdPerson.HDC_ThirdPerson'"));
 	if (ThirdPersonDataRef.Succeeded())
 	{
-		CharacterControlManager.Add(EHDCharacterControlType::ThirdPerson, ThirdPersonDataRef.Object);
+		CharacterControlDataMap.Add(EHDCharacterControlType::ThirdPerson, ThirdPersonDataRef.Object);
 	}
 	
 	static ConstructorHelpers::FObjectFinder<UHDCharacterControlData> FirstPersonDataRef(TEXT("/Script/Helldivers.HDCharacterControlData'/Game/Helldivers/CharacterControl/HDC_FirstPerson.HDC_FirstPerson'"));
 	if (FirstPersonDataRef.Succeeded())
 	{
-		CharacterControlManager.Add(EHDCharacterControlType::FirstPerson, FirstPersonDataRef.Object);
+		CharacterControlDataMap.Add(EHDCharacterControlType::FirstPerson, FirstPersonDataRef.Object);
 	}
 
 	static ConstructorHelpers::FObjectFinder<UAnimMontage> FireWeaponMontageRef(TEXT("/Script/Engine.AnimMontage'/Game/Helldivers/Animation/AM_Fire.AM_Fire'"));

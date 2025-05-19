@@ -34,21 +34,21 @@ public:
 	virtual void PostGameplayEffectExecute(const struct FGameplayEffectModCallbackData& Data) override;
 	
 public:
-	UPROPERTY(BlueprintReadOnly, Category = Speed, Meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(BlueprintReadOnly, Category = "Speed")
 	FGameplayAttributeData CurrentSpeed;	
 											
-    UPROPERTY(BlueprintReadOnly, Category = Speed, Meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(BlueprintReadOnly, Category = "Speed")
     FGameplayAttributeData CrawlingSpeed;
 										
-	UPROPERTY(BlueprintReadOnly, Category = Speed, Meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(BlueprintReadOnly, Category = "Speed")
 	FGameplayAttributeData CrouchSpeed;	
 										
-	UPROPERTY(BlueprintReadOnly, Category = Speed, Meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(BlueprintReadOnly, Category = "Speed")
 	FGameplayAttributeData WalkSpeed;	
 										
-	UPROPERTY(BlueprintReadOnly, Category = Speed, Meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(BlueprintReadOnly, Category = "Speed")
     FGameplayAttributeData SprintSpeed;	
 										
-    UPROPERTY(BlueprintReadOnly, Category = Speed, Meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(BlueprintReadOnly, Category = "Speed")
     FGameplayAttributeData MaxStamina;
 };

@@ -72,19 +72,19 @@ private:
 protected:
     EFireType                           FireType = EFireType::Count;
 
-    UPROPERTY(EditAnywhere, Category = "Info|Crosshair", Meta = (AllowPrivateAccess = "true"))
+    UPROPERTY(EditAnywhere, Category = "Info|Crosshair")
     TMap<ECrosshair, TObjectPtr<UTexture2D>>  CrosshaiTextureList;
 
-    UPROPERTY(EditAnywhere)
+    UPROPERTY(EditAnywhere, Category = "Info|Zoom")
     float                               ZoomedFOV         = 30.f;
-
-    UPROPERTY(EditAnywhere)
+    
+    UPROPERTY(EditAnywhere, Category = "Info|Zoom")
     float                               ZoomInterpSpeed   = 20.f;
 
     UPROPERTY(EditAnywhere, Category = "Info|Default")
     TSubclassOf<AHDProjectileBase>      ProjectileClass;
 
-    UPROPERTY(EditAnywhere, Category = "Info|Default", Meta = (AllowPrivateAccess = "true"))
+    UPROPERTY(EditAnywhere, Category = "Info|Default")
     EWeaponType							WeaponType;
 
     UPROPERTY(VisibleAnywhere, Category = "Info|Default")
@@ -105,31 +105,31 @@ protected:
     UPROPERTY(EditAnywhere, Category = "Info|Default")
     TObjectPtr<UTexture2D>				WeaponIconImage;
         
-    UPROPERTY(EditAnywhere, Category = "Info|Default", Meta = (AllowPrivateAccess = "true"))
+    UPROPERTY(EditAnywhere, Category = "Info|Default")
     float                               FireDelay;
     
-    UPROPERTY(EditAnywhere, Category = "Info|Default", Meta = (AllowPrivateAccess = "true"))
+    UPROPERTY(EditAnywhere, Category = "Info|Default")
     float                               ErgonomicFactor;
 
-    UPROPERTY(EditAnywhere, Category = "Info|Current", Meta = (AllowPrivateAccess = "true"))
+    UPROPERTY(EditAnywhere, Category = "Info|Current")
     int32                               Ammo;
     
-    UPROPERTY(EditAnywhere, Category = "Info|Default", Meta = (AllowPrivateAccess = "true"))
+    UPROPERTY(EditAnywhere, Category = "Info|Default")
     int32                               MaxAmmo;
     
-    UPROPERTY(EditAnywhere, Category = "Info|Current", Meta = (AllowPrivateAccess = "true"))
+    UPROPERTY(EditAnywhere, Category = "Info|Current")
     int32                               Capacity;
 
-    UPROPERTY(EditAnywhere, Category = "Info|Default", Meta = (AllowPrivateAccess = "true"))
+    UPROPERTY(EditAnywhere, Category = "Info|Default")
     int32                               MaxCapacity;
 
-    UPROPERTY(EditAnywhere, Category = "Info|Current", Meta = (AllowPrivateAccess = "true"))
+    UPROPERTY(EditAnywhere, Category = "Info|Current")
     uint8                               bIsCanUseAutoFire : 1;
     
-    UPROPERTY(EditAnywhere, Category = "Info|Current", Meta = (AllowPrivateAccess = "true"))
+    UPROPERTY(EditAnywhere, Category = "Info|Current")
     uint8                               bUseScatter : 1;
     
-    UPROPERTY(EditAnywhere, Category = "Info|Default", Meta = (AllowPrivateAccess = "true"))
+    UPROPERTY(EditAnywhere, Category = "Info|Default")
     uint8                               bIsAutoFire : 1;
 
     EWeaponState                        WeaponState;

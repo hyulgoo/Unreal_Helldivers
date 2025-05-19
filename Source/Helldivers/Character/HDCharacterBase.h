@@ -25,16 +25,16 @@ protected:
     void                        PlayDeadAnimation();
 
 protected:
-    UPROPERTY(EditAnywhere, Category = CharacterControl, Meta = (AllowPrivateAccess = "true"))
-    TMap<EHDCharacterControlType, TObjectPtr<UHDCharacterControlData>> CharacterControlManager;
-
-    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Montage, Meta = (AllowPrivateAccess = "true"))
+    UPROPERTY(EditAnywhere, Category = "CharacterControl")
+    TMap<EHDCharacterControlType, TObjectPtr<UHDCharacterControlData>> CharacterControlDataMap;
+    
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Montage")
     TObjectPtr<UAnimMontage>    FireWeaponMontage;
     
-    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Montage, Meta = (AllowPrivateAccess = "true"))
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Montage")
     TObjectPtr<UAnimMontage>    ThrowMontage;
 
-    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Montage, Meta = (AllowPrivateAccess = "true"))
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Montage")
     TObjectPtr<UAnimMontage>    DeadMontage;
     
     float                       DeadEventDelayTime;

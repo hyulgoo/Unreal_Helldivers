@@ -63,27 +63,28 @@ private:
 	const FHDCharacterStat*						GetCharacterStatByArmorType(const EHDArmorType ArmorType) const;
 
 private:
-	UPROPERTY(EditAnywhere, Category = GAS)
+	UPROPERTY(EditAnywhere, Category = "GAS")
 	TObjectPtr<UAbilitySystemComponent>			AbilitySystemComponent;
 
-	UPROPERTY(EditAnywhere, Category = GAS)
+	UPROPERTY(EditAnywhere, Category = "GAS")
 	TSubclassOf<UGameplayEffect>				InitStatEffect;
 
-	UPROPERTY(EditAnywhere, Category = GAS)
+	UPROPERTY(EditAnywhere, Category = "GAS")
 	TArray<TSubclassOf<UGameplayAbility>>		StartAbilities;
 
-	UPROPERTY(EditAnywhere, Category = GAS)
+	UPROPERTY(EditAnywhere, Category = "GAS")
 	TArray<FTaggedInputAction>					TaggedInputActions;
 
-	UPROPERTY(EditAnywhere, Category = GAS)
+	UPROPERTY(EditAnywhere, Category = "GAS")
 	FGameplayTagContainer						EventCallTags;
 
-	UPROPERTY(EditAnywhere, Category = GAS)
+	UPROPERTY(EditAnywhere, Category = "GAS")
 	TArray<FTagEventBindInfo>					TagEventBindInfoList;
 
 	// Armor
+	UPROPERTY(EditAnywhere, Category = "GAS")
 	EHDArmorType								ArmorType = EHDArmorType::Count;
 	
-	UPROPERTY(EditAnywhere, Category = GAS)
+	UPROPERTY(EditAnywhere, Category = "GAS")
 	TObjectPtr<UDataTable>						ArmorTypeStatusDataTable;
 };

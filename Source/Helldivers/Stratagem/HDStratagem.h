@@ -18,16 +18,16 @@ class HELLDIVERS_API AHDStratagem : public AActor
 public:	
 	explicit AHDStratagem();
 
-	void AddImpulseToStratagem(const FVector& ThrowDirection);
+	void			AddImpulseToStratagem(const FVector& ThrowDirection);
 
 protected:
-	virtual void BeginPlay() override final;
+	virtual void	BeginPlay() override final;
 	
 	UFUNCTION()
-    virtual void OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
+    virtual void	OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
 
 private:
-	void SpawnPointLaser();
+	void			SpawnPointLaser();
 
 private:
 	UPROPERTY(EditAnywhere)

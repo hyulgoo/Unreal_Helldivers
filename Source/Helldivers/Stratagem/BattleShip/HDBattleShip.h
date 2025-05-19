@@ -32,22 +32,22 @@ private:
 	void							    EagleStrike(const FHDStratagemEffectData& StratagemEffectData);
 
 protected:
-    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "GAS")
+    UPROPERTY(VisibleAnywhere, Category = "GAS")
     TObjectPtr<UAbilitySystemComponent> AbilitySystemComponent;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Category = "Stratagem|Eagle")
     TSubclassOf<AHDEagleFighter>		EagleFighterClass;
 
     TObjectPtr<AHDEagleFighter>			EagleFighter;
 
-    UPROPERTY(EditAnywhere)
+    UPROPERTY(EditAnywhere, Category = "Stratagem|Projectile")
     TSubclassOf<AHDProjectileBase>		ProjectileBombClass;
 
-    UPROPERTY(EditAnywhere)
+    UPROPERTY(EditAnywhere, Category = "Stratagem|Projectile")
     TSubclassOf<AHDProjectileBase>		ProjectileBulletClass;
 
     // StratagemEffectData
-    UPROPERTY(EditAnywhere)
+    UPROPERTY(EditAnywhere, Category = "Stratagem|Data")
     TObjectPtr<UDataTable>				StratagemEffectDataTable;
 
     FTransform 							StratagemTransform;

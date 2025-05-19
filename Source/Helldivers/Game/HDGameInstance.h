@@ -15,6 +15,6 @@ class HELLDIVERS_API UHDGameInstance : public UGameInstance
 	GENERATED_BODY()
 	
 public:
-    virtual void                                        Init() override final;
-    virtual void                                        Shutdown() override final;
+    virtual void Init() override final;
+    virtual void Shutdown() override final;
 };

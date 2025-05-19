@@ -32,15 +32,15 @@ protected:
 
 protected:
 	// Widget Section
-	UPROPERTY(EditAnywhere, Category = UI, Meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditAnywhere, Category = UI)
 	TSubclassOf<UHDGASPlayerUserWidget>		PlayerHUDWidgetClass;
 	
-	UPROPERTY(EditAnywhere, Category = UI, Meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditAnywhere, Category = UI)
 	TObjectPtr<UHDGASPlayerUserWidget>		PlayerHUDWidget;
 	
-	UPROPERTY(EditAnywhere, Category = UI, Meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditAnywhere, Category = UI)
 	TSubclassOf<UHDStratagemHUDUserWidget>	StratagemHUDWidgetClass;
 	
-	UPROPERTY(EditAnywhere, Category = UI, Meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditAnywhere, Category = UI)
 	TObjectPtr<UHDStratagemHUDUserWidget>	StratagemHUDWidget;
 };

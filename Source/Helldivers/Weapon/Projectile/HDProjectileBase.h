@@ -46,49 +46,49 @@ private:
     void            ExcuteGameplayCue(UAbilitySystemComponent* OwnerAbilitySystemComponent, const FGameplayTag& Tag, const FHitResult& Hit);
 
 public:	
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Info|Default")
+    UPROPERTY(EditDefaultsOnly, Category = "Info|Default")
     FGameplayTag                                ProjectileTag;
 
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Info|Default")
+    UPROPERTY(EditDefaultsOnly, Category = "Info|Default")
     float                                       InitSpeed;
     
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Info|Default")
+    UPROPERTY(EditDefaultsOnly, Category = "Info|Default")
     EImpactType                                 ImpactType;
 
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Info|Default")
+    UPROPERTY(EditDefaultsOnly, Category = "Info|Default")
     TSubclassOf<UGameplayEffect>                ImpactGameEffect;
     
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Info|Default")
+    UPROPERTY(EditDefaultsOnly, Category = "Info|Default")
     float                                       ImpactDamage;
 
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Info|Default")
+    UPROPERTY(EditDefaultsOnly, Category = "Info|Default")
     FGameplayTag                                ImpactBlocklCueTag;
 
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Info|Default")
+    UPROPERTY(EditDefaultsOnly, Category = "Info|Default")
     FGameplayTag                                ImpactHitCueTag;
 
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Info|Status")
+    UPROPERTY(EditDefaultsOnly, Category = "Info|Status")
     EStatusEffect                               StatusEffect;
     
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Info|Status")
+    UPROPERTY(EditDefaultsOnly, Category = "Info|Status")
     TSubclassOf<UGameplayEffect>                StatusGameEffect;
         
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Info|Status")
+    UPROPERTY(EditDefaultsOnly, Category = "Info|Status")
     float                                       DotDamage;
     
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Info|Status")
+    UPROPERTY(EditDefaultsOnly, Category = "Info|Status")
     float                                       StatusDuration;
             
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Info|Explode")
+    UPROPERTY(EditDefaultsOnly, Category = "Info|Explode")
     TSubclassOf<UGameplayEffect>                ExplodeGameEffect;
     
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Info|Explode")
+    UPROPERTY(EditDefaultsOnly, Category = "Info|Explode")
     float                                       ExplodeDamageRange;
     
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Info|Explode")
+    UPROPERTY(EditDefaultsOnly, Category = "Info|Explode")
     float                                       ExplodeKnockBackRange;
     
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Info|Knockback")
+    UPROPERTY(EditDefaultsOnly, Category = "Info|Knockback")
     FGameplayTag                                KnockbackTag;
 
 protected:

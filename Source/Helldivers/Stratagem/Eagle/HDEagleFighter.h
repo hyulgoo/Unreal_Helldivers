@@ -38,13 +38,13 @@ private:
     void            CreateProjectile(TSubclassOf<AHDProjectileBase> ProjectileClass, const int32 Index);
 
 private:
-    UPROPERTY(VisibleAnywhere)
+    UPROPERTY()
     TObjectPtr<USplineComponent>		SplineComponent;
 
-    UPROPERTY(VisibleAnywhere)
+    UPROPERTY()
     TObjectPtr<UTimelineComponent>		TimelineComponent;
 
-    UPROPERTY(EditAnywhere)
+    UPROPERTY(EditAnywhere, Category = "Stratagem|Curve")
     TObjectPtr<UCurveFloat>             DescentCurve;
 
     FOnTimelineFloat                    InterpFunction;
@@ -56,11 +56,11 @@ private:
     float                               SplineLength;
 
     // Projectile
-    UPROPERTY(VisibleAnywhere)
-    TSubclassOf<AHDProjectileBase>	        ProjectileBombClass;
+    UPROPERTY()
+    TSubclassOf<AHDProjectileBase>	    ProjectileBombClass;
     
-    UPROPERTY(VisibleAnywhere)
-    TSubclassOf<AHDProjectileBase>	        ProjectileBulletClass;
+    UPROPERTY()
+    TSubclassOf<AHDProjectileBase>	    ProjectileBulletClass;
 
     FHDStratagemEffectData              StratagemEffectData;
     FVector                             ProjectileTargetLocation;
