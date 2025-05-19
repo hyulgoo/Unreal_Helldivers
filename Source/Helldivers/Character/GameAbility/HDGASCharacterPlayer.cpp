@@ -26,23 +26,28 @@ void AHDGASCharacterPlayer::InitializeAttributeSet()
 {
     NULL_CHECK(AbilitySystemComponent);
 
+    AbilitySystemComponent->InitStats(UHDHealthAttributeSet::StaticClass(), nullptr);
+    AbilitySystemComponent->InitStats(UHDPlayerSpeedAttributeSet::StaticClass(), nullptr);
+
     const FHDCharacterStat* InitCharacterStat = GetCharacterStatByArmorType(EHDArmorType::Medium);
     NULL_CHECK(InitCharacterStat);
 
-    UHDHealthAttributeSet* HealthAttributeSet = NewObject<UHDHealthAttributeSet>(this);
+    UHDHealthAttributeSet* HealthAttributeSet = const_cast<UHDHealthAttributeSet*>(AbilitySystemComponent->GetSet<UHDHealthAttributeSet>());
     NULL_CHECK(HealthAttributeSet);
     HealthAttributeSet->MaxHealth.SetBaseValue(InitCharacterStat->MaxHealth);
-     
-    AbilitySystemComponent->AddAttributeSetSubobject(HealthAttributeSet);
-
-    UHDPlayerSpeedAttributeSet* SpeedAttribute = NewObject<UHDPlayerSpeedAttributeSet>(this);
+    HealthAttributeSet->MaxHealth.SetCurrentValue(InitCharacterStat->MaxHealth);
+    
+    UHDPlayerSpeedAttributeSet* SpeedAttribute = const_cast<UHDPlayerSpeedAttributeSet*>(AbilitySystemComponent->GetSet<UHDPlayerSpeedAttributeSet>());
     NULL_CHECK(SpeedAttribute);
     SpeedAttribute->CrawlingSpeed.SetBaseValue(InitCharacterStat->CrawlingSpeed);
     SpeedAttribute->CrouchSpeed.SetBaseValue(InitCharacterStat->CrouchSpeed);
     SpeedAttribute->WalkSpeed.SetBaseValue(InitCharacterStat->WalkSpeed);
     SpeedAttribute->SprintSpeed.SetBaseValue(InitCharacterStat->SprintSpeed);
 
-    AbilitySystemComponent->AddAttributeSetSubobject(SpeedAttribute);
+    SpeedAttribute->CrawlingSpeed.SetCurrentValue(InitCharacterStat->CrawlingSpeed);
+    SpeedAttribute->CrouchSpeed.SetCurrentValue(InitCharacterStat->CrouchSpeed);
+    SpeedAttribute->WalkSpeed.SetCurrentValue(InitCharacterStat->WalkSpeed);
+    SpeedAttribute->SprintSpeed.SetCurrentValue(InitCharacterStat->SprintSpeed);
 }
 
 const FHDCharacterStat* AHDGASCharacterPlayer::GetCharacterStatByArmorType(const EHDArmorType NewArmorType) const
@@ -209,13 +214,12 @@ void AHDGASCharacterPlayer::SetSprint(const bool bSprint)
 
     NULL_CHECK(AbilitySystemComponent);
 
-    const UHDPlayerSpeedAttributeSet* PlayerSpeedAttributeSet = AbilitySystemComponent->GetSet<UHDPlayerSpeedAttributeSet>();
-    NULL_CHECK(PlayerSpeedAttributeSet);
+    const FGameplayAttribute Attribute = bSprint ? UHDPlayerSpeedAttributeSet::GetSprintSpeedAttribute() : UHDPlayerSpeedAttributeSet::GetWalkSpeedAttribute();
+    CONDITION_CHECK(Attribute.IsValid() == false);
 
-    UE_LOG(LogTemp, Warning, TEXT("GetSprintSpeed : [%f]"), PlayerSpeedAttributeSet->GetSprintSpeed());
-    UE_LOG(LogTemp, Warning, TEXT("GetWalkSpeed : [%f]"), PlayerSpeedAttributeSet->GetWalkSpeed());
-    const float NewSpeed = bSprint ? PlayerSpeedAttributeSet->GetSprintSpeed() : PlayerSpeedAttributeSet->GetWalkSpeed();
+    const float NewSpeed = AbilitySystemComponent->GetNumericAttribute(Attribute);
     UE_LOG(LogTemp, Warning, TEXT("NewSpeed : [%f]"), NewSpeed);
+
     UCharacterMovementComponent* CharacterMovementComponent = GetCharacterMovement();
     NULL_CHECK(CharacterMovementComponent);
 
