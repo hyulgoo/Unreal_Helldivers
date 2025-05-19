@@ -1,6 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "Attribute/Player/HDPlayerSpeedAttributeSet.h"
+#include "Define/HDDefine.h"
 
 UHDPlayerSpeedAttributeSet::UHDPlayerSpeedAttributeSet()
 {

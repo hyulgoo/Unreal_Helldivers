@@ -15,13 +15,13 @@ class HELLDIVERS_API UHDGA_AttackHitCheck : public UGameplayAbility
     GENERATED_BODY()
 
 public:
-    explicit UHDGA_AttackHitCheck();
+    explicit        UHDGA_AttackHitCheck();
 
-    virtual void ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData) override final;
+    virtual void    ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData) override final;
 
 protected:
     UFUNCTION()
-    void OnTraceResultCallback(const FGameplayAbilityTargetDataHandle& TargetDataHandle);
+    void            OnTraceResultCallback(const FGameplayAbilityTargetDataHandle& TargetDataHandle);
 
 protected:    
 	UPROPERTY(EditAnywhere, Category = "GAS")

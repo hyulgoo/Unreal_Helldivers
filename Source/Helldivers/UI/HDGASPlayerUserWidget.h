@@ -17,22 +17,22 @@ class HELLDIVERS_API UHDGASPlayerUserWidget : public UHDGASUserWidget
 	GENERATED_BODY()
 
 public:
-    virtual void    SetAbilitySystemComponent(UAbilitySystemComponent* NewAbilitySystemComponent) override final;
+    virtual void                SetAbilitySystemComponent(UAbilitySystemComponent* NewAbilitySystemComponent) override final;
 
-    virtual void    OnHealthChangeds(const FOnAttributeChangeData& ChangeData);
-    virtual void    OnMaxHealthChangeds(const FOnAttributeChangeData& ChangeData);
+    virtual void                OnHealthChangeds(const FOnAttributeChangeData& ChangeData);
+    virtual void                OnMaxHealthChangeds(const FOnAttributeChangeData& ChangeData);
 
-    void            SetChangedWeaponAmmoCountInfo(const int32 NewAmmoCount, const int32 NewMaxAmmoCount);
-    void            SetChangedWeaponCapacityCountInfo(const int32 NewCapacityCount, const int32 NewMaxCapacityCount);
-    void            SetGrenadeCountInfo(const int32 NewGrenadeCount, const int32 NewMaxGrenadeCount);
-    void            OnAmmoCountChanged(const int32 NewAmmoCount);
-    void            OnCapacityCountChanged(const int32 NewCapacityCount);
-    void            OnGrenadeCountChanged(const int32 NewGrenadeCount);
+    void                        SetChangedWeaponAmmoCountInfo(const int32 NewAmmoCount, const int32 NewMaxAmmoCount);
+    void                        SetChangedWeaponCapacityCountInfo(const int32 NewCapacityCount, const int32 NewMaxCapacityCount);
+    void                        SetGrenadeCountInfo(const int32 NewGrenadeCount, const int32 NewMaxGrenadeCount);
+    void                        OnAmmoCountChanged(const int32 NewAmmoCount);
+    void                        OnCapacityCountChanged(const int32 NewCapacityCount);
+    void                        OnGrenadeCountChanged(const int32 NewGrenadeCount);
 	
 private:
-    void            UpdateProgressbar(UProgressBar* Progressbar, const float Value);
-    void            UpdateTextblock(UTextBlock* TextBlock, const FText& Text);
-    void            UpdateImage(UImage* ImageWidget, UTexture2D* Texture);
+    void                        UpdateProgressbar(UProgressBar* Progressbar, const float Value);
+    void                        UpdateTextblock(UTextBlock* TextBlock, const FText& Text);
+    void                        UpdateImage(UImage* ImageWidget, UTexture2D* Texture);
 
 protected:
     // HP Section
@@ -76,7 +76,7 @@ protected:
     UPROPERTY(meta = (BindWidget))
     TObjectPtr<UImage>          Img_Weapon;
 
-    int32 MaxAmmoCount;
-    int32 MaxCapacityCount;
-    int32 MaxGrenadeCount;
+    int32                       MaxAmmoCount;
+    int32                       MaxCapacityCount;
+    int32                       MaxGrenadeCount;
 };

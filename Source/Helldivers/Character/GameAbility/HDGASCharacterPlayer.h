@@ -38,7 +38,7 @@ class HELLDIVERS_API AHDGASCharacterPlayer : public AHDCharacterPlayer, public I
 	GENERATED_BODY()
 
 public:
-	explicit AHDGASCharacterPlayer();
+	explicit									AHDGASCharacterPlayer();
 
 public:
 	virtual UAbilitySystemComponent*			GetAbilitySystemComponent() const override final;
@@ -50,6 +50,8 @@ protected:
 	void										SetGASEventInputComponent(UEnhancedInputComponent* EnhancedInputComponent);
 	void										GASInputPressed(const FGameplayTag Tag);
 	void										GASInputReleased(const FGameplayTag Tag);
+
+	virtual	void								SetSprint(const bool bSprint) override final;
 	
 	UFUNCTION()
 	void										InputStratagemCommand(const FInputActionValue& Value);

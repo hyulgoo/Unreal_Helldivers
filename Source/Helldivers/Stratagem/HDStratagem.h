@@ -15,19 +15,21 @@ class HELLDIVERS_API AHDStratagem : public AActor
 {
 	GENERATED_BODY()
 
-public:	
-	explicit AHDStratagem();
+	friend class AHDCharacterPlayer;
 
-	void			AddImpulseToStratagem(const FVector& ThrowDirection);
+public:	
+	explicit							AHDStratagem();
+
+	void								AddImpulseToStratagem(const FVector& ThrowDirection);
 
 protected:
-	virtual void	BeginPlay() override final;
+	virtual void						BeginPlay() override final;
 	
 	UFUNCTION()
-    virtual void	OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
+    virtual void						OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
 
 private:
-	void			SpawnPointLaser();
+	void								SpawnPointLaser();
 
 private:
 	UPROPERTY(EditAnywhere)
@@ -49,5 +51,4 @@ private:
 	float								ThrowImpulse;
 	FName								StratagemName;
 
-	friend class AHDCharacterPlayer;
 };

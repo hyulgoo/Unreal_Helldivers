@@ -17,9 +17,9 @@ class HELLDIVERS_API AHDBattleShip : public AActor, public IAbilitySystemInterfa
 	GENERATED_BODY()
 	
 public:	
-	explicit AHDBattleShip();
+	explicit                            AHDBattleShip();
 
-    virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
+    virtual UAbilitySystemComponent*    GetAbilitySystemComponent() const override;
 	void							    ActivateStratagem(const FName StratagemName, const FTransform& Transform, const float StratagemActiveDelay);
 
 protected:

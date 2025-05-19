@@ -15,8 +15,8 @@ class HELLDIVERS_API UHDGASUserWidget : public UUserWidget, public IAbilitySyste
 	GENERATED_BODY()
 	
 public:
-    virtual void SetAbilitySystemComponent(UAbilitySystemComponent* NewAbilitySystemComponent);
-    virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override final;
+    virtual void                        SetAbilitySystemComponent(UAbilitySystemComponent* NewAbilitySystemComponent);
+    virtual UAbilitySystemComponent*    GetAbilitySystemComponent() const override final;
 
 protected:
     UPROPERTY(EditAnywhere, Category = GAS)

@@ -15,12 +15,12 @@ class HELLDIVERS_API UHDCommandIcon : public UUserWidget
 	GENERATED_BODY()
 
 public:
-    void SetCommandIcon(UTexture2D* IconTexture);
+    void                    SetCommandIcon(UTexture2D* IconTexture);
 	
 protected:
     UPROPERTY(meta = (BindWidget))
-    TObjectPtr<UScaleBox> SB_Command;
+    TObjectPtr<UScaleBox>   SB_Command;
 
     UPROPERTY(meta = (BindWidget))
-    TObjectPtr<UImage>    Img_CommandIcon;
+    TObjectPtr<UImage>      Img_CommandIcon;
 };

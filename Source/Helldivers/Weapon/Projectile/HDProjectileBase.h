@@ -26,24 +26,24 @@ class HELLDIVERS_API AHDProjectileBase : public AActor
 	GENERATED_BODY()
 	
 public:	
-	explicit AHDProjectileBase();
+	explicit                                    AHDProjectileBase();
 
 protected:
-	virtual void	BeginPlay() override;
-	virtual void	Tick(float DeltaSeconds) override;
-	virtual void	Destroyed() override;
+	virtual void	                            BeginPlay() override;
+	virtual void	                            Tick(float DeltaSeconds) override;
+	virtual void	                            Destroyed() override;
 	
 	UFUNCTION()
-	virtual void	OnBoxHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
+	virtual void	                            OnBoxHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
 
 private:
-    void            InitializeBeginPlay();
-    void			StartDestroyTimer();
-    void			DestroyTimerFinished();
-    void            SpawnTrailSystem();
+    void                                        InitializeBeginPlay();
+    void			                            StartDestroyTimer();
+    void			                            DestroyTimerFinished();
+    void                                        SpawnTrailSystem();
 
-    void            ApplyImpactGameEffect(UAbilitySystemComponent* TargetAbiltySystemComponent);
-    void            ExcuteGameplayCue(UAbilitySystemComponent* OwnerAbilitySystemComponent, const FGameplayTag& Tag, const FHitResult& Hit);
+    void                                        ApplyImpactGameEffect(UAbilitySystemComponent* TargetAbiltySystemComponent);
+    void                                        ExcuteGameplayCue(UAbilitySystemComponent* OwnerAbilitySystemComponent, const FGameplayTag& Tag, const FHitResult& Hit);
 
 public:	
     UPROPERTY(EditDefaultsOnly, Category = "Info|Default")

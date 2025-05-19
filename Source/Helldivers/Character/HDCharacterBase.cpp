@@ -35,7 +35,7 @@ AHDCharacterBase::AHDCharacterBase()
 	SkeletalMeshComponent->SetAnimationMode(EAnimationMode::AnimationBlueprint);
 	SkeletalMeshComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
-	static ConstructorHelpers::FObjectFinder<USkeletalMesh> CharacterMeshRef(TEXT("/Game/Characters/Mannequins/Meshes/SKM_Quinn.SKM_Quinn"));
+	static ConstructorHelpers::FObjectFinder<USkeletalMesh> CharacterMeshRef(TEXT("/Script/Engine.SkeletalMesh'/Game/Asset/Characters/Mannequins/Meshes/SKM_Quinn.SKM_Quinn'"));
 	if (CharacterMeshRef.Succeeded())
 	{
 		SkeletalMeshComponent->SetSkeletalMesh(CharacterMeshRef.Object);

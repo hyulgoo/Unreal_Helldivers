@@ -14,7 +14,7 @@ class HELLDIVERS_API UHDCharacterControlData : public UPrimaryDataAsset
 	GENERATED_BODY()
 
 public:
-	explicit UHDCharacterControlData();
+	explicit	UHDCharacterControlData();
 
 public:
 	UPROPERTY(EditAnywhere, Category = "CharacterMovement")

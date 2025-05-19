@@ -16,7 +16,7 @@ class HELLDIVERS_API AHDGASPlayerState : public APlayerState, public IAbilitySys
 	GENERATED_BODY()
 	
 public:
-    explicit AHDGASPlayerState();
+    explicit                            AHDGASPlayerState();
 
     virtual UAbilitySystemComponent*    GetAbilitySystemComponent() const override final;
 

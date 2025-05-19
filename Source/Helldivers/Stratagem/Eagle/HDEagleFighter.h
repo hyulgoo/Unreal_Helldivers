@@ -19,23 +19,23 @@ class HELLDIVERS_API AHDEagleFighter : public AActor
     friend class AHDBattleShip;
 
 public:
-    explicit AHDEagleFighter();
+    explicit                            AHDEagleFighter();
 
 protected:
-    virtual void    BeginPlay() override final;
+    virtual void                        BeginPlay() override final;
 
 private:
     UFUNCTION()
-    void            HandleTimelineProgress(const float Value);
+    void                                HandleTimelineProgress(const float Value);
 
     UFUNCTION()
-    void            HandleTimelineFinished();
+    void                                HandleTimelineFinished();
 
-    void            InitEagleFighter();
-    void            SetSplnePoints();
-    void            SetActiveEagleFighter(const bool bIsActive);
-    void            DropBombWithDelayAndReturn(const int32 Index);
-    void            CreateProjectile(TSubclassOf<AHDProjectileBase> ProjectileClass, const int32 Index);
+    void                                InitEagleFighter();
+    void                                SetSplnePoints();
+    void                                SetActiveEagleFighter(const bool bIsActive);
+    void                                DropBombWithDelayAndReturn(const int32 Index);
+    void                                CreateProjectile(TSubclassOf<AHDProjectileBase> ProjectileClass, const int32 Index);
 
 private:
     UPROPERTY()

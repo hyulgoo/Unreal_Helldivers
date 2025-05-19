@@ -11,6 +11,7 @@
 #include "Attribute/HDHealthAttributeSet.h"
 #include "Attribute/Player/HDPlayerSpeedAttributeSet.h"
 #include "GameData/HDCharacterStat.h"
+#include "GameFramework/CharacterMovementComponent.h"
 
 AHDGASCharacterPlayer::AHDGASCharacterPlayer()
 {
@@ -31,7 +32,7 @@ void AHDGASCharacterPlayer::InitializeAttributeSet()
     UHDHealthAttributeSet* HealthAttributeSet = NewObject<UHDHealthAttributeSet>(this);
     NULL_CHECK(HealthAttributeSet);
     HealthAttributeSet->MaxHealth.SetBaseValue(InitCharacterStat->MaxHealth);
-
+     
     AbilitySystemComponent->AddAttributeSetSubobject(HealthAttributeSet);
 
     UHDPlayerSpeedAttributeSet* SpeedAttribute = NewObject<UHDPlayerSpeedAttributeSet>(this);
@@ -200,6 +201,25 @@ void AHDGASCharacterPlayer::GASInputReleased(const FGameplayTag Tag)
             AbilitySystemComponent->AbilitySpecInputReleased(Spec);
         }
     }
+}
+
+void AHDGASCharacterPlayer::SetSprint(const bool bSprint)
+{
+    Super::SetSprint(bSprint);
+
+    NULL_CHECK(AbilitySystemComponent);
+
+    const UHDPlayerSpeedAttributeSet* PlayerSpeedAttributeSet = AbilitySystemComponent->GetSet<UHDPlayerSpeedAttributeSet>();
+    NULL_CHECK(PlayerSpeedAttributeSet);
+
+    UE_LOG(LogTemp, Warning, TEXT("GetSprintSpeed : [%f]"), PlayerSpeedAttributeSet->GetSprintSpeed());
+    UE_LOG(LogTemp, Warning, TEXT("GetWalkSpeed : [%f]"), PlayerSpeedAttributeSet->GetWalkSpeed());
+    const float NewSpeed = bSprint ? PlayerSpeedAttributeSet->GetSprintSpeed() : PlayerSpeedAttributeSet->GetWalkSpeed();
+    UE_LOG(LogTemp, Warning, TEXT("NewSpeed : [%f]"), NewSpeed);
+    UCharacterMovementComponent* CharacterMovementComponent = GetCharacterMovement();
+    NULL_CHECK(CharacterMovementComponent);
+
+    CharacterMovementComponent->MaxWalkSpeed = NewSpeed;
 }
 
 void AHDGASCharacterPlayer::InputStratagemCommand(const FInputActionValue& Value)

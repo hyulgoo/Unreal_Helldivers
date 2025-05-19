@@ -16,7 +16,7 @@ class HELLDIVERS_API AHDCharacterBase : public ACharacter
     GENERATED_BODY()
 
 public:
-    explicit AHDCharacterBase();
+    explicit                    AHDCharacterBase();
 
 protected:
     virtual void                SetCharacterControlData(UHDCharacterControlData* CharacterControlData);

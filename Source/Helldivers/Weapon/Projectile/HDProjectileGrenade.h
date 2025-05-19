@@ -12,15 +12,15 @@ class HELLDIVERS_API AHDProjectileGrenade : public AHDProjectileBase
 	GENERATED_BODY()
 	
 public:
-	explicit AHDProjectileGrenade();
+	explicit		AHDProjectileGrenade();
 
-	virtual void Destroyed() override final;
+	virtual void	Destroyed() override final;
 
 protected:
-	virtual void BeginPlay() override final;
+	virtual void	BeginPlay() override final;
 
 	UFUNCTION()
-	void OnBounce(const FHitResult& ImpactResult, const FVector& ImpactVelocity);
+	void			OnBounce(const FHitResult& ImpactResult, const FVector& ImpactVelocity);
 
 private:
     UPROPERTY(EditAnywhere)

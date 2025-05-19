@@ -18,9 +18,9 @@ class HELLDIVERS_API UHDStratagemInfoUserWidget : public UUserWidget
 	GENERATED_BODY()
 
 public:
-	void		InitializeStratagemInfoWidget(UTexture2D* IconTexture, const TArray<EHDCommandInput>& CommandList, const TMap<EHDCommandInput, UTexture2D*> CommandIconList);
-	void		ActiveCommandIconByNum(const int32 InputNum);
-	void		SetAllWidgetCapacity(const float Opacity);
+	void								InitializeStratagemInfoWidget(UTexture2D* IconTexture, const TArray<EHDCommandInput>& CommandList, const TMap<EHDCommandInput, UTexture2D*> CommandIconList);
+	void								ActiveCommandIconByNum(const int32 InputNum);
+	void								SetAllWidgetCapacity(const float Opacity);
 
 protected:
     UPROPERTY(meta = (BindWidget))

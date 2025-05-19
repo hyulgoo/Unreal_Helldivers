@@ -32,7 +32,7 @@ class HELLDIVERS_API AHDWeapon : public AActor
     GENERATED_BODY()
 
 public:
-    explicit AHDWeapon();
+    explicit                            AHDWeapon();
 
     FORCEINLINE void                    SetAutoFire(const bool AutoFire) { bIsAutoFire = AutoFire; }
     FORCEINLINE void                    SetWeaponState(const EWeaponState NewState) { WeaponState = NewState; }

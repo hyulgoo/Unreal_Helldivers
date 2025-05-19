@@ -51,7 +51,6 @@ void UHDAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
     const FRotator MovementRotation = UKismetMathLibrary::MakeRotFromX(Owner->GetVelocity());
     FRotator DeltaRot = UKismetMathLibrary::NormalizedDeltaRotator(MovementRotation, AimRotation);
     DeltaRotation = FMath::RInterpTo(DeltaRotation, DeltaRot, DeltaSeconds, 6.f);
-    YawOffset = DeltaRotation.Yaw;
 
     CharacterRotationLastFrame = CharacterRotation;
     CharacterRotation = Owner->GetActorRotation();
@@ -64,11 +63,14 @@ void UHDAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
     IHDCharacterMovementInterface* CharacterMovementInterface = Cast<IHDCharacterMovementInterface>(Owner);
     if (CharacterMovementInterface)
     {
+        bIsSprint           = CharacterMovementInterface->IsSprint();
         bIsShouldering      = CharacterMovementInterface->IsShouldering();
-        AimOffset_Yaw       = bIsShouldering ? AimOffset_Yaw_CorrectionFigure : CharacterMovementInterface->GetAimOffset_Yaw() + AimOffset_Yaw_CorrectionFigure;
+        AimOffset_Yaw       = bIsShouldering ? 0.f : CharacterMovementInterface->GetAimOffset_Yaw();
         AimOffset_Pitch     = CharacterMovementInterface->GetAimOffset_Pitch();
         bIsRotateRootBone   = CharacterMovementInterface->IsUseRotateBone();
         TurningInPlace      = CharacterMovementInterface->GetTurningInPlace();
+        bIsLookingViewport  = CharacterMovementInterface->IsCharacterLookingViewport();
+        YawOffset           = bIsLookingViewport ? DeltaRotation.Yaw : 0.f;
     }
 
     // WeaponInterface

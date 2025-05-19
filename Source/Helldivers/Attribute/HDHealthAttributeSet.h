@@ -19,20 +19,20 @@ class HELLDIVERS_API UHDHealthAttributeSet : public UAttributeSet
 	GENERATED_BODY()
 	
 public:
-	explicit UHDHealthAttributeSet();
+	explicit				UHDHealthAttributeSet();
 
 	ATTRIBUTE_ACCESSORS(UHDHealthAttributeSet, CurrentHealth);
 	ATTRIBUTE_ACCESSORS(UHDHealthAttributeSet, MaxHealth);
 
-	virtual void PreAttributeChange(const FGameplayAttribute& Attribute, float& NewValue) override;
+	virtual void			PreAttributeChange(const FGameplayAttribute& Attribute, float& NewValue) override;
 	//virtual void PostAttributeChange(const FGameplayAttribute& Attribute, float OldValue, float NewValue) override;
-	virtual bool PreGameplayEffectExecute(struct FGameplayEffectModCallbackData& Data) override;
-	virtual void PostGameplayEffectExecute(const struct FGameplayEffectModCallbackData& Data) override;
+	virtual bool			PreGameplayEffectExecute(struct FGameplayEffectModCallbackData& Data) override;
+	virtual void			PostGameplayEffectExecute(const struct FGameplayEffectModCallbackData& Data) override;
 	
 public:
 	UPROPERTY(BlueprintReadOnly, Category = "CurrentHealth")
-	FGameplayAttributeData CurrentHealth;
+	FGameplayAttributeData	CurrentHealth;
 	
 	UPROPERTY(BlueprintReadOnly, Category = "CurrentHealth")
-	FGameplayAttributeData MaxHealth;
+	FGameplayAttributeData	MaxHealth;
 };

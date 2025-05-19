@@ -15,17 +15,17 @@ class HELLDIVERS_API AHDGASNonPlayer : public AHDCharacterNonPlayer, public IAbi
 	GENERATED_BODY()
 	
 public:
-	explicit AHDGASNonPlayer();
+	explicit							AHDGASNonPlayer();
 
-	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override final;
+	virtual UAbilitySystemComponent*	GetAbilitySystemComponent() const override final;
 
 protected:
 	virtual void BeginPlay() override final;
 
 protected:
 	UPROPERTY(EditAnywhere, Category = "GAS")
-	TObjectPtr<UAbilitySystemComponent>			AbilitySystemComponent;
+	TObjectPtr<UAbilitySystemComponent>	AbilitySystemComponent;
 	
     UPROPERTY(EditAnywhere, Category = "GAS")
-    TSubclassOf<UGameplayEffect>				InitAttributeSetGameEffect;
+    TSubclassOf<UGameplayEffect>		InitAttributeSetGameEffect;
 };

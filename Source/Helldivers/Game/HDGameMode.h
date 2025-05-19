@@ -12,7 +12,7 @@ class HELLDIVERS_API AHDGameMode : public AGameModeBase
 	GENERATED_BODY()
 	
 public:
-	explicit AHDGameMode();
+	explicit		AHDGameMode();
 
-	virtual void StartPlay() override final;
+	virtual void	StartPlay() override final;
 };

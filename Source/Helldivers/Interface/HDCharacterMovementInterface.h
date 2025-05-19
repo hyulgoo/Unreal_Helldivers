@@ -28,6 +28,7 @@ public:
 	// Shouldering
 	virtual const bool						IsShouldering() const = 0;
 	virtual void							SetShouldering(const bool bSetAiming) = 0;
+	virtual const bool						IsCharacterLookingViewport() const = 0;
 
 	// CharacterControl
 	virtual const EHDCharacterControlType	GetCharacterControlType() const = 0;
@@ -39,4 +40,5 @@ public:
 
 	virtual const bool						IsSprint() const = 0;
 	virtual void							SetSprint(const bool bSprint) = 0;
+
 };

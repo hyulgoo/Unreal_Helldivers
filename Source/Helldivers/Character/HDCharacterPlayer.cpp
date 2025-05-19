@@ -28,8 +28,9 @@ AHDCharacterPlayer::AHDCharacterPlayer()
     , AimOffset_Pitch(0.f)
     , AimOffsetYawCompensation(0.f)
     , bIsSprint(false)
-    , TurnThreshold(0.f)
+    , bIsCharacterLookingViewport(false)
     , bUseRotateRootBone(false)
+    , TurnThreshold(90.f)
     , TurningInPlace(EHDTurningInPlace::NotTurning)
     , SelecteddStratagemActiveDelay(0.f)
     , ThrowTimer()
@@ -109,6 +110,8 @@ void AHDCharacterPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputC
     AHDPlayerController* PlayerController = Cast<AHDPlayerController>(GetController());
     NULL_CHECK(PlayerController);
 
+    PlayerController->PlayerCameraManager->ViewPitchMin = -60.f;
+    PlayerController->PlayerCameraManager->ViewPitchMax = 70.f;
     PlayerController->SetWeaponHUDInfo(Weapon);
 
     UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(PlayerInputComponent);
@@ -152,6 +155,7 @@ void AHDCharacterPlayer::SetCharacterControl(const EHDCharacterControlType NewCh
 
     APlayerController* PlayerController = Cast<APlayerController>(GetController());
     NULL_CHECK(PlayerController);
+
     UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer());
     NULL_CHECK(Subsystem);
 
@@ -292,6 +296,11 @@ void AHDCharacterPlayer::AddStratagemCommand(const EHDCommandInput NewInput)
     PlayerController->SetHUDActiveByCurrentInputMatchList(CommandMatchStratagemNameList, CurrentInputCommandList.Num());
 }
 
+void AHDCharacterPlayer::SetSprint(const bool bSprint)
+{
+    bIsSprint = bSprint;
+}
+
 const FVector& AHDCharacterPlayer::GetThrowDirection() const
 {
     NULL_CHECK_WITH_RETURNTYPE(Combat, FVector::ZeroVector);
@@ -340,6 +349,8 @@ void AHDCharacterPlayer::ThrowStratagem()
 
 void AHDCharacterPlayer::AimOffset(const float DeltaTime)
 {
+    NULL_CHECK(Combat);
+
     if (IsValid(Weapon) == false)
     {
         return;
@@ -351,9 +362,10 @@ void AHDCharacterPlayer::AimOffset(const float DeltaTime)
     const bool bIsFalling = GetCharacterMovement()->IsFalling();
     const FRotator BaseAimRoatation = GetBaseAimRotation();
 
-    if (Speed == 0.f && bIsFalling == false)
+    if ((Speed == 0.f && bIsFalling == false) || Combat->bIsShoulder)
     {
-        bUseRotateRootBone = false;
+        bIsCharacterLookingViewport = true;
+        bUseRotateRootBone = true;
         const FRotator CurrentRotation = FRotator(0.f, BaseAimRoatation.Yaw, 0.f);
         const FRotator DeltaAimRotation = UKismetMathLibrary::NormalizedDeltaRotator(CurrentRotation, StartingAimRotation);
         AimOffset_Yaw = DeltaAimRotation.Yaw;
@@ -365,24 +377,17 @@ void AHDCharacterPlayer::AimOffset(const float DeltaTime)
         TurnInPlace(DeltaTime);
     }
 
-    if (Speed > 0.f || bIsFalling)
+    if (Combat->bIsShoulder == false && (Speed > 0.f || bIsFalling))
     {
+        bIsCharacterLookingViewport = false;
         bUseRotateRootBone = false;
         const FRotator CurrentRotation = FRotator(0.f, BaseAimRoatation.Yaw, 0.f);
         const FRotator DeltaAimRotation = UKismetMathLibrary::NormalizedDeltaRotator(CurrentRotation, StartingAimRotation);
-        AimOffset_Yaw = FMath::Clamp(DeltaAimRotation.Yaw, -90.f, 90.f);
+        AimOffset_Yaw = DeltaAimRotation.Yaw;
         bUseControllerRotationYaw = false;
         TurningInPlace = EHDTurningInPlace::NotTurning;
         StartingAimRotation = FRotator(0.f, GetBaseAimRotation().Yaw, 0.f);
     }
-
-    //const float DeltaYaw = UKismetMathLibrary::NormalizedDeltaRotator(FRotator(0.f, BaseAimRoatation.Yaw, 0.f), FRotator(0.f, LastFrame_Yaw, 0.f)).Yaw;
-    //AimOffset_Yaw -= DeltaYaw;
-    //InterpAimOffset_Yaw -= DeltaYaw;
-    //
-    //LastFrame_Yaw = BaseAimRoatation.Yaw;
-
-    AimOffset_Pitch = BaseAimRoatation.Pitch;
 }
 
 void AHDCharacterPlayer::TurnInPlace(float DeltaTime)
@@ -398,15 +403,29 @@ void AHDCharacterPlayer::TurnInPlace(float DeltaTime)
 
     if (TurningInPlace != EHDTurningInPlace::NotTurning)
     {
+        NULL_CHECK(Combat);
+
         // Rotate Aim
-        InterpAimOffset_Yaw = FMath::FInterpTo(InterpAimOffset_Yaw, 0.f, DeltaTime, Combat->ErgonomicFactor / 15.f);
+        InterpAimOffset_Yaw = FMath::FInterpTo(InterpAimOffset_Yaw, 0.f, DeltaTime, Combat->ErgonomicFactor / 10.f);
         AimOffset_Yaw = InterpAimOffset_Yaw;
         if (FMath::Abs(AimOffset_Yaw) < 15.f)
         {
-            AimOffset_Yaw = 15.f;
+            AimOffset_Yaw = 0.f;
             StartingAimRotation = FRotator(0.f, GetBaseAimRotation().Yaw, 0.f);
             TurningInPlace = EHDTurningInPlace::NotTurning;
         }
+    }
+}
+
+void AHDCharacterPlayer::CalculationAimOffset_Pitch()
+{
+    AimOffset_Pitch= GetBaseAimRotation().Pitch;
+    if (AimOffset_Pitch > 90.f && !IsLocallyControlled())
+    {
+        // map pitch from [270, 360) to [-90, 0)
+        FVector2D InRange(270.f, 360.f);
+        FVector2D OutRange(-90.f, 0.f);
+        AimOffset_Pitch = FMath::GetMappedRangeValueClamped(InRange, OutRange, AimOffset_Pitch);
     }
 }
 
@@ -431,8 +450,8 @@ void AHDCharacterPlayer::ThirdPersonMove(const FInputActionValue& Value)
     }
 
     const FVector2D MovementVector = Value.Get<FVector2D>();
-
     const FRotator Rotation = Controller->GetControlRotation();
+
     const FRotator YawRotation(0, Rotation.Yaw, 0);
 
     const FVector ForwardDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
@@ -559,7 +578,6 @@ void AHDCharacterPlayer::PlayThrowMontage()
 {
     UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
     VALID_CHECK(AnimInstance);
-
     NULL_CHECK(ThrowMontage);
 
     AnimInstance->Montage_Play(ThrowMontage);
@@ -570,7 +588,7 @@ void AHDCharacterPlayer::SetDead()
     Super::SetDead();
 
     APlayerController* PlayerController = Cast<APlayerController>(GetController());
-    if (PlayerController)
+    if (PlayerController && IsLocallyControlled())
     {
         DisableInput(PlayerController);
     }

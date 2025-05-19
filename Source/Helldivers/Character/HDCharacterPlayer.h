@@ -27,7 +27,7 @@ class HELLDIVERS_API AHDCharacterPlayer : public AHDCharacterBase, public IHDCha
 	GENERATED_BODY()
 
 public:
-	explicit AHDCharacterPlayer();
+	explicit								AHDCharacterPlayer();
 
 	virtual void							SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
 	UDataTable*								GetAvaliableStratagemDataTable()						{ return AvaliableStratagemDataTable; }
@@ -50,8 +50,10 @@ protected:
 	// CharacterMovementInterface
 	virtual const float						GetAimOffset_Yaw() const override final					{ return AimOffset_Yaw; }
 	virtual const float						GetAimOffset_Pitch() const override final				{ return AimOffset_Pitch; }
+
     virtual const bool						IsShouldering() const override final;
     virtual void							SetShouldering(const bool bSetAiming) override final;
+	virtual const bool						IsCharacterLookingViewport() const override final		{ return bIsCharacterLookingViewport; }
 
 	virtual const EHDCharacterControlType	GetCharacterControlType() const							{ return CurrentCharacterControlType; }
 	virtual void							ChangeCharacterControlType();
@@ -60,7 +62,7 @@ protected:
 	virtual const bool						IsUseRotateBone() const override final					{ return bUseRotateRootBone; }
 
 	virtual const bool						IsSprint() const override final							{ return bIsSprint; }
-	virtual void							SetSprint(const bool bSprint) override final			{ bIsSprint = bIsSprint; }
+	virtual void							SetSprint(const bool bSprint) override;
 
 	// CharacterCommandInterface
 	virtual AHDStratagem*					GetStratagem() const override final						{ return Stratagem; }
@@ -75,6 +77,7 @@ protected:
 private:
     void									AimOffset(const float DeltaTime);
 	void									TurnInPlace(const float DeltaTime);
+	void									CalculationAimOffset_Pitch();
 
 	void									SpawnDefaultWeapon();
 
@@ -148,8 +151,15 @@ private:
 	float									AimOffsetYawCompensation;
 
 	bool									bIsSprint;
-	float									TurnThreshold;
+
+	bool									bIsCharacterLookingViewport;
+
+	UPROPERTY(VisibleAnywhere, Category = "Input|TurnInPlace")
 	bool									bUseRotateRootBone;
+
+	UPROPERTY(EditAnywhere, Category = "Input|TurnInPlace")
+	float									TurnThreshold;
+
 
 	EHDTurningInPlace						TurningInPlace;
 		

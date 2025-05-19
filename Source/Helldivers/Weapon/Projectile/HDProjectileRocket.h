@@ -14,11 +14,11 @@ class HELLDIVERS_API AHDProjectileRocket : public AHDProjectileBase
 	GENERATED_BODY()
 	
 public:
-	explicit AHDProjectileRocket();
+	explicit								AHDProjectileRocket();
 
 protected:
-	virtual void BeginPlay() override final;
-	virtual void OnBoxHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent, FVector NormalImpulse, const FHitResult& Hit) override final;
+    virtual void							BeginPlay() override final;
+    virtual void							OnBoxHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent, FVector NormalImpulse, const FHitResult& Hit) override final;
 	
 protected:
 	UPROPERTY(EditAnywhere)

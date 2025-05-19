@@ -14,9 +14,9 @@ class HELLDIVERS_API AHDCharacterNonPlayer : public AHDCharacterBase
 	GENERATED_BODY()
 	
 public:
-    explicit AHDCharacterNonPlayer();
+    explicit        AHDCharacterNonPlayer();
 
 protected:
-    virtual void PostInitializeComponents() override final;
-    virtual void SetDead() override final;
+    virtual void    PostInitializeComponents() override final;
+    virtual void    SetDead() override final;
 };
