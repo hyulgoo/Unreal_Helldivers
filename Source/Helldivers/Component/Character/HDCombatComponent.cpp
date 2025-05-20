@@ -5,6 +5,7 @@
 #include "Engine/SkeletalMeshSocket.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Character/CharacterTypes/HDCharacterStateTypes.h"
+#include "Kismet/GameplayStatics.h"
 #include "Animation/HDAnimInstance.h"
 
 UHDCombatComponent::UHDCombatComponent()
@@ -16,8 +17,19 @@ UHDCombatComponent::UHDCombatComponent()
 , CurrentFOV(0.f)
 , ErgonomicFactor(0.f)
 {
+    PrimaryComponentTick.bCanEverTick = true;
+    PrimaryComponentTick.bStartWithTickEnabled = true;
+    SetComponentTickEnabled(true);
+
 	bCanFire = true;
 	bIsFireButtonPressed = false;
+}
+
+void UHDCombatComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
+{
+    Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+
+    TraceUnderCrosshairs();
 }
 
 void UHDCombatComponent::FireTimerFinished()
@@ -37,6 +49,44 @@ void UHDCombatComponent::FireTimerFinished()
    /* AHDPlayerController* PlayerController = Cast<AHDPlayerController>(GetController());
     NULL_CHECK(PlayerController);
     PlayerController->ChangeCapacityHUDInfo(Weapon->GetCapacityCount());*/
+}
+
+void UHDCombatComponent::TraceUnderCrosshairs()
+{
+    FVector2D ViewportSize = FVector2D();
+    if (GEngine && GEngine->GameViewport)
+    {
+        GEngine->GameViewport->GetViewportSize(ViewportSize);
+    }
+
+    const FVector2D CrosshairLocation(ViewportSize.X / 2.f, ViewportSize.Y / 2.f);
+    FVector CrosshairWorldPosition;
+    FVector CrosshairWorldDirection;
+    const bool bScreenToWorld = UGameplayStatics::DeprojectScreenToWorld(
+        UGameplayStatics::GetPlayerController(this, 0),
+        CrosshairLocation,
+        CrosshairWorldPosition,
+        CrosshairWorldDirection
+    );
+
+    if (bScreenToWorld)
+    {
+        FHitResult TraceHitResult;
+
+        FVector Start = CrosshairWorldPosition;
+        const float DistanceToCharacter = (GetOwner()->GetActorLocation() - Start).Size();
+        Start += CrosshairWorldDirection * (DistanceToCharacter + 100.f);
+
+        const FVector End = Start + CrosshairWorldDirection * HITSCAN_TRACE_LENGTH;
+        UWorld* World = GetWorld();
+        VALID_CHECK(World);
+        const bool bHit = World->LineTraceSingleByChannel(TraceHitResult, Start, End, ECollisionChannel::ECC_Visibility);        
+
+        HitTarget = bHit ? TraceHitResult.ImpactPoint : End;
+
+        NULL_CHECK(Weapon);
+        Weapon->TraceEndWithScatter(HitTarget);
+    }
 }
 
 const bool UHDCombatComponent::Fire(const bool IsPressed)

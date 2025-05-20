@@ -25,7 +25,4 @@ protected:
 protected:
 	UPROPERTY(EditAnywhere, Category = "GAS")
 	TObjectPtr<UAbilitySystemComponent>	AbilitySystemComponent;
-	
-    UPROPERTY(EditAnywhere, Category = "GAS")
-    TSubclassOf<UGameplayEffect>		InitAttributeSetGameEffect;
 };

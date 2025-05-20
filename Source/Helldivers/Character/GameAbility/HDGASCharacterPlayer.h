@@ -61,6 +61,7 @@ protected:
 private:
 	void										SetStratagemHUDAppear(const bool bAppear);
 
+	void										InitAbilitySystemComponent();
 	void										InitializeAttributeSet();
 	const FHDCharacterStat*						GetCharacterStatByArmorType(const EHDArmorType ArmorType) const;
 

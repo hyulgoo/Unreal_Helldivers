@@ -25,40 +25,40 @@ protected:
     virtual void							NativeUpdateAnimation(float DeltaSeconds) override final;
 
 protected:
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Movement")
+	UPROPERTY(BlueprintReadOnly, Category = "Movement")
     TObjectPtr<ACharacter>					Owner;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Movement")
+	UPROPERTY(BlueprintReadOnly, Category = "Movement")
 	TObjectPtr<UCharacterMovementComponent> Movement;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Movement")
+	UPROPERTY(BlueprintReadOnly, Category = "Movement")
 	FVector									Velocity;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Movement")
+	UPROPERTY(BlueprintReadOnly, Category = "Movement")
 	float									GroundSpeed;
 	
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Movement")
+	UPROPERTY(BlueprintReadOnly, Category = "Movement")
 	float									MovingThreshould;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Movement")
+	UPROPERTY(BlueprintReadOnly, Category = "Movement")
 	uint8									bIsIdle : 1;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Movement")
+	UPROPERTY(BlueprintReadOnly, Category = "Movement")
 	uint8									bIsFalling : 1;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Movement")
+	UPROPERTY(BlueprintReadOnly, Category = "Movement")
 	uint8									bIsJumping : 1;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Movement")
+	UPROPERTY(BlueprintReadOnly, Category = "Movement")
 	float									JumpingThreshould;
 	
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Movement")
+	UPROPERTY(BlueprintReadOnly, Category = "Movement")
 	uint8									bIsCrouched : 1;
 	
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Movement")
+	UPROPERTY(BlueprintReadOnly, Category = "Movement")
 	uint8									bIsRotateRootBone : 1;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Movement")
+	UPROPERTY(BlueprintReadOnly, Category = "Movement")
 	uint8									bIsSprint : 1;
 	
 	UPROPERTY(BlueprintReadOnly, Category = "Movement")
@@ -96,9 +96,13 @@ protected:
 
 	UPROPERTY(BlueprintReadOnly, Category = "Aim")
 	float									AimOffset_Pitch;	
+	
+	UPROPERTY(BlueprintReadOnly, Category = "Aim")
+	FVector									HitTarget;	
 		
 	UPROPERTY(BlueprintReadOnly, Category = "Throw")
 	uint8									bIsUpperSlotValid : 1;
+	
 
 	FRotator								CharacterRotationLastFrame;
 	FRotator								CharacterRotation;

@@ -22,34 +22,6 @@ UAbilitySystemComponent* AHDGASCharacterPlayer::GetAbilitySystemComponent() cons
     return AbilitySystemComponent;
 }
 
-void AHDGASCharacterPlayer::InitializeAttributeSet()
-{
-    NULL_CHECK(AbilitySystemComponent);
-
-    AbilitySystemComponent->InitStats(UHDHealthAttributeSet::StaticClass(), nullptr);
-    AbilitySystemComponent->InitStats(UHDPlayerSpeedAttributeSet::StaticClass(), nullptr);
-
-    const FHDCharacterStat* InitCharacterStat = GetCharacterStatByArmorType(EHDArmorType::Medium);
-    NULL_CHECK(InitCharacterStat);
-
-    UHDHealthAttributeSet* HealthAttributeSet = const_cast<UHDHealthAttributeSet*>(AbilitySystemComponent->GetSet<UHDHealthAttributeSet>());
-    NULL_CHECK(HealthAttributeSet);
-    HealthAttributeSet->MaxHealth.SetBaseValue(InitCharacterStat->MaxHealth);
-    HealthAttributeSet->MaxHealth.SetCurrentValue(InitCharacterStat->MaxHealth);
-    
-    UHDPlayerSpeedAttributeSet* SpeedAttribute = const_cast<UHDPlayerSpeedAttributeSet*>(AbilitySystemComponent->GetSet<UHDPlayerSpeedAttributeSet>());
-    NULL_CHECK(SpeedAttribute);
-    SpeedAttribute->CrawlingSpeed.SetBaseValue(InitCharacterStat->CrawlingSpeed);
-    SpeedAttribute->CrouchSpeed.SetBaseValue(InitCharacterStat->CrouchSpeed);
-    SpeedAttribute->WalkSpeed.SetBaseValue(InitCharacterStat->WalkSpeed);
-    SpeedAttribute->SprintSpeed.SetBaseValue(InitCharacterStat->SprintSpeed);
-
-    SpeedAttribute->CrawlingSpeed.SetCurrentValue(InitCharacterStat->CrawlingSpeed);
-    SpeedAttribute->CrouchSpeed.SetCurrentValue(InitCharacterStat->CrouchSpeed);
-    SpeedAttribute->WalkSpeed.SetCurrentValue(InitCharacterStat->WalkSpeed);
-    SpeedAttribute->SprintSpeed.SetCurrentValue(InitCharacterStat->SprintSpeed);
-}
-
 const FHDCharacterStat* AHDGASCharacterPlayer::GetCharacterStatByArmorType(const EHDArmorType NewArmorType) const
 {
     NULL_CHECK_WITH_RETURNTYPE(ArmorTypeStatusDataTable, nullptr);
@@ -89,18 +61,7 @@ void AHDGASCharacterPlayer::SetArmor(EHDArmorType NewArmorType)
 
 void AHDGASCharacterPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
-    AHDGASPlayerState* GASPlayerState = GetPlayerState<AHDGASPlayerState>();
-    NULL_CHECK(GASPlayerState);
-
-    AbilitySystemComponent = GASPlayerState->GetAbilitySystemComponent();
-    NULL_CHECK(AbilitySystemComponent);
-
-    AbilitySystemComponent->InitAbilityActorInfo(GASPlayerState, this);
-
-    for (const TSubclassOf<UGameplayAbility>& StartAbility : StartAbilities)
-    {
-        AbilitySystemComponent->GiveAbility(StartAbility);
-    }
+    InitAbilitySystemComponent();
 
     UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(InputComponent);
     NULL_CHECK(EnhancedInputComponent);
@@ -108,19 +69,11 @@ void AHDGASCharacterPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInp
     SetupGASInputComponent(EnhancedInputComponent);
     SetGASEventInputComponent(EnhancedInputComponent);
 
-    InitializeAttributeSet();
-
     Super::SetupPlayerInputComponent(PlayerInputComponent);
 }
 
 void AHDGASCharacterPlayer::SetupGASInputComponent(UEnhancedInputComponent* EnhancedInputComponent)
 {
-    VALID_CHECK(AbilitySystemComponent);
-
-    FGameplayEffectContextHandle EffectContextHandle = AbilitySystemComponent->MakeEffectContext();
-    EffectContextHandle.AddSourceObject(this);
-    FGameplayEffectSpecHandle EffectSpecHandle = AbilitySystemComponent->MakeOutgoingSpec(InitStatEffect, static_cast<int>(ArmorType), EffectContextHandle);
-
     NULL_CHECK(EnhancedInputComponent);
 
     for (const FTaggedInputAction& TaggedInputAction : TaggedInputActions)
@@ -272,4 +225,51 @@ void AHDGASCharacterPlayer::SetStratagemHUDAppear(const bool bAppear)
     {
         PlayerController->SetStratagemHUDAppear(bAppear);
     }
+}
+
+void AHDGASCharacterPlayer::InitAbilitySystemComponent()
+{
+    AHDGASPlayerState* GASPlayerState = GetPlayerState<AHDGASPlayerState>();
+    NULL_CHECK(GASPlayerState);
+
+    AbilitySystemComponent = GASPlayerState->GetAbilitySystemComponent();
+    NULL_CHECK(AbilitySystemComponent);
+
+    AbilitySystemComponent->InitAbilityActorInfo(GASPlayerState, this);
+
+    for (const TSubclassOf<UGameplayAbility>& StartAbility : StartAbilities)
+    {
+        AbilitySystemComponent->GiveAbility(StartAbility);
+    }
+
+    InitializeAttributeSet();
+}
+
+void AHDGASCharacterPlayer::InitializeAttributeSet()
+{
+    NULL_CHECK(AbilitySystemComponent);
+
+    AbilitySystemComponent->InitStats(UHDHealthAttributeSet::StaticClass(), nullptr);
+    AbilitySystemComponent->InitStats(UHDPlayerSpeedAttributeSet::StaticClass(), nullptr);
+
+    // 추후 확장 시 GE로 초기화하게 변경할 것
+    const FHDCharacterStat* InitCharacterStat = GetCharacterStatByArmorType(EHDArmorType::Medium);
+    NULL_CHECK(InitCharacterStat);
+
+    UHDHealthAttributeSet* HealthAttributeSet = const_cast<UHDHealthAttributeSet*>(AbilitySystemComponent->GetSet<UHDHealthAttributeSet>());
+    NULL_CHECK(HealthAttributeSet);
+    HealthAttributeSet->MaxHealth.SetBaseValue(InitCharacterStat->MaxHealth);
+    HealthAttributeSet->MaxHealth.SetCurrentValue(InitCharacterStat->MaxHealth);
+
+    UHDPlayerSpeedAttributeSet* SpeedAttribute = const_cast<UHDPlayerSpeedAttributeSet*>(AbilitySystemComponent->GetSet<UHDPlayerSpeedAttributeSet>());
+    NULL_CHECK(SpeedAttribute);
+    SpeedAttribute->CrawlingSpeed.SetBaseValue(InitCharacterStat->CrawlingSpeed);
+    SpeedAttribute->CrouchSpeed.SetBaseValue(InitCharacterStat->CrouchSpeed);
+    SpeedAttribute->WalkSpeed.SetBaseValue(InitCharacterStat->WalkSpeed);
+    SpeedAttribute->SprintSpeed.SetBaseValue(InitCharacterStat->SprintSpeed);
+
+    SpeedAttribute->CrawlingSpeed.SetCurrentValue(InitCharacterStat->CrawlingSpeed);
+    SpeedAttribute->CrouchSpeed.SetCurrentValue(InitCharacterStat->CrouchSpeed);
+    SpeedAttribute->WalkSpeed.SetCurrentValue(InitCharacterStat->WalkSpeed);
+    SpeedAttribute->SprintSpeed.SetCurrentValue(InitCharacterStat->SprintSpeed);
 }

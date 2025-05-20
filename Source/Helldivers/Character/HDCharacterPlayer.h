@@ -10,6 +10,7 @@
 #include "Interface/HDCharacterCommandInterface.h"
 #include "Interface/HDWeaponInterface.h"
 #include "Weapon/WeaponTypes.h"
+#include "Components/TimelineComponent.h"
 #include "HDCharacterPlayer.generated.h"
 
 class UHDCharacterControlData;
@@ -34,6 +35,7 @@ public:
 
 protected:
 	virtual void							PostInitializeComponents() override;
+	virtual void							BeginPlay() override;
     virtual void							SetDead() override;
     virtual void							Tick(float DeltaTime) override;
 
@@ -84,18 +86,20 @@ private:
 	// Character Control Section
 	void									SetCharacterControl(const EHDCharacterControlType NewCharacterControlType);
 
+	UFUNCTION()
+	void									OnArmLengthTimelineUpdate(const float Value);
+
 	void									ThirdPersonMove(const FInputActionValue& Value);
 	void									ThirdPersonLook(const FInputActionValue& Value);
 
 	void									FirstPersonMove(const FInputActionValue& Value);
 	void									FirstPersonLook(const FInputActionValue& Value);
 
-	void									TraceUnderCrosshairs(FHitResult& TraceHitResult);
 	void									InterpFOV(float DeltaSeconds);
 
 	void									PlayFireMontage(const bool bAiming);
 	void									PlayThrowMontage();
-			
+				
 protected:
 	// Camera Section
 	UPROPERTY()
@@ -187,4 +191,10 @@ private:
 
 	// HUD, Crosshair
 	float									DefaultFOV;
+
+	// TimeLine
+	FTimeline								Timeline;
+	
+	UPROPERTY(EditAnywhere, Category = "SprintArm")
+	TObjectPtr<UCurveFloat>					ArmLengthCurve;
 };

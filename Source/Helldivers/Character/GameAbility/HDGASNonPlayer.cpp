@@ -20,11 +20,12 @@ void AHDGASNonPlayer::BeginPlay()
     Super::BeginPlay();
 
     NULL_CHECK(AbilitySystemComponent);
-    NULL_CHECK(InitAttributeSetGameEffect);
 
-    FGameplayEffectContextHandle Context = AbilitySystemComponent->MakeEffectContext();
-    FGameplayEffectSpecHandle Spec = AbilitySystemComponent->MakeOutgoingSpec(InitAttributeSetGameEffect, 1.f, Context);
+    // 테스트용 초기화. 나중에 GE나 DataTable 기반으로 변경할 것
+    AbilitySystemComponent->InitStats(UHDHealthAttributeSet::StaticClass(), nullptr);
 
-    CONDITION_CHECK(Spec.IsValid() == false);
-    AbilitySystemComponent->ApplyGameplayEffectSpecToSelf(*Spec.Data.Get());
+    UHDHealthAttributeSet* HealthAttributeSet = const_cast<UHDHealthAttributeSet*>(AbilitySystemComponent->GetSet<UHDHealthAttributeSet>());
+    NULL_CHECK(HealthAttributeSet);
+    HealthAttributeSet->MaxHealth.SetBaseValue(150.f);
+    HealthAttributeSet->MaxHealth.SetCurrentValue(150.f);
 }

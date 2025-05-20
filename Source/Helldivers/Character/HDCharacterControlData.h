@@ -39,6 +39,9 @@ public:
 	FVector		TargetOffset;
 
 	UPROPERTY(EditAnywhere, Category = "SpringArm")
+	FVector		SocketOffset;
+
+	UPROPERTY(EditAnywhere, Category = "SpringArm")
     uint32		bUsePawnControlRotation : 1;
 
 	UPROPERTY(EditAnywhere, Category = "SpringArm")

@@ -1,6 +1,6 @@
 #pragma once
 
-#define HITSCAN_TRACE_LENGTH 80000.f
+#define HITSCAN_TRACE_LENGTH 20000.f
 #define EXPECTED_IMPACT_POINT_TRACE_LENGTH 1000.f;
 
 UENUM(BlueprintType)

@@ -16,13 +16,18 @@ class HELLDIVERS_API UHDCombatComponent : public UActorComponent
 public:	
 	explicit                UHDCombatComponent();
 
+
     const bool				Fire(const bool IsPressed);
     void                    EquipWeapon(AHDWeapon* NewWeapon);
     AHDWeapon*              GetWeapon() const { return Weapon; }
     const bool 				CanFire();
 
+protected:
+    virtual void            TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+
 private:
     void                    FireTimerFinished();
+    void					TraceUnderCrosshairs();
 
 public:
     bool					bIsShoulder;
@@ -35,17 +40,17 @@ public:
 
     FVector					HitTarget;
 
-	UPROPERTY(EditAnywhere, Category = FOV)
+    UPROPERTY(EditAnywhere, Category = "FOV")
 	float					ZoomedFOV;
 
 	float					CurrentFOV;
 
-	UPROPERTY(EditAnywhere, Category = FOV)
+    UPROPERTY(EditAnywhere, Category = "FOV")
 	float					ZoomInterpSpeed;
 
     float					ErgonomicFactor;
     
 private:
-	UPROPERTY(EditAnywhere, Category = Weapon)
+    UPROPERTY(EditAnywhere, Category = "Weapon")
 	TObjectPtr<AHDWeapon>	Weapon;
 };

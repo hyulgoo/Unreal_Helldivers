@@ -14,9 +14,6 @@ AHDWeapon::AHDWeapon()
 
 	WeaponMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("WeaponMesh"));
 	SetRootComponent(WeaponMesh);
-
-	WeaponMesh->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Block);
-	WeaponMesh->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Ignore);
 	WeaponMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
 	AreaSphere = CreateDefaultSubobject<USphereComponent>(TEXT("AreaSphere"));
@@ -37,45 +34,44 @@ void AHDWeapon::BeginPlay()
 
 void AHDWeapon::Fire(const FVector& HitTarget)
 {
+	NULL_CHECK(CasingClass);
+
 	NULL_CHECK(FireAnimation);
 	WeaponMesh->PlayAnimation(FireAnimation, false);
 
-	NULL_CHECK(CasingClass);
 	const USkeletalMeshSocket* AmmoEjectSocket = WeaponMesh->GetSocketByName(FName("AmmoEject"));
-	if(AmmoEjectSocket)
-	{
-		FTransform SocketTransform = AmmoEjectSocket->GetSocketTransform(WeaponMesh);
-		UWorld* World = GetWorld();
-		if(IsValid(World) && SocketTransform.IsValid())
-		{				
-			World->SpawnActor<AHDCasing>(CasingClass, SocketTransform.GetLocation(), SocketTransform.GetRotation().Rotator());
-		}
-	}
+	NULL_CHECK(AmmoEjectSocket);
+
+    FTransform SocketTransform = AmmoEjectSocket->GetSocketTransform(WeaponMesh);
+    CONDITION_CHECK(SocketTransform.IsValid() == false);
+
+    UWorld* World = GetWorld();
+    VALID_CHECK(World);
+
+    World->SpawnActor<AHDCasing>(CasingClass, SocketTransform.GetLocation(), SocketTransform.GetRotation().Rotator());
 
 	SpendRound();
 }
 
-const FVector AHDWeapon::TraceEndWithScatter(const FVector& HitTarget)
+const void AHDWeapon::TraceEndWithScatter(const FVector& HitTarget)
 {
+	NULL_CHECK(WeaponMesh);
+
 	const USkeletalMeshSocket* MuzzleFlashSocket = WeaponMesh->GetSocketByName(FName("MuzzleFlash"));
-	NULL_CHECK_WITH_RETURNTYPE(MuzzleFlashSocket, FVector());
+	NULL_CHECK(MuzzleFlashSocket);
 
-	const FTransform SocketTransform = MuzzleFlashSocket->GetSocketTransform(WeaponMesh);
-	const FVector Start				= SocketTransform.GetLocation();
+	const FTransform& SocketTransform = MuzzleFlashSocket->GetSocketTransform(WeaponMesh);
+	CONDITION_CHECK(SocketTransform.IsValid() == false);
 
-	const FVector ToTarge			= HitTarget - Start;
-	const float DistanceToSphere	= ToTarge.Size();
-	const FVector SphereCenter		= Start + ToTarge.GetSafeNormal() * DistanceToSphere;
-
+	const FVector& Start		 = SocketTransform.GetLocation();
+	const FVector ToTarge		 = HitTarget - Start;
+	const float DistanceToSphere = ToTarge.Size();
+	const FVector SphereCenter	 = Start + ToTarge.GetSafeNormal() * DistanceToSphere;
+	
 	UWorld* World = GetWorld();
-	if (World)
-	{
-		//DrawDebugSphere(World, SphereCenter, SphereRadius, 12, FColor::Red, true);
-		//DrawDebugSphere(World, HitTarget, SphereRadius, 12, FColor::Orange, true);
-		//DrawDebugLine(World, Start, FVector(Start + ToTarge * DistanceToSphere), FColor::Cyan, true);
-	}
+	NULL_CHECK(World);
 
-	return FVector(Start + ToTarge * HITSCAN_TRACE_LENGTH);
+	DrawDebugSphere(World, HitTarget, 15.f, 12, FColor::Orange, false, 0.1f);
 }
 
 const bool AHDWeapon::IsAmmoEmpty() const

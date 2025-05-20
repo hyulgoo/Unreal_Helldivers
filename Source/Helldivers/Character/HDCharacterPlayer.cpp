@@ -11,13 +11,14 @@
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "Kismet/KismetMathLibrary.h"
-#include "Kismet/GameplayStatics.h"
 #include "Engine/SkeletalMeshSocket.h"
 #include "Controller/HDPlayerController.h"
 #include "Weapon/HDWeapon.h"
 #include "Stratagem/HDStratagem.h"
 #include "GameData/HDStratagemData.h"
 #include "Animation/HDAnimInstance.h"
+
+#define AIMOFFSET_PITCH_OFFSET 20.f
 
 AHDCharacterPlayer::AHDCharacterPlayer()
     : CurrentCharacterControlType()
@@ -101,6 +102,18 @@ void AHDCharacterPlayer::PostInitializeComponents()
     SpawnDefaultWeapon();
 }
 
+void AHDCharacterPlayer::BeginPlay()
+{
+    Super::BeginPlay();
+
+    NULL_CHECK(ArmLengthCurve);
+
+    FOnTimelineFloat TimelineProgress;
+    TimelineProgress.BindUFunction(this, FName("OnArmLengthTimelineUpdate"));
+    Timeline.AddInterpFloat(ArmLengthCurve, TimelineProgress);
+    Timeline.SetLooping(false);
+}
+
 void AHDCharacterPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
     Super::SetupPlayerInputComponent(PlayerInputComponent);
@@ -127,11 +140,8 @@ void AHDCharacterPlayer::Tick(float DeltaTime)
 {
     Super::Tick(DeltaTime);
 
-    AimOffset(DeltaTime);
-
-    FHitResult HitResult;
-    TraceUnderCrosshairs(HitResult);
-    Combat->HitTarget = HitResult.ImpactPoint;
+    Timeline.TickTimeline(DeltaTime);
+    AimOffset(DeltaTime);        
 }
 
 void AHDCharacterPlayer::ChangeCharacterControlType()
@@ -169,6 +179,15 @@ void AHDCharacterPlayer::SetCharacterControl(const EHDCharacterControlType NewCh
     CurrentCharacterControlType = NewCharacterControlType;
 }
 
+void AHDCharacterPlayer::OnArmLengthTimelineUpdate(const float Value)
+{
+    NULL_CHECK(CameraBoom);
+
+    const float DefaultArmLength =  CharacterControlDataMap[CurrentCharacterControlType]->TargetArmLength;
+    const float Interpolated = FMath::Lerp(DefaultArmLength, DefaultArmLength / 2.f, Value);
+    CameraBoom->TargetArmLength = Interpolated;
+}
+
 void AHDCharacterPlayer::SetWeaponActive(const bool bActive)
 {
     if (IsValid(Weapon))
@@ -190,6 +209,7 @@ void AHDCharacterPlayer::SetCharacterControlData(UHDCharacterControlData* Charac
 
     CameraBoom->TargetArmLength         = CharacterControlData->TargetArmLength;
     CameraBoom->TargetOffset            = CharacterControlData->TargetOffset;
+    CameraBoom->SocketOffset            = CharacterControlData->SocketOffset;
     CameraBoom->bUsePawnControlRotation = CharacterControlData->bUsePawnControlRotation;
     CameraBoom->bInheritPitch           = CharacterControlData->bInheritPitch;
     CameraBoom->bInheritYaw             = CharacterControlData->bInheritYaw;
@@ -207,6 +227,14 @@ void AHDCharacterPlayer::SetShouldering(const bool bShoulder)
 {
     NULL_CHECK(Combat);
     Combat->bIsShoulder = bShoulder;
+    if(bShoulder)
+    {
+        Timeline.PlayFromStart();
+    }
+    else
+    {
+        Timeline.ReverseFromEnd();
+    }
 }
 
 void AHDCharacterPlayer::EquipWeapon(AHDWeapon* NewWeapon)
@@ -298,6 +326,7 @@ void AHDCharacterPlayer::AddStratagemCommand(const EHDCommandInput NewInput)
 
 void AHDCharacterPlayer::SetSprint(const bool bSprint)
 {
+    // 해당 클래스를 상속받은 캐릭터에서 해당 함수 Override하여 스피드 조정 중
     bIsSprint = bSprint;
 }
 
@@ -356,38 +385,74 @@ void AHDCharacterPlayer::AimOffset(const float DeltaTime)
         return;
     }
 
+    UCharacterMovementComponent* CharacterMovementComponent = GetCharacterMovement();
+    NULL_CHECK(CharacterMovementComponent);
+
     FVector Velocity = GetVelocity();
     Velocity.Z = 0.f;
-    const float Speed = Velocity.Size();
-    const bool bIsFalling = GetCharacterMovement()->IsFalling();
+    const bool bIsMoving            = Velocity.Size() > 0.1f;
+    const bool bIsFalling           = CharacterMovementComponent->IsFalling();
     const FRotator BaseAimRoatation = GetBaseAimRotation();
+    const FRotator ControlRotation  = GetControlRotation();
 
-    if ((Speed == 0.f && bIsFalling == false) || Combat->bIsShoulder)
+    if (Combat->bIsShoulder)
     {
         bIsCharacterLookingViewport = true;
-        bUseRotateRootBone = true;
-        const FRotator CurrentRotation = FRotator(0.f, BaseAimRoatation.Yaw, 0.f);
-        const FRotator DeltaAimRotation = UKismetMathLibrary::NormalizedDeltaRotator(CurrentRotation, StartingAimRotation);
-        AimOffset_Yaw = DeltaAimRotation.Yaw;
-        if (TurningInPlace == EHDTurningInPlace::NotTurning)
-        {
-            InterpAimOffset_Yaw = AimOffset_Yaw;
-        }
         bUseControllerRotationYaw = true;
-        TurnInPlace(DeltaTime);
-    }
+        bUseRotateRootBone = false;
+        CharacterMovementComponent->bOrientRotationToMovement = false;
 
-    if (Combat->bIsShoulder == false && (Speed > 0.f || bIsFalling))
+        const FRotator TargetRotation(0.f, ControlRotation.Yaw, 0.f);
+        const FRotator SmoothRotation = FMath::RInterpTo(GetActorRotation(), TargetRotation, DeltaTime, 20.f);
+        SetActorRotation(SmoothRotation);
+
+        if (bIsMoving == false && bIsFalling == false)
+        {
+            const FRotator DeltaRotation = UKismetMathLibrary::NormalizedDeltaRotator(TargetRotation, StartingAimRotation);
+            AimOffset_Yaw = DeltaRotation.Yaw;
+
+            if (TurningInPlace == EHDTurningInPlace::NotTurning)
+            {
+                InterpAimOffset_Yaw = AimOffset_Yaw;
+            }
+
+            TurnInPlace(DeltaTime);
+        }
+        else
+        {
+            AimOffset_Yaw = 0.f;
+            InterpAimOffset_Yaw = 0.f;
+            StartingAimRotation = TargetRotation;
+        }
+    }
+    else
     {
         bIsCharacterLookingViewport = false;
-        bUseRotateRootBone = false;
-        const FRotator CurrentRotation = FRotator(0.f, BaseAimRoatation.Yaw, 0.f);
-        const FRotator DeltaAimRotation = UKismetMathLibrary::NormalizedDeltaRotator(CurrentRotation, StartingAimRotation);
-        AimOffset_Yaw = DeltaAimRotation.Yaw;
         bUseControllerRotationYaw = false;
-        TurningInPlace = EHDTurningInPlace::NotTurning;
-        StartingAimRotation = FRotator(0.f, GetBaseAimRotation().Yaw, 0.f);
+        bUseRotateRootBone = false;
+        CharacterMovementComponent->bOrientRotationToMovement = bIsMoving ? true : false;
+
+        const FRotator TargetRotation(0.f, BaseAimRoatation.Yaw, 0.f);
+        if (bIsMoving == false)
+        {
+            const FRotator DeltaRotation = UKismetMathLibrary::NormalizedDeltaRotator(TargetRotation, StartingAimRotation);
+            AimOffset_Yaw = DeltaRotation.Yaw;
+            if (TurningInPlace == EHDTurningInPlace::NotTurning)
+            {
+                InterpAimOffset_Yaw = AimOffset_Yaw;
+            }
+
+            TurnInPlace(DeltaTime);
+        }
+        else
+        {
+            AimOffset_Yaw = 0.f;
+            InterpAimOffset_Yaw = 0.f;
+            StartingAimRotation = TargetRotation;
+        }
     }
+
+    CalculationAimOffset_Pitch();
 }
 
 void AHDCharacterPlayer::TurnInPlace(float DeltaTime)
@@ -419,14 +484,7 @@ void AHDCharacterPlayer::TurnInPlace(float DeltaTime)
 
 void AHDCharacterPlayer::CalculationAimOffset_Pitch()
 {
-    AimOffset_Pitch= GetBaseAimRotation().Pitch;
-    if (AimOffset_Pitch > 90.f && !IsLocallyControlled())
-    {
-        // map pitch from [270, 360) to [-90, 0)
-        FVector2D InRange(270.f, 360.f);
-        FVector2D OutRange(-90.f, 0.f);
-        AimOffset_Pitch = FMath::GetMappedRangeValueClamped(InRange, OutRange, AimOffset_Pitch);
-    }
+    AimOffset_Pitch= GetBaseAimRotation().Pitch - AIMOFFSET_PITCH_OFFSET;
 }
 
 void AHDCharacterPlayer::SpawnDefaultWeapon()
@@ -492,38 +550,6 @@ void AHDCharacterPlayer::FirstPersonLook(const FInputActionValue& Value)
     const FVector2D LookAxisVector = Value.Get<FVector2D>();
     AddControllerYawInput(-LookAxisVector.X);
     AddControllerPitchInput(LookAxisVector.Y);
-}
-
-void AHDCharacterPlayer::TraceUnderCrosshairs(FHitResult& TraceHitResult)
-{
-    FVector2D ViewportSize = FVector2D();
-    if (GEngine && GEngine->GameViewport)
-    {
-        GEngine->GameViewport->GetViewportSize(ViewportSize);
-    }
-
-    const FVector2D CrosshairLocation(ViewportSize.X / 2.f, ViewportSize.Y / 2.f);
-    FVector CrosshairWorldPosition;
-    FVector CrosshairWorldDirection;
-    const bool bScreenToWorld = UGameplayStatics::DeprojectScreenToWorld(
-        UGameplayStatics::GetPlayerController(this, 0),
-        CrosshairLocation,
-        CrosshairWorldPosition,
-        CrosshairWorldDirection
-    );
-    
-    if (bScreenToWorld)
-    {
-        FVector Start = CrosshairWorldPosition;
-        const float DistanceToCharacter = (GetActorLocation() - Start).Size();
-        Start += CrosshairWorldDirection * (DistanceToCharacter + 100.f);
-
-        const FVector End = Start + CrosshairWorldDirection * HITSCAN_TRACE_LENGTH;
-        UWorld* World = GetWorld();
-        VALID_CHECK(World);
-        
-        World->LineTraceSingleByChannel(TraceHitResult, Start, End, ECollisionChannel::ECC_Visibility);
-    }
 }
 
 void AHDCharacterPlayer::InterpFOV(float DeltaSeconds)
