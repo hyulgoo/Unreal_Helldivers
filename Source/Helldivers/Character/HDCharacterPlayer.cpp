@@ -106,12 +106,17 @@ void AHDCharacterPlayer::BeginPlay()
 {
     Super::BeginPlay();
 
-    NULL_CHECK(ArmLengthCurve);
+    NULL_CHECK(DefaultCurve);
 
-    FOnTimelineFloat TimelineProgress;
-    TimelineProgress.BindUFunction(this, FName("OnArmLengthTimelineUpdate"));
-    Timeline.AddInterpFloat(ArmLengthCurve, TimelineProgress);
-    Timeline.SetLooping(false);
+    FOnTimelineFloat ArmLengthTimelineProgress;
+    ArmLengthTimelineProgress.BindUFunction(this, FName("OnArmLengthTimelineUpdate"));
+    ArmLengthTimeline.AddInterpFloat(DefaultCurve, ArmLengthTimelineProgress);
+    ArmLengthTimeline.SetLooping(false);
+
+    FOnTimelineFloat TuringTimelineProgress;
+    TuringTimelineProgress.BindUFunction(this, FName("OnTurningTimelineUpdate"));
+    TurningTimeline.AddInterpFloat(DefaultCurve, TuringTimelineProgress);
+    TurningTimeline.SetLooping(false);
 }
 
 void AHDCharacterPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -140,7 +145,8 @@ void AHDCharacterPlayer::Tick(float DeltaTime)
 {
     Super::Tick(DeltaTime);
 
-    Timeline.TickTimeline(DeltaTime);
+    ArmLengthTimeline.TickTimeline(DeltaTime);
+    TurningTimeline.TickTimeline(DeltaTime);
     AimOffset(DeltaTime);        
 }
 
@@ -229,11 +235,11 @@ void AHDCharacterPlayer::SetShouldering(const bool bShoulder)
     Combat->bIsShoulder = bShoulder;
     if(bShoulder)
     {
-        Timeline.PlayFromStart();
+        ArmLengthTimeline.PlayFromStart();
     }
     else
     {
-        Timeline.ReverseFromEnd();
+        ArmLengthTimeline.ReverseFromEnd();
     }
 }
 
@@ -418,7 +424,8 @@ void AHDCharacterPlayer::AimOffset(const float DeltaTime)
 
             TurnInPlace(DeltaTime);
         }
-        else
+
+        if (bIsMoving || bIsFalling)
         {
             AimOffset_Yaw = 0.f;
             InterpAimOffset_Yaw = 0.f;
@@ -427,28 +434,34 @@ void AHDCharacterPlayer::AimOffset(const float DeltaTime)
     }
     else
     {
-        bIsCharacterLookingViewport = false;
-        bUseControllerRotationYaw = false;
-        bUseRotateRootBone = false;
-        CharacterMovementComponent->bOrientRotationToMovement = bIsMoving ? true : false;
-
         const FRotator TargetRotation(0.f, BaseAimRoatation.Yaw, 0.f);
-        if (bIsMoving == false)
+
+        bIsCharacterLookingViewport = true;
+        bUseRotateRootBone = true;
+        bUseControllerRotationYaw = false;
+        CharacterMovementComponent->bOrientRotationToMovement = false;
+        const FRotator DeltaRotation = UKismetMathLibrary::NormalizedDeltaRotator(TargetRotation, StartingAimRotation);
+        AimOffset_Yaw = DeltaRotation.Yaw;
+
+        if (bIsMoving == false && bIsFalling == false)
         {
-            const FRotator DeltaRotation = UKismetMathLibrary::NormalizedDeltaRotator(TargetRotation, StartingAimRotation);
-            AimOffset_Yaw = DeltaRotation.Yaw;
             if (TurningInPlace == EHDTurningInPlace::NotTurning)
             {
                 InterpAimOffset_Yaw = AimOffset_Yaw;
             }
 
+            bUseRotateRootBone = false;
+            bUseControllerRotationYaw = true;
             TurnInPlace(DeltaTime);
         }
-        else
+
+        if (bIsMoving || bIsFalling)
         {
+            bIsCharacterLookingViewport = false;
+            bUseRotateRootBone = false;
+            CharacterMovementComponent->bOrientRotationToMovement = true;
             AimOffset_Yaw = 0.f;
-            InterpAimOffset_Yaw = 0.f;
-            StartingAimRotation = TargetRotation;
+            StartingAimRotation = BaseAimRoatation;
         }
     }
 
@@ -468,18 +481,19 @@ void AHDCharacterPlayer::TurnInPlace(float DeltaTime)
 
     if (TurningInPlace != EHDTurningInPlace::NotTurning)
     {
-        NULL_CHECK(Combat);
-
-        // Rotate Aim
-        InterpAimOffset_Yaw = FMath::FInterpTo(InterpAimOffset_Yaw, 0.f, DeltaTime, Combat->ErgonomicFactor / 10.f);
+        InterpAimOffset_Yaw = FMath::FInterpTo(InterpAimOffset_Yaw, 0.f, DeltaTime, 4.f);
         AimOffset_Yaw = InterpAimOffset_Yaw;
         if (FMath::Abs(AimOffset_Yaw) < 15.f)
         {
-            AimOffset_Yaw = 0.f;
             StartingAimRotation = FRotator(0.f, GetBaseAimRotation().Yaw, 0.f);
             TurningInPlace = EHDTurningInPlace::NotTurning;
         }
     }
+}
+
+void AHDCharacterPlayer::OnTurningTimelineUpdate(const float Value)
+{
+
 }
 
 void AHDCharacterPlayer::CalculationAimOffset_Pitch()

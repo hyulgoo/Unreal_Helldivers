@@ -79,6 +79,10 @@ protected:
 private:
     void									AimOffset(const float DeltaTime);
 	void									TurnInPlace(const float DeltaTime);
+
+	UFUNCTION()
+	void									OnTurningTimelineUpdate(const float Value);
+
 	void									CalculationAimOffset_Pitch();
 
 	void									SpawnDefaultWeapon();
@@ -166,7 +170,8 @@ private:
 
 
 	EHDTurningInPlace						TurningInPlace;
-		
+	FTimeline								TurningTimeline;
+
 	UPROPERTY(EditAnywhere, Category = "Stratagem")
 	TSubclassOf<AHDStratagem>				StratagemClass;
 
@@ -193,8 +198,8 @@ private:
 	float									DefaultFOV;
 
 	// TimeLine
-	FTimeline								Timeline;
+	FTimeline								ArmLengthTimeline;
 	
-	UPROPERTY(EditAnywhere, Category = "SprintArm")
-	TObjectPtr<UCurveFloat>					ArmLengthCurve;
+	UPROPERTY(EditAnywhere, Category = "Curve")
+	TObjectPtr<UCurveFloat>					DefaultCurve;
 };
