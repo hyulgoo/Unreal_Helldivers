@@ -175,7 +175,15 @@ void AHDBattleShip::EagleStrike(const FHDStratagemEffectData& StratagemEffectDat
     CONDITION_CHECK(StratagemTransform.IsValid() == false);
 
     const FVector SpawnLocation = GetActorLocation();
-    if (IsValid(EagleFighter) == false)
+    if (IsValid(EagleFighter))
+    {
+        EagleFighter->FlightStartLocation = SpawnLocation;
+        EagleFighter->StratagemEffectData = StratagemEffectData;
+        EagleFighter->ProjectileTargetLocation = StratagemTransform.GetLocation();
+
+        EagleFighter->SetActiveEagleFighter(true);
+    }
+    else
     {
         EagleFighter = World->SpawnActorDeferred<AHDEagleFighter>(
             EagleFighterClass,
@@ -187,20 +195,12 @@ void AHDBattleShip::EagleStrike(const FHDStratagemEffectData& StratagemEffectDat
 
         NULL_CHECK(EagleFighter);
 
-        EagleFighter->FlightStartLocation       = SpawnLocation;
-        EagleFighter->StratagemEffectData       = StratagemEffectData;
-        EagleFighter->ProjectileTargetLocation  = StratagemTransform.GetLocation();
-        EagleFighter->ProjectileBombClass       = ProjectileBombClass;
-        EagleFighter->ProjectileBulletClass     = ProjectileBulletClass;
+        EagleFighter->FlightStartLocation = SpawnLocation;
+        EagleFighter->StratagemEffectData = StratagemEffectData;
+        EagleFighter->ProjectileTargetLocation = StratagemTransform.GetLocation();
+        EagleFighter->ProjectileBombClass = ProjectileBombClass;
+        EagleFighter->ProjectileBulletClass = ProjectileBulletClass;
 
         UGameplayStatics::FinishSpawningActor(EagleFighter, StratagemTransform);
-    }
-    else
-    {
-        EagleFighter->FlightStartLocation       = SpawnLocation;
-        EagleFighter->StratagemEffectData       = StratagemEffectData;
-        EagleFighter->ProjectileTargetLocation  = StratagemTransform.GetLocation();
-
-        EagleFighter->SetActiveEagleFighter(true);
     }
 }

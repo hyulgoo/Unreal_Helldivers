@@ -10,7 +10,15 @@ struct FHDCharacterStat : public FTableRowBase
 	GENERATED_BODY()
 
 public:
-	FHDCharacterStat() = default;
+	FHDCharacterStat()
+		: MaxHealth(0.f)
+		, CrawlingSpeed(0.f)
+		, CrouchSpeed(0.f)
+		, WalkSpeed(0.f)
+		, SprintSpeed(0.f)
+		, MaxStamina(0.f)
+	{
+	};
 
 	FHDCharacterStat operator+(const FHDCharacterStat& Other) const
 	{
@@ -31,21 +39,21 @@ public:
 public:
 	// Base
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Stat)
-	float MaxHealth = 0.f;
+	float MaxHealth;
 
 	// Speed
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Stat)
-	float CrawlingSpeed = 0.f;
+	float CrawlingSpeed;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Stat)
-	float CrouchSpeed = 0.f;
+	float CrouchSpeed;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Stat)
-	float WalkSpeed = 0.f;
+	float WalkSpeed;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Stat)
-	float SprintSpeed = 0.f;
+	float SprintSpeed;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Stat)
-	float MaxStamina = 0.f;
+	float MaxStamina;
 };

@@ -46,32 +46,32 @@ void AHDStratagem::BeginPlay()
 
 void AHDStratagem::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
-    if (OtherActor)
-    {
-        const ECollisionChannel CollisionChannel = OtherComp->GetCollisionObjectType();
-        if (CollisionChannel == ECollisionChannel::ECC_WorldStatic)
-        {
-            if (HitComp && HitComp->IsSimulatingPhysics())
-            {
-                AHDGameState* GameState = Cast<AHDGameState>(UGameplayStatics::GetGameState(GetWorld()));
-                NULL_CHECK(GameState);
+    NULL_CHECK(OtherActor);
+    NULL_CHECK(OtherComp);
 
-                AHDBattleShip* BattleShip = GameState->GetBattleShip();
-                NULL_CHECK(BattleShip);
+    const ECollisionChannel CollisionChannel = OtherComp->GetCollisionObjectType();
+    CONDITION_CHECK(CollisionChannel != ECollisionChannel::ECC_WorldStatic);
+    CONDITION_CHECK(HitComp == nullptr || HitComp->IsSimulatingPhysics() == false);
 
-                ThrowDirection.Z = 0.f;
-                ThrowDirection.Normalize();
+    UWorld* World = GetWorld();
+    VALID_CHECK(World);
 
-                FTransform Transform(ThrowDirection.Rotation(), Hit.ImpactPoint);
-                BattleShip->ActivateStratagem(StratagemName, Transform, StratagemActiveDelay);
+	AHDGameState* GameState = Cast<AHDGameState>(UGameplayStatics::GetGameState(World));
+	NULL_CHECK(GameState);
 
-                HitComp->SetAllPhysicsAngularVelocityInDegrees(FVector::ZeroVector);
-                HitComp->SetSimulatePhysics(false);
-                SpawnPointLaser();
-                SetLifeSpan(StratagemActiveDelay);
-            }
-        }
-    }
+	AHDBattleShip* BattleShip = GameState->GetBattleShip();
+	NULL_CHECK(BattleShip);
+
+	ThrowDirection.Z = 0.f;
+	ThrowDirection.Normalize();
+
+	FTransform Transform(ThrowDirection.Rotation(), Hit.ImpactPoint);
+	BattleShip->ActivateStratagem(StratagemName, Transform, StratagemActiveDelay);
+
+	HitComp->SetAllPhysicsAngularVelocityInDegrees(FVector::ZeroVector);
+	HitComp->SetSimulatePhysics(false);
+	SpawnPointLaser();
+	SetLifeSpan(StratagemActiveDelay);
 }
 
 void AHDStratagem::SpawnPointLaser()

@@ -3,9 +3,8 @@
 #include "CoreMinimal.h"
 #include "Engine/DataTable.h"
 #include "Stratagem/Types/StratagemProjectileTypes.h"
+#include "Stratagem/Types/EagleAirStrikeDirectionTypes.h"
 #include "HDStratagemEffectData.generated.h"
-
-enum class EHDEagleAirStrikeDirection : uint8;
 
 USTRUCT(BlueprintType)
 struct FHDStratagemEffectData : public FTableRowBase
@@ -13,7 +12,22 @@ struct FHDStratagemEffectData : public FTableRowBase
     GENERATED_BODY()
 
 public:
-    FHDStratagemEffectData() = default;
+    FHDStratagemEffectData()
+        : bIsEagle(false)
+        , EagleAirStrikeDirection(EHDEagleAirStrikeDirection::Count)
+        , OrbitalDuration(0.f)
+        , bUseRandomRange(false)
+        , RandomPositionRange(0.f)
+        , SpecifyProjectileSpawnCount(0)
+        , SpecifyProjectileSpawnDelay(0.f)
+        , bMultipleSpawn(false)
+        , MultiSpawnDropLocation{}
+        , StratagemProjectileType(EHDStratagemProjectile::Count)
+        , ProjectileDropLocation{}
+        , ProjectileAttackRange(0.f)
+        , ProjectileDamage(0.f)
+    {
+    };
 
 public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Eagle")

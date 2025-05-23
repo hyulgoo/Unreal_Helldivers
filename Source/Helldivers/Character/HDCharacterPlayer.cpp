@@ -17,8 +17,13 @@
 #include "Stratagem/HDStratagem.h"
 #include "GameData/HDStratagemData.h"
 #include "Animation/HDAnimInstance.h"
+#include "Components/CapsuleComponent.h"
 
 #define AIMOFFSET_PITCH_OFFSET 20.f
+#define ANIMATIONNAME_RIFLE_AIM FName("Rifle_Aim")
+#define ANIMATIONNAME_RIFLE_HIP FName("Rifle_Hip")
+#define SOCKETNAME_RIGHTHAND FName("RightHandSocket")
+
 
 AHDCharacterPlayer::AHDCharacterPlayer()
     : CurrentCharacterControlType()
@@ -34,7 +39,6 @@ AHDCharacterPlayer::AHDCharacterPlayer()
     , TurnThreshold(90.f)
     , TurningInPlace(EHDTurningInPlace::NotTurning)
     , SelecteddStratagemActiveDelay(0.f)
-    , ThrowTimer()
     , DefaultFOV(55.f)
 {
     GetCharacterMovement()->bOrientRotationToMovement = true;
@@ -93,6 +97,8 @@ AHDCharacterPlayer::AHDCharacterPlayer()
 
     CurrentCharacterControlType = EHDCharacterControlType::ThirdPerson;
     bUseControllerRotationYaw = false;
+
+    GetCapsuleComponent()->Activate(false);
 }
 
 void AHDCharacterPlayer::PostInitializeComponents()
@@ -105,6 +111,10 @@ void AHDCharacterPlayer::PostInitializeComponents()
 void AHDCharacterPlayer::BeginPlay()
 {
     Super::BeginPlay();
+
+    AHDPlayerController* PlayerController = Cast<AHDPlayerController>(GetController());
+    NULL_CHECK(PlayerController);
+    DisableInput(PlayerController);
 
     NULL_CHECK(DefaultCurve);
 
@@ -251,7 +261,7 @@ void AHDCharacterPlayer::EquipWeapon(AHDWeapon* NewWeapon)
     Combat->EquipWeapon(NewWeapon);
     Weapon->SetOwner(this);
 
-    const USkeletalMeshSocket* RightHandSocket = GetMesh()->GetSocketByName(FName("RightHandSocket"));
+    const USkeletalMeshSocket* RightHandSocket = GetMesh()->GetSocketByName(SOCKETNAME_RIGHTHAND);
     NULL_CHECK(RightHandSocket);
     RightHandSocket->AttachActor(Weapon, GetMesh());
 }
@@ -283,7 +293,7 @@ void AHDCharacterPlayer::PlayFireMontage(const bool bAiming)
     NULL_CHECK(FireWeaponMontage);
 
     AnimInstance->Montage_Play(FireWeaponMontage);
-    const FName SectionName = Combat->bIsShoulder ? FName("Rifle_Aim") : FName("Rifle_Hip");
+    const FName SectionName = Combat->bIsShoulder ? ANIMATIONNAME_RIFLE_AIM : ANIMATIONNAME_RIFLE_HIP;
     AnimInstance->Montage_JumpToSection(SectionName);
 }
 
@@ -360,7 +370,7 @@ void AHDCharacterPlayer::ThrowStratagem()
         UWorld* World = GetWorld();
         VALID_CHECK(World);
 
-        const USkeletalMeshSocket* RightHandSocket = CharacterMesh->GetSocketByName(FName("RightHandSocket"));
+        const USkeletalMeshSocket* RightHandSocket = CharacterMesh->GetSocketByName(SOCKETNAME_RIGHTHAND);
         NULL_CHECK(RightHandSocket);
 
         FActorSpawnParameters SpawnParams;
@@ -628,7 +638,9 @@ void AHDCharacterPlayer::SetDead()
     Super::SetDead();
 
     APlayerController* PlayerController = Cast<APlayerController>(GetController());
-    if (PlayerController && IsLocallyControlled())
+    NULL_CHECK(PlayerController);
+
+    if (IsLocallyControlled())
     {
         DisableInput(PlayerController);
     }

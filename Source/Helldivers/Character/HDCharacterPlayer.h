@@ -103,7 +103,7 @@ private:
 
 	void									PlayFireMontage(const bool bAiming);
 	void									PlayThrowMontage();
-				
+
 protected:
 	// Camera Section
 	UPROPERTY()
@@ -191,8 +191,6 @@ private:
 	
 	UPROPERTY(EditAnywhere, Category = "Stratagem")
 	TObjectPtr<UDataTable>					AvaliableStratagemDataTable;
-
-	FTimerHandle							ThrowTimer;
 
 	// HUD, Crosshair
 	float									DefaultFOV;

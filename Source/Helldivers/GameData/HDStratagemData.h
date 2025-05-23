@@ -12,7 +12,11 @@ struct FHDStratagemData : public FTableRowBase
     GENERATED_BODY()
 
 public:
-    FHDStratagemData() = default;
+    FHDStratagemData()
+        : CommandSequence{}
+        , StratagemDelay(0.f)
+    {
+    }
 
 public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
