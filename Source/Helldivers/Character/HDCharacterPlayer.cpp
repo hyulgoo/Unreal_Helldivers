@@ -97,24 +97,11 @@ AHDCharacterPlayer::AHDCharacterPlayer()
 
     CurrentCharacterControlType = EHDCharacterControlType::ThirdPerson;
     bUseControllerRotationYaw = false;
-
-    GetCapsuleComponent()->Activate(false);
-}
-
-void AHDCharacterPlayer::PostInitializeComponents()
-{
-    Super::PostInitializeComponents();
-
-    SpawnDefaultWeapon();
 }
 
 void AHDCharacterPlayer::BeginPlay()
 {
     Super::BeginPlay();
-
-    AHDPlayerController* PlayerController = Cast<AHDPlayerController>(GetController());
-    NULL_CHECK(PlayerController);
-    DisableInput(PlayerController);
 
     NULL_CHECK(DefaultCurve);
 
@@ -135,13 +122,6 @@ void AHDCharacterPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 
     SetCharacterControl(CurrentCharacterControlType);
 
-    AHDPlayerController* PlayerController = Cast<AHDPlayerController>(GetController());
-    NULL_CHECK(PlayerController);
-
-    PlayerController->PlayerCameraManager->ViewPitchMin = -60.f;
-    PlayerController->PlayerCameraManager->ViewPitchMax = 70.f;
-    PlayerController->SetWeaponHUDInfo(Weapon);
-
     UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(PlayerInputComponent);
     VALID_CHECK(EnhancedInputComponent);
     EnhancedInputComponent->BindAction(ThirdPersonMoveAction, ETriggerEvent::Triggered, this, &AHDCharacterPlayer::ThirdPersonMove);
@@ -158,6 +138,13 @@ void AHDCharacterPlayer::Tick(float DeltaTime)
     ArmLengthTimeline.TickTimeline(DeltaTime);
     TurningTimeline.TickTimeline(DeltaTime);
     AimOffset(DeltaTime);        
+}
+
+void AHDCharacterPlayer::PossessedBy(AController* NewController)
+{
+    Super::PossessedBy(NewController);
+
+    SpawnDefaultWeapon();
 }
 
 void AHDCharacterPlayer::ChangeCharacterControlType()

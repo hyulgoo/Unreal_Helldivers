@@ -13,7 +13,7 @@ void UHDHealthAttributeSet::PreAttributeChange(const FGameplayAttribute& Attribu
     if(Attribute == GetCurrentHealthAttribute()) 
     {
         NewValue = NewValue <= 0.f ? 0.f : (NewValue > GetMaxHealth() ? GetMaxHealth() : NewValue);
-    }
+    }	
 }
 
 bool UHDHealthAttributeSet::PreGameplayEffectExecute(FGameplayEffectModCallbackData& Data)

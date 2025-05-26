@@ -9,11 +9,14 @@
 #include "HDHellpod.generated.h"
 
 class UInputComponent;
+class UInputAction;
+class UInputMappingContext;
 class AHDCharacterPlayer;
 class UBoxComponent;
 class USpringArmComponent;
 class UCameraComponent;
-class UProjectileMovementComponent;
+class UFloatingPawnMovement;
+struct FInputActionValue;
 
 UCLASS()
 class HELLDIVERS_API AHDHellpod : public APawn
@@ -26,7 +29,7 @@ public:
 protected:
 	virtual void						BeginPlay() override;
 	virtual void						Tick(float DeltaTime) override;
-	virtual void						SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;	
+	virtual void						SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
 
 	UFUNCTION()
 	void								OnBoxHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
@@ -40,38 +43,61 @@ private:
 	UFUNCTION()
 	void								SpawnCharacterEnd();
 
+	void								MoveHellpod(const FInputActionValue& Value);
+	void								RotateHellpodByCurrentImpulse(const float DeltaTime);
+
 private:
     UPROPERTY(EditDefaultsOnly, Category = "Hellpod")
-	TObjectPtr<UStaticMeshComponent>			HellpodMesh;
+	TObjectPtr<UStaticMeshComponent>	HellpodMesh;
 	
     UPROPERTY(EditDefaultsOnly, Category = "Hellpod")
-	TObjectPtr<UBoxComponent>					CollisionBox;
+	TObjectPtr<UBoxComponent>			CollisionBox;
 	
-	UPROPERTY(VisibleAnywhere, Category = "Hellpod")
-	TObjectPtr<UProjectileMovementComponent>	ProjectileMovementComponent;
+    UPROPERTY(EditDefaultsOnly, Category = "Hellpod")
+    float								MaxMoveSpeed;
 
-    UPROPERTY(EditDefaultsOnly, Category = "Hellpod|Camera")
-	TObjectPtr<USpringArmComponent>				CameraBoom;
+	UPROPERTY(EditAnywhere, Category = "Hellpod|Input")
+	TObjectPtr<UInputAction>			MoveAction;
+
+	UPROPERTY(EditAnywhere, Category = "Hellpod|Input")
+	TObjectPtr<UInputMappingContext>	InputMappingContext;
 	
     UPROPERTY(EditDefaultsOnly, Category = "Hellpod|Camera")
-	TObjectPtr<UCameraComponent>				FollowCamera;
+	TObjectPtr<USpringArmComponent>		CameraBoom;
+	
+    UPROPERTY(EditDefaultsOnly, Category = "Hellpod|Camera")
+	TObjectPtr<UCameraComponent>		FollowCamera;
 	
     UPROPERTY(EditDefaultsOnly, Category = "Hellpod|Spawn")
-    float										FallSpeed;
+    float								FallSpeed;
 	
     UPROPERTY(EditDefaultsOnly, Category = "Hellpod|Spawn")
-    TSubclassOf<AHDCharacterPlayer>				CharacterClass;
+    TSubclassOf<AHDCharacterPlayer>		CharacterClass;
 	
     UPROPERTY(EditDefaultsOnly, Category = "Hellpod|Effect")
-	FGameplayTag								ImpactTag;
+	FGameplayTag						ImpactTag;
 	
     UPROPERTY(EditDefaultsOnly, Category = "Hellpod|Spawn")
-	float										SpawnTime;
+	float								SpawnTime;
 	
 	UPROPERTY();
-	TObjectPtr<AHDCharacterPlayer>				SpawnedCharacter;
+	TObjectPtr<AHDCharacterPlayer>		SpawnedCharacter;
 
-	FTimeline									SpawnCharacterTimeline;
+	FTimeline							SpawnCharacterTimeline;
     UPROPERTY(EditDefaultsOnly, Category = "Hellpod|Spawn")
-	TObjectPtr<UCurveFloat>						SpawnCurveFloat;
+	TObjectPtr<UCurveFloat>				SpawnCurveFloat;
+
+	float								InputForward;
+	float								InputRight;
+	FVector2D							CurrentInput;
+
+	UPROPERTY(EditAnywhere, Category = "Hellpod|Input")
+	float								MaxPitchAngle;
+
+	UPROPERTY(EditAnywhere, Category = "Hellpod|Input")
+	float								MaxRollAngle;
+
+	FRotator							MeshDefaultRelativeRotation;
+	FRotator							MeshMinRelativeRotation;
+	FRotator							MeshMaxRelativeRotation;
 };

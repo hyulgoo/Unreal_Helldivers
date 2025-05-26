@@ -61,15 +61,27 @@ void AHDGASCharacterPlayer::SetArmor(EHDArmorType NewArmorType)
 
 void AHDGASCharacterPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
-    InitAbilitySystemComponent();
+    Super::SetupPlayerInputComponent(PlayerInputComponent);
 
     UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(InputComponent);
     NULL_CHECK(EnhancedInputComponent);
 
     SetupGASInputComponent(EnhancedInputComponent);
     SetGASEventInputComponent(EnhancedInputComponent);
+}
 
-    Super::SetupPlayerInputComponent(PlayerInputComponent);
+void AHDGASCharacterPlayer::PossessedBy(AController* NewController)
+{
+    Super::PossessedBy(NewController);
+
+    InitAbilitySystemComponent();
+
+    AHDPlayerController* PlayerController = Cast<AHDPlayerController>(GetController());
+    NULL_CHECK(PlayerController);
+
+    PlayerController->PlayerCameraManager->ViewPitchMin = -60.f;
+    PlayerController->PlayerCameraManager->ViewPitchMax = 70.f;
+    PlayerController->SetWeaponHUDInfo(Weapon);
 }
 
 void AHDGASCharacterPlayer::SetupGASInputComponent(UEnhancedInputComponent* EnhancedInputComponent)
@@ -259,6 +271,9 @@ void AHDGASCharacterPlayer::InitializeAttributeSet()
     UHDHealthAttributeSet* HealthAttributeSet = const_cast<UHDHealthAttributeSet*>(AbilitySystemComponent->GetSet<UHDHealthAttributeSet>());
     NULL_CHECK(HealthAttributeSet);
     HealthAttributeSet->MaxHealth.SetBaseValue(InitCharacterStat->MaxHealth);
+    HealthAttributeSet->CurrentHealth.SetBaseValue(InitCharacterStat->MaxHealth);
+
+    HealthAttributeSet->CurrentHealth.SetCurrentValue(InitCharacterStat->MaxHealth);
     HealthAttributeSet->MaxHealth.SetCurrentValue(InitCharacterStat->MaxHealth);
 
     UHDPlayerSpeedAttributeSet* SpeedAttribute = const_cast<UHDPlayerSpeedAttributeSet*>(AbilitySystemComponent->GetSet<UHDPlayerSpeedAttributeSet>());
@@ -266,10 +281,10 @@ void AHDGASCharacterPlayer::InitializeAttributeSet()
     SpeedAttribute->CrawlingSpeed.SetBaseValue(InitCharacterStat->CrawlingSpeed);
     SpeedAttribute->CrouchSpeed.SetBaseValue(InitCharacterStat->CrouchSpeed);
     SpeedAttribute->WalkSpeed.SetBaseValue(InitCharacterStat->WalkSpeed);
-    SpeedAttribute->SprintSpeed.SetBaseValue(InitCharacterStat->SprintSpeed);
+	SpeedAttribute->SprintSpeed.SetBaseValue(InitCharacterStat->SprintSpeed);
 
-    SpeedAttribute->CrawlingSpeed.SetCurrentValue(InitCharacterStat->CrawlingSpeed);
-    SpeedAttribute->CrouchSpeed.SetCurrentValue(InitCharacterStat->CrouchSpeed);
-    SpeedAttribute->WalkSpeed.SetCurrentValue(InitCharacterStat->WalkSpeed);
-    SpeedAttribute->SprintSpeed.SetCurrentValue(InitCharacterStat->SprintSpeed);
+	SpeedAttribute->CrawlingSpeed.SetCurrentValue(InitCharacterStat->CrawlingSpeed);
+	SpeedAttribute->CrouchSpeed.SetCurrentValue(InitCharacterStat->CrouchSpeed);
+	SpeedAttribute->WalkSpeed.SetCurrentValue(InitCharacterStat->WalkSpeed);
+	SpeedAttribute->SprintSpeed.SetCurrentValue(InitCharacterStat->SprintSpeed);
 }

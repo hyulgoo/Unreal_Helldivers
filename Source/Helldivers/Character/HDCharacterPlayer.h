@@ -34,10 +34,10 @@ public:
 	UDataTable*								GetAvaliableStratagemDataTable()						{ return AvaliableStratagemDataTable; }
 
 protected:
-	virtual void							PostInitializeComponents() override;
 	virtual void							BeginPlay() override;
     virtual void							SetDead() override;
     virtual void							Tick(float DeltaTime) override;
+	virtual void							PossessedBy(AController* NewController) override;
 
 	// WeaponInferface
 	virtual void							EquipWeapon(AHDWeapon* NewWeapon) override final;

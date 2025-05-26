@@ -22,8 +22,10 @@ void AHDPlayerController::OnPossess(APawn* aPawn)
     ConsoleCommand(TEXT("showdebug abilitysystem"));
 }
 
-void AHDPlayerController::CreateHUDWidget(UAbilitySystemComponent* NewAbilitySystemComponent)
+void AHDPlayerController::CreateHUDWidget(ACharacter* PlayerCharacter)
 {
+    NULL_CHECK(PlayerCharacter);
+
     UWorld* World = GetWorld();
     VALID_CHECK(World);
 
@@ -32,7 +34,7 @@ void AHDPlayerController::CreateHUDWidget(UAbilitySystemComponent* NewAbilitySys
         PlayerHUDWidget = CreateWidget<UHDGASPlayerUserWidget>(World, PlayerHUDWidgetClass, FName("PlayerHUDWidget"));
         NULL_CHECK(PlayerHUDWidget);
 
-        PlayerHUDWidget->SetAbilitySystemComponent(NewAbilitySystemComponent);
+        PlayerHUDWidget->SetAbilitySystemComponentByOwningCharacter(PlayerCharacter);
         PlayerHUDWidget->AddToViewport();
     }
     else
@@ -45,7 +47,7 @@ void AHDPlayerController::CreateHUDWidget(UAbilitySystemComponent* NewAbilitySys
         StratagemHUDWidget = CreateWidget<UHDStratagemHUDUserWidget>(World, StratagemHUDWidgetClass, FName("StratagemHUDWidget"));
         NULL_CHECK(StratagemHUDWidget);
 
-        AHDCharacterPlayer* CharacterPlayer = Cast<AHDCharacterPlayer>(GetPawn());
+        AHDGASCharacterPlayer* CharacterPlayer = Cast<AHDGASCharacterPlayer>(PlayerCharacter);
         NULL_CHECK(CharacterPlayer);
 
         StratagemHUDWidget->SetStratagemListHUD(CharacterPlayer->GetAvaliableStratagemDataTable());
@@ -59,7 +61,7 @@ void AHDPlayerController::CreateHUDWidget(UAbilitySystemComponent* NewAbilitySys
 
 void AHDPlayerController::SetWeaponHUDInfo(AHDWeapon* NewWeapon)
 {
-    VALID_CHECK(NewWeapon);
+	VALID_CHECK(NewWeapon);
 
     AActor* WeaponOwner = NewWeapon->GetOwner();
     NULL_CHECK(WeaponOwner);
@@ -67,10 +69,7 @@ void AHDPlayerController::SetWeaponHUDInfo(AHDWeapon* NewWeapon)
     AHDGASCharacterPlayer* GASPlayer = Cast<AHDGASCharacterPlayer>(WeaponOwner);
     NULL_CHECK(GASPlayer);
 
-    UAbilitySystemComponent* AbilitySystemComponent = GASPlayer->GetAbilitySystemComponent();
-    NULL_CHECK(AbilitySystemComponent);
-
-    CreateHUDWidget(AbilitySystemComponent);
+    CreateHUDWidget(GASPlayer);
 
     VALID_CHECK(PlayerHUDWidget);
 

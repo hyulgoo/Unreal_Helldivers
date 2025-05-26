@@ -8,8 +8,8 @@
 
 class UHDGASPlayerUserWidget;
 class UHDStratagemHUDUserWidget;
-class UAbilitySystemComponent;
 class AHDWeapon;
+class ACharacter;
 
 UCLASS()
 class HELLDIVERS_API AHDPlayerController : public APlayerController
@@ -17,7 +17,7 @@ class HELLDIVERS_API AHDPlayerController : public APlayerController
 	GENERATED_BODY()
 
 public:
-	void									CreateHUDWidget(UAbilitySystemComponent* NewAbilitySystemComponent);
+	void									CreateHUDWidget(ACharacter* PlayerCharacter);
 	void									SetWeaponHUDInfo(AHDWeapon* NewWeapon);
 
 	void									ChangeAmmoHUDInfo(const int32 NewAmmoCount);

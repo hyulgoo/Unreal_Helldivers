@@ -8,6 +8,7 @@
 #include "Components/Image.h"
 #include "Define/HDDefine.h"
 #include "Weapon/HDWeapon.h"
+#include "GameFramework/Character.h"
 
 void UHDGASPlayerUserWidget::SetAbilitySystemComponent(UAbilitySystemComponent* NewAbilitySystemComponent)
 {
@@ -15,19 +16,32 @@ void UHDGASPlayerUserWidget::SetAbilitySystemComponent(UAbilitySystemComponent* 
 
     NULL_CHECK(AbilitySystemComponent);
     
-    //AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(UHDCharacterPlayerSpeedAttributeSet::GetCurrentHealthAttribute()).AddUObject(this, &UHDGASPlayerUserWidget::OnHealthChangeds);
-    //AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(UHDCharacterPlayerSpeedAttributeSet::GetMaxHealthAttribute()).AddUObject(this, &UHDGASPlayerUserWidget::OnMaxHealthChangeds);
-    //
-    //const UHDCharacterPlayerSpeedAttributeSet* AttributeSet = AbilitySystemComponent->GetSet<UHDCharacterPlayerSpeedAttributeSet>();
-    //NULL_CHECK(AttributeSet);
-    //
-    //CurrentHealth = AttributeSet->GetCurrentHealth();
-    //CurrentMaxHealth = AttributeSet->GetMaxHealth();
-    //if (CurrentMaxHealth <= 0.f)
-    //{
-    //    UE_LOG(LogTemp, Error, TEXT("MaxHealth is Invalid!"));
-    //    return;
-    //}
+    AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(UHDHealthAttributeSet::GetCurrentHealthAttribute()).AddUObject(this, &UHDGASPlayerUserWidget::OnHealthChangeds);
+    AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(UHDHealthAttributeSet::GetMaxHealthAttribute()).AddUObject(this, &UHDGASPlayerUserWidget::OnMaxHealthChangeds);
+    
+    const UHDHealthAttributeSet* AttributeSet = AbilitySystemComponent->GetSet<UHDHealthAttributeSet>();
+    NULL_CHECK(AttributeSet);
+    
+    CurrentHealth = AttributeSet->GetCurrentHealth();
+    CurrentMaxHealth = AttributeSet->GetMaxHealth();
+    if (CurrentMaxHealth <= 0.f)
+    {
+        UE_LOG(LogTemp, Error, TEXT("MaxHealth is Invalid!"));
+        return;
+    }
+
+    UpdateProgressbar(Pb_HPbar, CurrentHealth / CurrentMaxHealth);
+}
+
+void UHDGASPlayerUserWidget::SetAbilitySystemComponentByOwningCharacter(ACharacter* PlayerCharacter)
+{
+    IAbilitySystemInterface* ASCInterface = Cast<IAbilitySystemInterface>(PlayerCharacter);
+    NULL_CHECK(ASCInterface);
+
+    UAbilitySystemComponent* ASC = ASCInterface->GetAbilitySystemComponent();
+    NULL_CHECK(ASC);
+
+    SetAbilitySystemComponent(ASC);
 }
 
 void UHDGASPlayerUserWidget::OnHealthChangeds(const FOnAttributeChangeData& ChangeData)

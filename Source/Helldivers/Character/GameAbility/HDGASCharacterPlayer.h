@@ -44,8 +44,9 @@ public:
 	virtual UAbilitySystemComponent*			GetAbilitySystemComponent() const override final;
 	void										SetArmor(EHDArmorType NewArmorType);
 
-protected:
+protected:	
 	virtual void								SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override final;
+	virtual void								PossessedBy(AController* NewController) override final;
 	void										SetupGASInputComponent(UEnhancedInputComponent* EnhancedInputComponent);
 	void										SetGASEventInputComponent(UEnhancedInputComponent* EnhancedInputComponent);
 	void										GASInputPressed(const FGameplayTag Tag);

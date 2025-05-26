@@ -14,7 +14,6 @@ AHDProjectileRocket::AHDProjectileRocket()
 	ProjectileMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Rocket Mesh"));
 	ProjectileMesh->SetupAttachment(RootComponent);
 	ProjectileMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-
 }
 
 void AHDProjectileRocket::BeginPlay()
