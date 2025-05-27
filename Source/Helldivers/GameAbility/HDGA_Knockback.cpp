@@ -2,6 +2,7 @@
 
 #include "GameAbility/HDGA_Knockback.h"
 #include "Tag/HDGameplayTag.h"
+#include "Define/HDDefine.h"
 
 UHDGA_Knockback::UHDGA_Knockback()
 {
@@ -26,6 +27,12 @@ void UHDGA_Knockback::ActivateAbility(const FGameplayAbilitySpecHandle Handle, c
     {
         // Character Ragdoll
         UE_LOG(LogTemp, Error, TEXT("Ragdoll Tag Called!!"));
+        USkeletalMeshComponent* MeshComponent = ActorInfo->AvatarActor->GetComponentByClass<USkeletalMeshComponent>();
+        NULL_CHECK(MeshComponent);
+
+        MeshComponent->SetSimulatePhysics(true);
+
+        // TODO 가해진 힘이 적어지면 해제되게
     }
     else
     {

@@ -186,8 +186,6 @@ void AHDGASCharacterPlayer::SetSprint(const bool bSprint)
     UE_LOG(LogTemp, Warning, TEXT("NewSpeed : [%f]"), NewSpeed);
 
     UCharacterMovementComponent* CharacterMovementComponent = GetCharacterMovement();
-    NULL_CHECK(CharacterMovementComponent);
-
     CharacterMovementComponent->MaxWalkSpeed = NewSpeed;
 }
 

@@ -50,8 +50,6 @@ void AHDEagleFighter::BeginPlay()
 
 void AHDEagleFighter::HandleTimelineProgress(const float TimelineRatio)
 {
-    NULL_CHECK(SplineComponent);
-
     const float Distance = FMath::Clamp(TimelineRatio * SplineLength, 0.f, SplineLength);
     const FVector NewLocation  = SplineComponent->GetLocationAtDistanceAlongSpline(Distance, ESplineCoordinateSpace::World);
     const FRotator NewRotation = SplineComponent->GetRotationAtDistanceAlongSpline(Distance, ESplineCoordinateSpace::World);
@@ -79,8 +77,6 @@ void AHDEagleFighter::InitEagleFighter()
 
 void AHDEagleFighter::SetSplnePoints()
 {
-    NULL_CHECK(SplineComponent);
-
     const FVector CurrentRotation = GetActorRotation().Vector();
     switch (StratagemEffectData.EagleAirStrikeDirection)
     {            

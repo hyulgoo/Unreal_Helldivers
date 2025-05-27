@@ -43,6 +43,7 @@ private:
     void                                        SpawnTrailSystem();
 
     void                                        ApplyImpactGameEffect(UAbilitySystemComponent* TargetAbiltySystemComponent);
+    void                                        ApplyImpactGameAbility(UAbilitySystemComponent* TargetAbiltySystemComponent);
     void                                        ExcuteGameplayCue(UAbilitySystemComponent* OwnerAbilitySystemComponent, const FGameplayTag& Tag, const FHitResult& Hit);
 
 public:	

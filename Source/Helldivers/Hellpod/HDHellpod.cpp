@@ -5,6 +5,7 @@
 #include "Components/BoxComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Camera/CameraComponent.h"
+#include "Camera/CameraShakeSourceComponent.h"
 #include "Player/HDGASPlayerState.h"
 #include "Character/HDCharacterPlayer.h"
 #include "AbilitySystemComponent.h"
@@ -18,9 +19,9 @@
 #include "EnhancedInputSubsystems.h"
 
 AHDHellpod::AHDHellpod()
-	: InputForward(0.f)
-	, InputRight(0.f)
-	, CurrentInput{}
+	: CurrentInput{}
+	, MeshDefaultRelativeRotation{}
+	, bIsLanded(false)
 {
 	PrimaryActorTick.bCanEverTick = true;
 
@@ -44,32 +45,35 @@ AHDHellpod::AHDHellpod()
 	FollowCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("FollowCamera"));
 	FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName);
 	FollowCamera->bUsePawnControlRotation = false;
+
+	CameraShakeSource = CreateDefaultSubobject<UCameraShakeSourceComponent>(TEXT("CameraShakeSource"));
+	CameraShakeSource->SetupAttachment(RootComponent);
+	CameraShakeSource->bAutoStart = false;
 }
 
 void AHDHellpod::BeginPlay()
 {
 	Super::BeginPlay();
 
-	FOnTimelineFloat SpawnCharacterTimelineProgress;
-	SpawnCharacterTimelineProgress.BindUFunction(this, FName("OnSpawnTimelineUpdate"));
-	SpawnCharacterTimeline.AddInterpFloat(SpawnCurveFloat, SpawnCharacterTimelineProgress);
-	FOnTimelineEventStatic SpawnCharacterTimelineEventStatic;
-	SpawnCharacterTimelineEventStatic.BindUObject(this, &AHDHellpod::SpawnCharacterEnd);
-	SpawnCharacterTimeline.SetTimelineFinishedFunc(SpawnCharacterTimelineEventStatic);
-	SpawnCharacterTimeline.SetLooping(false);
+	bIsLanded = false;
 
-	NULL_CHECK(HellpodMesh);
+	SetSpawnTimeline();
+	ShakeCamera(0);
+
 	MeshDefaultRelativeRotation = HellpodMesh->GetRelativeRotation();
-
-	NULL_CHECK(CollisionBox);
 	CollisionBox->AddImpulse(FVector::DownVector * FallSpeed, NAME_None, true);
 }
 
 void AHDHellpod::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
 	SpawnCharacterTimeline.TickTimeline(DeltaTime);	
-	RotateHellpodByCurrentImpulse(DeltaTime);
+
+	if (bIsLanded == false)
+	{
+		RotateHellpodByCurrentImpulse(DeltaTime);
+	}
 }
 
 void AHDHellpod::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -95,10 +99,18 @@ void AHDHellpod::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent
 
 void AHDHellpod::OnBoxHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
+	if (bIsLanded)
+	{
+		return;
+	}
+	
+	bIsLanded = true;
+
 	CONDITION_CHECK(ImpactTag.IsValid() == false);
 	NULL_CHECK(OtherActor);
 
-	HellpodMesh->SetRelativeRotation(FRotator(0.f, 0.f, 180.f));
+	CameraShakeSource->StopAllCameraShakes();
+	HellpodMesh->SetRelativeRotation(MeshDefaultRelativeRotation);
 
 	CollisionBox->SetSimulatePhysics(false);
 	CollisionBox->SetEnableGravity(false);
@@ -110,7 +122,6 @@ void AHDHellpod::OnBoxHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPri
 	NULL_CHECK(PlayerStateASC);
 
 	SpawnCharacter();
-	SpawnCharacterTimeline.PlayFromStart();
 
 	FGameplayCueParameters Params;
 	Params.Location = Hit.ImpactPoint;
@@ -139,13 +150,15 @@ void AHDHellpod::SpawnCharacter()
 	NULL_CHECK(PlayerController);
 
 	PlayerController->Possess(Cast<APawn>(SpawnedCharacter));
-	PlayerController->SetViewTargetWithBlend(Cast<APawn>(SpawnedCharacter), 1.f, EViewTargetBlendFunction::VTBlend_Cubic);
+	PlayerController->SetViewTargetWithBlend(SpawnedCharacter, 3.f, EViewTargetBlendFunction::VTBlend_Cubic);
 	SpawnedCharacter->GetCapsuleComponent()->Activate(false);
-
 	UGameplayStatics::FinishSpawningActor(SpawnedCharacter, CurrentHellpodTransform);
+
 	PlayerController = SpawnedCharacter->GetController<APlayerController>();
 	NULL_CHECK(PlayerController);
 	SpawnedCharacter->DisableInput(PlayerController);
+
+	SpawnCharacterTimeline.PlayFromStart();
 }
 
 void AHDHellpod::OnSpawnTimelineUpdate(const float Value)
@@ -172,6 +185,17 @@ void AHDHellpod::SpawnCharacterEnd()
 	SpawnedCharacter->GetCapsuleComponent()->Activate(true);
 
 	SetLifeSpan(30.f);
+}
+
+void AHDHellpod::SetSpawnTimeline()
+{
+	FOnTimelineFloat SpawnCharacterTimelineProgress;
+	SpawnCharacterTimelineProgress.BindUFunction(this, FName("OnSpawnTimelineUpdate"));
+	SpawnCharacterTimeline.AddInterpFloat(SpawnCurveFloat, SpawnCharacterTimelineProgress);
+	FOnTimelineEventStatic SpawnCharacterTimelineEventStatic;
+	SpawnCharacterTimelineEventStatic.BindUObject(this, &AHDHellpod::SpawnCharacterEnd);
+	SpawnCharacterTimeline.SetTimelineFinishedFunc(SpawnCharacterTimelineEventStatic);
+	SpawnCharacterTimeline.SetLooping(false);
 }
 
 void AHDHellpod::MoveHellpod(const FInputActionValue& Value)
@@ -208,7 +232,12 @@ void AHDHellpod::RotateHellpodByCurrentImpulse(const float DeltaTime)
 		5.f
 	);
 
-	UE_LOG(LogTemp, Error, TEXT("NewRotation is [%s]"), *NewRotation.ToString());
-
 	HellpodMesh->SetRelativeRotation(NewRotation);
+	ShakeCamera(CameraShakeScaleWhenFall);
+}
+
+void AHDHellpod::ShakeCamera(const float Scale)
+{
+	CameraShakeSource->CameraShake = FallCameraShakeClass;
+	CameraShakeSource->Start();
 }

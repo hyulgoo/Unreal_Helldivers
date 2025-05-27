@@ -16,7 +16,6 @@ AHDBattleShip::AHDBattleShip()
     , ActiveStratagemTimerHandle()
     , bCanUseStratagem(false)
 {
-
     UStaticMeshComponent* BattleShipMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("BattleShipMesh"));
     SetRootComponent(BattleShipMesh);
     BattleShipMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);

@@ -184,8 +184,6 @@ void AHDCharacterPlayer::SetCharacterControl(const EHDCharacterControlType NewCh
 
 void AHDCharacterPlayer::OnArmLengthTimelineUpdate(const float Value)
 {
-    NULL_CHECK(CameraBoom);
-
     const float DefaultArmLength =  CharacterControlDataMap[CurrentCharacterControlType]->TargetArmLength;
     const float Interpolated = FMath::Lerp(DefaultArmLength, DefaultArmLength / 2.f, Value);
     CameraBoom->TargetArmLength = Interpolated;
@@ -222,13 +220,11 @@ void AHDCharacterPlayer::SetCharacterControlData(UHDCharacterControlData* Charac
 
 const bool AHDCharacterPlayer::IsShouldering() const
 {
-    NULL_CHECK_WITH_RETURNTYPE(Combat, false);
     return Combat->bIsShoulder;
 }
 
 void AHDCharacterPlayer::SetShouldering(const bool bShoulder)
 {
-    NULL_CHECK(Combat);
     Combat->bIsShoulder = bShoulder;
     if(bShoulder)
     {
@@ -260,20 +256,17 @@ AHDWeapon* AHDCharacterPlayer::GetWeapon() const
 
 const FVector& AHDCharacterPlayer::GetHitTarget() const
 {
-    NULL_CHECK_WITH_RETURNTYPE(Combat, FVector::ZeroVector);
     return Combat->HitTarget;
 }
 
 const EHDCombatState AHDCharacterPlayer::GetCombatState() const
 {
-    NULL_CHECK_WITH_RETURNTYPE(Weapon, EHDCombatState::Count);
     return Combat->CombatState;
 }
 
 void AHDCharacterPlayer::PlayFireMontage(const bool bAiming)
 {
     VALID_CHECK(Weapon);
-    NULL_CHECK(Combat);
 
     UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
     NULL_CHECK(AnimInstance);
@@ -335,7 +328,6 @@ void AHDCharacterPlayer::SetSprint(const bool bSprint)
 
 const FVector& AHDCharacterPlayer::GetThrowDirection() const
 {
-    NULL_CHECK_WITH_RETURNTYPE(Combat, FVector::ZeroVector);
     return Combat->HitTarget;
 }
 
@@ -381,15 +373,12 @@ void AHDCharacterPlayer::ThrowStratagem()
 
 void AHDCharacterPlayer::AimOffset(const float DeltaTime)
 {
-    NULL_CHECK(Combat);
-
     if (IsValid(Weapon) == false)
     {
         return;
     }
 
     UCharacterMovementComponent* CharacterMovementComponent = GetCharacterMovement();
-    NULL_CHECK(CharacterMovementComponent);
 
     FVector Velocity = GetVelocity();
     Velocity.Z = 0.f;
@@ -574,15 +563,11 @@ void AHDCharacterPlayer::InterpFOV(float DeltaSeconds)
     const float InterpSpeed = Combat->bIsShoulder ? Weapon->GetZoomInterpSpeed() : Combat->ZoomInterpSpeed;
     Combat->CurrentFOV = FMath::FInterpTo(Combat->CurrentFOV, TargetFOV, DeltaSeconds, InterpSpeed);
     
-    VALID_CHECK(FollowCamera);
-
     FollowCamera->SetFieldOfView(Combat->CurrentFOV);
 }
 
 void AHDCharacterPlayer::Fire(const bool IsPressed)
 {
-    NULL_CHECK(Combat);
-
     if(Combat->Fire(IsPressed) == false)
     {
         return;
