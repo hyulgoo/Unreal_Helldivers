@@ -13,7 +13,7 @@ class HELLDIVERS_API UAnimNotify_GASAttackHitCheck : public UAnimNotify
 	GENERATED_BODY()
 	
 public:
-	explicit UAnimNotify_GASAttackHitCheck() = default;
+	explicit UAnimNotify_GASAttackHitCheck();
 
 protected:
 	virtual FString GetNotifyName_Implementation() const override;

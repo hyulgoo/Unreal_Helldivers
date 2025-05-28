@@ -3,6 +3,12 @@
 #include "Animation/GameAbility/AnimNotify_GASAttackHitCheck.h"
 #include "AbilitySystemBlueprintLibrary.h"
 
+UAnimNotify_GASAttackHitCheck::UAnimNotify_GASAttackHitCheck()
+	: TriggetGameplayTag(FGameplayTag())
+{
+
+}
+
 FString UAnimNotify_GASAttackHitCheck::GetNotifyName_Implementation() const
 {
 	return TEXT("GASAttackHitCheck");

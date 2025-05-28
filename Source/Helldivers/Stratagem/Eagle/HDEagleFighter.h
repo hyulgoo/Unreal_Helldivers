@@ -10,6 +10,7 @@
 
 class USplineComponent;
 class AHDProjectileBase;
+class USphereComponent;
 
 UCLASS()
 class HELLDIVERS_API AHDEagleFighter : public AActor
@@ -38,6 +39,12 @@ private:
     void                                CreateProjectile(TSubclassOf<AHDProjectileBase> ProjectileClass, const int32 Index);
 
 private:
+    UPROPERTY(EditDefaultsOnly, Category = "Eagle")
+    TObjectPtr<UStaticMeshComponent>    EagleFighterMesh;
+    
+    UPROPERTY(EditDefaultsOnly, Category = "Eagle")
+	TObjectPtr<USphereComponent>		CollisionSphere;
+
     UPROPERTY()
     TObjectPtr<USplineComponent>		SplineComponent;
 

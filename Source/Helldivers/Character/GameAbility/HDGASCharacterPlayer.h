@@ -22,6 +22,13 @@ struct FTagEventBindInfo
     GENERATED_BODY()
 
 public:
+	FTagEventBindInfo()
+		: BindFunctionName(FName())
+		, InputAction(nullptr)
+		, EventConditionTag(FGameplayTag())
+	{
+	};
+
     UPROPERTY(EditDefaultsOnly)
     FName						BindFunctionName;
 
@@ -87,7 +94,7 @@ private:
 
 	// Armor
 	UPROPERTY(EditAnywhere, Category = "GAS")
-	EHDArmorType								ArmorType = EHDArmorType::Count;
+	EHDArmorType								ArmorType;
 	
 	UPROPERTY(EditAnywhere, Category = "GAS")
 	TObjectPtr<UDataTable>						ArmorTypeStatusDataTable;

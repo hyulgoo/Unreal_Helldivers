@@ -4,6 +4,12 @@
 #include "Define/HDDefine.h"
 
 UHDPlayerSpeedAttributeSet::UHDPlayerSpeedAttributeSet()
+	: CurrentSpeed(FGameplayAttributeData())
+	, CrawlingSpeed(FGameplayAttributeData())
+	, CrouchSpeed(FGameplayAttributeData())
+	, WalkSpeed(FGameplayAttributeData())
+	, SprintSpeed(FGameplayAttributeData())
+	, MaxStamina(FGameplayAttributeData())
 {
 	InitCurrentSpeed(GetWalkSpeed());
 }

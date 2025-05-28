@@ -14,6 +14,14 @@
 #include "GameFramework/CharacterMovementComponent.h"
 
 AHDGASCharacterPlayer::AHDGASCharacterPlayer()
+	: AbilitySystemComponent(nullptr)
+	, InitStatEffect(nullptr)
+    , StartAbilities{}
+    , TaggedInputActions{}
+	, EventCallTags(FGameplayTagContainer())
+    , TagEventBindInfoList{}
+	, ArmorType(EHDArmorType::Count)
+	, ArmorTypeStatusDataTable(nullptr)
 {
 }
 
@@ -103,7 +111,8 @@ void AHDGASCharacterPlayer::SetGASEventInputComponent(UEnhancedInputComponent* E
     NULL_CHECK(EnhancedInputComponent);
     NULL_CHECK(AbilitySystemComponent);
 
-    for (const FGameplayTag& EventCallTag : EventCallTags.GetGameplayTagArray())
+    const TArray<FGameplayTag>& EventTagArray = EventCallTags.GetGameplayTagArray();
+    for (const FGameplayTag& EventCallTag : EventTagArray)
     {
         AbilitySystemComponent->GenericGameplayEventCallbacks.FindOrAdd(EventCallTag).AddUObject(this, &AHDGASCharacterPlayer::HandleGameplayEvent);
     }
@@ -121,7 +130,8 @@ void AHDGASCharacterPlayer::GASInputPressed(const FGameplayTag Tag)
 {
     VALID_CHECK(AbilitySystemComponent);
 
-    for (FGameplayAbilitySpec& Spec : AbilitySystemComponent->GetActivatableAbilities())
+    TArray<FGameplayAbilitySpec>& ActivatebleAbilities = AbilitySystemComponent->GetActivatableAbilities();
+    for (FGameplayAbilitySpec& Spec : ActivatebleAbilities)
     {
         UHDGameplayAbility* HDAbility = Cast<UHDGameplayAbility>(Spec.Ability);
         if (HDAbility == nullptr)
@@ -151,7 +161,8 @@ void AHDGASCharacterPlayer::GASInputReleased(const FGameplayTag Tag)
 {
     VALID_CHECK(AbilitySystemComponent);
 
-    for (FGameplayAbilitySpec& Spec : AbilitySystemComponent->GetActivatableAbilities())
+    TArray<FGameplayAbilitySpec>& ActivatebleAbilities = AbilitySystemComponent->GetActivatableAbilities();
+    for (FGameplayAbilitySpec& Spec : ActivatebleAbilities)
     {
         UHDGameplayAbility* HDAbility = Cast<UHDGameplayAbility>(Spec.Ability);
         if (HDAbility == nullptr)

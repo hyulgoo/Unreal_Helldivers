@@ -4,6 +4,8 @@
 #include "Character/CharacterTypes/HDCharacterStateTypes.h"
 
 UHDHealthAttributeSet::UHDHealthAttributeSet()
+	: CurrentHealth(FGameplayAttributeData())
+	, MaxHealth(FGameplayAttributeData())
 {
 	InitCurrentHealth(GetMaxHealth());
 }

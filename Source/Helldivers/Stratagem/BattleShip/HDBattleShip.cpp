@@ -9,15 +9,21 @@
 #include "Weapon/Projectile/HDProjectileBase.h"
 #include "Define/HDDefine.h"
 #include "AbilitySystemComponent.h"
+#include "Components/SphereComponent.h"
 
 AHDBattleShip::AHDBattleShip()
-    : StratagemTransform()
+    : BattleShipMesh(nullptr)
+    , StratagemTransform()
     , CurrentStratagemIndex(0)
     , ActiveStratagemTimerHandle()
     , bCanUseStratagem(false)
 {
-    UStaticMeshComponent* BattleShipMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("BattleShipMesh"));
-    SetRootComponent(BattleShipMesh);
+    CollisionSphere = CreateDefaultSubobject<USphereComponent>(TEXT("CollisionSphere"));
+    SetRootComponent(CollisionSphere);
+    CollisionSphere->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+    BattleShipMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("BattleShipMesh"));
+    BattleShipMesh->SetupAttachment(RootComponent);
     BattleShipMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
     AbilitySystemComponent = CreateDefaultSubobject<UAbilitySystemComponent>(TEXT("AbilitySystemComponent"));

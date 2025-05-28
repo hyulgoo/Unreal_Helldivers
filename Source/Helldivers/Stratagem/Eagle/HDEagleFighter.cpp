@@ -8,11 +8,13 @@
 #include "GameData/HDStratagemEffectData.h"
 #include "Kismet/GameplayStatics.h"
 #include "Define/HDDefine.h"
+#include "Components/SphereComponent.h"
 
 #define EagleFighterAttackTimingRatio 0.45f
 
 AHDEagleFighter::AHDEagleFighter()
-    : InterpFunction()
+    : EagleFighterMesh(nullptr)
+    , InterpFunction()
     , TimelineFinished()
     , FlightStartLocation()
     , FlightDirection()
@@ -23,9 +25,13 @@ AHDEagleFighter::AHDEagleFighter()
     , ProjectileDurationofFlight(0.f)
 {
     PrimaryActorTick.bCanEverTick = true;
-    
-    UStaticMeshComponent* EagleFighterMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("EagleFighterMesh"));
-    SetRootComponent(EagleFighterMesh);
+
+    CollisionSphere = CreateDefaultSubobject<USphereComponent>(TEXT("CollisionSphere"));
+    SetRootComponent(CollisionSphere);
+    CollisionSphere->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+    EagleFighterMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("EagleFighterMesh"));
+    EagleFighterMesh->SetupAttachment(RootComponent);
     SplineComponent = CreateDefaultSubobject<USplineComponent>(TEXT("SplineComponent"));
     TimelineComponent = CreateDefaultSubobject<UTimelineComponent>(TEXT("TimelineComponent"));
 

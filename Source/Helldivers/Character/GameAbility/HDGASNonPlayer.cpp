@@ -6,6 +6,7 @@
 #include "Define/HDDefine.h"
 
 AHDGASNonPlayer::AHDGASNonPlayer()
+    : AbilitySystemComponent(nullptr)
 {
     AbilitySystemComponent = CreateDefaultSubobject<UAbilitySystemComponent>(TEXT("AbilitySystemComponent"));
 }

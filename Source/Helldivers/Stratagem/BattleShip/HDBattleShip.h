@@ -9,6 +9,7 @@
 
 class AHDEagleFighter;
 class AHDProjectileBase;
+class USphereComponent;
 struct FHDStratagemEffectData;
 
 UCLASS()
@@ -32,6 +33,12 @@ private:
 	void							    EagleStrike(const FHDStratagemEffectData& StratagemEffectData);
 
 protected:
+    UPROPERTY(EditDefaultsOnly, Category = "BattleShip")
+    TObjectPtr<UStaticMeshComponent>    BattleShipMesh;
+    
+    UPROPERTY(EditDefaultsOnly, Category = "BattleShip")
+	TObjectPtr<USphereComponent>		CollisionSphere;
+
     UPROPERTY(VisibleAnywhere, Category = "GAS")
     TObjectPtr<UAbilitySystemComponent> AbilitySystemComponent;
 
@@ -51,7 +58,7 @@ protected:
     TObjectPtr<UDataTable>				StratagemEffectDataTable;
 
     FTransform 							StratagemTransform;
-    uint8								CurrentStratagemIndex;
     FTimerHandle						ActiveStratagemTimerHandle;
+    uint8								CurrentStratagemIndex;
     bool								bCanUseStratagem;
 };
