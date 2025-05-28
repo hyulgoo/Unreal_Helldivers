@@ -29,7 +29,7 @@ AHDHellpod::AHDHellpod()
 	SetRootComponent(CollisionBox);
 	CollisionBox->SetNotifyRigidBodyCollision(true);
 	CollisionBox->SetEnableGravity(true);
-	CollisionBox->SetCollisionProfileName(COLLISION_PROFILE_HDHELLPOD);
+	CollisionBox->SetCollisionProfileName(HDCOLLISION_PROFILE_HELLPOD);
 	CollisionBox->BodyInstance.bUseCCD = true;
 	CollisionBox->OnComponentHit.AddDynamic(this, &AHDHellpod::OnBoxHit);
 

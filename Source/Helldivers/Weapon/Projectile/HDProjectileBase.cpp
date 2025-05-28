@@ -7,10 +7,13 @@
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "Character/GameAbility/HDGASCharacterPlayer.h"
 #include "AbilitySystemComponent.h"
+#include "AbilitySystemBlueprintLibrary.h"
 #include "GameAbility/Effect/HDGE_ApplyDamage.h"
 #include "Define/HDDefine.h"
 #include "Tag/HDGameplayTag.h"
 #include "Collision/HDCollision.h"
+#include "Engine/OverlapResult.h"
+#
 
 AHDProjectileBase::AHDProjectileBase()
 {
@@ -18,7 +21,7 @@ AHDProjectileBase::AHDProjectileBase()
 
 	CollisionBox = CreateDefaultSubobject<UBoxComponent>(TEXT("CollisionBox"));
 	SetRootComponent(CollisionBox);
-	CollisionBox->SetCollisionProfileName(COLLISION_PROFILE_HDPROJECTILE);
+	CollisionBox->SetCollisionProfileName(HDCOLLISION_PROFILE_PROJECTILE);
 	CollisionBox->IgnoreActorWhenMoving(GetInstigator(), true);
 	CollisionBox->OnComponentHit.AddDynamic(this, &AHDProjectileBase::OnBoxHit);
 
@@ -47,17 +50,12 @@ void AHDProjectileBase::Tick(float DeltaSeconds)
 
 void AHDProjectileBase::Destroyed()
 {
-	UE_LOG(LogTemp, Warning, TEXT("DropTargetPosition : %s"), *GetActorLocation().ToString());
-
 	Super::Destroyed();
 }
 
 void AHDProjectileBase::OnBoxHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
-	CONDITION_CHECK(ImpactBlocklCueTag.IsValid() == false || ImpactHitCueTag.IsValid() == false);
 	NULL_CHECK(OtherActor);
-
-	UE_LOG(LogTemp, Warning, TEXT("ProjectileHitActor : %s"), *OtherActor->GetName());
 
 	AActor* OwnerActor = GetOwner();
 	NULL_CHECK(OwnerActor);
@@ -68,20 +66,27 @@ void AHDProjectileBase::OnBoxHit(UPrimitiveComponent* HitComp, AActor* OtherActo
 	UAbilitySystemComponent* OwnerAbilitySystemComponent = OwnerAbilitySystemInterface->GetAbilitySystemComponent();
 	NULL_CHECK(OwnerAbilitySystemComponent);
 
-	// Get Target ASC
-	IAbilitySystemInterface* TargetAbilitySystemInterface = Cast<IAbilitySystemInterface>(OtherActor);
-	if (TargetAbilitySystemInterface)
+	if (ImpactType == EImpactType::Explode)
 	{
-		UAbilitySystemComponent* TargetAbilitySystemComponent = TargetAbilitySystemInterface->GetAbilitySystemComponent();
-		NULL_CHECK(TargetAbilitySystemComponent);
-
-		ApplyImpactGameEffect(TargetAbilitySystemComponent);
-		ApplyImpactGameAbility(TargetAbilitySystemComponent);
+		ApplyExplode(Hit.ImpactPoint);
 		ExcuteGameplayCue(OwnerAbilitySystemComponent, ImpactHitCueTag, Hit);
 	}
 	else
 	{
-		ExcuteGameplayCue(OwnerAbilitySystemComponent, ImpactBlocklCueTag, Hit);
+		// Get Target ASC
+		IAbilitySystemInterface* TargetAbilitySystemInterface = Cast<IAbilitySystemInterface>(OtherActor);
+		if (TargetAbilitySystemInterface)
+		{
+			UAbilitySystemComponent* TargetAbilitySystemComponent = TargetAbilitySystemInterface->GetAbilitySystemComponent();
+			NULL_CHECK(TargetAbilitySystemComponent);
+
+			ApplyImpactGameEffect(TargetAbilitySystemComponent, ImpactDamage);
+			ExcuteGameplayCue(OwnerAbilitySystemComponent, ImpactHitCueTag, Hit);
+		}
+		else
+		{
+			ExcuteGameplayCue(OwnerAbilitySystemComponent, ImpactBlocklCueTag, Hit);
+		}
 	}
 
 	Destroy();
@@ -112,7 +117,6 @@ void AHDProjectileBase::SpawnTrailSystem()
 	{
 		TrailSystemComponent = UNiagaraFunctionLibrary::SpawnSystemAttached(TrailSystem, RootComponent, FName(),
 			GetActorLocation(), GetActorRotation(), EAttachLocation::KeepWorldPosition, false);
-		return;
 	}
 
 	if (Tracer)
@@ -129,7 +133,55 @@ void AHDProjectileBase::SpawnTrailSystem()
 	}
 }
 
-void AHDProjectileBase::ApplyImpactGameEffect(UAbilitySystemComponent* TargetAbiltySystemComponent)
+void AHDProjectileBase::ApplyExplode(const FVector& HitLocation)
+{
+	UWorld* World = GetWorld();
+	VALID_CHECK(World);
+
+	TArray<FHitResult> HitResults;
+	const FCollisionShape CollisionSphere = FCollisionShape::MakeSphere(ExplodeKnockBackRange);
+
+	const FCollisionQueryParams Params(SCENE_QUERY_STAT(Explosion), false, this);
+	const FCollisionObjectQueryParams ObjectParams(HDCOLLISION_CHANNEL_PLAYER);
+
+	World->SweepMultiByObjectType(
+		HitResults,
+		HitLocation,
+		HitLocation,
+		FQuat::Identity,
+		ObjectParams,
+		CollisionSphere,
+		Params
+	);
+
+	TSet<AActor*> HitActors;
+	for (const FHitResult& Result : HitResults)
+	{
+		AActor* Target = Result.GetActor();
+		NULL_CHECK(Target);
+
+		if (HitActors.Contains(Target))
+		{
+			continue;
+		}
+
+		HitActors.Add(Target);
+
+		UAbilitySystemComponent* TargetASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(Target);
+		NULL_CHECK(TargetASC);
+
+		float Distance = FVector::Distance(HitLocation, Target->GetActorLocation());
+
+		ApplyImpactGameAbility(TargetASC, KnockbackImpulse * (1.f - (Distance / ExplodeKnockBackRange)));
+
+		if (Distance <= ExplodeDamageRange)
+		{
+			ApplyImpactGameEffect(TargetASC, ImpactDamage * (1.f - (Distance / ExplodeDamageRange)));
+		}
+	}
+}
+
+void AHDProjectileBase::ApplyImpactGameEffect(UAbilitySystemComponent* TargetAbiltySystemComponent, const float InterpImpactDamage)
 {
 	NULL_CHECK(ImpactGameEffect);
 	VALID_CHECK(TargetAbiltySystemComponent);
@@ -138,7 +190,7 @@ void AHDProjectileBase::ApplyImpactGameEffect(UAbilitySystemComponent* TargetAbi
 	const FGameplayEffectSpecHandle ImpactGameEffectSpecHandle = TargetAbiltySystemComponent->MakeOutgoingSpec(ImpactGameEffect, 1.f, Context);
 	CONDITION_CHECK(ImpactGameEffectSpecHandle.IsValid() == false);
 
-	ImpactGameEffectSpecHandle.Data->SetSetByCallerMagnitude(HDTAG_DATA_DAMAGE_PROJECTILE, -ImpactDamage);
+	ImpactGameEffectSpecHandle.Data->SetSetByCallerMagnitude(HDTAG_DATA_DAMAGE_PROJECTILE, -InterpImpactDamage);
 	TargetAbiltySystemComponent->ApplyGameplayEffectSpecToSelf(*ImpactGameEffectSpecHandle.Data.Get());
 
 	if (StatusEffect != EStatusEffect::None)
@@ -154,7 +206,7 @@ void AHDProjectileBase::ApplyImpactGameEffect(UAbilitySystemComponent* TargetAbi
 	}
 }
 
-void AHDProjectileBase::ApplyImpactGameAbility(UAbilitySystemComponent* TargetAbiltySystemComponent)
+void AHDProjectileBase::ApplyImpactGameAbility(UAbilitySystemComponent* TargetAbiltySystemComponent, const float InterpKnockbackImpulse)
 {
 	NULL_CHECK(TargetAbiltySystemComponent);
 
@@ -164,7 +216,7 @@ void AHDProjectileBase::ApplyImpactGameAbility(UAbilitySystemComponent* TargetAb
 	EventData.EventTag = KnockbackTag;
 	EventData.Instigator = this;
 	EventData.Target = TargetAbiltySystemComponent->GetOwnerActor();
-	EventData.EventMagnitude = 300.f;
+	EventData.EventMagnitude = InterpKnockbackImpulse;
 
 	TargetAbiltySystemComponent->HandleGameplayEvent(EventData.EventTag, &EventData);
 
@@ -174,12 +226,13 @@ void AHDProjectileBase::ApplyImpactGameAbility(UAbilitySystemComponent* TargetAb
 void AHDProjectileBase::ExcuteGameplayCue(UAbilitySystemComponent* OwnerAbilitySystemComponent, const FGameplayTag& Tag, const FHitResult& Hit)
 {
 	NULL_CHECK(OwnerAbilitySystemComponent);
-	CONDITION_CHECK(Tag.IsValid() == false);
-
-	FGameplayCueParameters Params;
-	Params.Location = Hit.ImpactPoint;
-	Params.Normal = Hit.Normal;
-	Params.Instigator = OwnerAbilitySystemComponent->GetOwnerActor();
-	Params.SourceObject = this;
-	OwnerAbilitySystemComponent->ExecuteGameplayCue(Tag, Params);
+	if (Tag.IsValid())
+	{
+		FGameplayCueParameters Params;
+		Params.Location = Hit.ImpactPoint;
+		Params.Normal = Hit.Normal;
+		Params.Instigator = OwnerAbilitySystemComponent->GetOwnerActor();
+		Params.SourceObject = this;
+		OwnerAbilitySystemComponent->ExecuteGameplayCue(Tag, Params);
+	}
 }

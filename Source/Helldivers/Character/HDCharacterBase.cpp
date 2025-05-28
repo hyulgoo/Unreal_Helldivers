@@ -17,7 +17,7 @@ AHDCharacterBase::AHDCharacterBase()
 
 	// Capsule
 	GetCapsuleComponent()->InitCapsuleSize(42.f, 96.f);
-	GetCapsuleComponent()->SetCollisionProfileName(COLLISION_PROFILE_HDPLAYER);
+	GetCapsuleComponent()->SetCollisionProfileName(HDCOLLISION_PROFILE_PLAYER);
 
 	// Movement
 	UCharacterMovementComponent* CharacterMovementComponent = GetCharacterMovement();

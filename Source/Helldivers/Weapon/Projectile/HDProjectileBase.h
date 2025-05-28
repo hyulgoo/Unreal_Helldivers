@@ -9,12 +9,9 @@
 
 class UProjectileMovementComponent;
 class UBoxComponent;
-class UAnimationAsset;
 class AHDCasing;
 class UNiagaraSystem;
 class UNiagaraComponent;
-class UParticleSystem;
-class USoundCue;
 class UGameplayEffect;
 class UAbilitySystemComponent;
 enum class EImpactType : uint8;
@@ -24,7 +21,7 @@ UCLASS()
 class HELLDIVERS_API AHDProjectileBase : public AActor
 {
 	GENERATED_BODY()
-	
+
 public:	
 	explicit                                    AHDProjectileBase();
 
@@ -41,9 +38,10 @@ private:
     void			                            StartDestroyTimer();
     void			                            DestroyTimerFinished();
     void                                        SpawnTrailSystem();
+    void                                        ApplyExplode(const FVector& HitLocation);
 
-    void                                        ApplyImpactGameEffect(UAbilitySystemComponent* TargetAbiltySystemComponent);
-    void                                        ApplyImpactGameAbility(UAbilitySystemComponent* TargetAbiltySystemComponent);
+    void                                        ApplyImpactGameEffect(UAbilitySystemComponent* TargetAbiltySystemComponent, const float InterpImpactDamage);
+    void                                        ApplyImpactGameAbility(UAbilitySystemComponent* TargetAbiltySystemComponent, const float InterpKnockbackImpulse);
     void                                        ExcuteGameplayCue(UAbilitySystemComponent* OwnerAbilitySystemComponent, const FGameplayTag& Tag, const FHitResult& Hit);
 
 public:	
@@ -81,9 +79,6 @@ public:
     float                                       StatusDuration;
             
     UPROPERTY(EditDefaultsOnly, Category = "Info|Explode")
-    TSubclassOf<UGameplayEffect>                ExplodeGameEffect;
-    
-    UPROPERTY(EditDefaultsOnly, Category = "Info|Explode")
     float                                       ExplodeDamageRange;
     
     UPROPERTY(EditDefaultsOnly, Category = "Info|Explode")
@@ -91,6 +86,9 @@ public:
     
     UPROPERTY(EditDefaultsOnly, Category = "Info|Knockback")
     FGameplayTag                                KnockbackTag;
+    
+    UPROPERTY(EditDefaultsOnly, Category = "Info|Knockback")
+    float                                       KnockbackImpulse;
 
 protected:
 	UPROPERTY(EditAnywhere, Category = "Info|Default")

@@ -24,7 +24,6 @@ void UAnimNotify_ThrowMontageDetach::Notify(USkeletalMeshComponent* MeshComp, UA
 
     FVector ThrowDirection = CharacterCommandInterface->GetThrowDirection();
     ThrowDirection.Normalize();
-    UE_LOG(LogTemp, Warning, TEXT("Stratagem ThrowDirection : %s"), *ThrowDirection.ToString());
 
     Stratagem->AddImpulseToStratagem(ThrowDirection);
 }

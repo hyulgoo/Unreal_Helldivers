@@ -326,6 +326,47 @@ void AHDCharacterPlayer::SetSprint(const bool bSprint)
     bIsSprint = bSprint;
 }
 
+void AHDCharacterPlayer::SetRagdoll(const bool bRagdoll, const FVector& Impulse)
+{
+    // Ragdoll로 만들어야 하는데 AddImpulse가 없는 경우 Error
+    CONDITION_CHECK(bRagdoll && Impulse == FVector::ZeroVector);
+
+    USkeletalMeshComponent* CharacterMesh = GetMesh();
+    CharacterMesh->SetSimulatePhysics(bRagdoll);
+
+    AHDPlayerController* PlayerController = GetController<AHDPlayerController>();
+    NULL_CHECK(PlayerController);
+
+    if (bRagdoll)
+    {
+        CharacterMesh->AddImpulse(Impulse, NAME_None, true);
+        //GetWorldTimerManager().SetTimer(RagdollTimerHandle, this, &AHDCharacterPlayer::RagdollCameraCapsuleSync, 0.f, true);
+    }
+    else
+    {
+        const FVector& BonmeLocation = CharacterMesh->GetBoneLocation("pelvis");
+        FRotator MeshRotation = CharacterMesh->GetComponentRotation();
+        MeshRotation.Pitch = 0.f;
+        MeshRotation.Roll = 0.f;
+        
+        UCapsuleComponent* Capsule = GetCapsuleComponent();
+        Capsule->SetWorldLocation(BonmeLocation);
+        Capsule->SetWorldRotation(MeshRotation);
+
+        //CharacterMesh->AttachToComponent(Capsule, FAttachmentTransformRules::SnapToTargetIncludingScale);
+        CharacterMesh->SetRelativeLocationAndRotation(FVector(0.f, 0.f, -100.f), FRotator(0.f, -90.f, 0.f));
+        CharacterMesh->SetAnimationMode(EAnimationMode::AnimationBlueprint);
+
+        GetWorldTimerManager().ClearTimer(RagdollTimerHandle);
+    }
+}
+
+const float AHDCharacterPlayer::GetRagdollPysicsLinearVelocity() const
+{
+    USkeletalMeshComponent* CharacterMesh = GetMesh();
+    return CharacterMesh->GetPhysicsLinearVelocity().Size();
+}
+
 const FVector& AHDCharacterPlayer::GetThrowDirection() const
 {
     return Combat->HitTarget;
@@ -603,6 +644,16 @@ void AHDCharacterPlayer::PlayThrowMontage()
     NULL_CHECK(ThrowMontage);
 
     AnimInstance->Montage_Play(ThrowMontage);
+}
+
+void AHDCharacterPlayer::RagdollCameraCapsuleSync()
+{
+    USkeletalMeshComponent* CharacterMesh = GetMesh();
+    FVector ComponentLocation = CharacterMesh->GetComponentLocation();
+
+    UCapsuleComponent* Capsule = GetCapsuleComponent();
+    Capsule->SetWorldLocation(ComponentLocation);
+    Capsule->SetWorldRotation(FRotator(0.f, CharacterMesh->GetComponentRotation().Yaw, 0.f));
 }
 
 void AHDCharacterPlayer::SetDead()

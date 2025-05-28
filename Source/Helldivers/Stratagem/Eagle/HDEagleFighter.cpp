@@ -185,16 +185,13 @@ void AHDEagleFighter::CreateProjectile(TSubclassOf<AHDProjectileBase> Projectile
     AActor* OwnerActor = GetOwner();
     NULL_CHECK(OwnerActor);
 
-    AHDProjectileBase* SpawnProjectile = World->SpawnActorDeferred<AHDProjectileBase>(
-        ProjectileClass,
-        SpawnTransform,
-        OwnerActor,
-        nullptr,
-        ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn
-    );
-    NULL_CHECK(SpawnProjectile);
+    FActorSpawnParameters Params;
+    Params.Owner = OwnerActor;
+    Params.Instigator = Cast<APawn>(this);
+    Params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
 
-    UGameplayStatics::FinishSpawningActor(SpawnProjectile, SpawnTransform);
+    AHDProjectileBase* SpawnProjectile = World->SpawnActor<AHDProjectileBase>(ProjectileClass, SpawnTransform, Params);
+    NULL_CHECK(SpawnProjectile);
 
     if (StratagemEffectData.bMultipleSpawn)
     {
@@ -206,16 +203,7 @@ void AHDEagleFighter::CreateProjectile(TSubclassOf<AHDProjectileBase> Projectile
             ToTarget = FinalDropTargetLocation - EagleLocation;
             SpawnTransform = FTransform(ToTarget.Rotation(), EagleLocation);
 
-            SpawnProjectile = World->SpawnActorDeferred<AHDProjectileBase>(
-                ProjectileClass,
-                SpawnTransform,
-                OwnerActor,
-                nullptr,
-                ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn
-            );
-            NULL_CHECK(SpawnProjectile);
-
-            UGameplayStatics::FinishSpawningActor(SpawnProjectile, SpawnTransform);
+            SpawnProjectile = World->SpawnActor<AHDProjectileBase>(ProjectileClass, SpawnTransform, Params);
         }
     }
 }

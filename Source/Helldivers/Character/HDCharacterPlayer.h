@@ -66,6 +66,9 @@ protected:
 	virtual const bool						IsSprint() const override final							{ return bIsSprint; }
 	virtual void							SetSprint(const bool bSprint) override;
 
+	virtual void							SetRagdoll(const bool bRagdoll, const FVector& Impulse = FVector::ZeroVector) override final;
+	virtual const float						GetRagdollPysicsLinearVelocity() const override final;
+
 	// CharacterCommandInterface
 	virtual AHDStratagem*					GetStratagem() const override final						{ return Stratagem; }
 	virtual const FVector&					GetThrowDirection() const override final;
@@ -103,6 +106,8 @@ private:
 
 	void									PlayFireMontage(const bool bAiming);
 	void									PlayThrowMontage();
+
+	void									RagdollCameraCapsuleSync();
 
 protected:
 	// Camera Section
@@ -200,4 +205,6 @@ private:
 	
 	UPROPERTY(EditAnywhere, Category = "Curve")
 	TObjectPtr<UCurveFloat>					DefaultCurve;
+
+	FTimerHandle							RagdollTimerHandle;
 };
