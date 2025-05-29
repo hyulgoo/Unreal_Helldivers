@@ -19,16 +19,16 @@ void UHDGA_Shoulder::ActivateAbility(const FGameplayAbilitySpecHandle Handle, co
 {
     Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 
-    IHDCharacterMovementInterface* CharacterAimingInterface = Cast<IHDCharacterMovementInterface>(ActorInfo->AvatarActor.Get());
-    NULL_CHECK(CharacterAimingInterface);
-    CharacterAimingInterface->SetShouldering(true);
+    TScriptInterface<IHDCharacterMovementInterface> CharacterMovementInterface = ActorInfo->AvatarActor.Get();
+    NULL_CHECK(CharacterMovementInterface);
+    CharacterMovementInterface->SetShouldering(true);
 }
 
 void UHDGA_Shoulder::InputReleased(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo)
 {
-    IHDCharacterMovementInterface* CharacterAimingInterface = Cast<IHDCharacterMovementInterface>(ActorInfo->AvatarActor.Get());
-    NULL_CHECK(CharacterAimingInterface);
-    CharacterAimingInterface->SetShouldering(false);
+    TScriptInterface<IHDCharacterMovementInterface> CharacterMovementInterface = ActorInfo->AvatarActor.Get();
+    NULL_CHECK(CharacterMovementInterface);
+    CharacterMovementInterface->SetShouldering(false);
 
     const bool bReplicatedEndAbility = true;
     const bool bWasCancelled = true;

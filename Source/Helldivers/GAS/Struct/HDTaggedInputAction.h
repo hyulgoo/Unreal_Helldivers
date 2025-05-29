@@ -5,7 +5,6 @@
 #include "HDTaggedInputAction.generated.h"
 
 class UInputAction;
-enum class ETriggerEvent : uint8;
 
 USTRUCT()
 struct FTaggedInputAction
@@ -13,6 +12,11 @@ struct FTaggedInputAction
     GENERATED_BODY()
 
 public:
+    FTaggedInputAction() 
+        : InputAction(nullptr)
+        , InputTag(FGameplayTag())
+    { }
+
     UPROPERTY(EditDefaultsOnly)
     TObjectPtr<UInputAction>    InputAction;
 

@@ -4,6 +4,7 @@
 #include "Interface/HDCharacterCommandInterface.h"
 #include "Define/HDDefine.h"
 #include "AbilitySystemComponent.h"
+#include "Tag/HDGameplayTag.h"
 
 UHDGA_StratagemInputMode::UHDGA_StratagemInputMode()
 {
@@ -20,7 +21,7 @@ void UHDGA_StratagemInputMode::ActivateAbility(const FGameplayAbilitySpecHandle 
     Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 
     FGameplayEventData EventData;
-    EventData.EventTag = FGameplayTag::RequestGameplayTag(FName("Event.StratagemHUD.Active"));
+    EventData.EventTag = HDTAG_EVENT_STRATAGEMHUD_APPEAR;
     EventData.Instigator = GetAvatarActorFromActorInfo();
     EventData.Target = GetAvatarActorFromActorInfo();
 
@@ -29,18 +30,13 @@ void UHDGA_StratagemInputMode::ActivateAbility(const FGameplayAbilitySpecHandle 
 
 void UHDGA_StratagemInputMode::InputReleased(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo)
 {
-    IHDCharacterCommandInterface* CharacterCommandInterface = Cast<IHDCharacterCommandInterface>(ActorInfo->AvatarActor.Get());
-    if (CharacterCommandInterface)
-    {
-        CharacterCommandInterface->ThrowStratagem();
-    }
-    else
-    {
-        UE_LOG(LogTemp, Error, TEXT("Failed to Cast CharacterCommandInterface"));
-    }
+    TScriptInterface<IHDCharacterCommandInterface> CharacterCommandInterface = ActorInfo->AvatarActor.Get();
+    NULL_CHECK(CharacterCommandInterface);
+
+    CharacterCommandInterface->ThrowStratagem();
 
     FGameplayEventData EventData;
-    EventData.EventTag = FGameplayTag::RequestGameplayTag(FName("Event.StratagemHUD.Deactive"));
+    EventData.EventTag = HDTAG_EVENT_STRATAGEMHUD_DISAPPEAR;
     EventData.Instigator = GetAvatarActorFromActorInfo();
     EventData.Target = GetAvatarActorFromActorInfo();
 

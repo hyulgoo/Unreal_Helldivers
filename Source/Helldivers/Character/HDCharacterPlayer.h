@@ -13,14 +13,11 @@
 #include "Components/TimelineComponent.h"
 #include "HDCharacterPlayer.generated.h"
 
-class UHDCharacterControlData;
 class USpringArmComponent;
 class UCameraComponent;
 class UHDCombatComponent;
-class UInputAction;
 class AHDWeapon;
 class AHDStratagem;
-class UHDGASPlayerUserWidget;
 
 UCLASS()
 class HELLDIVERS_API AHDCharacterPlayer : public AHDCharacterBase, public IHDCharacterMovementInterface, public IHDWeaponInterface, public IHDCharacterCommandInterface
@@ -29,8 +26,6 @@ class HELLDIVERS_API AHDCharacterPlayer : public AHDCharacterBase, public IHDCha
 
 public:
 	explicit								AHDCharacterPlayer();
-
-	virtual void							SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
 	UDataTable*								GetAvaliableStratagemDataTable()						{ return AvaliableStratagemDataTable; }
 
 protected:
@@ -47,18 +42,14 @@ protected:
     virtual void							Fire(const bool IsPressed);
     virtual void							SetWeaponActive(const bool bActive) override final;
 
-	virtual void							SetCharacterControlData(UHDCharacterControlData* CharacterControlData) override final;
 
 	// CharacterMovementInterface
 	virtual const float						GetAimOffset_Yaw() const override final					{ return AimOffset_Yaw; }
 	virtual const float						GetAimOffset_Pitch() const override final				{ return AimOffset_Pitch; }
 
     virtual const bool						IsShouldering() const override final;
-    virtual void							SetShouldering(const bool bSetAiming) override final;
+	virtual void							SetShouldering(const bool bSetAiming) override;
 	virtual const bool						IsCharacterLookingViewport() const override final		{ return bIsCharacterLookingViewport; }
-
-	virtual const EHDCharacterControlType	GetCharacterControlType() const							{ return CurrentCharacterControlType; }
-	virtual void							ChangeCharacterControlType();
 
 	virtual const EHDTurningInPlace			GetTurningInPlace() const override final				{ return TurningInPlace; }
 	virtual const bool						IsUseRotateBone() const override final					{ return bUseRotateRootBone; }
@@ -90,18 +81,6 @@ private:
 
 	void									SpawnDefaultWeapon();
 
-	// Character Control Section
-	void									SetCharacterControl(const EHDCharacterControlType NewCharacterControlType);
-
-	UFUNCTION()
-	void									OnArmLengthTimelineUpdate(const float Value);
-
-	void									ThirdPersonMove(const FInputActionValue& Value);
-	void									ThirdPersonLook(const FInputActionValue& Value);
-
-	void									FirstPersonMove(const FInputActionValue& Value);
-	void									FirstPersonLook(const FInputActionValue& Value);
-
 	void									InterpFOV(float DeltaSeconds);
 
 	void									PlayFireMontage(const bool bAiming);
@@ -116,32 +95,8 @@ protected:
 
 	UPROPERTY()
 	TObjectPtr<UCameraComponent>			FollowCamera;
-
-	// Input Section
-	UPROPERTY(EditAnywhere, Category = "Input")
-	TObjectPtr<UInputAction>				ChangeControlAction;
-
-	UPROPERTY(EditAnywhere, Category = "Input")
-	TObjectPtr<UInputAction>				ThirdPersonMoveAction;
-
-	UPROPERTY(EditAnywhere, Category = "Input")
-	TObjectPtr<UInputAction>				ThirdPersonLookAction;
-
-	UPROPERTY(EditAnywhere, Category = "Input")
-	TObjectPtr<UInputAction>				FirstPersonMoveAction;
-	
-	UPROPERTY(EditAnywhere, Category = "Input")
-	TObjectPtr<UInputAction>				FirstPersonLookAction;
-
-	UPROPERTY(EditAnywhere, Category = "Input")
-	TObjectPtr<UInputAction>				InputCommandAction;
-	
-	UPROPERTY(EditAnywhere, Category = "Input")
-	TObjectPtr<UInputAction>				ThrowStratagemAction;
-	
-    EHDCharacterControlType					CurrentCharacterControlType;
-	
-	UPROPERTY(VisibleAnywhere, Category = "Stratagem")
+			
+	UPROPERTY()
 	TArray<EHDCommandInput>					CurrentInputCommandList;
 
 	// Combat
@@ -153,26 +108,24 @@ protected:
 	
 	UPROPERTY(EditAnywhere, Category = "Weapon")
 	TSubclassOf<AHDWeapon>					DefaultWeaponClass;
+	
+	UPROPERTY(EditAnywhere, Category = "CharacterControl")
+	TObjectPtr<UCurveFloat>					DefaultCurve;
 
 private:
 	FRotator								StartingAimRotation;
 
-	float									LastFrame_Yaw;
 	float									AimOffset_Yaw;
 	float									InterpAimOffset_Yaw;
 	float									AimOffset_Pitch;
-	float									AimOffsetYawCompensation;
 
 	bool									bIsSprint;
 
 	bool									bIsCharacterLookingViewport;
-
-	UPROPERTY(VisibleAnywhere, Category = "Input|TurnInPlace")
 	bool									bUseRotateRootBone;
 
 	UPROPERTY(EditAnywhere, Category = "Input|TurnInPlace")
 	float									TurnThreshold;
-
 
 	EHDTurningInPlace						TurningInPlace;
 	FTimeline								TurningTimeline;
@@ -180,18 +133,14 @@ private:
 	UPROPERTY(EditAnywhere, Category = "Stratagem")
 	TSubclassOf<AHDStratagem>				StratagemClass;
 
-	UPROPERTY(EditAnywhere, Category = "Stratagem")
+	UPROPERTY()
 	TObjectPtr<AHDStratagem>				Stratagem;
 	
-	UPROPERTY(EditAnywhere, Category = "Stratagem")
-	TObjectPtr<AHDStratagem>				Info;
-	
-	UPROPERTY(EditAnywhere, Category = "Stratagem")
 	FName									SelectedStratagemName;
 
 	float									SelecteddStratagemActiveDelay;
 	
-	UPROPERTY(EditAnywhere, Category = "Stratagem")
+	UPROPERTY()
 	TArray<FName>							CommandMatchStratagemNameList;
 	
 	UPROPERTY(EditAnywhere, Category = "Stratagem")
@@ -199,12 +148,6 @@ private:
 
 	// HUD, Crosshair
 	float									DefaultFOV;
-
-	// TimeLine
-	FTimeline								ArmLengthTimeline;
-	
-	UPROPERTY(EditAnywhere, Category = "Curve")
-	TObjectPtr<UCurveFloat>					DefaultCurve;
 
 	FTimerHandle							RagdollTimerHandle;
 };

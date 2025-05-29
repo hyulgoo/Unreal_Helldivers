@@ -13,6 +13,8 @@ class HELLDIVERS_API UHDCombatComponent : public UActorComponent
 {
 	GENERATED_BODY()
 
+    friend class            AHDCharacterPlayer;
+
 public:	
 	explicit                UHDCombatComponent();
 
@@ -29,7 +31,6 @@ private:
     void                    FireTimerFinished();
     void					TraceUnderCrosshairs();
 
-public:
     bool					bIsShoulder;
     bool					bCanFire;
     bool					bIsFireButtonPressed;

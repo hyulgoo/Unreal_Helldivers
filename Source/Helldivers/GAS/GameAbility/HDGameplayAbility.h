@@ -12,10 +12,10 @@ class HELLDIVERS_API UHDGameplayAbility : public UGameplayAbility
 	GENERATED_BODY()
 	
 public:
-	explicit UHDGameplayAbility() = default;
+	explicit UHDGameplayAbility();
 	const FGameplayTagContainer& GetAssetInputTags() const;
 
 private:
-	UPROPERTY(EditDefaultsOnly, Category = Tags, DisplayName="AssetTags (Input AbilityTags)", meta=(Categories="AbilityTagCategory"))
+	UPROPERTY(EditDefaultsOnly, Category = "Tags", DisplayName = "AssetTags (Input AbilityTags)", meta = (Categories = "AbilityTagCategory"))
 	FGameplayTagContainer AbilityInputTags;
 };

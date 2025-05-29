@@ -6,6 +6,7 @@
 #include "HDProjectileBase.h"
 #include "HDProjectileRocket.generated.h"
 
+class USoundCue;
 class UHDRocketMovementComponent;
 
 UCLASS()

@@ -14,7 +14,7 @@ class HELLDIVERS_API AHDGameState : public AGameStateBase
 	GENERATED_BODY()
 	
 public:
-	explicit                    AHDGameState() = default;
+    explicit                    AHDGameState();
 
     AHDBattleShip*              GetBattleShip() const { return BattleShip; }
     void                        SetBattleShip(AHDBattleShip* NewBattleShip) { BattleShip = NewBattleShip; }

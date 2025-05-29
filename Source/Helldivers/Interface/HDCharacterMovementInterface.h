@@ -30,10 +30,6 @@ public:
 	virtual void							SetShouldering(const bool bSetAiming) = 0;
 	virtual const bool						IsCharacterLookingViewport() const = 0;
 
-	// CharacterControl
-	virtual const EHDCharacterControlType	GetCharacterControlType() const = 0;
-	virtual void							ChangeCharacterControlType() = 0;
-
 	// Turn In Place
 	virtual const EHDTurningInPlace			GetTurningInPlace() const = 0;
 	virtual const bool						IsUseRotateBone() const = 0;

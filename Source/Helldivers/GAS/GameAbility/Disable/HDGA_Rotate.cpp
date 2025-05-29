@@ -1,6 +1,6 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-#include "GameAbility/HDGA_Rotate.h"
+#include "HDGA_Rotate.h"
 #include "GameFramework/RotatingMovementComponent.h"
 #include "Tag/HDGameplayTag.h"
 

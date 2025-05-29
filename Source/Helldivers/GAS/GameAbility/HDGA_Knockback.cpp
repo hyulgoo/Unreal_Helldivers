@@ -1,12 +1,16 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-#include "GameAbility/HDGA_Knockback.h"
+#include "HDGA_Knockback.h"
 #include "Tag/HDGameplayTag.h"
 #include "Define/HDDefine.h"
 #include "Interface/HDCharacterMovementInterface.h"
 
 UHDGA_Knockback::UHDGA_Knockback()
     : MovementInterface(nullptr)
+    , World(nullptr)
+    , bRecoveryFromRagdoll(false)
+    , StateCheckTimerHandle(FTimerHandle())
+	, RecoveryFromRagdollTimerHandle(FTimerHandle())
 {
     InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
 }

@@ -17,6 +17,7 @@ class HELLDIVERS_API AHDPlayerController : public APlayerController
 	GENERATED_BODY()
 
 public:
+	explicit								AHDPlayerController();
 	void									CreateHUDWidget(ACharacter* PlayerCharacter);
 	void									SetWeaponHUDInfo(AHDWeapon* NewWeapon);
 

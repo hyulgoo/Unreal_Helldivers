@@ -7,6 +7,7 @@
 #include "Define/HDDefine.h"
 
 AHDProjectileGrenade::AHDProjectileGrenade()
+    : BounceSound(nullptr)
 {
     ProjectileMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Grenade Mesh"));
     ProjectileMesh->SetupAttachment(RootComponent);

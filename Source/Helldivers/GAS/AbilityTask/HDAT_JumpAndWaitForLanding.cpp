@@ -1,6 +1,6 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-#include "GameAbility/AbilityTask/HDAT_JumpAndWaitForLanding.h"
+#include "HDAT_JumpAndWaitForLanding.h"
 #include "GameFramework/Character.h"
 
 UHDAT_JumpAndWaitForLanding* UHDAT_JumpAndWaitForLanding::CreateTask(UGameplayAbility* OwningAbility)

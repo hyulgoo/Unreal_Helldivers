@@ -1,6 +1,6 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-#include "GameAbility/HDGA_Aiming.h"
+#include "HDGA_Aiming.h"
 #include "Interface/HDCharacterMovementInterface.h"
 
 UHDGA_Aiming::UHDGA_Aiming()
@@ -15,7 +15,7 @@ bool UHDGA_Aiming::CanActivateAbility(const FGameplayAbilitySpecHandle Handle, c
         return false;
     }
 
-    IHDCharacterMovementInterface* CharacterMovementInterface = Cast<IHDCharacterMovementInterface>(ActorInfo->AvatarActor.Get());
+    TScriptInterface<IHDCharacterMovementInterface> CharacterMovementInterface = ActorInfo->AvatarActor.Get();
     return (CharacterMovementInterface != nullptr);
 }
 
@@ -23,9 +23,9 @@ void UHDGA_Aiming::ActivateAbility(const FGameplayAbilitySpecHandle Handle, cons
 {
     Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 
-    IHDCharacterMovementInterface* CharacterAimingInterface = Cast<IHDCharacterMovementInterface>(ActorInfo->AvatarActor.Get());
-    if (CharacterAimingInterface)
-    {
-        CharacterAimingInterface->ChangeCharacterControlType();
-    }
+    //TScriptInterface<IHDCharacterMovementInterface> CharacterMovementInterface = ActorInfo->AvatarActor.Get();
+    //if (CharacterMovementInterface)
+    //{
+    //    CharacterMovementInterface->ChangeCharacterControlType();
+    //}
 }

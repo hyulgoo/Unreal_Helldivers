@@ -10,9 +10,14 @@
 #include "Define/HDDefine.h"
 
 AHDStratagem::AHDStratagem()
-    : ThrowDirection{}
+    : StratagemMesh(nullptr)
+    , CollisionSphere(nullptr)
+    , PointLaserNiagara(nullptr)
+    , NiagaraComponent(nullptr)
+    , StratagemActiveDelay(0.f)
+    , ThrowDirection(FVector())
     , ThrowImpulse(3000.f)
-    , StratagemName{}
+    , StratagemName(FName())
 {
     PrimaryActorTick.bCanEverTick = true;
 

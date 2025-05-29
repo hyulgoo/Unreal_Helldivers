@@ -19,6 +19,6 @@ public:
     virtual UAbilitySystemComponent*    GetAbilitySystemComponent() const override final;
 
 protected:
-    UPROPERTY(EditAnywhere, Category = GAS)
+    UPROPERTY(EditAnywhere, Category = "GAS")
     TObjectPtr<UAbilitySystemComponent> AbilitySystemComponent;
 };

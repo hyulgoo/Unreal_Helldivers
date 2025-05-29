@@ -1,11 +1,12 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-#include "GameAbility/HDGA_Sprint.h"
+#include "HDGA_Sprint.h"
 #include "Attribute/Player/HDPlayerSpeedAttributeSet.h"
 #include "Interface/HDCharacterMovementInterface.h"
 #include "Define/HDDefine.h"
 
 UHDGA_Sprint::UHDGA_Sprint()
+    : StaminaDrainPerSecounds(0.f)
 {
     InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
 }
@@ -19,24 +20,18 @@ void UHDGA_Sprint::ActivateAbility(const FGameplayAbilitySpecHandle Handle, cons
 {
     Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 
-    if(ActorInfo->AvatarActor.IsValid())
-    {
-        IHDCharacterMovementInterface* CharacterMovementInterface = Cast<IHDCharacterMovementInterface>(ActorInfo->AvatarActor.Get());
-        NULL_CHECK(CharacterMovementInterface);
+	TScriptInterface<IHDCharacterMovementInterface> CharacterMovementInterface = ActorInfo->AvatarActor.Get();
+	NULL_CHECK(CharacterMovementInterface);
 
-        CharacterMovementInterface->SetSprint(true);
-    }   
+	CharacterMovementInterface->SetSprint(true);
 }
 
 void UHDGA_Sprint::InputReleased(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo)
 {
-    if (ActorInfo->AvatarActor.IsValid())
-    {
-        IHDCharacterMovementInterface* CharacterMovementInterface = Cast<IHDCharacterMovementInterface>(ActorInfo->AvatarActor.Get());
-        NULL_CHECK(CharacterMovementInterface);
+     TScriptInterface<IHDCharacterMovementInterface> CharacterMovementInterface = ActorInfo->AvatarActor.Get();
+     NULL_CHECK(CharacterMovementInterface);
 
-        CharacterMovementInterface->SetSprint(false);
-    }
+     CharacterMovementInterface->SetSprint(false);
 
     const bool bReplicatedEndAbility = true;
     const bool bWasCancelled = true;

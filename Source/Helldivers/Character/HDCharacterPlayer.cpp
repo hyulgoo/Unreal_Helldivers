@@ -6,7 +6,6 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "CharacterTypes/HDCharacterStateTypes.h"
 #include "Component/Character/HDCombatComponent.h"
-#include "HDCharacterControlData.h"
 #include "InputMappingContext.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
@@ -24,25 +23,34 @@
 #define ANIMATIONNAME_RIFLE_HIP FName("Rifle_Hip")
 #define SOCKETNAME_RIGHTHAND FName("RightHandSocket")
 
-
 AHDCharacterPlayer::AHDCharacterPlayer()
-    : CurrentCharacterControlType()
-    , StartingAimRotation()
-    , LastFrame_Yaw(0.f)
-    , AimOffset_Yaw(0.f)
-    , InterpAimOffset_Yaw(0.f)
-    , AimOffset_Pitch(0.f)
-    , AimOffsetYawCompensation(0.f)
-    , bIsSprint(false)
-    , bIsCharacterLookingViewport(false)
-    , bUseRotateRootBone(false)
-    , TurnThreshold(90.f)
-    , TurningInPlace(EHDTurningInPlace::NotTurning)
-    , SelecteddStratagemActiveDelay(0.f)
-    , DefaultFOV(55.f)
+    : CameraBoom(nullptr)
+	, FollowCamera(nullptr)
+    , CurrentInputCommandList{}
+	, Combat(nullptr)
+	, Weapon(nullptr)
+	, DefaultWeaponClass(nullptr)
+    , DefaultCurve(nullptr)
+	, StartingAimRotation(FRotator())
+	, AimOffset_Yaw(0.f)
+	, InterpAimOffset_Yaw(0.f)
+	, AimOffset_Pitch(0.f)
+	, bIsSprint(false)
+	, bIsCharacterLookingViewport(false)
+	, bUseRotateRootBone(false)
+	, TurnThreshold(0.f)
+	, TurningInPlace(EHDTurningInPlace::NotTurning)
+	, TurningTimeline(FTimeline())
+	, StratagemClass(nullptr)
+	, Stratagem(nullptr)
+	, SelectedStratagemName(FName())
+	, SelecteddStratagemActiveDelay(0.f)
+    , CommandMatchStratagemNameList{}
+	, AvaliableStratagemDataTable(nullptr)
+	, DefaultFOV(0.f)
+	, RagdollTimerHandle(FTimerHandle())
 {
     GetCharacterMovement()->bOrientRotationToMovement = true;
-    bUseControllerRotationYaw = false;
 
     // Camera
     CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
@@ -58,45 +66,11 @@ AHDCharacterPlayer::AHDCharacterPlayer()
     Combat = CreateDefaultSubobject<UHDCombatComponent>(TEXT("Combat"));
     Combat->CombatState = EHDCombatState::Unoccupied;
 
-    // Input
-    static ConstructorHelpers::FObjectFinder<UInputAction> InputChangeActionControlRef(TEXT("/Script/EnhancedInput.InputAction'/Game/Helldivers/Input/Action/IA_ChangeControl.IA_ChangeControl'"));
-    if (InputChangeActionControlRef.Succeeded())
-    {
-        ChangeControlAction = InputChangeActionControlRef.Object;
-    }
-
-    static ConstructorHelpers::FObjectFinder<UInputAction> InputActionThirdPersonLookRef(TEXT("/Script/EnhancedInput.InputAction'/Game/Helldivers/Input/Action/IA_ThirdPersonLook.IA_ThirdPersonLook'"));
-    if (InputActionThirdPersonLookRef.Succeeded())
-    {
-        ThirdPersonLookAction = InputActionThirdPersonLookRef.Object;
-    }
-
-    static ConstructorHelpers::FObjectFinder<UInputAction> InputActionThirdPersonMoveRef(TEXT("/Script/EnhancedInput.InputAction'/Game/Helldivers/Input/Action/IA_ThirdPersonMove.IA_ThirdPersonMove'"));
-    if (InputActionThirdPersonMoveRef.Succeeded())
-    {
-        ThirdPersonMoveAction = InputActionThirdPersonMoveRef.Object;
-    }
-
-    static ConstructorHelpers::FObjectFinder<UInputAction> InputActionFirstPersonLookRef(TEXT("/Script/EnhancedInput.InputAction'/Game/Helldivers/Input/Action/IA_FirstPerconLook.IA_FirstPerconLook'"));
-    if (InputActionFirstPersonLookRef.Succeeded())
-    {
-        FirstPersonLookAction = InputActionFirstPersonLookRef.Object;
-    }
-
-    static ConstructorHelpers::FObjectFinder<UInputAction> InputActionFirstPersonMoveRef(TEXT("/Script/EnhancedInput.InputAction'/Game/Helldivers/Input/Action/IA_FirstPerconMove.IA_FirstPerconMove'"));
-    if (InputActionFirstPersonMoveRef.Succeeded())
-    {
-        FirstPersonMoveAction = InputActionFirstPersonMoveRef.Object;
-    }
-
     static ConstructorHelpers::FObjectFinder<UDataTable> StratagemDataListRef(TEXT("/Script/Engine.DataTable'/Game/Helldivers/GameData/DT_StratagenData.DT_StratagenData'"));
     if (StratagemDataListRef.Succeeded())
     {
         AvaliableStratagemDataTable = StratagemDataListRef.Object;
     }
-
-    CurrentCharacterControlType = EHDCharacterControlType::ThirdPerson;
-    bUseControllerRotationYaw = false;
 }
 
 void AHDCharacterPlayer::BeginPlay()
@@ -105,37 +79,16 @@ void AHDCharacterPlayer::BeginPlay()
 
     NULL_CHECK(DefaultCurve);
 
-    FOnTimelineFloat ArmLengthTimelineProgress;
-    ArmLengthTimelineProgress.BindUFunction(this, FName("OnArmLengthTimelineUpdate"));
-    ArmLengthTimeline.AddInterpFloat(DefaultCurve, ArmLengthTimelineProgress);
-    ArmLengthTimeline.SetLooping(false);
-
     FOnTimelineFloat TuringTimelineProgress;
     TuringTimelineProgress.BindUFunction(this, FName("OnTurningTimelineUpdate"));
     TurningTimeline.AddInterpFloat(DefaultCurve, TuringTimelineProgress);
     TurningTimeline.SetLooping(false);
 }
 
-void AHDCharacterPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
-{
-    Super::SetupPlayerInputComponent(PlayerInputComponent);
-
-    SetCharacterControl(CurrentCharacterControlType);
-
-    UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(PlayerInputComponent);
-    VALID_CHECK(EnhancedInputComponent);
-    EnhancedInputComponent->BindAction(ThirdPersonMoveAction, ETriggerEvent::Triggered, this, &AHDCharacterPlayer::ThirdPersonMove);
-    EnhancedInputComponent->BindAction(ThirdPersonLookAction, ETriggerEvent::Triggered, this, &AHDCharacterPlayer::ThirdPersonLook);
-    EnhancedInputComponent->BindAction(FirstPersonMoveAction, ETriggerEvent::Triggered, this, &AHDCharacterPlayer::FirstPersonMove);
-    EnhancedInputComponent->BindAction(FirstPersonLookAction, ETriggerEvent::Triggered, this, &AHDCharacterPlayer::FirstPersonLook);
-    EnhancedInputComponent->BindAction(ChangeControlAction,   ETriggerEvent::Triggered, this, &AHDCharacterPlayer::ChangeCharacterControlType);
-}
-
 void AHDCharacterPlayer::Tick(float DeltaTime)
 {
     Super::Tick(DeltaTime);
 
-    ArmLengthTimeline.TickTimeline(DeltaTime);
     TurningTimeline.TickTimeline(DeltaTime);
     AimOffset(DeltaTime);        
 }
@@ -145,48 +98,6 @@ void AHDCharacterPlayer::PossessedBy(AController* NewController)
     Super::PossessedBy(NewController);
 
     SpawnDefaultWeapon();
-}
-
-void AHDCharacterPlayer::ChangeCharacterControlType()
-{
-    if (CurrentCharacterControlType == EHDCharacterControlType::FirstPerson)
-    {
-        SetCharacterControl(EHDCharacterControlType::ThirdPerson);
-    }
-    else if (CurrentCharacterControlType == EHDCharacterControlType::ThirdPerson)
-    {
-        SetCharacterControl(EHDCharacterControlType::FirstPerson);
-    }
-}
-
-void AHDCharacterPlayer::SetCharacterControl(const EHDCharacterControlType NewCharacterControlType)
-{
-    UHDCharacterControlData* NewCharacterControl = CharacterControlDataMap[NewCharacterControlType];
-    VALID_CHECK(NewCharacterControl);
-
-    SetCharacterControlData(NewCharacterControl);
-
-    APlayerController* PlayerController = Cast<APlayerController>(GetController());
-    NULL_CHECK(PlayerController);
-
-    UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer());
-    NULL_CHECK(Subsystem);
-
-    Subsystem->ClearAllMappings();
-    UInputMappingContext* NewMappingContext = NewCharacterControl->InputMappingContext;
-    if (NewMappingContext)
-    {
-        Subsystem->AddMappingContext(NewMappingContext, 0);
-    }
-
-    CurrentCharacterControlType = NewCharacterControlType;
-}
-
-void AHDCharacterPlayer::OnArmLengthTimelineUpdate(const float Value)
-{
-    const float DefaultArmLength =  CharacterControlDataMap[CurrentCharacterControlType]->TargetArmLength;
-    const float Interpolated = FMath::Lerp(DefaultArmLength, DefaultArmLength / 2.f, Value);
-    CameraBoom->TargetArmLength = Interpolated;
 }
 
 void AHDCharacterPlayer::SetWeaponActive(const bool bActive)
@@ -204,20 +115,6 @@ void AHDCharacterPlayer::SetWeaponActive(const bool bActive)
     }  
 }
 
-void AHDCharacterPlayer::SetCharacterControlData(UHDCharacterControlData* CharacterControlData)
-{
-    Super::SetCharacterControlData(CharacterControlData);
-
-    CameraBoom->TargetArmLength         = CharacterControlData->TargetArmLength;
-    CameraBoom->TargetOffset            = CharacterControlData->TargetOffset;
-    CameraBoom->SocketOffset            = CharacterControlData->SocketOffset;
-    CameraBoom->bUsePawnControlRotation = CharacterControlData->bUsePawnControlRotation;
-    CameraBoom->bInheritPitch           = CharacterControlData->bInheritPitch;
-    CameraBoom->bInheritYaw             = CharacterControlData->bInheritYaw;
-    CameraBoom->bInheritRoll            = CharacterControlData->bInheritRoll;
-    CameraBoom->bDoCollisionTest        = CharacterControlData->bDoCollisionTest;
-}
-
 const bool AHDCharacterPlayer::IsShouldering() const
 {
     return Combat->bIsShoulder;
@@ -225,15 +122,8 @@ const bool AHDCharacterPlayer::IsShouldering() const
 
 void AHDCharacterPlayer::SetShouldering(const bool bShoulder)
 {
-    Combat->bIsShoulder = bShoulder;
-    if(bShoulder)
-    {
-        ArmLengthTimeline.PlayFromStart();
-    }
-    else
-    {
-        ArmLengthTimeline.ReverseFromEnd();
-    }
+    // 오버라이드하여 실제 CameraSpringArmLength 조정 중
+    Combat->bIsShoulder = bShoulder;   
 }
 
 void AHDCharacterPlayer::EquipWeapon(AHDWeapon* NewWeapon)
@@ -539,58 +429,6 @@ void AHDCharacterPlayer::SpawnDefaultWeapon()
     NULL_CHECK(Weapon);
 
     EquipWeapon(Weapon);
-}
-
-void AHDCharacterPlayer::ThirdPersonMove(const FInputActionValue& Value)
-{
-    if (GetCharacterMovement()->IsFalling())
-    {
-        return;
-    }
-
-    const FVector2D MovementVector = Value.Get<FVector2D>();
-    const FRotator Rotation = Controller->GetControlRotation();
-
-    const FRotator YawRotation(0, Rotation.Yaw, 0);
-
-    const FVector ForwardDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
-    const FVector RightDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
-
-    AddMovementInput(ForwardDirection, MovementVector.X);
-    AddMovementInput(RightDirection, MovementVector.Y);
-}
-
-void AHDCharacterPlayer::ThirdPersonLook(const FInputActionValue& Value)
-{
-    const FVector2D LookAxisVector = Value.Get<FVector2D>();
-    AddControllerYawInput(LookAxisVector.X);
-    AddControllerPitchInput(LookAxisVector.Y);
-}
-
-void AHDCharacterPlayer::FirstPersonMove(const FInputActionValue& Value)
-{
-    if (GetCharacterMovement()->IsFalling())
-    {
-        return;
-    }
-
-    const FVector2D& MovementVector = Value.Get<FVector2D>();
-
-    const FRotator& Rotation = Controller->GetControlRotation();
-    const FRotator YawRotation(0, Rotation.Yaw, 0);
-
-    const FVector& ForwardDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
-    const FVector& RightDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
-
-    AddMovementInput(ForwardDirection, MovementVector.X);
-    AddMovementInput(RightDirection, MovementVector.Y);
-}
-
-void AHDCharacterPlayer::FirstPersonLook(const FInputActionValue& Value)
-{
-    const FVector2D LookAxisVector = Value.Get<FVector2D>();
-    AddControllerYawInput(-LookAxisVector.X);
-    AddControllerPitchInput(LookAxisVector.Y);
 }
 
 void AHDCharacterPlayer::InterpFOV(float DeltaSeconds)

@@ -8,14 +8,37 @@
 #include "Character/GameAbility/HDGASCharacterPlayer.h"
 #include "AbilitySystemComponent.h"
 #include "AbilitySystemBlueprintLibrary.h"
-#include "GameAbility/Effect/HDGE_ApplyDamage.h"
+#include "GAS/GameplayEffect/HDGE_ApplyDamage.h"
 #include "Define/HDDefine.h"
 #include "Tag/HDGameplayTag.h"
 #include "Collision/HDCollision.h"
 #include "Engine/OverlapResult.h"
-#
 
 AHDProjectileBase::AHDProjectileBase()
+	: ProjectileMesh(nullptr)
+	, ProjectileMovementComponent(nullptr)
+	, CollisionBox(nullptr)
+	, ProjectileTag(FGameplayTag())
+	, InitSpeed(0.f)
+	, ImpactType(EImpactType::Hit)
+	, ImpactGameEffect(nullptr)
+	, ImpactDamage(0.f)
+	, ImpactBlocklCueTag(FGameplayTag())
+	, ImpactHitCueTag(FGameplayTag())
+	, StatusEffect(EStatusEffect::None)
+	, StatusGameEffect(nullptr)
+	, DotDamage(0.f)
+	, StatusDuration(0.f)
+	, ExplodeDamageRange(0.f)
+	, ExplodeKnockBackRange(0.f)
+	, KnockbackTag(FGameplayTag())
+	, KnockbackImpulse(0.f)
+	, Tracer(nullptr)
+	, TracerComponent(nullptr)
+	, TrailSystem(nullptr)
+	, TrailSystemComponent(nullptr)
+	, DestroyTime (10.f)
+	, DestroyTimer(FTimerHandle())
 {
 	PrimaryActorTick.bCanEverTick = true;
 

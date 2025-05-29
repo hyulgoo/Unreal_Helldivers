@@ -8,7 +8,28 @@
 #include "Kismet/KismetMathLibrary.h"
 
 AHDWeapon::AHDWeapon()
-	:WeaponState(EWeaponState::Drop)
+	: FireType(EFireType::Count)
+	, CrosshaiTextureList{}
+    , ZoomedFOV(30.f)
+    , ZoomInterpSpeed(20.f)
+    , ProjectileClass(nullptr)
+    , WeaponType(EWeaponType::Count)
+    , WeaponMesh(nullptr)
+    , AreaSphere(nullptr)
+    , FireAnimation(nullptr)
+    , EquipSound(nullptr)
+    , CasingClass(nullptr)
+    , WeaponIconImage(nullptr)
+    , FireDelay(0.f)
+    , ErgonomicFactor(0.f)
+    , Ammo(0.f)
+    , MaxAmmo(0.f)
+    , Capacity(0.f)
+    , MaxCapacity(0.f)
+    , bIsCanUseAutoFire(false)
+    , bUseScatter(false)
+    , bIsAutoFire(false)
+    , WeaponState(EWeaponState::Drop)
 {
 	PrimaryActorTick.bCanEverTick = true;
 

@@ -6,6 +6,8 @@
 #include "HDProjectileBase.h"
 #include "HDProjectileGrenade.generated.h"
 
+class USoundCue;
+
 UCLASS()
 class HELLDIVERS_API AHDProjectileGrenade : public AHDProjectileBase
 {

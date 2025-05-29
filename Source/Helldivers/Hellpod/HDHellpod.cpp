@@ -19,11 +19,33 @@
 #include "EnhancedInputSubsystems.h"
 
 AHDHellpod::AHDHellpod()
-	: CurrentInput{}
-	, MeshDefaultRelativeRotation{}
+	: HellpodMesh(nullptr)
+	, CollisionBox(nullptr)
+	, MoveAction(nullptr)
+	, InputMappingContext(nullptr)
+    , MaxMoveSpeed(0.f)
+    , FallSpeed(0.f)
+	, CurrentInput(FVector2D())
+	, MaxPitchAngle(0.f)
+	, MaxRollAngle(0.f)
+	, MeshDefaultRelativeRotation(FRotator())
 	, bIsLanded(false)
+	, CameraBoom(nullptr)
+	, FollowCamera(nullptr)
+	, CameraShakeSource(nullptr)
+	, FallCameraShakeClass(nullptr)
+	, CameraShakeScaleWhenFall(0.f)
+	, CameraShakeScaleWhenLanded(0.f)
+    , CharacterClass(nullptr)
+	, SpawnTime(0.f)
+	, SpawnedCharacter(nullptr)
+	, SpawnCharacterTimeline(FTimeline())
+	, SpawnCurveFloat(nullptr)
+	, ImpactTag(FGameplayTag())
 {
 	PrimaryActorTick.bCanEverTick = true;
+
+	SpawnTime = 3.f;
 
 	CollisionBox = CreateDefaultSubobject<UBoxComponent>(TEXT("CollisionBox"));
 	SetRootComponent(CollisionBox);

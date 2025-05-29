@@ -1,6 +1,6 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-#include "GameAbility/HDGA_Fire.h"
+#include "HDGA_Fire.h"
 #include "Define/HDDefine.h"
 #include "Interface/HDWeaponInterface.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -19,7 +19,7 @@ void UHDGA_Fire::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const 
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 
-	IHDWeaponInterface* WeaponInterface = Cast<IHDWeaponInterface>(ActorInfo->AvatarActor.Get());
+	TScriptInterface<IHDWeaponInterface> WeaponInterface = ActorInfo->AvatarActor.Get();
 	NULL_CHECK(WeaponInterface);
 
 	WeaponInterface->Fire(true);
@@ -27,7 +27,7 @@ void UHDGA_Fire::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const 
 
 void UHDGA_Fire::InputReleased(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo)
 {
-	IHDWeaponInterface* WeaponInterface = Cast<IHDWeaponInterface>(ActorInfo->AvatarActor.Get());
+	TScriptInterface<IHDWeaponInterface> WeaponInterface = ActorInfo->AvatarActor.Get();
 	NULL_CHECK(WeaponInterface);
 
 	WeaponInterface->Fire(false);

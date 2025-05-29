@@ -1,10 +1,12 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-#include "Character/GameAbility/HDGASCharacterPlayer.h"
-#include "AbilitySystemComponent.h"
-#include "Player/HDGASPlayerState.h"
+#include "HDGASCharacterPlayer.h"
 #include "EnhancedInputComponent.h"
-#include "GameAbility/HDGA_StratagemInputMode.h"
+#include "EnhancedInputSubsystems.h"
+#include "AbilitySystemComponent.h"
+#include "GAS/GameAbility/HDGameplayAbility.h"
+#include "Character/HDCharacterControlData.h"
+#include "Player/HDGASPlayerState.h"
 #include "Controller/HDPlayerController.h"
 #include "Define/HDDefine.h"
 #include "Tag/HDGameplayTag.h"
@@ -12,17 +14,31 @@
 #include "Attribute/Player/HDPlayerSpeedAttributeSet.h"
 #include "GameData/HDCharacterStat.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "GameFramework/SpringArmComponent.h"
 
 AHDGASCharacterPlayer::AHDGASCharacterPlayer()
 	: AbilitySystemComponent(nullptr)
 	, InitStatEffect(nullptr)
     , StartAbilities{}
-    , TaggedInputActions{}
+    , TaggedTriggerActions{}
+    , InputActionMap{}
 	, EventCallTags(FGameplayTagContainer())
     , TagEventBindInfoList{}
 	, ArmorType(EHDArmorType::Count)
 	, ArmorTypeStatusDataTable(nullptr)
+    , CurrentCharacterControlType(EHDCharacterControlType::ThirdPerson)
 {
+    static ConstructorHelpers::FObjectFinder<UHDCharacterControlData> ThirdPersonDataRef(TEXT("/Script/Helldivers.HDCharacterControlData'/Game/Helldivers/CharacterControl/HDC_ThirdPerson.HDC_ThirdPerson'"));
+    if (ThirdPersonDataRef.Succeeded())
+    {
+        CharacterControlDataMap.Add(EHDCharacterControlType::ThirdPerson, ThirdPersonDataRef.Object);
+    }
+
+    static ConstructorHelpers::FObjectFinder<UHDCharacterControlData> FirstPersonDataRef(TEXT("/Script/Helldivers.HDCharacterControlData'/Game/Helldivers/CharacterControl/HDC_FirstPerson.HDC_FirstPerson'"));
+    if (FirstPersonDataRef.Succeeded())
+    {
+        CharacterControlDataMap.Add(EHDCharacterControlType::FirstPerson, FirstPersonDataRef.Object);
+    }
 }
 
 UAbilitySystemComponent* AHDGASCharacterPlayer::GetAbilitySystemComponent() const
@@ -40,14 +56,14 @@ const FHDCharacterStat* AHDGASCharacterPlayer::GetCharacterStatByArmorType(const
     return ArmorStatus;
 }
 
-void AHDGASCharacterPlayer::SetArmor(EHDArmorType NewArmorType)
+void AHDGASCharacterPlayer::SetArmor(const EHDArmorType NewArmorType)
 {
     NULL_CHECK(AbilitySystemComponent);
 
     CONDITION_CHECK(ArmorType == NewArmorType);
     ArmorType = NewArmorType;
 
-    const FHDCharacterStat* ArmorStatus = GetCharacterStatByArmorType(NewArmorType);
+    const FHDCharacterStat* ArmorStatus = GetCharacterStatByArmorType(ArmorType);
     NULL_CHECK(ArmorStatus);
 
     NULL_CHECK(InitStatEffect);
@@ -67,9 +83,30 @@ void AHDGASCharacterPlayer::SetArmor(EHDArmorType NewArmorType)
     AbilitySystemComponent->ApplyGameplayEffectSpecToSelf(*InitStatusSpec.Data.Get());
 }
 
+void AHDGASCharacterPlayer::BeginPlay()
+{
+    Super::BeginPlay();
+
+    NULL_CHECK(DefaultCurve);
+
+    FOnTimelineFloat ArmLengthTimelineProgress;
+    ArmLengthTimelineProgress.BindUFunction(this, FName("OnArmLengthTimelineUpdate"));
+    ArmLengthTimeline.AddInterpFloat(DefaultCurve, ArmLengthTimelineProgress);
+    ArmLengthTimeline.SetLooping(false);
+}
+
+void AHDGASCharacterPlayer::Tick(float DeltaTime)
+{
+    Super::Tick(DeltaTime);
+
+    ArmLengthTimeline.TickTimeline(DeltaTime);
+}
+
 void AHDGASCharacterPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
     Super::SetupPlayerInputComponent(PlayerInputComponent);
+
+    SetCharacterControl(CurrentCharacterControlType);
 
     UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(InputComponent);
     NULL_CHECK(EnhancedInputComponent);
@@ -96,14 +133,21 @@ void AHDGASCharacterPlayer::SetupGASInputComponent(UEnhancedInputComponent* Enha
 {
     NULL_CHECK(EnhancedInputComponent);
 
-    for (const FTaggedInputAction& TaggedInputAction : TaggedInputActions)
+    for (const FTaggedInputAction& TaggedTriggerAction : TaggedTriggerActions)
     {
-        if (TaggedInputAction.InputAction && TaggedInputAction.InputTag.IsValid())
-        {
-            EnhancedInputComponent->BindAction(TaggedInputAction.InputAction, ETriggerEvent::Triggered, this, &AHDGASCharacterPlayer::GASInputPressed, TaggedInputAction.InputTag);
-            EnhancedInputComponent->BindAction(TaggedInputAction.InputAction, ETriggerEvent::Completed, this, &AHDGASCharacterPlayer::GASInputReleased, TaggedInputAction.InputTag);
-        }
+        CONDITION_CHECK((TaggedTriggerAction.InputAction && TaggedTriggerAction.InputTag.IsValid()) == false);
+
+		EnhancedInputComponent->BindAction(TaggedTriggerAction.InputAction, ETriggerEvent::Triggered, this, &AHDGASCharacterPlayer::GASInputPressed, TaggedTriggerAction.InputTag);
+		EnhancedInputComponent->BindAction(TaggedTriggerAction.InputAction, ETriggerEvent::Completed, this, &AHDGASCharacterPlayer::GASInputReleased, TaggedTriggerAction.InputTag);
     }
+    
+    CONDITION_CHECK(InputActionMap.Num() != static_cast<uint8>(EHDCharacterInputAction::Count));
+
+    EnhancedInputComponent->BindAction(InputActionMap[EHDCharacterInputAction::ThirdLook],        ETriggerEvent::Triggered, this, &AHDGASCharacterPlayer::ThirdPersonLook);
+    EnhancedInputComponent->BindAction(InputActionMap[EHDCharacterInputAction::ThirdMove],        ETriggerEvent::Triggered, this, &AHDGASCharacterPlayer::ThirdPersonMove);
+    EnhancedInputComponent->BindAction(InputActionMap[EHDCharacterInputAction::FirstLook],        ETriggerEvent::Triggered, this, &AHDGASCharacterPlayer::FirstPersonLook);
+    EnhancedInputComponent->BindAction(InputActionMap[EHDCharacterInputAction::FirstMove],        ETriggerEvent::Triggered, this, &AHDGASCharacterPlayer::FirstPersonMove);
+    EnhancedInputComponent->BindAction(InputActionMap[EHDCharacterInputAction::ChangeControl],    ETriggerEvent::Triggered, this, &AHDGASCharacterPlayer::ChangeCharacterControlType);
 }
 
 void AHDGASCharacterPlayer::SetGASEventInputComponent(UEnhancedInputComponent* EnhancedInputComponent)
@@ -194,10 +238,136 @@ void AHDGASCharacterPlayer::SetSprint(const bool bSprint)
     CONDITION_CHECK(Attribute.IsValid() == false);
 
     const float NewSpeed = AbilitySystemComponent->GetNumericAttribute(Attribute);
-    UE_LOG(LogTemp, Warning, TEXT("NewSpeed : [%f]"), NewSpeed);
+    GetCharacterMovement()->MaxWalkSpeed = NewSpeed;
+}
 
-    UCharacterMovementComponent* CharacterMovementComponent = GetCharacterMovement();
-    CharacterMovementComponent->MaxWalkSpeed = NewSpeed;
+void AHDGASCharacterPlayer::SetShouldering(const bool bShoulder)
+{
+    Super::SetShouldering(bShoulder);
+
+    if (bShoulder)
+    {
+        ArmLengthTimeline.PlayFromStart();
+    }
+    else
+    {
+        ArmLengthTimeline.ReverseFromEnd();
+    }
+}
+
+void AHDGASCharacterPlayer::ThirdPersonLook(const FInputActionValue& Value)
+{
+    const FVector2D LookAxisVector = Value.Get<FVector2D>();
+    AddControllerYawInput(LookAxisVector.X);
+    AddControllerPitchInput(LookAxisVector.Y);
+}
+
+void AHDGASCharacterPlayer::ThirdPersonMove(const FInputActionValue& Value)
+{
+    if (GetCharacterMovement()->IsFalling())
+    {
+        return;
+    }
+
+    const FVector2D MovementVector = Value.Get<FVector2D>();
+    const FRotator Rotation = Controller->GetControlRotation();
+
+    const FRotator YawRotation(0, Rotation.Yaw, 0);
+
+    const FVector ForwardDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
+    const FVector RightDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
+
+    AddMovementInput(ForwardDirection, MovementVector.X);
+    AddMovementInput(RightDirection, MovementVector.Y);
+}
+
+void AHDGASCharacterPlayer::FirstPersonLook(const FInputActionValue& Value)
+{
+    const FVector2D LookAxisVector = Value.Get<FVector2D>();
+    AddControllerYawInput(-LookAxisVector.X);
+    AddControllerPitchInput(LookAxisVector.Y);
+}
+
+void AHDGASCharacterPlayer::FirstPersonMove(const FInputActionValue& Value)
+{
+    if (GetCharacterMovement()->IsFalling())
+    {
+        return;
+    }
+
+    const FVector2D& MovementVector = Value.Get<FVector2D>();
+
+    const FRotator& Rotation = Controller->GetControlRotation();
+    const FRotator YawRotation(0, Rotation.Yaw, 0);
+
+    const FVector& ForwardDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
+    const FVector& RightDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
+
+    AddMovementInput(ForwardDirection, MovementVector.X);
+    AddMovementInput(RightDirection, MovementVector.Y);
+}
+
+void AHDGASCharacterPlayer::ChangeCharacterControlType()
+{
+    if (CurrentCharacterControlType == EHDCharacterControlType::FirstPerson)
+    {
+        SetCharacterControl(EHDCharacterControlType::ThirdPerson);
+    }
+    else if (CurrentCharacterControlType == EHDCharacterControlType::ThirdPerson)
+    {
+        SetCharacterControl(EHDCharacterControlType::FirstPerson);
+    }
+}
+
+void AHDGASCharacterPlayer::SetCharacterControl(const EHDCharacterControlType NewCharacterControlType)
+{
+    UHDCharacterControlData* NewCharacterControl = CharacterControlDataMap[NewCharacterControlType];
+    NULL_CHECK(NewCharacterControl);
+
+    SetCharacterControlData(NewCharacterControl);
+
+    APlayerController* PlayerController = GetController<APlayerController>();
+    NULL_CHECK(PlayerController);
+
+    UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer());
+    NULL_CHECK(Subsystem);
+
+    Subsystem->ClearAllMappings();
+    UInputMappingContext* NewMappingContext = NewCharacterControl->InputMappingContext;
+    if (NewMappingContext)
+    {
+        Subsystem->AddMappingContext(NewMappingContext, 0);
+    }
+
+    CurrentCharacterControlType = NewCharacterControlType;
+}
+
+void AHDGASCharacterPlayer::SetCharacterControlData(UHDCharacterControlData* CharacterControlData)
+{
+    // Pawn
+    bUseControllerRotationYaw = CharacterControlData->bUseControllerRotationYaw;
+
+    // CharacterMovement
+    UCharacterMovementComponent* CharacterMovementComponent     = GetCharacterMovement();
+    CharacterMovementComponent->bOrientRotationToMovement       = CharacterControlData->bOrientRotationToMovement;
+    CharacterMovementComponent->bUseControllerDesiredRotation   = CharacterControlData->bUseControllerDesiredRotation;
+    CharacterMovementComponent->RotationRate                    = CharacterControlData->RotationRate;
+
+    CameraBoom->TargetArmLength         = CharacterControlData->TargetArmLength;
+    CameraBoom->TargetOffset            = CharacterControlData->TargetOffset;
+    CameraBoom->SocketOffset            = CharacterControlData->SocketOffset;
+    CameraBoom->bUsePawnControlRotation = CharacterControlData->bUsePawnControlRotation;
+    CameraBoom->bInheritPitch           = CharacterControlData->bInheritPitch;
+    CameraBoom->bInheritYaw             = CharacterControlData->bInheritYaw;
+    CameraBoom->bInheritRoll            = CharacterControlData->bInheritRoll;
+    CameraBoom->bDoCollisionTest        = CharacterControlData->bDoCollisionTest;
+}
+
+void AHDGASCharacterPlayer::OnCameraSpringArmLengthTImelineUpdate(const float Value)
+{
+    const float DefaultArmLength = CharacterControlDataMap[CurrentCharacterControlType]->TargetArmLength;
+    const float Interpolated = FMath::Lerp(DefaultArmLength, DefaultArmLength / 2.f, Value);
+    CameraBoom->TargetArmLength = Interpolated;
 }
 
 void AHDGASCharacterPlayer::InputStratagemCommand(const FInputActionValue& Value)

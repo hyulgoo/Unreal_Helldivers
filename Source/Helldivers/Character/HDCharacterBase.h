@@ -19,15 +19,10 @@ public:
     explicit                    AHDCharacterBase();
 
 protected:
-    virtual void                SetCharacterControlData(UHDCharacterControlData* CharacterControlData);
-
     virtual void                SetDead();
     void                        PlayDeadAnimation();
 
 protected:
-    UPROPERTY(EditAnywhere, Category = "CharacterControl")
-    TMap<EHDCharacterControlType, TObjectPtr<UHDCharacterControlData>> CharacterControlDataMap;
-    
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Montage")
     TObjectPtr<UAnimMontage>    FireWeaponMontage;
     

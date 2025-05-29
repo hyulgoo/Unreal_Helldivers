@@ -13,9 +13,16 @@
 
 AHDBattleShip::AHDBattleShip()
     : BattleShipMesh(nullptr)
-    , StratagemTransform()
+	, CollisionSphere(nullptr)
+    , AbilitySystemComponent(nullptr)
+    , EagleFighterClass(nullptr)
+    , EagleFighter(nullptr)
+    , ProjectileBombClass(nullptr)
+    , ProjectileBulletClass(nullptr)
+    , StratagemEffectDataTable(nullptr)
+    , StratagemTransform(FTransform())
+    , ActiveStratagemTimerHandle(FTimerHandle())
     , CurrentStratagemIndex(0)
-    , ActiveStratagemTimerHandle()
     , bCanUseStratagem(false)
 {
     CollisionSphere = CreateDefaultSubobject<USphereComponent>(TEXT("CollisionSphere"));

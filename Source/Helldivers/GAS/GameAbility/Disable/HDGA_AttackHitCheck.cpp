@@ -1,9 +1,9 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-#include "GameAbility/HDGA_AttackHitCheck.h"
+#include "HDGA_AttackHitCheck.h"
 #include "AbilitySystemBlueprintLibrary.h"
-#include "GameAbility/AbilityTask/HDAT_Trace.h"
-#include "GameAbility/TargetActor/HDTA_Trace.h"
+#include "GAS/AbilityTask/HDAT_Trace.h"
+#include "GAS/GameplayAbilityTargetActor/HDTA_Trace.h"
 #include "Attribute/HDHealthAttributeSet.h"
 #include "Define/HDDefine.h"
 

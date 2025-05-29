@@ -5,16 +5,28 @@
 #include "CoreMinimal.h"
 #include "Character/HDCharacterPlayer.h"
 #include "AbilitySystemInterface.h"
-#include "GameAbility/Struct/HDTaggedInputAction.h"
+#include "GAS/Struct/HDTaggedInputAction.h"
 #include "HDGASCharacterPlayer.generated.h"
 
 class UAbilitySystemComponent;
 class UEnhancedInputComponent;
 class UGameplayAbility;
 class UGameplayEffect;
+class UCurveFloat;
 struct FGameplayTag;
 struct FGameplayEventData;
 struct FHDCharacterStat;
+
+UENUM(BlueprintType)
+enum class EHDCharacterInputAction : uint8
+{
+	ThirdLook,
+	ThirdMove,
+	FirstLook,
+	FirstMove,
+	ChangeControl,
+	Count
+};
 
 USTRUCT(BlueprintType)
 struct FTagEventBindInfo
@@ -47,11 +59,13 @@ class HELLDIVERS_API AHDGASCharacterPlayer : public AHDCharacterPlayer, public I
 public:
 	explicit									AHDGASCharacterPlayer();
 
-public:
 	virtual UAbilitySystemComponent*			GetAbilitySystemComponent() const override final;
-	void										SetArmor(EHDArmorType NewArmorType);
+	void										SetArmor(const EHDArmorType NewArmorType);
+	void										ChangeCharacterControlType();
 
 protected:	
+	virtual void								BeginPlay() override final;
+	virtual void								Tick(float DeltaTime) override final;
 	virtual void								SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override final;
 	virtual void								PossessedBy(AController* NewController) override final;
 	void										SetupGASInputComponent(UEnhancedInputComponent* EnhancedInputComponent);
@@ -59,8 +73,6 @@ protected:
 	void										GASInputPressed(const FGameplayTag Tag);
 	void										GASInputReleased(const FGameplayTag Tag);
 
-	virtual	void								SetSprint(const bool bSprint) override final;
-	
 	UFUNCTION()
 	void										InputStratagemCommand(const FInputActionValue& Value);
 
@@ -73,29 +85,52 @@ private:
 	void										InitializeAttributeSet();
 	const FHDCharacterStat*						GetCharacterStatByArmorType(const EHDArmorType ArmorType) const;
 
+	virtual	void								SetSprint(const bool bSprint) override final;
+	virtual void								SetShouldering(const bool bShoulder) override final;
+	void										ThirdPersonLook(const FInputActionValue& Value);
+	void										ThirdPersonMove(const FInputActionValue& Value);
+	void										FirstPersonLook(const FInputActionValue& Value);
+	void										FirstPersonMove(const FInputActionValue& Value);
+	void										SetCharacterControl(const EHDCharacterControlType NewCharacterControlType);
+	void										SetCharacterControlData(UHDCharacterControlData* CharacterControlData);
+
+	UFUNCTION()
+	void										OnCameraSpringArmLengthTImelineUpdate(const float Value);
+
 private:
-	UPROPERTY(EditAnywhere, Category = "GAS")
+	UPROPERTY()
 	TObjectPtr<UAbilitySystemComponent>			AbilitySystemComponent;
 
-	UPROPERTY(EditAnywhere, Category = "GAS")
+	UPROPERTY(EditAnywhere, Category = "GAS|Stat")
 	TSubclassOf<UGameplayEffect>				InitStatEffect;
 
-	UPROPERTY(EditAnywhere, Category = "GAS")
+	UPROPERTY(EditAnywhere, Category = "GAS|Ability")
 	TArray<TSubclassOf<UGameplayAbility>>		StartAbilities;
 
-	UPROPERTY(EditAnywhere, Category = "GAS")
-	TArray<FTaggedInputAction>					TaggedInputActions;
+	UPROPERTY(EditAnywhere, Category = "GAS|Input")
+	TArray<FTaggedInputAction>					TaggedTriggerActions;
+	
+	UPROPERTY(EditAnywhere, Category = "GAS|Input")
+	TMap<EHDCharacterInputAction, TObjectPtr<UInputAction>> InputActionMap;
 
-	UPROPERTY(EditAnywhere, Category = "GAS")
+	UPROPERTY(EditAnywhere, Category = "GAS|Ability")
 	FGameplayTagContainer						EventCallTags;
 
-	UPROPERTY(EditAnywhere, Category = "GAS")
+	UPROPERTY(EditAnywhere, Category = "GAS|Ability")
 	TArray<FTagEventBindInfo>					TagEventBindInfoList;
 
-	// Armor
-	UPROPERTY(EditAnywhere, Category = "GAS")
+	// Stat
+	UPROPERTY(EditAnywhere, Category = "GAS|Stat")
 	EHDArmorType								ArmorType;
 	
-	UPROPERTY(EditAnywhere, Category = "GAS")
+	UPROPERTY(EditAnywhere, Category = "GAS|Stat")
 	TObjectPtr<UDataTable>						ArmorTypeStatusDataTable;
+
+	// Control
+	EHDCharacterControlType						CurrentCharacterControlType;
+	
+    UPROPERTY(EditAnywhere, Category = "GAS|CharacterControl")
+    TMap<EHDCharacterControlType, TObjectPtr<UHDCharacterControlData>> CharacterControlDataMap;
+	
+	FTimeline									ArmLengthTimeline;
 };

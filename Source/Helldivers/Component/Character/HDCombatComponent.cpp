@@ -9,13 +9,17 @@
 #include "Animation/HDAnimInstance.h"
 
 UHDCombatComponent::UHDCombatComponent()
-: bIsShoulder(false)
-, bCanFire(false)
-, bIsFireButtonPressed(false)
-, FireTimer{}
-, CombatState(EHDCombatState::Count)
-, CurrentFOV(0.f)
-, ErgonomicFactor(0.f)
+    : bIsShoulder(false)
+    , bCanFire(false)
+    , bIsFireButtonPressed(false)
+    , FireTimer(FTimerHandle())
+    , CombatState(EHDCombatState::Unoccupied)
+    , HitTarget(FVector())
+	, ZoomedFOV(0.f)
+	, CurrentFOV(0.f)
+	, ZoomInterpSpeed(0.f)
+    , ErgonomicFactor(0.f)
+	, Weapon(nullptr)
 {
     PrimaryComponentTick.bCanEverTick = true;
     PrimaryComponentTick.bStartWithTickEnabled = true;

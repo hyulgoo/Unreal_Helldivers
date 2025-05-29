@@ -5,6 +5,9 @@
 #include "Sound/SoundCue.h"
 
 AHDCasing::AHDCasing()
+	: CasingMesh(nullptr)
+	, ShellEjectionImpulse(10.f)
+	, ShellSound(nullptr)
 {
 	PrimaryActorTick.bCanEverTick = true;
 

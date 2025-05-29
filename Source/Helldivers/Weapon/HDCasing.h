@@ -27,7 +27,7 @@ private:
 	TObjectPtr<UStaticMeshComponent>	CasingMesh;
 
 	UPROPERTY(EditAnywhere)
-	float								ShellEjectionImpulse = 10.f;
+	float								ShellEjectionImpulse;
 	
 	UPROPERTY(EditAnywhere)
 	TObjectPtr<USoundCue>				ShellSound;

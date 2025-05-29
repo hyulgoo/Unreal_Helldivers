@@ -7,7 +7,6 @@
 #include "HDGC_Base.generated.h"
 
 class UParticleSystem;
-class USoundCue;
 
 UCLASS()
 class HELLDIVERS_API UHDGC_Base : public UGameplayCueNotify_Static

@@ -1,6 +1,6 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-#include "GameAbility/HDGA_Jump.h"
+#include "HDGA_Jump.h"
 #include "GameFramework/Character.h"
 #include "Define/HDDefine.h"
 

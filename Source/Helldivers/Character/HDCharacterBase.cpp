@@ -8,7 +8,10 @@
 #include "CharacterTypes/HDCharacterStateTypes.h"
 
 AHDCharacterBase::AHDCharacterBase()
-	: DeadEventDelayTime(5.f)
+	: FireWeaponMontage(nullptr)
+    , ThrowMontage(nullptr)
+    , DeadMontage(nullptr)
+    , DeadEventDelayTime(5.f)
 {
 	// Pawn
 	bUseControllerRotationPitch = false;
@@ -47,18 +50,6 @@ AHDCharacterBase::AHDCharacterBase()
 		SkeletalMeshComponent->SetAnimInstanceClass(AnimInstanceClassRef.Class);
 	}
 
-	static ConstructorHelpers::FObjectFinder<UHDCharacterControlData> ThirdPersonDataRef(TEXT("/Script/Helldivers.HDCharacterControlData'/Game/Helldivers/CharacterControl/HDC_ThirdPerson.HDC_ThirdPerson'"));
-	if (ThirdPersonDataRef.Succeeded())
-	{
-		CharacterControlDataMap.Add(EHDCharacterControlType::ThirdPerson, ThirdPersonDataRef.Object);
-	}
-	
-	static ConstructorHelpers::FObjectFinder<UHDCharacterControlData> FirstPersonDataRef(TEXT("/Script/Helldivers.HDCharacterControlData'/Game/Helldivers/CharacterControl/HDC_FirstPerson.HDC_FirstPerson'"));
-	if (FirstPersonDataRef.Succeeded())
-	{
-		CharacterControlDataMap.Add(EHDCharacterControlType::FirstPerson, FirstPersonDataRef.Object);
-	}
-
 	static ConstructorHelpers::FObjectFinder<UAnimMontage> FireWeaponMontageRef(TEXT("/Script/Engine.AnimMontage'/Game/Helldivers/Animation/AM_Fire.AM_Fire'"));
 	if (FireWeaponMontageRef.Succeeded())
 	{
@@ -75,21 +66,6 @@ AHDCharacterBase::AHDCharacterBase()
 	if (DeadMontageRef.Succeeded())
 	{
 		DeadMontage = DeadMontageRef.Object; 
-	}
-}
-
-void AHDCharacterBase::SetCharacterControlData(UHDCharacterControlData* CharacterControlData)
-{
-	// Pawn
-	bUseControllerRotationYaw = CharacterControlData->bUseControllerRotationYaw;
-
-	// CharacterMovement
-	UCharacterMovementComponent* CharacterMovementComponent = GetCharacterMovement();
-	if (CharacterMovementComponent)
-	{
-		CharacterMovementComponent->bOrientRotationToMovement = CharacterControlData->bOrientRotationToMovement;
-		CharacterMovementComponent->bUseControllerDesiredRotation = CharacterControlData->bUseControllerDesiredRotation;
-		CharacterMovementComponent->RotationRate = CharacterControlData->RotationRate;
 	}
 }
 

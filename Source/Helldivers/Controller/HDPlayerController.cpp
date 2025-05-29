@@ -7,6 +7,14 @@
 #include "Character/GameAbility/HDGASCharacterPlayer.h"
 #include "Weapon/HDWeapon.h"
 
+AHDPlayerController::AHDPlayerController()
+    : PlayerHUDWidgetClass(nullptr)
+    , PlayerHUDWidget(nullptr)
+    , StratagemHUDWidgetClass(nullptr)
+    , StratagemHUDWidget(nullptr)
+{
+}
+
 void AHDPlayerController::BeginPlay()
 {
     Super::BeginPlay();

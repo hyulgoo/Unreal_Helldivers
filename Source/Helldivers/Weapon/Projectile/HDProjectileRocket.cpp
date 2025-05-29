@@ -10,6 +10,10 @@
 #include "MovementComponent/HDRocketMovementComponent.h"
 
 AHDProjectileRocket::AHDProjectileRocket()
+	: ProjectileLoop(nullptr)
+	, ProjectileLoopComponent(nullptr)
+	, LoopingSoundAttenuation(nullptr)
+	, RocketMovementComponent(nullptr)
 {
 	ProjectileMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Rocket Mesh"));
 	ProjectileMesh->SetupAttachment(RootComponent);

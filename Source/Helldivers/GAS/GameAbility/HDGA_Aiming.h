@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameAbility/HDGameplayAbility.h"
+#include "GAS/GameAbility/HDGameplayAbility.h"
 #include "HDGA_Aiming.generated.h"
 
 UCLASS()

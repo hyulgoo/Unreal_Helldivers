@@ -43,8 +43,17 @@ private:
     void                                        ApplyImpactGameEffect(UAbilitySystemComponent* TargetAbiltySystemComponent, const float InterpImpactDamage);
     void                                        ApplyImpactGameAbility(UAbilitySystemComponent* TargetAbiltySystemComponent, const float InterpKnockbackImpulse);
     void                                        ExcuteGameplayCue(UAbilitySystemComponent* OwnerAbilitySystemComponent, const FGameplayTag& Tag, const FHitResult& Hit);
+    
+protected:
+	UPROPERTY(EditAnywhere, Category = "Info|Default")
+	TObjectPtr<UStaticMeshComponent>			ProjectileMesh;
+	
+	UPROPERTY(VisibleAnywhere)
+	TObjectPtr<UProjectileMovementComponent>	ProjectileMovementComponent;
+	
+	UPROPERTY(EditAnywhere)
+	TObjectPtr<UBoxComponent>					CollisionBox;
 
-public:	
     UPROPERTY(EditDefaultsOnly, Category = "Info|Default")
     FGameplayTag                                ProjectileTag;
 
@@ -89,17 +98,7 @@ public:
     
     UPROPERTY(EditDefaultsOnly, Category = "Info|Knockback")
     float                                       KnockbackImpulse;
-
-protected:
-	UPROPERTY(EditAnywhere, Category = "Info|Default")
-	TObjectPtr<UStaticMeshComponent>			ProjectileMesh;
-	
-	UPROPERTY(VisibleAnywhere)
-	TObjectPtr<UProjectileMovementComponent>	ProjectileMovementComponent;
-	
-	UPROPERTY(EditAnywhere)
-	TObjectPtr<UBoxComponent>					CollisionBox;
-	
+    	
 private:        
     UPROPERTY(EditAnywhere, Category = "Info|Default")
     TObjectPtr<UParticleSystem>                 Tracer;

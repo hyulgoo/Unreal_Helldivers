@@ -1,11 +1,14 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-#include "GameAbility/Cue/HDGC_Base.h"
+#include "HDGC_Base.h"
 #include "Kismet/GameplayStatics.h"
 #include "Particles/ParticleSystem.h"
 #include "Define/HDDefine.h"
 
 UHDGC_Base::UHDGC_Base()
+    : ParticleSystem(nullptr)
+    , ParticleScale(0.f)
+    , EffectSounds{}
 {
     ParticleScale = 1.f;
 }
