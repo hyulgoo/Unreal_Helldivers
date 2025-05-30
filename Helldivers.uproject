@@ -9,7 +9,8 @@
 			"Type": "Runtime",
 			"LoadingPhase": "PostDefault",
 			"AdditionalDependencies": [
-				"Engine"
+				"Engine",
+				"GameplayAbilities"
 			]
 		}
 	],

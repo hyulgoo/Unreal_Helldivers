@@ -41,6 +41,9 @@ protected:
 	float									MovingThreshould;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Movement")
+	EHDCharacterMovementState				CharacterMoveState;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Movement")
 	uint8									bIsIdle : 1;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Movement")
@@ -51,9 +54,6 @@ protected:
 
 	UPROPERTY(BlueprintReadOnly, Category = "Movement")
 	float									JumpingThreshould;
-	
-	UPROPERTY(BlueprintReadOnly, Category = "Movement")
-	uint8									bIsCrouched : 1;
 	
 	UPROPERTY(BlueprintReadOnly, Category = "Movement")
 	uint8									bIsRotateRootBone : 1;

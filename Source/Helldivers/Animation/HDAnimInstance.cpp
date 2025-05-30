@@ -19,11 +19,11 @@ UHDAnimInstance::UHDAnimInstance()
 	, Velocity(FVector())
 	, GroundSpeed(0.f)
 	, MovingThreshould(0.f)
+	, CharacterMoveState(EHDCharacterMovementState::Idle)
 	, bIsIdle(false)
 	, bIsFalling(false)
 	, bIsJumping(false)
 	, JumpingThreshould(0.f)
-	, bIsCrouched(false)
 	, bIsRotateRootBone(false)
 	, bIsSprint(false)
 	, YawOffset(0.f)
@@ -71,6 +71,7 @@ void UHDAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 	bIsIdle = GroundSpeed < MovingThreshould;
 	bIsFalling = Movement->IsFalling();
 	bIsJumping = bIsFalling & (Velocity.Z > JumpingThreshould);
+	CharacterMoveState = EHDCharacterMovementState::Idle;
 
 	// Character Yaw for strafing
 	const FRotator AimRotation = Owner->GetBaseAimRotation();
@@ -89,14 +90,16 @@ void UHDAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 	IHDCharacterMovementInterface* CharacterMovementInterface = Cast<IHDCharacterMovementInterface>(Owner);
 	if (CharacterMovementInterface)
 	{
-		bIsSprint = CharacterMovementInterface->IsSprint();
-		bIsShouldering = CharacterMovementInterface->IsShouldering();
-		AimOffset_Yaw = bIsShouldering ? 0.f : CharacterMovementInterface->GetAimOffset_Yaw();
-		AimOffset_Pitch = CharacterMovementInterface->GetAimOffset_Pitch();
-		bIsRotateRootBone = CharacterMovementInterface->IsUseRotateBone();
-		TurningInPlace = CharacterMovementInterface->GetTurningInPlace();
-		bIsLookingViewport = CharacterMovementInterface->IsCharacterLookingViewport();
-		YawOffset = bIsLookingViewport ? DeltaRotation.Yaw : 0.f;
+		bIsSprint			= CharacterMovementInterface->IsSprint();
+		bIsShouldering		= CharacterMovementInterface->IsShouldering();
+		AimOffset_Yaw		= bIsShouldering ? 0.f : CharacterMovementInterface->GetAimOffset_Yaw();
+		AimOffset_Pitch		= CharacterMovementInterface->GetAimOffset_Pitch();
+		bIsRotateRootBone	= CharacterMovementInterface->IsUseRotateBone();
+		TurningInPlace		= CharacterMovementInterface->GetTurningInPlace();
+		bIsLookingViewport	= CharacterMovementInterface->IsCharacterLookingViewport();
+		YawOffset			= bIsLookingViewport ? DeltaRotation.Yaw : 0.f;
+		CharacterMoveState	= CharacterMovementInterface->IsCrouch() ? EHDCharacterMovementState::Crouch : CharacterMoveState;
+		CharacterMoveState	= CharacterMovementInterface->IsProne() ? EHDCharacterMovementState::Prone : CharacterMoveState;
 	}
 
 	// WeaponInterface

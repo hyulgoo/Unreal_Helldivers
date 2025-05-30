@@ -29,7 +29,6 @@ public:
 	UDataTable*								GetAvaliableStratagemDataTable()						{ return AvaliableStratagemDataTable; }
 
 protected:
-	virtual void							BeginPlay() override;
     virtual void							SetDead() override;
     virtual void							Tick(float DeltaTime) override;
 	virtual void							PossessedBy(AController* NewController) override;
@@ -57,8 +56,8 @@ protected:
 	virtual const bool						IsSprint() const override final							{ return bIsSprint; }
 	virtual void							SetSprint(const bool bSprint) override;
 
-	virtual void							SetRagdoll(const bool bRagdoll, const FVector& Impulse = FVector::ZeroVector) override final;
-	virtual const float						GetRagdollPysicsLinearVelocity() const override final;
+	virtual const bool						IsCrouch() const override final							{ return bIsCrouched; }
+	virtual const bool						IsProne() const override final							{ return bIsProne; }
 
 	// CharacterCommandInterface
 	virtual AHDStratagem*					GetStratagem() const override final						{ return Stratagem; }
@@ -73,10 +72,6 @@ protected:
 private:
     void									AimOffset(const float DeltaTime);
 	void									TurnInPlace(const float DeltaTime);
-
-	UFUNCTION()
-	void									OnTurningTimelineUpdate(const float Value);
-
 	void									CalculationAimOffset_Pitch();
 
 	void									SpawnDefaultWeapon();
@@ -86,14 +81,12 @@ private:
 	void									PlayFireMontage(const bool bAiming);
 	void									PlayThrowMontage();
 
-	void									RagdollCameraCapsuleSync();
-
 protected:
 	// Camera Section
-	UPROPERTY()
+	UPROPERTY(EditDefaultsOnly)
 	TObjectPtr<USpringArmComponent>			CameraBoom;
 
-	UPROPERTY()
+	UPROPERTY(EditDefaultsOnly)
 	TObjectPtr<UCameraComponent>			FollowCamera;
 			
 	UPROPERTY()
@@ -106,10 +99,10 @@ protected:
 	UPROPERTY()
 	TObjectPtr<AHDWeapon>					Weapon;
 	
-	UPROPERTY(EditAnywhere, Category = "Weapon")
+	UPROPERTY(EditAnywhere, Category = "Player|Weapon")
 	TSubclassOf<AHDWeapon>					DefaultWeaponClass;
 	
-	UPROPERTY(EditAnywhere, Category = "CharacterControl")
+	UPROPERTY(EditAnywhere, Category = "Player|CharacterControl")
 	TObjectPtr<UCurveFloat>					DefaultCurve;
 
 private:
@@ -120,17 +113,17 @@ private:
 	float									AimOffset_Pitch;
 
 	bool									bIsSprint;
+	bool									bIsProne;
 
 	bool									bIsCharacterLookingViewport;
 	bool									bUseRotateRootBone;
 
-	UPROPERTY(EditAnywhere, Category = "Input|TurnInPlace")
+	UPROPERTY(EditAnywhere, Category = "Player|Input")
 	float									TurnThreshold;
 
 	EHDTurningInPlace						TurningInPlace;
-	FTimeline								TurningTimeline;
 
-	UPROPERTY(EditAnywhere, Category = "Stratagem")
+	UPROPERTY(EditAnywhere, Category = "Player|Stratagem")
 	TSubclassOf<AHDStratagem>				StratagemClass;
 
 	UPROPERTY()
@@ -143,11 +136,9 @@ private:
 	UPROPERTY()
 	TArray<FName>							CommandMatchStratagemNameList;
 	
-	UPROPERTY(EditAnywhere, Category = "Stratagem")
+	UPROPERTY(EditAnywhere, Category = "Player|Stratagem")
 	TObjectPtr<UDataTable>					AvaliableStratagemDataTable;
 
 	// HUD, Crosshair
 	float									DefaultFOV;
-
-	FTimerHandle							RagdollTimerHandle;
 };

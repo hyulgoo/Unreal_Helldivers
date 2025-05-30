@@ -242,8 +242,6 @@ void AHDProjectileBase::ApplyImpactGameAbility(UAbilitySystemComponent* TargetAb
 	EventData.EventMagnitude = InterpKnockbackImpulse;
 
 	TargetAbiltySystemComponent->HandleGameplayEvent(EventData.EventTag, &EventData);
-
-	UE_LOG(LogTemp, Warning, TEXT("ApplyImpactGameAbility Called!"));
 }
 
 void AHDProjectileBase::ExcuteGameplayCue(UAbilitySystemComponent* OwnerAbilitySystemComponent, const FGameplayTag& Tag, const FHitResult& Hit)

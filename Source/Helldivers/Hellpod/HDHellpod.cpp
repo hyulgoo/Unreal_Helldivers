@@ -34,8 +34,7 @@ AHDHellpod::AHDHellpod()
 	, FollowCamera(nullptr)
 	, CameraShakeSource(nullptr)
 	, FallCameraShakeClass(nullptr)
-	, CameraShakeScaleWhenFall(0.f)
-	, CameraShakeScaleWhenLanded(0.f)
+	, CameraShakeScaleWhenFalling(0.f)
     , CharacterClass(nullptr)
 	, SpawnTime(0.f)
 	, SpawnedCharacter(nullptr)
@@ -172,7 +171,7 @@ void AHDHellpod::SpawnCharacter()
 	NULL_CHECK(PlayerController);
 
 	PlayerController->Possess(Cast<APawn>(SpawnedCharacter));
-	PlayerController->SetViewTargetWithBlend(SpawnedCharacter, 3.f, EViewTargetBlendFunction::VTBlend_Cubic);
+	PlayerController->SetViewTargetWithBlend(SpawnedCharacter, SpawnTime, EViewTargetBlendFunction::VTBlend_Cubic);
 	SpawnedCharacter->GetCapsuleComponent()->Activate(false);
 	UGameplayStatics::FinishSpawningActor(SpawnedCharacter, CurrentHellpodTransform);
 
@@ -226,11 +225,10 @@ void AHDHellpod::MoveHellpod(const FInputActionValue& Value)
 	CurrentInput = MovementVector;
 
 	const FRotator& Rotation = Controller->GetControlRotation();
-
 	const FRotator YawRotation(0, Rotation.Yaw, 0);
 
-	const FVector ForwardDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
-	const FVector RightDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
+	const FVector& ForwardDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
+	const FVector& RightDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
 
 	CollisionBox->AddImpulse(FVector::RightVector * MovementVector.Y * MaxMoveSpeed);
 	CollisionBox->AddImpulse(FVector::ForwardVector * MovementVector.X * MaxMoveSpeed);
@@ -255,7 +253,9 @@ void AHDHellpod::RotateHellpodByCurrentImpulse(const float DeltaTime)
 	);
 
 	HellpodMesh->SetRelativeRotation(NewRotation);
-	ShakeCamera(CameraShakeScaleWhenFall);
+	ShakeCamera(CameraShakeScaleWhenFalling);
+
+	CurrentInput = FVector2D::ZeroVector;
 }
 
 void AHDHellpod::ShakeCamera(const float Scale)

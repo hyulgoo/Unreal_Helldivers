@@ -7,6 +7,7 @@
 
 AHDGASNonPlayer::AHDGASNonPlayer()
     : AbilitySystemComponent(nullptr)
+    , StartAbilities{}
 {
     AbilitySystemComponent = CreateDefaultSubobject<UAbilitySystemComponent>(TEXT("AbilitySystemComponent"));
 }
@@ -20,6 +21,24 @@ void AHDGASNonPlayer::BeginPlay()
 {
     Super::BeginPlay();
 
+    NULL_CHECK(AbilitySystemComponent);
+    InitAbilitySystemComponent();
+}
+
+void AHDGASNonPlayer::InitAbilitySystemComponent()
+{
+    NULL_CHECK(AbilitySystemComponent);
+
+    for (const TSubclassOf<UGameplayAbility>& StartAbility : StartAbilities)
+    {
+        AbilitySystemComponent->GiveAbility(StartAbility);
+    }
+
+    InitializeAttributeSet();
+}
+
+void AHDGASNonPlayer::InitializeAttributeSet()
+{
     NULL_CHECK(AbilitySystemComponent);
 
     // 테스트용 초기화. 나중에 GE나 DataTable 기반으로 변경할 것

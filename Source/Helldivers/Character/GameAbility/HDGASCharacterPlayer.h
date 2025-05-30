@@ -101,35 +101,35 @@ private:
 	UPROPERTY()
 	TObjectPtr<UAbilitySystemComponent>			AbilitySystemComponent;
 
-	UPROPERTY(EditAnywhere, Category = "GAS|Stat")
+	UPROPERTY(EditAnywhere, Category = "GASPlayer|Stat")
 	TSubclassOf<UGameplayEffect>				InitStatEffect;
 
-	UPROPERTY(EditAnywhere, Category = "GAS|Ability")
+	UPROPERTY(EditAnywhere, Category = "GASPlayer|Input")
 	TArray<TSubclassOf<UGameplayAbility>>		StartAbilities;
 
-	UPROPERTY(EditAnywhere, Category = "GAS|Input")
+	UPROPERTY(EditAnywhere, Category = "GASPlayer|Input")
 	TArray<FTaggedInputAction>					TaggedTriggerActions;
 	
-	UPROPERTY(EditAnywhere, Category = "GAS|Input")
+	UPROPERTY(EditAnywhere, Category = "GASPlayer|Input")
 	TMap<EHDCharacterInputAction, TObjectPtr<UInputAction>> InputActionMap;
 
-	UPROPERTY(EditAnywhere, Category = "GAS|Ability")
+	UPROPERTY(EditAnywhere, Category = "GASPlayer|Input")
 	FGameplayTagContainer						EventCallTags;
 
-	UPROPERTY(EditAnywhere, Category = "GAS|Ability")
+	UPROPERTY(EditAnywhere, Category = "GASPlayer|Input")
 	TArray<FTagEventBindInfo>					TagEventBindInfoList;
 
 	// Stat
-	UPROPERTY(EditAnywhere, Category = "GAS|Stat")
+	UPROPERTY(EditAnywhere, Category = "GASPlayer|Stat")
 	EHDArmorType								ArmorType;
 	
-	UPROPERTY(EditAnywhere, Category = "GAS|Stat")
+	UPROPERTY(EditAnywhere, Category = "GASPlayer|Stat")
 	TObjectPtr<UDataTable>						ArmorTypeStatusDataTable;
 
 	// Control
 	EHDCharacterControlType						CurrentCharacterControlType;
 	
-    UPROPERTY(EditAnywhere, Category = "GAS|CharacterControl")
+    UPROPERTY(EditAnywhere, Category = "GASPlayer|CharacterControl")
     TMap<EHDCharacterControlType, TObjectPtr<UHDCharacterControlData>> CharacterControlDataMap;
 	
 	FTimeline									ArmLengthTimeline;

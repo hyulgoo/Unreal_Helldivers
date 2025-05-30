@@ -2,8 +2,8 @@
 
 #include "HDGA_StratagemInputMode.h"
 #include "Interface/HDCharacterCommandInterface.h"
-#include "Define/HDDefine.h"
 #include "AbilitySystemComponent.h"
+#include "Define/HDDefine.h"
 #include "Tag/HDGameplayTag.h"
 
 UHDGA_StratagemInputMode::UHDGA_StratagemInputMode()
