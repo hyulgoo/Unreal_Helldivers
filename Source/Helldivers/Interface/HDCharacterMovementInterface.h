@@ -37,7 +37,6 @@ public:
 	virtual const bool						IsSprint() const = 0;
 	virtual void							SetSprint(const bool bSprint) = 0;
 
-	// Ragdoll
-	virtual void							SetRagdoll(const bool bIsRagdell, const FVector& Impulse = FVector::ZeroVector) = 0;
-	virtual const float						GetRagdollPysicsLinearVelocity() const = 0;
+	virtual const bool						IsCrouch() const = 0;
+	virtual const bool						IsProne() const = 0;
 };

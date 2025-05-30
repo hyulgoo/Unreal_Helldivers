@@ -6,7 +6,7 @@
 #include "Abilities/GameplayAbility.h"
 #include "HDGA_Knockback.generated.h"
 
-class IHDCharacterMovementInterface;
+class IHDCharacterRagdollInterface;
 
 UCLASS()
 class HELLDIVERS_API UHDGA_Knockback : public UGameplayAbility
@@ -26,7 +26,7 @@ private:
 
 private:
 	UPROPERTY()
-	TScriptInterface<IHDCharacterMovementInterface>	MovementInterface;
+	TScriptInterface<IHDCharacterRagdollInterface>	RagdollInterface;
 	
 	UPROPERTY()
 	TObjectPtr<UWorld>								World;

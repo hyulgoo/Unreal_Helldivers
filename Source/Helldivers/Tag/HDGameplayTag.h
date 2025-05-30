@@ -4,6 +4,12 @@
 #include "GameplayTagContainer.h"
 
 #define HDTAG_CHARACTER_STATE_STRATAGEMINPUTMODE    FGameplayTag::RequestGameplayTag(FName("Character.State.IsStratagemInputMode"))
+#define HDTAG_CHARACTER_STATE_KNOCKBACK				FGameplayTag::RequestGameplayTag(FName("Character.State.Knockback"))
+#define HDTAG_CHARACTER_STATE_RAGDOLL				FGameplayTag::RequestGameplayTag(FName("Character.State.Ragdoll"))
+#define HDTAG_CHARACTER_STATE_ISAIMING				FGameplayTag::RequestGameplayTag(FName("Character.State.IsAiming"))
+#define HDTAG_CHARACTER_STATE_ISFIRE				FGameplayTag::RequestGameplayTag(FName("Character.State.IsFire"))
+#define HDTAG_CHARACTER_STATE_ISSHOULDER			FGameplayTag::RequestGameplayTag(FName("Character.State.IsShoulder"))
+#define HDTAG_CHARACTER_STATE_ISSPRINT				FGameplayTag::RequestGameplayTag(FName("Character.State.IsSprint"))
 
 #define HDTAG_EVENT_STRATAGEMHUD_APPEAR             FGameplayTag::RequestGameplayTag(FName("Event.StratagemHUD.Active"))
 #define HDTAG_EVENT_STRATAGEMHUD_DISAPPEAR          FGameplayTag::RequestGameplayTag(FName("Event.StratagemHUD.Deactive"))

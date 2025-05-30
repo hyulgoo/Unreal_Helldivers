@@ -8,6 +8,7 @@
 #include "HDGASNonPlayer.generated.h"
 
 class UGameplayEffect;
+class UGameplayAbility;
 
 UCLASS()
 class HELLDIVERS_API AHDGASNonPlayer : public AHDCharacterNonPlayer, public IAbilitySystemInterface
@@ -15,14 +16,21 @@ class HELLDIVERS_API AHDGASNonPlayer : public AHDCharacterNonPlayer, public IAbi
 	GENERATED_BODY()
 	
 public:
-	explicit							AHDGASNonPlayer();
+	explicit								AHDGASNonPlayer();
 
-	virtual UAbilitySystemComponent*	GetAbilitySystemComponent() const override final;
-
-protected:
-	virtual void BeginPlay() override final;
+	virtual UAbilitySystemComponent*		GetAbilitySystemComponent() const override final;
 
 protected:
-	UPROPERTY(EditAnywhere, Category = "GAS")
-	TObjectPtr<UAbilitySystemComponent>	AbilitySystemComponent;
+	virtual void							BeginPlay() override final;
+
+private:
+	void									InitAbilitySystemComponent();
+	void									InitializeAttributeSet();
+
+protected:
+	UPROPERTY()
+	TObjectPtr<UAbilitySystemComponent>		AbilitySystemComponent;
+
+	UPROPERTY(EditAnywhere, Category = "GASNonPlayer|Input")
+	TArray<TSubclassOf<UGameplayAbility>>	StartAbilities;
 };

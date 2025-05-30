@@ -92,11 +92,8 @@ private:
 	TSubclassOf<UCameraShakeBase>		FallCameraShakeClass;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Hellpod|Camera")
-	float								CameraShakeScaleWhenFall;
+	float								CameraShakeScaleWhenFalling;
 	
-	UPROPERTY(EditDefaultsOnly, Category = "Hellpod|Camera")
-	float								CameraShakeScaleWhenLanded;
-
 	// Spawn
     UPROPERTY(EditDefaultsOnly, Category = "Hellpod|Spawn")
     TSubclassOf<AHDCharacterPlayer>		CharacterClass;

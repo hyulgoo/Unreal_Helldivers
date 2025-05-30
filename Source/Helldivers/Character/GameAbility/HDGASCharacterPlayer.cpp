@@ -59,6 +59,7 @@ const FHDCharacterStat* AHDGASCharacterPlayer::GetCharacterStatByArmorType(const
 void AHDGASCharacterPlayer::SetArmor(const EHDArmorType NewArmorType)
 {
     NULL_CHECK(AbilitySystemComponent);
+    NULL_CHECK(InitStatEffect);
 
     CONDITION_CHECK(ArmorType == NewArmorType);
     ArmorType = NewArmorType;
@@ -66,7 +67,6 @@ void AHDGASCharacterPlayer::SetArmor(const EHDArmorType NewArmorType)
     const FHDCharacterStat* ArmorStatus = GetCharacterStatByArmorType(ArmorType);
     NULL_CHECK(ArmorStatus);
 
-    NULL_CHECK(InitStatEffect);
     FGameplayEffectContextHandle Context = AbilitySystemComponent->MakeEffectContext();
     Context.AddSourceObject(this);
 
@@ -263,7 +263,7 @@ void AHDGASCharacterPlayer::ThirdPersonLook(const FInputActionValue& Value)
 }
 
 void AHDGASCharacterPlayer::ThirdPersonMove(const FInputActionValue& Value)
-{
+{    
     if (GetCharacterMovement()->IsFalling())
     {
         return;
@@ -344,10 +344,8 @@ void AHDGASCharacterPlayer::SetCharacterControl(const EHDCharacterControlType Ne
 
 void AHDGASCharacterPlayer::SetCharacterControlData(UHDCharacterControlData* CharacterControlData)
 {
-    // Pawn
     bUseControllerRotationYaw = CharacterControlData->bUseControllerRotationYaw;
 
-    // CharacterMovement
     UCharacterMovementComponent* CharacterMovementComponent     = GetCharacterMovement();
     CharacterMovementComponent->bOrientRotationToMovement       = CharacterControlData->bOrientRotationToMovement;
     CharacterMovementComponent->bUseControllerDesiredRotation   = CharacterControlData->bUseControllerDesiredRotation;
