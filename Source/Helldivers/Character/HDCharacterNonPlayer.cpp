@@ -18,10 +18,10 @@ void AHDCharacterNonPlayer::SetDead()
     Super::SetDead();
 
     FTimerHandle DeadTimerHandle;
-    GetWorld()->GetTimerManager().SetTimer(DeadTimerHandle, FTimerDelegate::CreateLambda(
-        [&]() 
-        { 
-            Destroy(); 
-        }
+	GetWorld()->GetTimerManager().SetTimer(DeadTimerHandle, FTimerDelegate::CreateLambda(
+		[&]()
+		{
+			Destroy();
+		}
     ), DeadEventDelayTime, false);
 }

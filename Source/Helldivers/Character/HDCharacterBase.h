@@ -26,6 +26,8 @@ protected:
     virtual void				SetRagdoll(const bool bRagdoll, const FVector& Impulse = FVector::ZeroVector) override;
     virtual const float			GetRagdollPysicsLinearVelocity() const override;
 
+    void                        LoadDefaultMontage();
+
 protected:
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Montage")
     TObjectPtr<UAnimMontage>    FireWeaponMontage;

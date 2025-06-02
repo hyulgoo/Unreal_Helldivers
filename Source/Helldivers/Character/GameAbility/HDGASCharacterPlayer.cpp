@@ -46,16 +46,6 @@ UAbilitySystemComponent* AHDGASCharacterPlayer::GetAbilitySystemComponent() cons
     return AbilitySystemComponent;
 }
 
-const FHDCharacterStat* AHDGASCharacterPlayer::GetCharacterStatByArmorType(const EHDArmorType NewArmorType) const
-{
-    NULL_CHECK_WITH_RETURNTYPE(ArmorTypeStatusDataTable, nullptr);
-
-    static const UEnum* EnumPtr = StaticEnum<EHDArmorType>();
-    FString ArmorTypetoString = EnumPtr->GetNameStringByValue(static_cast<int64>(NewArmorType));
-    FHDCharacterStat* ArmorStatus = ArmorTypeStatusDataTable->FindRow<FHDCharacterStat>(FName(ArmorTypetoString), TEXT("ArmorStatus"));
-    return ArmorStatus;
-}
-
 void AHDGASCharacterPlayer::SetArmor(const EHDArmorType NewArmorType)
 {
     NULL_CHECK(AbilitySystemComponent);
@@ -83,14 +73,25 @@ void AHDGASCharacterPlayer::SetArmor(const EHDArmorType NewArmorType)
     AbilitySystemComponent->ApplyGameplayEffectSpecToSelf(*InitStatusSpec.Data.Get());
 }
 
+void AHDGASCharacterPlayer::ChangeCharacterControlType()
+{
+    if (CurrentCharacterControlType == EHDCharacterControlType::FirstPerson)
+    {
+        SetCharacterControl(EHDCharacterControlType::ThirdPerson);
+    }
+    else if (CurrentCharacterControlType == EHDCharacterControlType::ThirdPerson)
+    {
+        SetCharacterControl(EHDCharacterControlType::FirstPerson);
+    }
+}
+
 void AHDGASCharacterPlayer::BeginPlay()
 {
     Super::BeginPlay();
-
     NULL_CHECK(DefaultCurve);
 
     FOnTimelineFloat ArmLengthTimelineProgress;
-    ArmLengthTimelineProgress.BindUFunction(this, FName("OnArmLengthTimelineUpdate"));
+    ArmLengthTimelineProgress.BindUFunction(this, FName("OnCameraSpringArmLengthTImelineUpdate"));
     ArmLengthTimeline.AddInterpFloat(DefaultCurve, ArmLengthTimelineProgress);
     ArmLengthTimeline.SetLooping(false);
 }
@@ -228,146 +229,6 @@ void AHDGASCharacterPlayer::GASInputReleased(const FGameplayTag Tag)
     }
 }
 
-void AHDGASCharacterPlayer::SetSprint(const bool bSprint)
-{
-    Super::SetSprint(bSprint);
-
-    NULL_CHECK(AbilitySystemComponent);
-
-    const FGameplayAttribute Attribute = bSprint ? UHDPlayerSpeedAttributeSet::GetSprintSpeedAttribute() : UHDPlayerSpeedAttributeSet::GetWalkSpeedAttribute();
-    CONDITION_CHECK(Attribute.IsValid() == false);
-
-    const float NewSpeed = AbilitySystemComponent->GetNumericAttribute(Attribute);
-    GetCharacterMovement()->MaxWalkSpeed = NewSpeed;
-}
-
-void AHDGASCharacterPlayer::SetShouldering(const bool bShoulder)
-{
-    Super::SetShouldering(bShoulder);
-
-    if (bShoulder)
-    {
-        ArmLengthTimeline.PlayFromStart();
-    }
-    else
-    {
-        ArmLengthTimeline.ReverseFromEnd();
-    }
-}
-
-void AHDGASCharacterPlayer::ThirdPersonLook(const FInputActionValue& Value)
-{
-    const FVector2D LookAxisVector = Value.Get<FVector2D>();
-    AddControllerYawInput(LookAxisVector.X);
-    AddControllerPitchInput(LookAxisVector.Y);
-}
-
-void AHDGASCharacterPlayer::ThirdPersonMove(const FInputActionValue& Value)
-{    
-    if (GetCharacterMovement()->IsFalling())
-    {
-        return;
-    }
-
-    const FVector2D MovementVector = Value.Get<FVector2D>();
-    const FRotator Rotation = Controller->GetControlRotation();
-
-    const FRotator YawRotation(0, Rotation.Yaw, 0);
-
-    const FVector ForwardDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
-    const FVector RightDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
-
-    AddMovementInput(ForwardDirection, MovementVector.X);
-    AddMovementInput(RightDirection, MovementVector.Y);
-}
-
-void AHDGASCharacterPlayer::FirstPersonLook(const FInputActionValue& Value)
-{
-    const FVector2D LookAxisVector = Value.Get<FVector2D>();
-    AddControllerYawInput(-LookAxisVector.X);
-    AddControllerPitchInput(LookAxisVector.Y);
-}
-
-void AHDGASCharacterPlayer::FirstPersonMove(const FInputActionValue& Value)
-{
-    if (GetCharacterMovement()->IsFalling())
-    {
-        return;
-    }
-
-    const FVector2D& MovementVector = Value.Get<FVector2D>();
-
-    const FRotator& Rotation = Controller->GetControlRotation();
-    const FRotator YawRotation(0, Rotation.Yaw, 0);
-
-    const FVector& ForwardDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
-    const FVector& RightDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
-
-    AddMovementInput(ForwardDirection, MovementVector.X);
-    AddMovementInput(RightDirection, MovementVector.Y);
-}
-
-void AHDGASCharacterPlayer::ChangeCharacterControlType()
-{
-    if (CurrentCharacterControlType == EHDCharacterControlType::FirstPerson)
-    {
-        SetCharacterControl(EHDCharacterControlType::ThirdPerson);
-    }
-    else if (CurrentCharacterControlType == EHDCharacterControlType::ThirdPerson)
-    {
-        SetCharacterControl(EHDCharacterControlType::FirstPerson);
-    }
-}
-
-void AHDGASCharacterPlayer::SetCharacterControl(const EHDCharacterControlType NewCharacterControlType)
-{
-    UHDCharacterControlData* NewCharacterControl = CharacterControlDataMap[NewCharacterControlType];
-    NULL_CHECK(NewCharacterControl);
-
-    SetCharacterControlData(NewCharacterControl);
-
-    APlayerController* PlayerController = GetController<APlayerController>();
-    NULL_CHECK(PlayerController);
-
-    UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer());
-    NULL_CHECK(Subsystem);
-
-    Subsystem->ClearAllMappings();
-    UInputMappingContext* NewMappingContext = NewCharacterControl->InputMappingContext;
-    if (NewMappingContext)
-    {
-        Subsystem->AddMappingContext(NewMappingContext, 0);
-    }
-
-    CurrentCharacterControlType = NewCharacterControlType;
-}
-
-void AHDGASCharacterPlayer::SetCharacterControlData(UHDCharacterControlData* CharacterControlData)
-{
-    bUseControllerRotationYaw = CharacterControlData->bUseControllerRotationYaw;
-
-    UCharacterMovementComponent* CharacterMovementComponent     = GetCharacterMovement();
-    CharacterMovementComponent->bOrientRotationToMovement       = CharacterControlData->bOrientRotationToMovement;
-    CharacterMovementComponent->bUseControllerDesiredRotation   = CharacterControlData->bUseControllerDesiredRotation;
-    CharacterMovementComponent->RotationRate                    = CharacterControlData->RotationRate;
-
-    CameraBoom->TargetArmLength         = CharacterControlData->TargetArmLength;
-    CameraBoom->TargetOffset            = CharacterControlData->TargetOffset;
-    CameraBoom->SocketOffset            = CharacterControlData->SocketOffset;
-    CameraBoom->bUsePawnControlRotation = CharacterControlData->bUsePawnControlRotation;
-    CameraBoom->bInheritPitch           = CharacterControlData->bInheritPitch;
-    CameraBoom->bInheritYaw             = CharacterControlData->bInheritYaw;
-    CameraBoom->bInheritRoll            = CharacterControlData->bInheritRoll;
-    CameraBoom->bDoCollisionTest        = CharacterControlData->bDoCollisionTest;
-}
-
-void AHDGASCharacterPlayer::OnCameraSpringArmLengthTImelineUpdate(const float Value)
-{
-    const float DefaultArmLength = CharacterControlDataMap[CurrentCharacterControlType]->TargetArmLength;
-    const float Interpolated = FMath::Lerp(DefaultArmLength, DefaultArmLength / 2.f, Value);
-    CameraBoom->TargetArmLength = Interpolated;
-}
-
 void AHDGASCharacterPlayer::InputStratagemCommand(const FInputActionValue& Value)
 {
     if (AbilitySystemComponent->HasMatchingGameplayTag(HDTAG_CHARACTER_STATE_STRATAGEMINPUTMODE))
@@ -464,4 +325,192 @@ void AHDGASCharacterPlayer::InitializeAttributeSet()
 	SpeedAttribute->CrouchSpeed.SetCurrentValue(InitCharacterStat->CrouchSpeed);
 	SpeedAttribute->WalkSpeed.SetCurrentValue(InitCharacterStat->WalkSpeed);
 	SpeedAttribute->SprintSpeed.SetCurrentValue(InitCharacterStat->SprintSpeed);
+
+    GetCharacterMovement()->MaxWalkSpeed = SpeedAttribute->GetWalkSpeed();
 }
+const FHDCharacterStat* AHDGASCharacterPlayer::GetCharacterStatByArmorType(const EHDArmorType NewArmorType) const
+{
+    NULL_CHECK_WITH_RETURNTYPE(ArmorTypeStatusDataTable, nullptr);
+
+    static const UEnum* EnumPtr = StaticEnum<EHDArmorType>();
+    FString ArmorTypetoString = EnumPtr->GetNameStringByValue(static_cast<int64>(NewArmorType));
+    FHDCharacterStat* ArmorStatus = ArmorTypeStatusDataTable->FindRow<FHDCharacterStat>(FName(ArmorTypetoString), TEXT("ArmorStatus"));
+    return ArmorStatus;
+}
+
+void AHDGASCharacterPlayer::SetSprint(const bool bSprint)
+{
+    Super::SetSprint(bSprint);
+    NULL_CHECK(AbilitySystemComponent);
+
+    FGameplayAttribute Attribute;
+    float NewSpeed = GetCharacterMovement()->MaxWalkSpeed;
+
+    if (IsCrouch())
+    {
+        Attribute = UHDPlayerSpeedAttributeSet::GetCrouchSpeedAttribute();
+        CONDITION_CHECK(Attribute.IsValid() == false);
+        NewSpeed = AbilitySystemComponent->GetNumericAttribute(Attribute);
+        NewSpeed = bSprint ? NewSpeed * 1.5f : NewSpeed;
+    }
+    else
+    {
+        Attribute = bSprint ? UHDPlayerSpeedAttributeSet::GetSprintSpeedAttribute() : UHDPlayerSpeedAttributeSet::GetWalkSpeedAttribute();
+        CONDITION_CHECK(Attribute.IsValid() == false);
+        NewSpeed = AbilitySystemComponent->GetNumericAttribute(Attribute);
+    }
+
+    GetCharacterMovement()->MaxWalkSpeed = NewSpeed;
+}
+
+void AHDGASCharacterPlayer::SetCrouch(const bool bCrouch)
+{
+    Super::SetCrouch(bCrouch);
+
+    FGameplayAttribute Attribute;
+    float NewSpeed;
+
+    if (IsSprint())
+    {
+        Attribute = UHDPlayerSpeedAttributeSet::GetWalkSpeedAttribute();
+        CONDITION_CHECK(Attribute.IsValid() == false);
+        NewSpeed = AbilitySystemComponent->GetNumericAttribute(Attribute);
+        NewSpeed = bCrouch ? NewSpeed * 1.5f : NewSpeed;
+    }
+    else
+    {
+        Attribute = bCrouch ? UHDPlayerSpeedAttributeSet::GetCrouchSpeedAttribute() : UHDPlayerSpeedAttributeSet::GetWalkSpeedAttribute();
+        CONDITION_CHECK(Attribute.IsValid() == false);
+        NewSpeed = AbilitySystemComponent->GetNumericAttribute(Attribute);
+    }
+
+    GetCharacterMovement()->MaxWalkSpeed = NewSpeed;
+}
+
+void AHDGASCharacterPlayer::SetProne(const bool bProne)
+{
+    Super::SetProne(bProne);
+
+    const FGameplayAttribute Attribute = bProne ? UHDPlayerSpeedAttributeSet::GetCrawlingSpeedAttribute() : 
+            IsCrouch() ? UHDPlayerSpeedAttributeSet::GetCrouchSpeedAttribute() : UHDPlayerSpeedAttributeSet::GetWalkSpeedAttribute();
+    CONDITION_CHECK(Attribute.IsValid() == false);
+
+    const float NewSpeed = AbilitySystemComponent->GetNumericAttribute(Attribute);
+    GetCharacterMovement()->MaxWalkSpeed = NewSpeed;
+}
+
+void AHDGASCharacterPlayer::SetShouldering(const bool bShoulder)
+{
+    Super::SetShouldering(bShoulder);
+
+    if (bShoulder)
+    {
+        ArmLengthTimeline.PlayFromStart();
+    }
+    else
+    {
+        ArmLengthTimeline.ReverseFromEnd();
+    }
+}
+
+void AHDGASCharacterPlayer::ThirdPersonLook(const FInputActionValue& Value)
+{
+    const FVector2D& LookAxisVector = Value.Get<FVector2D>();
+    AddControllerYawInput(LookAxisVector.X);
+    AddControllerPitchInput(LookAxisVector.Y);
+}
+
+void AHDGASCharacterPlayer::ThirdPersonMove(const FInputActionValue& Value)
+{    
+    if (GetCharacterMovement()->IsFalling())
+    {
+        return;
+    }
+
+    const FVector2D& MovementVector = Value.Get<FVector2D>();
+    const FRotator& Rotation = Controller->GetControlRotation();
+
+    const FRotator YawRotation(0, Rotation.Yaw, 0);
+
+    const FVector& ForwardDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
+    const FVector& RightDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
+
+    AddMovementInput(ForwardDirection, MovementVector.X);
+    AddMovementInput(RightDirection, MovementVector.Y);
+}
+
+void AHDGASCharacterPlayer::FirstPersonLook(const FInputActionValue& Value)
+{
+    const FVector2D& LookAxisVector = Value.Get<FVector2D>();
+    AddControllerYawInput(-LookAxisVector.X);
+    AddControllerPitchInput(LookAxisVector.Y);
+}
+
+void AHDGASCharacterPlayer::FirstPersonMove(const FInputActionValue& Value)
+{
+    if (GetCharacterMovement()->IsFalling())
+    {
+        return;
+    }
+
+    const FVector2D& MovementVector = Value.Get<FVector2D>();
+
+    const FRotator& Rotation = Controller->GetControlRotation();
+    const FRotator YawRotation(0, Rotation.Yaw, 0);
+
+    const FVector& ForwardDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
+    const FVector& RightDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
+
+    AddMovementInput(ForwardDirection, MovementVector.X);
+    AddMovementInput(RightDirection, MovementVector.Y);
+}
+
+void AHDGASCharacterPlayer::SetCharacterControl(const EHDCharacterControlType NewCharacterControlType)
+{
+    UHDCharacterControlData* NewCharacterControl = CharacterControlDataMap[NewCharacterControlType];
+    NULL_CHECK(NewCharacterControl);
+
+    SetCharacterControlData(NewCharacterControl);
+
+    APlayerController* PlayerController = GetController<APlayerController>();
+    NULL_CHECK(PlayerController);
+
+    UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer());
+    NULL_CHECK(Subsystem);
+
+    Subsystem->ClearAllMappings();
+    UInputMappingContext* NewMappingContext = NewCharacterControl->InputMappingContext;
+    if (NewMappingContext)
+    {
+        Subsystem->AddMappingContext(NewMappingContext, 0);
+    }
+
+    CurrentCharacterControlType = NewCharacterControlType;
+}
+
+void AHDGASCharacterPlayer::SetCharacterControlData(UHDCharacterControlData* CharacterControlData)
+{
+    bUseControllerRotationYaw = CharacterControlData->bUseControllerRotationYaw;
+
+    UCharacterMovementComponent* CharacterMovementComponent     = GetCharacterMovement();
+    CharacterMovementComponent->bOrientRotationToMovement       = CharacterControlData->bOrientRotationToMovement;
+    CharacterMovementComponent->bUseControllerDesiredRotation   = CharacterControlData->bUseControllerDesiredRotation;
+    CharacterMovementComponent->RotationRate                    = CharacterControlData->RotationRate;
+
+    CameraBoom->TargetArmLength         = CharacterControlData->TargetArmLength;
+    CameraBoom->TargetOffset            = CharacterControlData->TargetOffset;
+    CameraBoom->SocketOffset            = CharacterControlData->SocketOffset;
+    CameraBoom->bUsePawnControlRotation = CharacterControlData->bUsePawnControlRotation;
+    CameraBoom->bInheritPitch           = CharacterControlData->bInheritPitch;
+    CameraBoom->bInheritYaw             = CharacterControlData->bInheritYaw;
+    CameraBoom->bInheritRoll            = CharacterControlData->bInheritRoll;
+    CameraBoom->bDoCollisionTest        = CharacterControlData->bDoCollisionTest;
+}
+
+void AHDGASCharacterPlayer::OnCameraSpringArmLengthTImelineUpdate(const float Value)
+{
+    const float DefaultArmLength = CharacterControlDataMap[CurrentCharacterControlType]->TargetArmLength;
+    const float Interpolated = FMath::Lerp(DefaultArmLength, DefaultArmLength / 2.f, Value);
+    CameraBoom->TargetArmLength = Interpolated;
+}
+

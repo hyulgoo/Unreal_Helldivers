@@ -3,18 +3,21 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GAS/GameAbility/HDGameplayAbility.h"
-#include "HDGA_Shoulder.generated.h"
+#include "HDGameplayAbility.h"
+#include "HDGA_MovementTrigger.generated.h"
 
 UCLASS()
-class HELLDIVERS_API UHDGA_Shoulder : public UHDGameplayAbility
+class HELLDIVERS_API UHDGA_MovementTrigger : public UHDGameplayAbility
 {
 	GENERATED_BODY()
-	
+
 public:
-	explicit UHDGA_Shoulder();
+	explicit UHDGA_MovementTrigger();
 
 	virtual bool CanActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayTagContainer* SourceTags = nullptr, const FGameplayTagContainer* TargetTags = nullptr, OUT FGameplayTagContainer* OptionalRelevantTags = nullptr) const override final;
 	virtual void ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData) override final;
 	virtual void InputReleased(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo) override final;
+
+public:
+	FGameplayTagContainer CurrentTagContainer;
 };

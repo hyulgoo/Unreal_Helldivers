@@ -86,6 +86,8 @@ private:
 	const FHDCharacterStat*						GetCharacterStatByArmorType(const EHDArmorType ArmorType) const;
 
 	virtual	void								SetSprint(const bool bSprint) override final;
+	virtual void								SetCrouch(const bool bCrouch) override final;
+	virtual void								SetProne(const bool bProne) override final;
 	virtual void								SetShouldering(const bool bShoulder) override final;
 	void										ThirdPersonLook(const FInputActionValue& Value);
 	void										ThirdPersonMove(const FInputActionValue& Value);

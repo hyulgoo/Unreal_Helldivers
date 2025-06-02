@@ -26,7 +26,7 @@ AHDCharacterBase::AHDCharacterBase()
 	// Movement
 	UCharacterMovementComponent* CharacterMovementComponent = GetCharacterMovement();
 	CharacterMovementComponent->bOrientRotationToMovement	= true;
-	CharacterMovementComponent->RotationRate				= FRotator(0.f, 90.f, 0.f);
+	CharacterMovementComponent->RotationRate				= FRotator(0.f, 45.f, 0.f);
 	CharacterMovementComponent->JumpZVelocity				= 700.f;
 	CharacterMovementComponent->AirControl					= 0.35f;
 	CharacterMovementComponent->MaxWalkSpeed				= 500.f;
@@ -39,35 +39,7 @@ AHDCharacterBase::AHDCharacterBase()
 	SkeletalMeshComponent->SetAnimationMode(EAnimationMode::AnimationBlueprint);
 	SkeletalMeshComponent->SetCollisionProfileName(HDCOLLISION_PROFILE_PLAYER);
 
-	static ConstructorHelpers::FObjectFinder<USkeletalMesh> CharacterMeshRef(TEXT("/Script/Engine.SkeletalMesh'/Game/Asset/Characters/Mannequins/Meshes/SKM_Quinn.SKM_Quinn'"));
-	if (CharacterMeshRef.Succeeded())
-	{
-		SkeletalMeshComponent->SetSkeletalMesh(CharacterMeshRef.Object);
-	}
-	
-	static ConstructorHelpers::FClassFinder<UAnimInstance> AnimInstanceClassRef(TEXT("/Game/Helldivers/Animation/ABP_HDCharacter.ABP_HDCharacter_C"));
-	if (AnimInstanceClassRef.Class)
-	{
-		SkeletalMeshComponent->SetAnimInstanceClass(AnimInstanceClassRef.Class);
-	}
-
-	static ConstructorHelpers::FObjectFinder<UAnimMontage> FireWeaponMontageRef(TEXT("/Script/Engine.AnimMontage'/Game/Helldivers/Animation/AM_Fire.AM_Fire'"));
-	if (FireWeaponMontageRef.Succeeded())
-	{
-		FireWeaponMontage = FireWeaponMontageRef.Object;
-	}
-
-	static ConstructorHelpers::FObjectFinder<UAnimMontage> ThrowMontageRef(TEXT("/Script/Engine.AnimMontage'/Game/Helldivers/Animation/AM_Throw.AM_Throw'"));
-	if (ThrowMontageRef.Succeeded())
-	{
-		ThrowMontage = ThrowMontageRef.Object;
-	}
-	
-	static ConstructorHelpers::FObjectFinder<UAnimMontage> DeadMontageRef(TEXT("/Script/Engine.AnimMontage'/Game/Helldivers/Animation/AM_Dead.AM_Dead'"));
-	if (DeadMontageRef.Succeeded())
-	{
-		DeadMontage = DeadMontageRef.Object; 
-	}
+	LoadDefaultMontage();
 }
 
 void AHDCharacterBase::SetDead()
@@ -81,15 +53,16 @@ void AHDCharacterBase::SetDead()
 
 void AHDCharacterBase::PlayDeadAnimation()
 {
+	NULL_CHECK(DeadMontage);
+
 	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
-	if (AnimInstance)
-	{
-		AnimInstance->StopAllMontages(0.f);
-		AnimInstance->Montage_Play(DeadMontage, 1.f);
-	}
+	NULL_CHECK(AnimInstance);
+
+	AnimInstance->StopAllMontages(0.f);
+	AnimInstance->Montage_Play(DeadMontage, 1.f);
 }
 
-void AHDCharacterBase::SetRagdoll(const bool bRagdoll, const FVector& Impulse /*= FVector::ZeroVector*/)
+void AHDCharacterBase::SetRagdoll(const bool bRagdoll, const FVector& Impulse)
 {
 	// Ragdoll로 만들어야 하는데 AddImpulse가 없는 경우 Error
 	CONDITION_CHECK(bRagdoll && Impulse == FVector::ZeroVector);
@@ -123,4 +96,38 @@ const float AHDCharacterBase::GetRagdollPysicsLinearVelocity() const
 {
 	USkeletalMeshComponent* CharacterMesh = GetMesh();
 	return CharacterMesh->GetPhysicsLinearVelocity().Size();
+}
+
+void AHDCharacterBase::LoadDefaultMontage()
+{
+	USkeletalMeshComponent* SkeletalMeshComponent = GetMesh();
+	static ConstructorHelpers::FObjectFinder<USkeletalMesh> CharacterMeshRef(TEXT("/Script/Engine.SkeletalMesh'/Game/Asset/Characters/Mannequins/Meshes/SKM_Quinn.SKM_Quinn'"));
+	if (CharacterMeshRef.Succeeded())
+	{
+		SkeletalMeshComponent->SetSkeletalMesh(CharacterMeshRef.Object);
+	}
+
+	static ConstructorHelpers::FClassFinder<UAnimInstance> AnimInstanceClassRef(TEXT("/Game/Helldivers/Animation/ABP_HDCharacter.ABP_HDCharacter_C"));
+	if (AnimInstanceClassRef.Class)
+	{
+		SkeletalMeshComponent->SetAnimInstanceClass(AnimInstanceClassRef.Class);
+	}
+
+	static ConstructorHelpers::FObjectFinder<UAnimMontage> FireWeaponMontageRef(TEXT("/Script/Engine.AnimMontage'/Game/Helldivers/Animation/AM_Fire.AM_Fire'"));
+	if (FireWeaponMontageRef.Succeeded())
+	{
+		FireWeaponMontage = FireWeaponMontageRef.Object;
+	}
+
+	static ConstructorHelpers::FObjectFinder<UAnimMontage> ThrowMontageRef(TEXT("/Script/Engine.AnimMontage'/Game/Helldivers/Animation/AM_Throw.AM_Throw'"));
+	if (ThrowMontageRef.Succeeded())
+	{
+		ThrowMontage = ThrowMontageRef.Object;
+	}
+
+	static ConstructorHelpers::FObjectFinder<UAnimMontage> DeadMontageRef(TEXT("/Script/Engine.AnimMontage'/Game/Helldivers/Animation/AM_Dead.AM_Dead'"));
+	if (DeadMontageRef.Succeeded())
+	{
+		DeadMontage = DeadMontageRef.Object;
+	}
 }

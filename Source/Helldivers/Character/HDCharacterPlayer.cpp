@@ -36,6 +36,7 @@ AHDCharacterPlayer::AHDCharacterPlayer()
 	, InterpAimOffset_Yaw(0.f)
 	, AimOffset_Pitch(0.f)
 	, bIsSprint(false)
+    , bIsCrouch(false)
     , bIsProne(false)
 	, bIsCharacterLookingViewport(false)
 	, bUseRotateRootBone(false)
@@ -84,6 +85,13 @@ void AHDCharacterPlayer::PossessedBy(AController* NewController)
     Super::PossessedBy(NewController);
 
     SpawnDefaultWeapon();
+}
+
+void AHDCharacterPlayer::SetRagdoll(const bool bRagdoll, const FVector& Impulse)
+{
+    Super::SetRagdoll(bRagdoll, Impulse);
+
+    SetProne(true);
 }
 
 void AHDCharacterPlayer::SetWeaponActive(const bool bActive)
@@ -200,6 +208,16 @@ void AHDCharacterPlayer::SetSprint(const bool bSprint)
 {
     // 해당 클래스를 상속받은 캐릭터에서 해당 함수 Override하여 스피드 조정 중
     bIsSprint = bSprint;
+}
+
+void AHDCharacterPlayer::SetCrouch(const bool bCrouch)
+{
+    bIsCrouch = bCrouch;
+}
+
+void AHDCharacterPlayer::SetProne(const bool bProne)
+{
+	bIsProne = bProne;
 }
 
 const FVector& AHDCharacterPlayer::GetThrowDirection() const

@@ -38,8 +38,6 @@ void UHDGA_Knockback::ActivateAbility(const FGameplayAbilitySpecHandle Handle, c
         const FVector& Direction = (TriggerEventData->Instigator->GetActorLocation() - ActorInfo->AvatarActor->GetActorLocation()).GetSafeNormal();
         const FVector Impulse = Direction * TriggerEventData->EventMagnitude;
 
-        UE_LOG(LogTemp, Error, TEXT("Impulse : [%s]"), *Impulse.ToString());
-
         RagdollInterface->SetRagdoll(true, Impulse);
 
         World = ActorInfo->AvatarActor->GetWorld();

@@ -33,6 +33,9 @@ protected:
     virtual void							Tick(float DeltaTime) override;
 	virtual void							PossessedBy(AController* NewController) override;
 
+	// RagdollInterface
+	virtual void							SetRagdoll(const bool bRagdoll, const FVector& Impulse = FVector::ZeroVector) override final;
+
 	// WeaponInferface
 	virtual void							EquipWeapon(AHDWeapon* NewWeapon) override final;
 	virtual AHDWeapon*						GetWeapon() const override final;
@@ -40,7 +43,6 @@ protected:
 	virtual const EHDCombatState			GetCombatState() const override final;
     virtual void							Fire(const bool IsPressed);
     virtual void							SetWeaponActive(const bool bActive) override final;
-
 
 	// CharacterMovementInterface
 	virtual const float						GetAimOffset_Yaw() const override final					{ return AimOffset_Yaw; }
@@ -56,8 +58,10 @@ protected:
 	virtual const bool						IsSprint() const override final							{ return bIsSprint; }
 	virtual void							SetSprint(const bool bSprint) override;
 
-	virtual const bool						IsCrouch() const override final							{ return bIsCrouched; }
+	virtual const bool						IsCrouch() const override final							{ return bIsCrouch; }
+	virtual void							SetCrouch(const bool bCrouch) override;
 	virtual const bool						IsProne() const override final							{ return bIsProne; }
+	virtual void							SetProne(const bool bProne) override;
 
 	// CharacterCommandInterface
 	virtual AHDStratagem*					GetStratagem() const override final						{ return Stratagem; }
@@ -113,6 +117,7 @@ private:
 	float									AimOffset_Pitch;
 
 	bool									bIsSprint;
+	bool									bIsCrouch;
 	bool									bIsProne;
 
 	bool									bIsCharacterLookingViewport;

@@ -38,5 +38,7 @@ public:
 	virtual void							SetSprint(const bool bSprint) = 0;
 
 	virtual const bool						IsCrouch() const = 0;
+	virtual void							SetCrouch(const bool bCrouch) = 0;
 	virtual const bool						IsProne() const = 0;
+	virtual void							SetProne(const bool bProne) = 0;
 };
