@@ -43,6 +43,7 @@ protected:
 	virtual const EHDCombatState			GetCombatState() const override final;
     virtual void							Fire(const bool IsPressed);
     virtual void							SetWeaponActive(const bool bActive) override final;
+	virtual void							Reload() override final;
 
 	// CharacterMovementInterface
 	virtual const float						GetAimOffset_Yaw() const override final					{ return AimOffset_Yaw; }
@@ -82,8 +83,10 @@ private:
 
 	void									InterpFOV(float DeltaSeconds);
 
-	void									PlayFireMontage(const bool bAiming);
-	void									PlayThrowMontage();
+	void									PlayMontage(UAnimMontage* Montage, const FName SectionName = FName());
+
+	void									FireTimerFinished();
+	void									ReloadTimerFinished();
 
 protected:
 	// Camera Section
@@ -100,9 +103,6 @@ protected:
 	UPROPERTY()
 	TObjectPtr<UHDCombatComponent>			Combat;
 
-	UPROPERTY()
-	TObjectPtr<AHDWeapon>					Weapon;
-	
 	UPROPERTY(EditAnywhere, Category = "Player|Weapon")
 	TSubclassOf<AHDWeapon>					DefaultWeaponClass;
 	
@@ -135,7 +135,6 @@ private:
 	TObjectPtr<AHDStratagem>				Stratagem;
 	
 	FName									SelectedStratagemName;
-
 	float									SelecteddStratagemActiveDelay;
 	
 	UPROPERTY()
@@ -146,4 +145,7 @@ private:
 
 	// HUD, Crosshair
 	float									DefaultFOV;
+
+	FTimerHandle							FireTimer;
+	FTimerHandle							ReloadTimer;
 };

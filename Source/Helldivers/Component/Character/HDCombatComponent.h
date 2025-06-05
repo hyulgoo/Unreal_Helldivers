@@ -24,18 +24,20 @@ public:
     AHDWeapon*              GetWeapon() const { return Weapon; }
     const bool 				CanFire();
 
+    const bool              CanReload();
+    void                    Reload();
+
 protected:
     virtual void            TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 private:
-    void                    FireTimerFinished();
+    const bool              FireTimerFinished();
+    void                    ReloadTimerFinished();
     void					TraceUnderCrosshairs();
 
+private:
     bool					bIsShoulder;
-    bool					bCanFire;
     bool					bIsFireButtonPressed;
-
-    FTimerHandle			FireTimer;
 
     EHDCombatState			CombatState;
 

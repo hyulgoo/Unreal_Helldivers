@@ -26,7 +26,7 @@ enum class EWeaponType : uint8
 };
 
 UENUM(BlueprintType)
-enum class EFireType : uint8
+enum class EHDFireType : uint8
 {
 	HitScan,
 	Projectile,

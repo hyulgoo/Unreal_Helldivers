@@ -10,9 +10,7 @@
 
 UHDCombatComponent::UHDCombatComponent()
     : bIsShoulder(false)
-    , bCanFire(false)
     , bIsFireButtonPressed(false)
-    , FireTimer(FTimerHandle())
     , CombatState(EHDCombatState::Unoccupied)
     , HitTarget(FVector())
 	, ZoomedFOV(0.f)
@@ -24,9 +22,6 @@ UHDCombatComponent::UHDCombatComponent()
     PrimaryComponentTick.bCanEverTick = true;
     PrimaryComponentTick.bStartWithTickEnabled = true;
     SetComponentTickEnabled(true);
-
-	bCanFire = true;
-	bIsFireButtonPressed = false;
 }
 
 void UHDCombatComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
@@ -36,23 +31,22 @@ void UHDCombatComponent::TickComponent(float DeltaTime, ELevelTick TickType, FAc
     TraceUnderCrosshairs();
 }
 
-void UHDCombatComponent::FireTimerFinished()
+const bool UHDCombatComponent::FireTimerFinished()
 {
-    if (IsValid(Weapon) == false)
-    {
-        return;
-    }
+    VALID_CHECK_WITH_RETURNTYPE(Weapon, false);
 
-    bCanFire = true;
     if (bIsFireButtonPressed && Weapon->IsAutoFire())
     {
         Fire(true);
+        return true;
     }
 
-    // TODO Reload
-   /* AHDPlayerController* PlayerController = Cast<AHDPlayerController>(GetController());
-    NULL_CHECK(PlayerController);
-    PlayerController->ChangeCapacityHUDInfo(Weapon->GetCapacityCount());*/
+    return false;
+}
+
+void UHDCombatComponent::ReloadTimerFinished()
+{
+    CombatState = EHDCombatState::Unoccupied;
 }
 
 void UHDCombatComponent::TraceUnderCrosshairs()
@@ -61,6 +55,10 @@ void UHDCombatComponent::TraceUnderCrosshairs()
     if (GEngine && GEngine->GameViewport)
     {
         GEngine->GameViewport->GetViewportSize(ViewportSize);
+    }
+    else
+    {
+        CONDITION_CHECK(true);
     }
 
     const FVector2D CrosshairLocation(ViewportSize.X / 2.f, ViewportSize.Y / 2.f);
@@ -75,8 +73,6 @@ void UHDCombatComponent::TraceUnderCrosshairs()
 
     if (bScreenToWorld)
     {
-        FHitResult TraceHitResult;
-
         FVector Start = CrosshairWorldPosition;
         const float DistanceToCharacter = (GetOwner()->GetActorLocation() - Start).Size();
         Start += CrosshairWorldDirection * (DistanceToCharacter + 100.f);
@@ -84,6 +80,8 @@ void UHDCombatComponent::TraceUnderCrosshairs()
         const FVector End = Start + CrosshairWorldDirection * HITSCAN_TRACE_LENGTH;
         UWorld* World = GetWorld();
         VALID_CHECK(World);
+
+        FHitResult TraceHitResult;
         const bool bHit = World->LineTraceSingleByChannel(TraceHitResult, Start, End, ECollisionChannel::ECC_Visibility);        
 
         HitTarget = bHit ? TraceHitResult.ImpactPoint : End;
@@ -104,9 +102,7 @@ const bool UHDCombatComponent::Fire(const bool IsPressed)
 
     if (CombatState == EHDCombatState::Unoccupied)
     {
-        Weapon->Fire(HitTarget);
-        
-        GetWorld()->GetTimerManager().SetTimer(FireTimer, this, &UHDCombatComponent::FireTimerFinished, Weapon->GetFireDelay()) ;
+        Weapon->Fire(HitTarget, bIsShoulder);
         return true;
     }
 
@@ -124,7 +120,7 @@ void UHDCombatComponent::EquipWeapon(AHDWeapon* NewWeapon)
 
 const bool UHDCombatComponent::CanFire()
 {
-    if (IsValid(Weapon) == false || bCanFire == false || Weapon->IsAmmoEmpty())
+    if (IsValid(Weapon) == false || Weapon->IsAmmoEmpty())
     {
         return false;
     }
@@ -134,5 +130,23 @@ const bool UHDCombatComponent::CanFire()
         return true;
     }
 
-    return (bCanFire && CombatState == EHDCombatState::Unoccupied);
+    return (CombatState == EHDCombatState::Unoccupied);
+}
+
+const bool UHDCombatComponent::CanReload()
+{
+    if (IsValid(Weapon) == false || Weapon->IsCapacityEmpty() || Weapon->IsAmmoFull())
+    {
+        return false;
+    }
+
+    return CombatState == EHDCombatState::Unoccupied;
+}
+
+void UHDCombatComponent::Reload()
+{
+    NULL_CHECK(Weapon);
+
+    CombatState = EHDCombatState::Reloading;
+    Weapon->Reload(bIsShoulder);
 }

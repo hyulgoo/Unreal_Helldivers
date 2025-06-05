@@ -122,12 +122,12 @@ void AHDGASCharacterPlayer::PossessedBy(AController* NewController)
 
     InitAbilitySystemComponent();
 
-    AHDPlayerController* PlayerController = Cast<AHDPlayerController>(GetController());
+    AHDPlayerController* PlayerController = GetController<AHDPlayerController>();
     NULL_CHECK(PlayerController);
 
     PlayerController->PlayerCameraManager->ViewPitchMin = -60.f;
     PlayerController->PlayerCameraManager->ViewPitchMax = 70.f;
-    PlayerController->SetWeaponHUDInfo(Weapon);
+    PlayerController->SetWeaponHUDInfo(GetWeapon());
 }
 
 void AHDGASCharacterPlayer::SetupGASInputComponent(UEnhancedInputComponent* EnhancedInputComponent)

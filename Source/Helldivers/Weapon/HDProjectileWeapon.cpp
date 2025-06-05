@@ -8,12 +8,12 @@
 
 AHDProjectileWeapon::AHDProjectileWeapon()
 {
-    FireType = EFireType::Projectile;
+    FireType = EHDFireType::Projectile;
 }
 
-void AHDProjectileWeapon::Fire(const FVector& HitTarget)
+void AHDProjectileWeapon::Fire(const FVector& HitTarget, const bool bIsShoulder)
 {
-    Super::Fire(HitTarget);
+    Super::Fire(HitTarget, bIsShoulder);
 
     NULL_CHECK(ProjectileClass);
 

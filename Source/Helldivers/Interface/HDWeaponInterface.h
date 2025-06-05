@@ -28,4 +28,6 @@ public:
 
 	virtual void					Fire(const bool bIsPressed) = 0;
 	virtual void					SetWeaponActive(const bool bActive) = 0;
+
+	virtual void					Reload() = 0;
 };

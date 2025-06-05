@@ -33,6 +33,9 @@ protected:
     TObjectPtr<UAnimMontage>    FireWeaponMontage;
     
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Montage")
+    TObjectPtr<UAnimMontage>    ReloadWeaponMontage;
+    
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Montage")
     TObjectPtr<UAnimMontage>    ThrowMontage;
 
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Montage")

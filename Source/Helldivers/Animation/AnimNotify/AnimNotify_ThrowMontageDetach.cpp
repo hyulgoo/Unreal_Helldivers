@@ -16,7 +16,7 @@ void UAnimNotify_ThrowMontageDetach::Notify(USkeletalMeshComponent* MeshComp, UA
 
     NULL_CHECK(MeshComp);
 
-    IHDCharacterCommandInterface* CharacterCommandInterface = Cast<IHDCharacterCommandInterface>(MeshComp->GetOwner());
+    TScriptInterface<IHDCharacterCommandInterface> CharacterCommandInterface = MeshComp->GetOwner();
     NULL_CHECK(CharacterCommandInterface);
 
     AHDStratagem* Stratagem = CharacterCommandInterface->GetStratagem();

@@ -16,6 +16,8 @@
 #define HDTAG_INPUT_SPRINT							FGameplayTag::RequestGameplayTag(FName("Input.Sprint"))
 #define HDTAG_INPUT_CROUCH							FGameplayTag::RequestGameplayTag(FName("Input.Crouch"))
 #define HDTAG_INPUT_PRONE							FGameplayTag::RequestGameplayTag(FName("Input.Prone"))
+#define HDTAG_INPUT_FIRE							FGameplayTag::RequestGameplayTag(FName("Input.Fire"))
+#define HDTAG_INPUT_RELOAD							FGameplayTag::RequestGameplayTag(FName("Input.Reload"))
 
 #define HDTAG_EVENT_STRATAGEMHUD_APPEAR             FGameplayTag::RequestGameplayTag(FName("Event.StratagemHUD.Active"))
 #define HDTAG_EVENT_STRATAGEMHUD_DISAPPEAR          FGameplayTag::RequestGameplayTag(FName("Event.StratagemHUD.Deactive"))

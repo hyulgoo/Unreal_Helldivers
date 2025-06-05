@@ -16,5 +16,5 @@ class HELLDIVERS_API AHDProjectileWeapon : public AHDWeapon
 public:
     explicit     AHDProjectileWeapon();
 
-    virtual void Fire(const FVector& HitTarget) override final;
+    virtual void Fire(const FVector& HitTarget, const bool bIsShoulder) override final;
 };
