@@ -86,24 +86,6 @@ void AHDGASCharacterPlayer::ChangeCharacterControlType()
     }
 }
 
-void AHDGASCharacterPlayer::BeginPlay()
-{
-    Super::BeginPlay();
-    NULL_CHECK(DefaultCurve);
-
-    FOnTimelineFloat ArmLengthTimelineProgress;
-    ArmLengthTimelineProgress.BindUFunction(this, FName("OnCameraSpringArmLengthTImelineUpdate"));
-    ArmLengthTimeline.AddInterpFloat(DefaultCurve, ArmLengthTimelineProgress);
-    ArmLengthTimeline.SetLooping(false);
-}
-
-void AHDGASCharacterPlayer::Tick(float DeltaTime)
-{
-    Super::Tick(DeltaTime);
-
-    ArmLengthTimeline.TickTimeline(DeltaTime);
-}
-
 void AHDGASCharacterPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
     Super::SetupPlayerInputComponent(PlayerInputComponent);
@@ -408,20 +390,6 @@ void AHDGASCharacterPlayer::SetSprint(const bool bSprint)
     GetCharacterMovement()->MaxWalkSpeed = NewSpeed;
 }
 
-void AHDGASCharacterPlayer::SetShouldering(const bool bShoulder)
-{
-    Super::SetShouldering(bShoulder);
-
-    if (bShoulder)
-    {
-        ArmLengthTimeline.PlayFromStart();
-    }
-    else
-    {
-        ArmLengthTimeline.ReverseFromEnd();
-    }
-}
-
 void AHDGASCharacterPlayer::ThirdPersonLook(const FInputActionValue& Value)
 {
     const FVector2D& LookAxisVector = Value.Get<FVector2D>();
@@ -495,32 +463,6 @@ void AHDGASCharacterPlayer::SetCharacterControl(const EHDCharacterControlType Ne
     }
 
     CurrentCharacterControlType = NewCharacterControlType;
-}
-
-void AHDGASCharacterPlayer::SetCharacterControlData(UHDCharacterControlData* CharacterControlData)
-{
-    bUseControllerRotationYaw = CharacterControlData->bUseControllerRotationYaw;
-
-    UCharacterMovementComponent* CharacterMovementComponent     = GetCharacterMovement();
-    CharacterMovementComponent->bOrientRotationToMovement       = CharacterControlData->bOrientRotationToMovement;
-    CharacterMovementComponent->bUseControllerDesiredRotation   = CharacterControlData->bUseControllerDesiredRotation;
-    CharacterMovementComponent->RotationRate                    = CharacterControlData->RotationRate;
-
-    CameraBoom->TargetArmLength         = CharacterControlData->TargetArmLength;
-    CameraBoom->TargetOffset            = CharacterControlData->TargetOffset;
-    CameraBoom->SocketOffset            = CharacterControlData->SocketOffset;
-    CameraBoom->bUsePawnControlRotation = CharacterControlData->bUsePawnControlRotation;
-    CameraBoom->bInheritPitch           = CharacterControlData->bInheritPitch;
-    CameraBoom->bInheritYaw             = CharacterControlData->bInheritYaw;
-    CameraBoom->bInheritRoll            = CharacterControlData->bInheritRoll;
-    CameraBoom->bDoCollisionTest        = CharacterControlData->bDoCollisionTest;
-}
-
-void AHDGASCharacterPlayer::OnCameraSpringArmLengthTImelineUpdate(const float Value)
-{
-    const float DefaultArmLength = CharacterControlDataMap[CurrentCharacterControlType]->TargetArmLength;
-    const float Interpolated = FMath::Lerp(DefaultArmLength, DefaultArmLength / 2.f, Value);
-    CameraBoom->TargetArmLength = Interpolated;
 }
 
 const float AHDGASCharacterPlayer::GetMoveSpeedByMovementStateAndIsSprint(const EHDCharacterMovementState State, const bool bSprint)

@@ -64,8 +64,6 @@ public:
 	void										ChangeCharacterControlType();
 
 protected:	
-	virtual void								BeginPlay() override final;
-	virtual void								Tick(float DeltaTime) override final;
 	virtual void								SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override final;
 	virtual void								PossessedBy(AController* NewController) override final;
 	void										SetupGASInputComponent(UEnhancedInputComponent* EnhancedInputComponent);
@@ -89,16 +87,11 @@ private:
 	virtual void								SetCharacterMovementState(const EHDCharacterMovementState NewState, const bool bForce) override final;
 	virtual void								RestoreMovementState() override final;
 	virtual	void								SetSprint(const bool bSprint) override final;
-	virtual void								SetShouldering(const bool bShoulder) override final;
 	void										ThirdPersonLook(const FInputActionValue& Value);
 	void										ThirdPersonMove(const FInputActionValue& Value);
 	void										FirstPersonLook(const FInputActionValue& Value);
 	void										FirstPersonMove(const FInputActionValue& Value);
 	void										SetCharacterControl(const EHDCharacterControlType NewCharacterControlType);
-	void										SetCharacterControlData(UHDCharacterControlData* CharacterControlData);
-
-	UFUNCTION()
-	void										OnCameraSpringArmLengthTImelineUpdate(const float Value);
 
 	const float									GetMoveSpeedByMovementStateAndIsSprint(const EHDCharacterMovementState State, const bool bIsSprint);
 
@@ -138,7 +131,5 @@ private:
 	EHDCharacterControlType						CurrentCharacterControlType;
 	
     UPROPERTY(EditAnywhere, Category = "GASPlayer|CharacterControl")
-    TMap<EHDCharacterControlType, TObjectPtr<UHDCharacterControlData>> CharacterControlDataMap;
-	
-	FTimeline									ArmLengthTimeline;
+    TMap<EHDCharacterControlType, TObjectPtr<UHDCharacterControlData>> CharacterControlDataMap;	
 };

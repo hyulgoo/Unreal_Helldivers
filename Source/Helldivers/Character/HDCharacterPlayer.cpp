@@ -4,8 +4,9 @@
 #include "Camera/CameraComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
-#include "CharacterTypes/HDCharacterStateTypes.h"
+#include "Components/CapsuleComponent.h"
 #include "Component/Character/HDCombatComponent.h"
+#include "CharacterTypes/HDCharacterStateTypes.h"
 #include "InputMappingContext.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
@@ -16,7 +17,7 @@
 #include "Stratagem/HDStratagem.h"
 #include "GameData/HDStratagemData.h"
 #include "Animation/HDAnimInstance.h"
-#include "Components/CapsuleComponent.h"
+#include "Character/HDCharacterControlData.h"
 
 #define AIMOFFSET_PITCH_OFFSET 20.f
 #define MONTAGESECTIONNAME_RIFLE_AIM FName("Rifle_Aim")
@@ -34,7 +35,6 @@ AHDCharacterPlayer::AHDCharacterPlayer()
     , CurrentInputCommandList{}
 	, Combat(nullptr)
 	, DefaultWeaponClass(nullptr)
-    , DefaultCurve(nullptr)
 	, StartingAimRotation(FRotator())
 	, AimOffset_Yaw(0.f)
 	, InterpAimOffset_Yaw(0.f)
@@ -55,6 +55,10 @@ AHDCharacterPlayer::AHDCharacterPlayer()
 	, DefaultFOV(0.f)
     , FireTimer(FTimerHandle())
     , ReloadTimer(FTimerHandle())
+    , DefaultCurve(nullptr)
+    , ArmLengthTimeline(FTimeline())
+    , TargetArmLength(0.f)
+    , CameraTargetZOffset(0.f)
 {
     GetCharacterMovement()->bOrientRotationToMovement = true;
 
@@ -84,6 +88,7 @@ void AHDCharacterPlayer::Tick(float DeltaTime)
     Super::Tick(DeltaTime);
 
 	AimOffset(DeltaTime);
+    ArmLengthTimeline.TickTimeline(DeltaTime);
 }
 
 void AHDCharacterPlayer::PossessedBy(AController* NewController)
@@ -91,6 +96,11 @@ void AHDCharacterPlayer::PossessedBy(AController* NewController)
     Super::PossessedBy(NewController);
 
     SpawnDefaultWeapon();
+
+    FOnTimelineFloat ArmLengthTimelineProgress;
+    ArmLengthTimelineProgress.BindUFunction(this, FName("OnCameraSpringArmLengthTImelineUpdate"));
+    ArmLengthTimeline.AddInterpFloat(DefaultCurve, ArmLengthTimelineProgress);
+    ArmLengthTimeline.SetLooping(false);
 }
 
 void AHDCharacterPlayer::SetRagdoll(const bool bRagdoll, const FVector& Impulse)
@@ -156,8 +166,16 @@ const bool AHDCharacterPlayer::IsShouldering() const
 
 void AHDCharacterPlayer::SetShouldering(const bool bShoulder)
 {
-    // 오버라이드하여 실제 CameraSpringArmLength 조정 중
     Combat->bIsShoulder = bShoulder;   
+
+    if (bShoulder)
+    {
+        ArmLengthTimeline.PlayFromStart();
+    }
+    else
+    {
+        ArmLengthTimeline.ReverseFromEnd();
+    }
 }
 
 void AHDCharacterPlayer::EquipWeapon(AHDWeapon* NewWeapon)
@@ -230,6 +248,33 @@ void AHDCharacterPlayer::AddStratagemCommand(const EHDCommandInput NewInput)
     PlayerController->SetHUDActiveByCurrentInputMatchList(CommandMatchStratagemNameList, CurrentInputCommandList.Num());
 }
 
+void AHDCharacterPlayer::SetCharacterControlData(UHDCharacterControlData* CharacterControlData)
+{
+    bUseControllerRotationYaw = CharacterControlData->bUseControllerRotationYaw;
+
+    UCharacterMovementComponent* CharacterMovementComponent     = GetCharacterMovement();
+    CharacterMovementComponent->bOrientRotationToMovement       = CharacterControlData->bOrientRotationToMovement;
+    CharacterMovementComponent->bUseControllerDesiredRotation   = CharacterControlData->bUseControllerDesiredRotation;
+    CharacterMovementComponent->RotationRate                    = CharacterControlData->RotationRate;
+
+    CameraTargetZOffset                 = CharacterControlData->TargetOffset.Z;
+    TargetArmLength                     = CharacterControlData->TargetArmLength;
+    CameraBoom->TargetArmLength         = CharacterControlData->TargetArmLength;
+    CameraBoom->TargetOffset            = CharacterControlData->TargetOffset;
+    CameraBoom->SocketOffset            = CharacterControlData->SocketOffset;
+    CameraBoom->bUsePawnControlRotation = CharacterControlData->bUsePawnControlRotation;
+    CameraBoom->bInheritPitch           = CharacterControlData->bInheritPitch;
+    CameraBoom->bInheritYaw             = CharacterControlData->bInheritYaw;
+    CameraBoom->bInheritRoll            = CharacterControlData->bInheritRoll;
+    CameraBoom->bDoCollisionTest        = CharacterControlData->bDoCollisionTest;
+}
+
+void AHDCharacterPlayer::OnCameraSpringArmLengthTImelineUpdate(const float Value)
+{
+    const float Interpolated = FMath::Lerp(TargetArmLength, TargetArmLength / 2.f, Value);
+    CameraBoom->TargetArmLength = Interpolated;
+}
+
 void AHDCharacterPlayer::SetSprint(const bool bSprint)
 {
     // 해당 클래스를 상속받은 캐릭터에서 해당 함수 Override하여 스피드 조정 중
@@ -251,12 +296,16 @@ void AHDCharacterPlayer::SetCharacterMovementState(const EHDCharacterMovementSta
 	{
         Combat->CombatState = NewState == EHDCharacterMovementState::Prone ? EHDCombatState::Ragdoll : EHDCombatState::Unoccupied;
     }
+
+    ChangeCameraZOffsetByCharacterMovementState(MovementState);
 }
 
 void AHDCharacterPlayer::RestoreMovementState()
 {
     MovementState = MovementState != EHDCharacterMovementState::Prone ? PrevMovementState
         : EHDCharacterMovementState::Idle;
+
+    ChangeCameraZOffsetByCharacterMovementState(MovementState);
 }
 
 const FVector& AHDCharacterPlayer::GetThrowDirection() const
@@ -266,7 +315,6 @@ const FVector& AHDCharacterPlayer::GetThrowDirection() const
 
 void AHDCharacterPlayer::ThrowStratagem()
 {   
-    USkeletalMeshComponent* CharacterMesh = GetMesh();
     NULL_CHECK(ThrowMontage);
     NULL_CHECK(StratagemClass);
 
@@ -280,12 +328,13 @@ void AHDCharacterPlayer::ThrowStratagem()
         UWorld* World = GetWorld();
         VALID_CHECK(World);
 
+        USkeletalMeshComponent* CharacterMesh = GetMesh();
         const USkeletalMeshSocket* RightHandSocket = CharacterMesh->GetSocketByName(SOCKETNAME_RIGHTHAND);
         NULL_CHECK(RightHandSocket);
 
         FActorSpawnParameters SpawnParams;
         SpawnParams.Owner = this;
-        SpawnParams.Instigator = CastChecked<APawn>(this);
+        SpawnParams.Instigator = Cast<APawn>(this);
 
         const FTransform SocketTransform = RightHandSocket->GetSocketTransform(CharacterMesh);
         FRotator TargetRotation = (Combat->HitTarget - SocketTransform.GetLocation()).Rotation();
@@ -304,7 +353,7 @@ void AHDCharacterPlayer::ThrowStratagem()
 
 void AHDCharacterPlayer::AimOffset(const float DeltaTime)
 {
-    if (IsValid(GetWeapon()) == false || Combat->CombatState != EHDCombatState::Unoccupied)
+    if (IsValid(GetWeapon()) == false)
     {
         return;
     }
@@ -351,12 +400,11 @@ void AHDCharacterPlayer::AimOffset(const float DeltaTime)
     }
     else
     {
-        const FRotator TargetRotation(0.f, BaseAimRoatation.Yaw, 0.f);
-
         bIsCharacterLookingViewport = true;
         bUseRotateRootBone = true;
         bUseControllerRotationYaw = false;
         CharacterMovementComponent->bOrientRotationToMovement = false;
+        const FRotator TargetRotation(0.f, BaseAimRoatation.Yaw, 0.f);
         const FRotator DeltaRotation = UKismetMathLibrary::NormalizedDeltaRotator(TargetRotation, StartingAimRotation);
         AimOffset_Yaw = DeltaRotation.Yaw;
 
@@ -469,9 +517,29 @@ void AHDCharacterPlayer::ReloadTimerFinished()
 
     AHDPlayerController* PlayerController = GetController<AHDPlayerController>();
     NULL_CHECK(PlayerController);
+
     AHDWeapon* Weapon = GetWeapon();
     NULL_CHECK(Weapon);
     PlayerController->ChangeCapacityHUDInfo(Weapon->GetCapacityCount());
+}
+
+void AHDCharacterPlayer::ChangeCameraZOffsetByCharacterMovementState(const EHDCharacterMovementState State)
+{
+    switch (State)
+    {
+    case EHDCharacterMovementState::Idle:
+        CameraBoom->TargetOffset.Z = CameraTargetZOffset;
+        break;
+    case EHDCharacterMovementState::Crouch:
+        CameraBoom->TargetOffset.Z = CameraTargetZOffset - 40.f;
+        break;
+    case EHDCharacterMovementState::Prone:
+        CameraBoom->TargetOffset.Z = CameraTargetZOffset - 80.f;
+        break;
+    default:
+        LOG("EHDCharacterMovementState is Invalid!!");
+        break;
+    }
 }
 
 void AHDCharacterPlayer::Fire(const bool IsPressed)
@@ -520,7 +588,7 @@ void AHDCharacterPlayer::SetDead()
 {
     Super::SetDead();
 
-    APlayerController* PlayerController = Cast<APlayerController>(GetController());
+    APlayerController* PlayerController = GetController<APlayerController>();
     NULL_CHECK(PlayerController);
 
     if (IsLocallyControlled())

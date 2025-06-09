@@ -18,6 +18,7 @@ class UCameraComponent;
 class UHDCombatComponent;
 class AHDWeapon;
 class AHDStratagem;
+class UHDCharacterControlData;
 
 UCLASS()
 class HELLDIVERS_API AHDCharacterPlayer : public AHDCharacterBase, public IHDCharacterMovementInterface, public IHDWeaponInterface, public IHDCharacterCommandInterface
@@ -50,7 +51,7 @@ protected:
 	virtual const float						GetAimOffset_Pitch() const override final				{ return AimOffset_Pitch; }
 
     virtual const bool						IsShouldering() const override final;
-	virtual void							SetShouldering(const bool bSetAiming) override;
+	virtual void							SetShouldering(const bool bSetAiming) override final;
 	virtual const bool						IsCharacterLookingViewport() const override final		{ return bIsCharacterLookingViewport; }
 
 	virtual const EHDTurningInPlace			GetTurningInPlace() const override final				{ return TurningInPlace; }
@@ -72,6 +73,11 @@ protected:
 	FORCEINLINE TArray<FName>				GetCommandMatchStratagemNameList() const 				{ return CommandMatchStratagemNameList; }
 	FORCEINLINE FName						GetSelectedStraragemName() const						{ return SelectedStratagemName; }
 	virtual void							AddStratagemCommand(const EHDCommandInput NewInput);
+
+	void									SetCharacterControlData(UHDCharacterControlData* CharacterControlData);
+	
+	UFUNCTION()
+	void									OnCameraSpringArmLengthTImelineUpdate(const float Value);
 		
 private:
     void									AimOffset(const float DeltaTime);
@@ -86,6 +92,8 @@ private:
 
 	void									FireTimerFinished();
 	void									ReloadTimerFinished();
+
+	void									ChangeCameraZOffsetByCharacterMovementState(const EHDCharacterMovementState State);
 
 protected:
 	// Camera Section
@@ -105,8 +113,6 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Player|Weapon")
 	TSubclassOf<AHDWeapon>					DefaultWeaponClass;
 	
-	UPROPERTY(EditAnywhere, Category = "Player|CharacterControl")
-	TObjectPtr<UCurveFloat>					DefaultCurve;
 
 private:
 	FRotator								StartingAimRotation;
@@ -146,4 +152,11 @@ private:
 
 	FTimerHandle							FireTimer;
 	FTimerHandle							ReloadTimer;
+	
+	UPROPERTY(EditAnywhere, Category = "Player|CharacterControl")
+	TObjectPtr<UCurveFloat>					DefaultCurve;
+
+	FTimeline								ArmLengthTimeline;
+	float									TargetArmLength;
+	float									CameraTargetZOffset;
 };
