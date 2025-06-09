@@ -59,10 +59,9 @@ protected:
 	virtual const bool						IsSprint() const override final							{ return bIsSprint; }
 	virtual void							SetSprint(const bool bSprint) override;
 
-	virtual const bool						IsCrouch() const override final							{ return bIsCrouch; }
-	virtual void							SetCrouch(const bool bCrouch) override;
-	virtual const bool						IsProne() const override final							{ return bIsProne; }
-	virtual void							SetProne(const bool bProne) override;
+	virtual const EHDCharacterMovementState	GetCharacterMovementState() const override;
+	virtual void							SetCharacterMovementState(const EHDCharacterMovementState NewState, const bool bForced = false);
+	virtual void							RestoreMovementState() override;
 
 	// CharacterCommandInterface
 	virtual AHDStratagem*					GetStratagem() const override final						{ return Stratagem; }
@@ -111,14 +110,13 @@ protected:
 
 private:
 	FRotator								StartingAimRotation;
-
 	float									AimOffset_Yaw;
 	float									InterpAimOffset_Yaw;
 	float									AimOffset_Pitch;
 
+	EHDCharacterMovementState				MovementState;
+	EHDCharacterMovementState				PrevMovementState;
 	bool									bIsSprint;
-	bool									bIsCrouch;
-	bool									bIsProne;
 
 	bool									bIsCharacterLookingViewport;
 	bool									bUseRotateRootBone;

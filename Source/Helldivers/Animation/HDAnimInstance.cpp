@@ -29,6 +29,7 @@ UHDAnimInstance::UHDAnimInstance()
 	, YawOffset(0.f)
 	, Lean(0.f)
 	, bIsLookingViewport(false)
+	, CombatState(EHDCombatState::Count)
 	, TurningInPlace(EHDTurningInPlace::NotTurning)
 	, LeftHandTransform(FTransform())
 	, RightHandRotation(FRotator())
@@ -71,7 +72,6 @@ void UHDAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 	bIsIdle = GroundSpeed < MovingThreshould;
 	bIsFalling = Movement->IsFalling();
 	bIsJumping = bIsFalling & (Velocity.Z > JumpingThreshould);
-	CharacterMoveState = EHDCharacterMovementState::Idle;
 
 	// Character Yaw for strafing
 	const FRotator AimRotation = Owner->GetBaseAimRotation();
@@ -98,8 +98,7 @@ void UHDAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 		TurningInPlace		= CharacterMovementInterface->GetTurningInPlace();
 		bIsLookingViewport	= CharacterMovementInterface->IsCharacterLookingViewport();
 		YawOffset			= bIsLookingViewport ? DeltaRotation.Yaw : 0.f;
-		CharacterMoveState	= CharacterMovementInterface->IsCrouch() ? EHDCharacterMovementState::Crouch : CharacterMoveState;
-		CharacterMoveState	= CharacterMovementInterface->IsProne() ? EHDCharacterMovementState::Prone : CharacterMoveState;
+		CharacterMoveState	= CharacterMovementInterface->GetCharacterMovementState();
 	}
 
 	// WeaponInterface
@@ -126,7 +125,7 @@ void UHDAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 		const FRotator LookAtRotation = UKismetMathLibrary::FindLookAtRotation(MuzzleFlashSocketTransform.GetLocation(), HitTarget);
 		RightHandRotation = LookAtRotation;
 
-		const EHDCombatState CombatState = WeaponInterface->GetCombatState();
+		CombatState = WeaponInterface->GetCombatState();
 		bUseFABRIK = CombatState != EHDCombatState::ThrowingGrenade;
 		bTransformRightHand = CombatState != EHDCombatState::Unoccupied;
 	}

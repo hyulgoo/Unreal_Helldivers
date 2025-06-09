@@ -72,6 +72,7 @@ protected:
 	void										SetGASEventInputComponent(UEnhancedInputComponent* EnhancedInputComponent);
 	void										GASInputPressed(const FGameplayTag Tag);
 	void										GASInputReleased(const FGameplayTag Tag);
+	void										GASInputToggled(const FGameplayTag Tag);
 
 	UFUNCTION()
 	void										InputStratagemCommand(const FInputActionValue& Value);
@@ -85,9 +86,9 @@ private:
 	void										InitializeAttributeSet();
 	const FHDCharacterStat*						GetCharacterStatByArmorType(const EHDArmorType ArmorType) const;
 
+	virtual void								SetCharacterMovementState(const EHDCharacterMovementState NewState, const bool bForce) override final;
+	virtual void								RestoreMovementState() override final;
 	virtual	void								SetSprint(const bool bSprint) override final;
-	virtual void								SetCrouch(const bool bCrouch) override final;
-	virtual void								SetProne(const bool bProne) override final;
 	virtual void								SetShouldering(const bool bShoulder) override final;
 	void										ThirdPersonLook(const FInputActionValue& Value);
 	void										ThirdPersonMove(const FInputActionValue& Value);
@@ -98,6 +99,8 @@ private:
 
 	UFUNCTION()
 	void										OnCameraSpringArmLengthTImelineUpdate(const float Value);
+
+	const float									GetMoveSpeedByMovementStateAndIsSprint(const EHDCharacterMovementState State, const bool bIsSprint);
 
 private:
 	UPROPERTY()
@@ -110,7 +113,10 @@ private:
 	TArray<TSubclassOf<UGameplayAbility>>		StartAbilities;
 
 	UPROPERTY(EditAnywhere, Category = "GASPlayer|Input")
-	TArray<FTaggedInputAction>					TaggedTriggerActions;
+	TArray<FTaggedInputAction>					TaggedHoldActions;
+	
+	UPROPERTY(EditAnywhere, Category = "GASPlayer|Input")
+	TArray<FTaggedInputAction>					TaggedToggleActions;
 	
 	UPROPERTY(EditAnywhere, Category = "GASPlayer|Input")
 	TMap<EHDCharacterInputAction, TObjectPtr<UInputAction>> InputActionMap;

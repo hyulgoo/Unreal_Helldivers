@@ -6,7 +6,15 @@
 #include "Animation/AnimNotifies/AnimNotify.h"
 #include "AnimNotify_FootStepSoundCue.generated.h"
 
-class USoundBase;
+UENUM(BlueprintType)
+enum class EPhysicsMaterialType : uint8
+{
+	Default,
+	Dirt,
+	Wood,
+	Metal,
+	Count
+};
 
 UCLASS()
 class HELLDIVERS_API UAnimNotify_FootStepSoundCue : public UAnimNotify
@@ -20,13 +28,16 @@ protected:
 	virtual FString											GetNotifyName_Implementation() const override final;
 	virtual void											Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, const FAnimNotifyEventReference& EventReference) override;
 
+private:
+	const EPhysicsMaterialType								GetPhysicsMaterialTypeByPhysicSurface(const EPhysicalSurface PhysicSurface);
+
 public:
 	UPROPERTY(EditAnywhere, Category = "AnimNotify")
 	FName													FootSocketName;
-	
+
 	UPROPERTY(EditAnywhere, Category = "AnimNotify")
 	float													TraceDistance;
 	
 	UPROPERTY(EditAnywhere, Category = "AnimNotify")
-	TMap<EPhysicalSurface, TObjectPtr<USoundBase>>	PhysicsSoundMap;
+	TMap<EPhysicsMaterialType, TObjectPtr<USoundBase>>		PhysicsSoundMap;
 };

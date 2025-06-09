@@ -9,6 +9,7 @@
 
 class ACharacter;
 class UCharacterMovementComponent;
+enum class EHDCombatState : uint8;
 
 UCLASS()
 class HELLDIVERS_API UHDAnimInstance : public UAnimInstance
@@ -69,6 +70,9 @@ protected:
 	
 	UPROPERTY(BlueprintReadOnly, Category = "Movement")
 	uint8									bIsLookingViewport : 1;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Movement")
+	EHDCombatState							CombatState;
 		
 	UPROPERTY(BlueprintReadOnly, Category = "Aim")
 	EHDTurningInPlace						TurningInPlace;
@@ -103,7 +107,6 @@ protected:
 	UPROPERTY(BlueprintReadOnly, Category = "Throw")
 	uint8									bIsUpperSlotValid : 1;
 	
-
 	FRotator								CharacterRotationLastFrame;
 	FRotator								CharacterRotation;
 	FRotator								DeltaRotation;

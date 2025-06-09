@@ -4,6 +4,7 @@
 #include "Tag/HDGameplayTag.h"
 #include "Define/HDDefine.h"
 #include "Interface/HDCharacterMovementInterface.h"
+#include "Character/CharacterTypes/HDCharacterStateTypes.h"
 
 UHDGA_MovementTrigger::UHDGA_MovementTrigger()
 	: CurrentTagContainer(FGameplayTagContainer())
@@ -12,7 +13,7 @@ UHDGA_MovementTrigger::UHDGA_MovementTrigger()
 }
 
 bool UHDGA_MovementTrigger::CanActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayTagContainer* SourceTags, const FGameplayTagContainer* TargetTags, OUT FGameplayTagContainer* OptionalRelevantTags) const
-{
+{	
 	return Super::CanActivateAbility(Handle, ActorInfo, SourceTags, TargetTags, OptionalRelevantTags);
 }
 
@@ -43,34 +44,12 @@ void UHDGA_MovementTrigger::ActivateAbility(const FGameplayAbilitySpecHandle Han
 
 	if (CurrentTagContainer.HasTagExact(HDTAG_INPUT_CROUCH))
 	{
-		if (CharacterMovementInterface->IsCrouch())
-		{
-			CharacterMovementInterface->SetCrouch(false);
-
-			const bool bReplicatedEndAbility = true;
-			const bool bWasCancelled = true;
-			EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, bReplicatedEndAbility, bWasCancelled);
-		}
-		else
-		{
-			CharacterMovementInterface->SetCrouch(true);
-		}
+		CharacterMovementInterface->SetCharacterMovementState(EHDCharacterMovementState::Crouch);
 	}
 
 	if (CurrentTagContainer.HasTagExact(HDTAG_INPUT_PRONE))
 	{
-		if (CharacterMovementInterface->IsProne())
-		{
-			CharacterMovementInterface->SetProne(false);
-
-			const bool bReplicatedEndAbility = true;
-			const bool bWasCancelled = true;
-			EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, bReplicatedEndAbility, bWasCancelled);
-		}
-		else
-		{
-			CharacterMovementInterface->SetProne(true);
-		}
+		CharacterMovementInterface->SetCharacterMovementState(EHDCharacterMovementState::Prone);
 	}
 }
 
@@ -83,18 +62,28 @@ void UHDGA_MovementTrigger::InputReleased(const FGameplayAbilitySpecHandle Handl
 	{
 		//CharacterMovementInterface->ChangeCharacterControlType();
 	}
-
-	if (CurrentTagContainer.HasTagExact(HDTAG_INPUT_SHOULDER))
+	else if (CurrentTagContainer.HasTagExact(HDTAG_INPUT_SHOULDER))
 	{
 		CharacterMovementInterface->SetShouldering(false);
 	}
-
-	if (CurrentTagContainer.HasTagExact(HDTAG_INPUT_SPRINT))
+	else if (CurrentTagContainer.HasTagExact(HDTAG_INPUT_SPRINT))
 	{
 		CharacterMovementInterface->SetSprint(false);
+	}
+
+	if (CurrentTagContainer.HasTagExact(HDTAG_INPUT_CROUCH) || CurrentTagContainer.HasTagExact(HDTAG_INPUT_PRONE))
+	{
+		UE_LOG(LogTemp, Error, TEXT("EndAbility Called!"));
+
+		CharacterMovementInterface->RestoreMovementState();
 	}
 
 	const bool bReplicatedEndAbility = true;
 	const bool bWasCancelled = true;
 	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, bReplicatedEndAbility, bWasCancelled);
+}
+
+void UHDGA_MovementTrigger::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled)
+{
+	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 }

@@ -39,9 +39,9 @@ AHDCharacterPlayer::AHDCharacterPlayer()
 	, AimOffset_Yaw(0.f)
 	, InterpAimOffset_Yaw(0.f)
 	, AimOffset_Pitch(0.f)
+    , MovementState(EHDCharacterMovementState::Idle)
+    , PrevMovementState(EHDCharacterMovementState::Idle)
 	, bIsSprint(false)
-    , bIsCrouch(false)
-    , bIsProne(false)
 	, bIsCharacterLookingViewport(false)
 	, bUseRotateRootBone(false)
 	, TurnThreshold(0.f)
@@ -83,7 +83,7 @@ void AHDCharacterPlayer::Tick(float DeltaTime)
 {
     Super::Tick(DeltaTime);
 
-    AimOffset(DeltaTime);        
+	AimOffset(DeltaTime);
 }
 
 void AHDCharacterPlayer::PossessedBy(AController* NewController)
@@ -97,7 +97,7 @@ void AHDCharacterPlayer::SetRagdoll(const bool bRagdoll, const FVector& Impulse)
 {
     Super::SetRagdoll(bRagdoll, Impulse);
 
-    SetProne(true);
+    SetCharacterMovementState(EHDCharacterMovementState::Prone, true);
 }
 
 void AHDCharacterPlayer::SetWeaponActive(const bool bActive)
@@ -133,11 +133,11 @@ void AHDCharacterPlayer::Reload()
 	{
 	case EHDFireType::HitScan:
 	case EHDFireType::Projectile:
-		SectionName = bIsProne ? MONTAGESECTIONNAME_RIFLE_PRONE
+		SectionName = MovementState == EHDCharacterMovementState::Prone ? MONTAGESECTIONNAME_RIFLE_PRONE
 			: Combat->bIsShoulder ? MONTAGESECTIONNAME_RIFLE_AIM : MONTAGESECTIONNAME_RIFLE_HIP;
 		break;
 	case EHDFireType::Shotgun:
-		SectionName = bIsProne ? MONTAGESECTIONNAME_SHOTGUN_PRONE
+		SectionName = MovementState == EHDCharacterMovementState::Prone ? MONTAGESECTIONNAME_SHOTGUN_PRONE
 			: Combat->bIsShoulder ? MONTAGESECTIONNAME_SHOTGUN_AIM : MONTAGESECTIONNAME_SHOTGUN_HIP;
 		break;
 	}
@@ -236,14 +236,27 @@ void AHDCharacterPlayer::SetSprint(const bool bSprint)
     bIsSprint = bSprint;
 }
 
-void AHDCharacterPlayer::SetCrouch(const bool bCrouch)
+const EHDCharacterMovementState AHDCharacterPlayer::GetCharacterMovementState() const
 {
-    bIsCrouch = bCrouch;
+    return MovementState;
 }
 
-void AHDCharacterPlayer::SetProne(const bool bProne)
+void AHDCharacterPlayer::SetCharacterMovementState(const EHDCharacterMovementState NewState, const bool bForced)
 {
-	bIsProne = bProne;
+    CONDITION_CHECK(NewState == EHDCharacterMovementState::Count);
+
+    PrevMovementState = MovementState;
+    MovementState = NewState;
+	if (bForced)
+	{
+        Combat->CombatState = NewState == EHDCharacterMovementState::Prone ? EHDCombatState::Ragdoll : EHDCombatState::Unoccupied;
+    }
+}
+
+void AHDCharacterPlayer::RestoreMovementState()
+{
+    MovementState = MovementState != EHDCharacterMovementState::Prone ? PrevMovementState
+        : EHDCharacterMovementState::Idle;
 }
 
 const FVector& AHDCharacterPlayer::GetThrowDirection() const
@@ -291,7 +304,7 @@ void AHDCharacterPlayer::ThrowStratagem()
 
 void AHDCharacterPlayer::AimOffset(const float DeltaTime)
 {
-    if (IsValid(GetWeapon()) == false)
+    if (IsValid(GetWeapon()) == false || Combat->CombatState != EHDCombatState::Unoccupied)
     {
         return;
     }

@@ -23,6 +23,7 @@ enum class EHDCombatState : uint8
 	Reloading,
 	ThrowingGrenade,
 	SwappingWeapons,
+	Ragdoll,
 	Count
 };
 

@@ -173,6 +173,7 @@ void AHDHellpod::SpawnCharacter()
 	PlayerController->Possess(Cast<APawn>(SpawnedCharacter));
 	PlayerController->SetViewTargetWithBlend(SpawnedCharacter, SpawnTime, EViewTargetBlendFunction::VTBlend_Cubic);
 	SpawnedCharacter->GetCapsuleComponent()->Activate(false);
+	SpawnedCharacter->GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	UGameplayStatics::FinishSpawningActor(SpawnedCharacter, CurrentHellpodTransform);
 
 	PlayerController = SpawnedCharacter->GetController<APlayerController>();
@@ -189,8 +190,8 @@ void AHDHellpod::OnSpawnTimelineUpdate(const float Value)
 	FVector CharacterOrgin, CharacterExtent;
 	SpawnedCharacter->GetActorBounds(true, CharacterOrgin, CharacterExtent);
 
-	const FVector HellpodLocation = GetActorLocation();
-	const float Interpolated			= FMath::Lerp(HellpodLocation.Z, CharacterExtent.Z, Value);
+	const FVector& HellpodLocation		= GetActorLocation();
+	const float Interpolated			= FMath::Lerp(HellpodLocation.Z, HellpodLocation.Z + CharacterExtent.Z, Value);
 	const FVector& CharacterLocation	= SpawnedCharacter->GetActorLocation();
 	const FVector NewLocation(CharacterLocation.X, CharacterLocation.Y, Interpolated);
 	SpawnedCharacter->SetActorLocation(NewLocation);
@@ -204,6 +205,7 @@ void AHDHellpod::SpawnCharacterEnd()
 
 	NULL_CHECK(SpawnedCharacter);
 	SpawnedCharacter->GetCapsuleComponent()->Activate(true);
+	SpawnedCharacter->GetMesh()->SetCollisionProfileName(HDCOLLISION_PROFILE_PLAYER);
 
 	SetLifeSpan(30.f);
 }

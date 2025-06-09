@@ -20,7 +20,8 @@ AHDGASCharacterPlayer::AHDGASCharacterPlayer()
 	: AbilitySystemComponent(nullptr)
 	, InitStatEffect(nullptr)
     , StartAbilities{}
-    , TaggedTriggerActions{}
+    , TaggedHoldActions{}
+    , TaggedToggleActions{}
     , InputActionMap{}
 	, EventCallTags(FGameplayTagContainer())
     , TagEventBindInfoList{}
@@ -134,12 +135,23 @@ void AHDGASCharacterPlayer::SetupGASInputComponent(UEnhancedInputComponent* Enha
 {
     NULL_CHECK(EnhancedInputComponent);
 
-    for (const FTaggedInputAction& TaggedTriggerAction : TaggedTriggerActions)
+    for (const FTaggedInputAction& TaggedHoldAction : TaggedHoldActions)
     {
-        CONDITION_CHECK((TaggedTriggerAction.InputAction && TaggedTriggerAction.InputTag.IsValid()) == false);
+        CONDITION_CHECK((TaggedHoldAction.InputAction == nullptr || TaggedHoldAction.InputTag.IsValid()) == false);
 
-		EnhancedInputComponent->BindAction(TaggedTriggerAction.InputAction, ETriggerEvent::Triggered, this, &AHDGASCharacterPlayer::GASInputPressed, TaggedTriggerAction.InputTag);
-		EnhancedInputComponent->BindAction(TaggedTriggerAction.InputAction, ETriggerEvent::Completed, this, &AHDGASCharacterPlayer::GASInputReleased, TaggedTriggerAction.InputTag);
+		EnhancedInputComponent->BindAction(TaggedHoldAction.InputAction, ETriggerEvent::Triggered, this, &AHDGASCharacterPlayer::GASInputPressed, TaggedHoldAction.InputTag);
+		EnhancedInputComponent->BindAction(TaggedHoldAction.InputAction, ETriggerEvent::Completed, this, &AHDGASCharacterPlayer::GASInputReleased, TaggedHoldAction.InputTag);
+    }
+
+    for (const FTaggedInputAction& TaggedToggleAction : TaggedToggleActions)
+    {
+        if (TaggedToggleAction.InputAction == nullptr || TaggedToggleAction.InputTag.IsValid() == false)
+        {
+            UE_LOG(LogTemp, Error, TEXT("TaggedToggleAction is InValid!"));
+            continue;
+        }
+
+        EnhancedInputComponent->BindAction(TaggedToggleAction.InputAction, ETriggerEvent::Triggered, this, &AHDGASCharacterPlayer::GASInputToggled, TaggedToggleAction.InputTag);
     }
     
     CONDITION_CHECK(InputActionMap.Num() != static_cast<uint8>(EHDCharacterInputAction::Count));
@@ -225,6 +237,38 @@ void AHDGASCharacterPlayer::GASInputReleased(const FGameplayTag Tag)
         if (Spec.IsActive())
         {
             AbilitySystemComponent->AbilitySpecInputReleased(Spec);
+        }
+    }
+}
+
+void AHDGASCharacterPlayer::GASInputToggled(const FGameplayTag Tag)
+{
+    VALID_CHECK(AbilitySystemComponent);
+
+    TArray<FGameplayAbilitySpec>& ActivatebleAbilities = AbilitySystemComponent->GetActivatableAbilities();
+    for (FGameplayAbilitySpec& Spec : ActivatebleAbilities)
+    {
+        UHDGameplayAbility* HDAbility = Cast<UHDGameplayAbility>(Spec.Ability);
+        if (HDAbility == nullptr)
+        {
+            continue;
+        }
+
+        const FGameplayTagContainer& InputTagContainer = HDAbility->GetAssetInputTags();
+        if (InputTagContainer.IsValid() == false || InputTagContainer.HasTagExact(Tag) == false)
+        {
+            continue;
+        }
+
+        if (Spec.IsActive())
+        {
+            Spec.InputPressed = false;
+            AbilitySystemComponent->AbilitySpecInputReleased(Spec);
+        }
+        else
+        {
+            Spec.InputPressed = true;
+            AbilitySystemComponent->TryActivateAbility(Spec.Handle);
         }
     }
 }
@@ -338,64 +382,29 @@ const FHDCharacterStat* AHDGASCharacterPlayer::GetCharacterStatByArmorType(const
     return ArmorStatus;
 }
 
+void AHDGASCharacterPlayer::SetCharacterMovementState(const EHDCharacterMovementState NewState, const bool bForce)
+{
+    Super::SetCharacterMovementState(NewState, bForce);
+    NULL_CHECK(AbilitySystemComponent);
+    
+    const bool bSprint = IsSprint();
+    const float NewSpeed = GetMoveSpeedByMovementStateAndIsSprint(NewState, bSprint);
+    GetCharacterMovement()->MaxWalkSpeed = NewSpeed;
+}
+
+void AHDGASCharacterPlayer::RestoreMovementState()
+{
+	Super::RestoreMovementState();
+
+    const float NewSpeed = GetMoveSpeedByMovementStateAndIsSprint(GetCharacterMovementState(), IsSprint());
+    GetCharacterMovement()->MaxWalkSpeed = NewSpeed;
+}
+
 void AHDGASCharacterPlayer::SetSprint(const bool bSprint)
 {
     Super::SetSprint(bSprint);
-    NULL_CHECK(AbilitySystemComponent);
 
-    FGameplayAttribute Attribute;
-    float NewSpeed = GetCharacterMovement()->MaxWalkSpeed;
-
-    if (IsCrouch())
-    {
-        Attribute = UHDPlayerSpeedAttributeSet::GetCrouchSpeedAttribute();
-        CONDITION_CHECK(Attribute.IsValid() == false);
-        NewSpeed = AbilitySystemComponent->GetNumericAttribute(Attribute);
-        NewSpeed = bSprint ? NewSpeed * 1.5f : NewSpeed;
-    }
-    else
-    {
-        Attribute = bSprint ? UHDPlayerSpeedAttributeSet::GetSprintSpeedAttribute() : UHDPlayerSpeedAttributeSet::GetWalkSpeedAttribute();
-        CONDITION_CHECK(Attribute.IsValid() == false);
-        NewSpeed = AbilitySystemComponent->GetNumericAttribute(Attribute);
-    }
-
-    GetCharacterMovement()->MaxWalkSpeed = NewSpeed;
-}
-
-void AHDGASCharacterPlayer::SetCrouch(const bool bCrouch)
-{
-    Super::SetCrouch(bCrouch);
-
-    FGameplayAttribute Attribute;
-    float NewSpeed;
-
-    if (IsSprint())
-    {
-        Attribute = UHDPlayerSpeedAttributeSet::GetWalkSpeedAttribute();
-        CONDITION_CHECK(Attribute.IsValid() == false);
-        NewSpeed = AbilitySystemComponent->GetNumericAttribute(Attribute);
-        NewSpeed = bCrouch ? NewSpeed * 1.5f : NewSpeed;
-    }
-    else
-    {
-        Attribute = bCrouch ? UHDPlayerSpeedAttributeSet::GetCrouchSpeedAttribute() : UHDPlayerSpeedAttributeSet::GetWalkSpeedAttribute();
-        CONDITION_CHECK(Attribute.IsValid() == false);
-        NewSpeed = AbilitySystemComponent->GetNumericAttribute(Attribute);
-    }
-
-    GetCharacterMovement()->MaxWalkSpeed = NewSpeed;
-}
-
-void AHDGASCharacterPlayer::SetProne(const bool bProne)
-{
-    Super::SetProne(bProne);
-
-    const FGameplayAttribute Attribute = bProne ? UHDPlayerSpeedAttributeSet::GetCrawlingSpeedAttribute() : 
-            IsCrouch() ? UHDPlayerSpeedAttributeSet::GetCrouchSpeedAttribute() : UHDPlayerSpeedAttributeSet::GetWalkSpeedAttribute();
-    CONDITION_CHECK(Attribute.IsValid() == false);
-
-    const float NewSpeed = AbilitySystemComponent->GetNumericAttribute(Attribute);
+    const float NewSpeed = GetMoveSpeedByMovementStateAndIsSprint(GetCharacterMovementState(), bSprint);
     GetCharacterMovement()->MaxWalkSpeed = NewSpeed;
 }
 
@@ -512,5 +521,33 @@ void AHDGASCharacterPlayer::OnCameraSpringArmLengthTImelineUpdate(const float Va
     const float DefaultArmLength = CharacterControlDataMap[CurrentCharacterControlType]->TargetArmLength;
     const float Interpolated = FMath::Lerp(DefaultArmLength, DefaultArmLength / 2.f, Value);
     CameraBoom->TargetArmLength = Interpolated;
+}
+
+const float AHDGASCharacterPlayer::GetMoveSpeedByMovementStateAndIsSprint(const EHDCharacterMovementState State, const bool bSprint)
+{
+    NULL_CHECK_WITH_RETURNTYPE(AbilitySystemComponent, 0.f);
+
+    FGameplayAttribute Attribute;
+    switch (State)
+    {
+    case EHDCharacterMovementState::Idle:
+        Attribute = bSprint ? UHDPlayerSpeedAttributeSet::GetSprintSpeedAttribute() : UHDPlayerSpeedAttributeSet::GetWalkSpeedAttribute();
+        break;
+    case EHDCharacterMovementState::Crouch:
+        Attribute = UHDPlayerSpeedAttributeSet::GetCrouchSpeedAttribute();
+        break;
+    case EHDCharacterMovementState::Prone:
+        Attribute = UHDPlayerSpeedAttributeSet::GetCrawlingSpeedAttribute();
+        break;
+    }
+
+    CONDITION_CHECK_WITH_RETURNTYPE(Attribute.IsValid() == false, 0.f);
+    float Speed = AbilitySystemComponent->GetNumericAttribute(Attribute);
+    if (bSprint && State == EHDCharacterMovementState::Crouch)
+    {
+        Speed *= 1.5f;
+    }
+
+    return Speed;
 }
 

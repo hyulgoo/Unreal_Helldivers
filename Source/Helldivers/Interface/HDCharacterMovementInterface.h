@@ -8,7 +8,9 @@
 
 enum class EHDTurningInPlace : uint8;
 enum class ECharacterMovementMode : uint8;
+enum class EHDCharacterMovementState : uint8;
 enum class EHDCharacterControlType : uint8;
+enum class EHDCombatState : uint8;
 
 UINTERFACE(MinimalAPI)
 class UHDCharacterMovementInterface : public UInterface
@@ -37,8 +39,7 @@ public:
 	virtual const bool						IsSprint() const = 0;
 	virtual void							SetSprint(const bool bSprint) = 0;
 
-	virtual const bool						IsCrouch() const = 0;
-	virtual void							SetCrouch(const bool bCrouch) = 0;
-	virtual const bool						IsProne() const = 0;
-	virtual void							SetProne(const bool bProne) = 0;
+	virtual const EHDCharacterMovementState GetCharacterMovementState() const = 0;
+	virtual void							SetCharacterMovementState(const EHDCharacterMovementState NewState, const bool bForced = false) = 0;
+	virtual void							RestoreMovementState() = 0;
 };

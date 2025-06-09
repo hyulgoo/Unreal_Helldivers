@@ -51,7 +51,7 @@ void UHDCombatComponent::ReloadTimerFinished()
 
 void UHDCombatComponent::TraceUnderCrosshairs()
 {
-    FVector2D ViewportSize = FVector2D();
+    FVector2D ViewportSize;
     if (GEngine && GEngine->GameViewport)
     {
         GEngine->GameViewport->GetViewportSize(ViewportSize);
