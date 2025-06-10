@@ -31,7 +31,7 @@ void UHDCombatComponent::TickComponent(float DeltaTime, ELevelTick TickType, FAc
     TraceUnderCrosshairs();
 }
 
-const bool UHDCombatComponent::FireTimerFinished()
+const bool UHDCombatComponent::FireFinished()
 {
     VALID_CHECK_WITH_RETURNTYPE(Weapon, false);
 
@@ -40,11 +40,10 @@ const bool UHDCombatComponent::FireTimerFinished()
         Fire(true);
         return true;
     }
-
     return false;
 }
 
-void UHDCombatComponent::ReloadTimerFinished()
+void UHDCombatComponent::ReloadFinished()
 {
     CombatState = EHDCombatState::Unoccupied;
 }

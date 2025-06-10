@@ -90,8 +90,6 @@ void AHDGASCharacterPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInp
 {
     Super::SetupPlayerInputComponent(PlayerInputComponent);
 
-    SetCharacterControl(CurrentCharacterControlType);
-
     UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(InputComponent);
     NULL_CHECK(EnhancedInputComponent);
 
@@ -104,6 +102,8 @@ void AHDGASCharacterPlayer::PossessedBy(AController* NewController)
     Super::PossessedBy(NewController);
 
     InitAbilitySystemComponent();
+
+    SetCharacterControl(CurrentCharacterControlType);
 
     AHDPlayerController* PlayerController = GetController<AHDPlayerController>();
     NULL_CHECK(PlayerController);

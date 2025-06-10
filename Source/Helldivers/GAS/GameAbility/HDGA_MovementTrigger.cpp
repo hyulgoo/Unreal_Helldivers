@@ -7,21 +7,15 @@
 #include "Character/CharacterTypes/HDCharacterStateTypes.h"
 
 UHDGA_MovementTrigger::UHDGA_MovementTrigger()
-	: CurrentTagContainer(FGameplayTagContainer())
 { 
 	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
-}
-
-bool UHDGA_MovementTrigger::CanActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayTagContainer* SourceTags, const FGameplayTagContainer* TargetTags, OUT FGameplayTagContainer* OptionalRelevantTags) const
-{	
-	return Super::CanActivateAbility(Handle, ActorInfo, SourceTags, TargetTags, OptionalRelevantTags);
 }
 
 void UHDGA_MovementTrigger::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 
-	CurrentTagContainer = GetAssetInputTags();
+	FGameplayTagContainer CurrentTagContainer = GetAssetInputTags();
 	CONDITION_CHECK(CurrentTagContainer.IsValid() == false);
 
 	TScriptInterface<IHDCharacterMovementInterface> CharacterMovementInterface = ActorInfo->AvatarActor.Get();
@@ -31,23 +25,19 @@ void UHDGA_MovementTrigger::ActivateAbility(const FGameplayAbilitySpecHandle Han
 	{
 	   //CharacterMovementInterface->ChangeCharacterControlType();
 	}
-
-	if (CurrentTagContainer.HasTagExact(HDTAG_INPUT_SHOULDER))
+	else if (CurrentTagContainer.HasTagExact(HDTAG_INPUT_SHOULDER))
 	{
 		CharacterMovementInterface->SetShouldering(true);
 	}
-
-	if (CurrentTagContainer.HasTagExact(HDTAG_INPUT_SPRINT))
+	else if (CurrentTagContainer.HasTagExact(HDTAG_INPUT_SPRINT))
 	{
 		CharacterMovementInterface->SetSprint(true);
 	}
-
-	if (CurrentTagContainer.HasTagExact(HDTAG_INPUT_CROUCH))
+	else if (CurrentTagContainer.HasTagExact(HDTAG_INPUT_CROUCH))
 	{
 		CharacterMovementInterface->SetCharacterMovementState(EHDCharacterMovementState::Crouch);
 	}
-
-	if (CurrentTagContainer.HasTagExact(HDTAG_INPUT_PRONE))
+	else if (CurrentTagContainer.HasTagExact(HDTAG_INPUT_PRONE))
 	{
 		CharacterMovementInterface->SetCharacterMovementState(EHDCharacterMovementState::Prone);
 	}
@@ -55,8 +45,20 @@ void UHDGA_MovementTrigger::ActivateAbility(const FGameplayAbilitySpecHandle Han
 
 void UHDGA_MovementTrigger::InputReleased(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo)
 {
+	const bool bReplicatedEndAbility = true;
+	const bool bWasCancelled = true;
+	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, bReplicatedEndAbility, bWasCancelled);
+}
+
+void UHDGA_MovementTrigger::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled)
+{
+	Super::EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, bReplicateEndAbility, bWasCancelled);
+
 	TScriptInterface<IHDCharacterMovementInterface> CharacterMovementInterface = ActorInfo->AvatarActor.Get();
 	NULL_CHECK(CharacterMovementInterface);
+
+	FGameplayTagContainer CurrentTagContainer = GetAssetInputTags();
+	CONDITION_CHECK(CurrentTagContainer.IsValid() == false);
 
 	if (CurrentTagContainer.HasTagExact(HDTAG_INPUT_AIMING))
 	{
@@ -70,20 +72,8 @@ void UHDGA_MovementTrigger::InputReleased(const FGameplayAbilitySpecHandle Handl
 	{
 		CharacterMovementInterface->SetSprint(false);
 	}
-
-	if (CurrentTagContainer.HasTagExact(HDTAG_INPUT_CROUCH) || CurrentTagContainer.HasTagExact(HDTAG_INPUT_PRONE))
+	else if (CurrentTagContainer.HasTagExact(HDTAG_INPUT_CROUCH) || CurrentTagContainer.HasTagExact(HDTAG_INPUT_PRONE))
 	{
-		UE_LOG(LogTemp, Error, TEXT("EndAbility Called!"));
-
 		CharacterMovementInterface->RestoreMovementState();
 	}
-
-	const bool bReplicatedEndAbility = true;
-	const bool bWasCancelled = true;
-	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, bReplicatedEndAbility, bWasCancelled);
-}
-
-void UHDGA_MovementTrigger::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled)
-{
-	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 }

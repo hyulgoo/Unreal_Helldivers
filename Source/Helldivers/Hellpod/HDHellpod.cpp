@@ -36,15 +36,13 @@ AHDHellpod::AHDHellpod()
 	, FallCameraShakeClass(nullptr)
 	, CameraShakeScaleWhenFalling(0.f)
     , CharacterClass(nullptr)
-	, SpawnTime(0.f)
+	, SpawnTime(1.5f)
 	, SpawnedCharacter(nullptr)
 	, SpawnCharacterTimeline(FTimeline())
 	, SpawnCurveFloat(nullptr)
 	, ImpactTag(FGameplayTag())
 {
 	PrimaryActorTick.bCanEverTick = true;
-
-	SpawnTime = 3.f;
 
 	CollisionBox = CreateDefaultSubobject<UBoxComponent>(TEXT("CollisionBox"));
 	SetRootComponent(CollisionBox);

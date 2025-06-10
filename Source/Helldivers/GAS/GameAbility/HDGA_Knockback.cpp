@@ -15,11 +15,6 @@ UHDGA_Knockback::UHDGA_Knockback()
     InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
 }
 
-bool UHDGA_Knockback::CanActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayTagContainer* SourceTags, const FGameplayTagContainer* TargetTags, OUT FGameplayTagContainer* OptionalRelevantTags) const
-{
-    return Super::CanActivateAbility(Handle, ActorInfo, SourceTags, TargetTags, OptionalRelevantTags);
-}
-
 void UHDGA_Knockback::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)
 {
     Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
@@ -62,7 +57,7 @@ void UHDGA_Knockback::CheckCharacterRagdollState()
         bRecoveryFromRagdoll = true;
 
         World->GetTimerManager().ClearTimer(StateCheckTimerHandle);
-        World->GetTimerManager().SetTimer(RecoveryFromRagdollTimerHandle, this, &UHDGA_Knockback::RecoveryFromRagdoll, 1.f, false);
+        World->GetTimerManager().SetTimer(RecoveryFromRagdollTimerHandle, this, &UHDGA_Knockback::RecoveryFromRagdoll, 0.5f, false);
     }
 }
 
@@ -74,14 +69,9 @@ void UHDGA_Knockback::RecoveryFromRagdoll()
     RagdollInterface->SetRagdoll(false);
     World->GetTimerManager().ClearTimer(RecoveryFromRagdollTimerHandle);
 
+    bRecoveryFromRagdoll = false;
+
     const bool bReplicatedEndAbility = true;
     const bool bWasCancelled = true;
     EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, bReplicatedEndAbility, bWasCancelled);
-
-    bRecoveryFromRagdoll = false;
-}
-
-void UHDGA_Knockback::CancelAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateCancelAbility)
-{
-    Super::CancelAbility(Handle, ActorInfo, ActivationInfo, bReplicateCancelAbility);
 }

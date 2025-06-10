@@ -84,7 +84,7 @@ private:
 	void										InitializeAttributeSet();
 	const FHDCharacterStat*						GetCharacterStatByArmorType(const EHDArmorType ArmorType) const;
 
-	virtual void								SetCharacterMovementState(const EHDCharacterMovementState NewState, const bool bForce) override final;
+	virtual void								SetCharacterMovementState(const EHDCharacterMovementState NewState, const bool bForce = false) override final;
 	virtual void								RestoreMovementState() override final;
 	virtual	void								SetSprint(const bool bSprint) override final;
 	void										ThirdPersonLook(const FInputActionValue& Value);

@@ -1,12 +1,17 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "GAS/GameAbility/HDGA_WeaponTrigger.h"
+#include "Abilities/Tasks/AbilityTask_WaitDelay.h"
 #include "Define/HDDefine.h"
 #include "Tag/HDGameplayTag.h"
 #include "Interface/HDWeaponInterface.h"
 
 UHDGA_WeaponTrigger::UHDGA_WeaponTrigger()
-	: CurrentTagContainer(FGameplayTagContainer())
+	: WeaponInterface(nullptr)
+	, SavedHandle(FGameplayAbilitySpecHandle())
+	, SavedActorInfo(nullptr)
+	, SavedActivationInfo(EGameplayAbilityActivationMode::Rejected)
+	, SavedDelay(0.f)
 {
 	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
 }
@@ -20,33 +25,80 @@ void UHDGA_WeaponTrigger::ActivateAbility(const FGameplayAbilitySpecHandle Handl
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 
-	CurrentTagContainer = GetAssetInputTags();
+	FGameplayTagContainer CurrentTagContainer = GetAssetInputTags();
 	CONDITION_CHECK(CurrentTagContainer.IsValid() == false);
 
-	TScriptInterface<IHDWeaponInterface> WeaponInterface = ActorInfo->AvatarActor.Get();
+	WeaponInterface = ActorInfo->AvatarActor.Get();
 	NULL_CHECK(WeaponInterface);
 
 	if (CurrentTagContainer.HasTagExact(HDTAG_INPUT_FIRE))
 	{
-		WeaponInterface->Fire(true);
+		const float FireDelay = WeaponInterface->Fire(true);
+		SetAbilityTimer(Handle, ActorInfo, ActivationInfo, FireDelay);
 	}
-	if (CurrentTagContainer.HasTagExact(HDTAG_INPUT_RELOAD))
+	else if (CurrentTagContainer.HasTagExact(HDTAG_INPUT_RELOAD))
 	{
-		WeaponInterface->Reload();
+		const float ReloadDelay = WeaponInterface->Reload();
+		SetAbilityTimer(Handle, ActorInfo, ActivationInfo, ReloadDelay);
 	}
 }
 
 void UHDGA_WeaponTrigger::InputReleased(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo)
 {
-	TScriptInterface<IHDWeaponInterface> WeaponInterface = ActorInfo->AvatarActor.Get();
+	const bool bReplicatedEndAbility = true;
+	const bool bWasCancelled = true;
+	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, bReplicatedEndAbility, bWasCancelled);
+}
+
+void UHDGA_WeaponTrigger::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled)
+{
+	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
+
+	FGameplayTagContainer CurrentTagContainer = GetAssetInputTags();
+	CONDITION_CHECK(CurrentTagContainer.IsValid() == false);
+
 	NULL_CHECK(WeaponInterface);
 
 	if (CurrentTagContainer.HasTagExact(HDTAG_INPUT_FIRE))
 	{
 		WeaponInterface->Fire(false);
 	}
+	else if (CurrentTagContainer.HasTagExact(HDTAG_INPUT_RELOAD))
+	{
+		WeaponInterface->ReloadFinished();
+	}
+}
 
-	const bool bReplicatedEndAbility = true;
-	const bool bWasCancelled = true;
-	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, bReplicatedEndAbility, bWasCancelled);
+void UHDGA_WeaponTrigger::OnDelayCompleted()
+{
+	FGameplayTagContainer CurrentTagContainer = GetAssetInputTags();
+	CONDITION_CHECK(CurrentTagContainer.IsValid() == false);
+
+	NULL_CHECK(WeaponInterface);
+
+	if (CurrentTagContainer.HasTagExact(HDTAG_INPUT_FIRE))
+	{
+		if (WeaponInterface->FireFinished())
+		{
+			SetAbilityTimer(SavedHandle, SavedActorInfo, SavedActivationInfo, SavedDelay);
+		}
+	}
+	else if (CurrentTagContainer.HasTagExact(HDTAG_INPUT_RELOAD))
+	{
+		const bool bReplicatedEndAbility = true;
+		const bool bWasCancelled = true;
+		EndAbility(SavedHandle, SavedActorInfo, SavedActivationInfo, bReplicatedEndAbility, bWasCancelled);
+	}
+}
+
+void UHDGA_WeaponTrigger::SetAbilityTimer(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const float Delay)
+{
+	SavedHandle			= Handle;
+	SavedActorInfo		= ActorInfo;
+	SavedActivationInfo = ActivationInfo;
+	SavedDelay			= Delay;
+
+	UAbilityTask_WaitDelay* DelayTask = UAbilityTask_WaitDelay::WaitDelay(this, Delay);
+	DelayTask->OnFinish.AddDynamic(this, &UHDGA_WeaponTrigger::OnDelayCompleted);
+	DelayTask->ReadyForActivation();
 }

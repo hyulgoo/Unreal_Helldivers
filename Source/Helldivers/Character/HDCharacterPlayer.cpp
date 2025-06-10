@@ -30,7 +30,7 @@
 #define SOCKETNAME_RIGHTHAND FName("RightHandSocket")
 
 AHDCharacterPlayer::AHDCharacterPlayer()
-    : CameraBoom(nullptr)
+    : SpringArm(nullptr)
 	, FollowCamera(nullptr)
     , CurrentInputCommandList{}
 	, Combat(nullptr)
@@ -53,23 +53,20 @@ AHDCharacterPlayer::AHDCharacterPlayer()
     , CommandMatchStratagemNameList{}
 	, AvaliableStratagemDataTable(nullptr)
 	, DefaultFOV(0.f)
-    , FireTimer(FTimerHandle())
-    , ReloadTimer(FTimerHandle())
-    , DefaultCurve(nullptr)
-    , ArmLengthTimeline(FTimeline())
-    , TargetArmLength(0.f)
-    , CameraTargetZOffset(0.f)
+    , SpringArmArmLengthTimeline(FTimeline())
+    , SpringArmTargetArmLength(0.f)
+    , SpringArmTargetZOffset(0.f)
 {
     GetCharacterMovement()->bOrientRotationToMovement = true;
 
     // Camera
-    CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
-    CameraBoom->SetupAttachment(GetMesh());
-    CameraBoom->TargetArmLength = 400.0f;
-    CameraBoom->bUsePawnControlRotation = true;
+    SpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
+    SpringArm->SetupAttachment(RootComponent);
+    SpringArm->bUsePawnControlRotation = true;
+    SpringArm->bEnableCameraLag = true;
 
     FollowCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("FollowCamera"));
-    FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName);
+    FollowCamera->SetupAttachment(SpringArm, USpringArmComponent::SocketName);
     FollowCamera->bUsePawnControlRotation = false;
 
     // Combat
@@ -88,7 +85,7 @@ void AHDCharacterPlayer::Tick(float DeltaTime)
     Super::Tick(DeltaTime);
 
 	AimOffset(DeltaTime);
-    ArmLengthTimeline.TickTimeline(DeltaTime);
+    SpringArmArmLengthTimeline.TickTimeline(DeltaTime);
 }
 
 void AHDCharacterPlayer::PossessedBy(AController* NewController)
@@ -98,16 +95,25 @@ void AHDCharacterPlayer::PossessedBy(AController* NewController)
     SpawnDefaultWeapon();
 
     FOnTimelineFloat ArmLengthTimelineProgress;
-    ArmLengthTimelineProgress.BindUFunction(this, FName("OnCameraSpringArmLengthTImelineUpdate"));
-    ArmLengthTimeline.AddInterpFloat(DefaultCurve, ArmLengthTimelineProgress);
-    ArmLengthTimeline.SetLooping(false);
+    ArmLengthTimelineProgress.BindUFunction(this, FName("OnCameraSpringArmLengthTimelineUpdate"));
+    SpringArmArmLengthTimeline.AddInterpFloat(DefaultCurve, ArmLengthTimelineProgress);
+    SpringArmArmLengthTimeline.SetLooping(false);
 }
 
 void AHDCharacterPlayer::SetRagdoll(const bool bRagdoll, const FVector& Impulse)
 {
     Super::SetRagdoll(bRagdoll, Impulse);
 
-    SetCharacterMovementState(EHDCharacterMovementState::Prone, true);
+    if (bRagdoll == false)
+    {
+        SetCharacterMovementState(EHDCharacterMovementState::Prone, true);
+
+        FTimerDelegate LamdaDelegate;
+        LamdaDelegate.BindLambda([this]() {
+            Combat->CombatState = EHDCombatState::Unoccupied;
+            });
+        GetWorldTimerManager().SetTimerForNextTick(LamdaDelegate);
+    }
 }
 
 void AHDCharacterPlayer::SetWeaponActive(const bool bActive)
@@ -126,14 +132,14 @@ void AHDCharacterPlayer::SetWeaponActive(const bool bActive)
     }  
 }
 
-void AHDCharacterPlayer::Reload()
+const float AHDCharacterPlayer::Reload()
 {
     AHDWeapon* Weapon = GetWeapon();
-    NULL_CHECK(Weapon);
+    NULL_CHECK_WITH_RETURNTYPE(Weapon, 0.f);
 
     if (Combat->CanReload() == false)
     {
-        return;
+        return 0.f;
     }
 
 	Combat->Reload();
@@ -152,16 +158,28 @@ void AHDCharacterPlayer::Reload()
 		break;
 	}
 
-	CONDITION_CHECK(SectionName.IsNone());
+	CONDITION_CHECK_WITH_RETURNTYPE(SectionName.IsNone(), 0.f);
 
 	PlayMontage(ReloadWeaponMontage, SectionName);
 
-    GetWorldTimerManager().SetTimer(ReloadTimer, this, &AHDCharacterPlayer::ReloadTimerFinished, Weapon->GetReloadDelay(Combat->bIsShoulder));
+    return Weapon->GetReloadDelay(Combat->bIsShoulder);
+}
+
+void AHDCharacterPlayer::ReloadFinished()
+{
+    Combat->ReloadFinished();
+
+    AHDPlayerController* PlayerController = GetController<AHDPlayerController>();
+    NULL_CHECK(PlayerController);
+
+    AHDWeapon* Weapon = GetWeapon();
+    NULL_CHECK(Weapon);
+    PlayerController->ChangeCapacityHUDInfo(Weapon->GetCapacityCount());
 }
 
 const bool AHDCharacterPlayer::IsShouldering() const
 {
-    return Combat->bIsShoulder;
+	return Combat->bIsShoulder;
 }
 
 void AHDCharacterPlayer::SetShouldering(const bool bShoulder)
@@ -170,11 +188,11 @@ void AHDCharacterPlayer::SetShouldering(const bool bShoulder)
 
     if (bShoulder)
     {
-        ArmLengthTimeline.PlayFromStart();
+        SpringArmArmLengthTimeline.PlayFromStart();
     }
     else
     {
-        ArmLengthTimeline.ReverseFromEnd();
+        SpringArmArmLengthTimeline.ReverseFromEnd();
     }
 }
 
@@ -257,22 +275,16 @@ void AHDCharacterPlayer::SetCharacterControlData(UHDCharacterControlData* Charac
     CharacterMovementComponent->bUseControllerDesiredRotation   = CharacterControlData->bUseControllerDesiredRotation;
     CharacterMovementComponent->RotationRate                    = CharacterControlData->RotationRate;
 
-    CameraTargetZOffset                 = CharacterControlData->TargetOffset.Z;
-    TargetArmLength                     = CharacterControlData->TargetArmLength;
-    CameraBoom->TargetArmLength         = CharacterControlData->TargetArmLength;
-    CameraBoom->TargetOffset            = CharacterControlData->TargetOffset;
-    CameraBoom->SocketOffset            = CharacterControlData->SocketOffset;
-    CameraBoom->bUsePawnControlRotation = CharacterControlData->bUsePawnControlRotation;
-    CameraBoom->bInheritPitch           = CharacterControlData->bInheritPitch;
-    CameraBoom->bInheritYaw             = CharacterControlData->bInheritYaw;
-    CameraBoom->bInheritRoll            = CharacterControlData->bInheritRoll;
-    CameraBoom->bDoCollisionTest        = CharacterControlData->bDoCollisionTest;
-}
-
-void AHDCharacterPlayer::OnCameraSpringArmLengthTImelineUpdate(const float Value)
-{
-    const float Interpolated = FMath::Lerp(TargetArmLength, TargetArmLength / 2.f, Value);
-    CameraBoom->TargetArmLength = Interpolated;
+    SpringArmTargetZOffset             = CharacterControlData->TargetOffset.Z;
+    SpringArmTargetArmLength           = CharacterControlData->TargetArmLength;
+    SpringArm->TargetArmLength         = CharacterControlData->TargetArmLength;
+    SpringArm->TargetOffset            = CharacterControlData->TargetOffset;
+    SpringArm->SocketOffset            = CharacterControlData->SocketOffset;
+    SpringArm->bUsePawnControlRotation = CharacterControlData->bUsePawnControlRotation;
+    SpringArm->bInheritPitch           = CharacterControlData->bInheritPitch;
+    SpringArm->bInheritYaw             = CharacterControlData->bInheritYaw;
+    SpringArm->bInheritRoll            = CharacterControlData->bInheritRoll;
+    SpringArm->bDoCollisionTest        = CharacterControlData->bDoCollisionTest;
 }
 
 void AHDCharacterPlayer::SetSprint(const bool bSprint)
@@ -290,7 +302,7 @@ void AHDCharacterPlayer::SetCharacterMovementState(const EHDCharacterMovementSta
 {
     CONDITION_CHECK(NewState == EHDCharacterMovementState::Count);
 
-    PrevMovementState = MovementState;
+    PrevMovementState = (PrevMovementState != MovementState) ? MovementState : PrevMovementState;
     MovementState = NewState;
 	if (bForced)
 	{
@@ -302,8 +314,16 @@ void AHDCharacterPlayer::SetCharacterMovementState(const EHDCharacterMovementSta
 
 void AHDCharacterPlayer::RestoreMovementState()
 {
-    MovementState = MovementState != EHDCharacterMovementState::Prone ? PrevMovementState
-        : EHDCharacterMovementState::Idle;
+    CONDITION_CHECK(MovementState == PrevMovementState);
+
+    if (MovementState == EHDCharacterMovementState::Prone)
+    {
+        MovementState = PrevMovementState;
+    }
+    else
+    {
+        MovementState = EHDCharacterMovementState::Idle;
+    }
 
     ChangeCameraZOffsetByCharacterMovementState(MovementState);
 }
@@ -503,38 +523,18 @@ void AHDCharacterPlayer::PlayMontage(UAnimMontage* Montage, const FName SectionN
     }
 }
 
-void AHDCharacterPlayer::FireTimerFinished()
-{
-    if (Combat->FireTimerFinished())
-    {
-        Fire(true);
-    }
-}
-
-void AHDCharacterPlayer::ReloadTimerFinished()
-{
-    Combat->ReloadTimerFinished();
-
-    AHDPlayerController* PlayerController = GetController<AHDPlayerController>();
-    NULL_CHECK(PlayerController);
-
-    AHDWeapon* Weapon = GetWeapon();
-    NULL_CHECK(Weapon);
-    PlayerController->ChangeCapacityHUDInfo(Weapon->GetCapacityCount());
-}
-
 void AHDCharacterPlayer::ChangeCameraZOffsetByCharacterMovementState(const EHDCharacterMovementState State)
 {
     switch (State)
     {
     case EHDCharacterMovementState::Idle:
-        CameraBoom->TargetOffset.Z = CameraTargetZOffset;
+        SpringArm->TargetOffset.Z = SpringArmTargetZOffset;
         break;
     case EHDCharacterMovementState::Crouch:
-        CameraBoom->TargetOffset.Z = CameraTargetZOffset - 40.f;
+        SpringArm->TargetOffset.Z = SpringArmTargetZOffset - 40.f;
         break;
     case EHDCharacterMovementState::Prone:
-        CameraBoom->TargetOffset.Z = CameraTargetZOffset - 80.f;
+        SpringArm->TargetOffset.Z = SpringArmTargetZOffset - 80.f;
         break;
     default:
         LOG("EHDCharacterMovementState is Invalid!!");
@@ -542,10 +542,16 @@ void AHDCharacterPlayer::ChangeCameraZOffsetByCharacterMovementState(const EHDCh
     }
 }
 
-void AHDCharacterPlayer::Fire(const bool IsPressed)
+void AHDCharacterPlayer::OnCameraSpringArmLengthTimelineUpdate(const float Value)
+{
+    const float Interpolated = FMath::Lerp(SpringArmTargetArmLength, SpringArmTargetArmLength / 2.f, Value);
+    SpringArm->TargetArmLength = Interpolated;
+}
+
+const float AHDCharacterPlayer::Fire(const bool IsPressed)
 {
     AHDWeapon* Weapon = GetWeapon();
-    NULL_CHECK(Weapon);
+    NULL_CHECK_WITH_RETURNTYPE(Weapon, 0.f);
 
     if(Combat->Fire(IsPressed) == false)
     {
@@ -554,7 +560,7 @@ void AHDCharacterPlayer::Fire(const bool IsPressed)
             Reload();
         }
 
-        return;
+        return 0.f;
     }
 
     switch (Weapon->GetFireType())
@@ -564,17 +570,11 @@ void AHDCharacterPlayer::Fire(const bool IsPressed)
     {
         const FName SectionName = Combat->bIsShoulder ? MONTAGESECTIONNAME_RIFLE_AIM : MONTAGESECTIONNAME_RIFLE_HIP;
         PlayMontage(FireWeaponMontage, SectionName);
-
-		AHDPlayerController* PlayerController = GetController<AHDPlayerController>();
-		NULL_CHECK(PlayerController);
-		PlayerController->ChangeAmmoHUDInfo(Weapon->GetAmmoCount());
-
-        GetWorldTimerManager().SetTimer(FireTimer, this, &AHDCharacterPlayer::FireTimerFinished, Weapon->GetFireDelay());
     }
     break;
     case EHDFireType::Shotgun:
     {
-        // TO DO
+        // TODO
         //const FName SectionName = Combat->bIsShoulder ? MONTAGESECTIONNAME_SHOTGUN_AIM : MONTAGESECTIONNAME_SHOTGUN_HIP;
         //PlayMontage(FireWeaponMontage);
         //Shotgun->FireShotgun(TraceHitTargets);
@@ -582,6 +582,20 @@ void AHDCharacterPlayer::Fire(const bool IsPressed)
     }
     break;
     }
+
+    return Weapon->GetFireDelay();
+}
+
+const bool AHDCharacterPlayer::FireFinished()
+{
+    AHDWeapon* Weapon = GetWeapon();
+    NULL_CHECK_WITH_RETURNTYPE(Weapon, false);
+
+    AHDPlayerController* PlayerController = GetController<AHDPlayerController>();
+    NULL_CHECK_WITH_RETURNTYPE(PlayerController, 0.f);
+    PlayerController->ChangeAmmoHUDInfo(Weapon->GetAmmoCount());
+
+    return Combat->FireFinished();
 }
 
 void AHDCharacterPlayer::SetDead()

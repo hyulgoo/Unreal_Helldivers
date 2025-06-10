@@ -42,9 +42,11 @@ protected:
 	virtual AHDWeapon*						GetWeapon() const override final;
 	virtual const FVector&					GetHitTarget() const override final;
 	virtual const EHDCombatState			GetCombatState() const override final;
-    virtual void							Fire(const bool IsPressed);
+    virtual const float 					Fire(const bool IsPressed);
+	virtual const bool						FireFinished() override final;
     virtual void							SetWeaponActive(const bool bActive) override final;
-	virtual void							Reload() override final;
+	virtual const float						Reload() override final;
+	virtual void							ReloadFinished() override;
 
 	// CharacterMovementInterface
 	virtual const float						GetAimOffset_Yaw() const override final					{ return AimOffset_Yaw; }
@@ -76,9 +78,6 @@ protected:
 
 	void									SetCharacterControlData(UHDCharacterControlData* CharacterControlData);
 	
-	UFUNCTION()
-	void									OnCameraSpringArmLengthTImelineUpdate(const float Value);
-		
 private:
     void									AimOffset(const float DeltaTime);
 	void									TurnInPlace(const float DeltaTime);
@@ -90,15 +89,16 @@ private:
 
 	void									PlayMontage(UAnimMontage* Montage, const FName SectionName = FName());
 
-	void									FireTimerFinished();
-	void									ReloadTimerFinished();
 
 	void									ChangeCameraZOffsetByCharacterMovementState(const EHDCharacterMovementState State);
+
+	UFUNCTION()
+	void									OnCameraSpringArmLengthTimelineUpdate(const float Value);
 
 protected:
 	// Camera Section
 	UPROPERTY(EditDefaultsOnly)
-	TObjectPtr<USpringArmComponent>			CameraBoom;
+	TObjectPtr<USpringArmComponent>			SpringArm;
 
 	UPROPERTY(EditDefaultsOnly)
 	TObjectPtr<UCameraComponent>			FollowCamera;
@@ -112,7 +112,6 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category = "Player|Weapon")
 	TSubclassOf<AHDWeapon>					DefaultWeaponClass;
-	
 
 private:
 	FRotator								StartingAimRotation;
@@ -150,13 +149,10 @@ private:
 	// HUD, Crosshair
 	float									DefaultFOV;
 
-	FTimerHandle							FireTimer;
-	FTimerHandle							ReloadTimer;
-	
-	UPROPERTY(EditAnywhere, Category = "Player|CharacterControl")
+	UPROPERTY(EditAnywhere)
 	TObjectPtr<UCurveFloat>					DefaultCurve;
-
-	FTimeline								ArmLengthTimeline;
-	float									TargetArmLength;
-	float									CameraTargetZOffset;
+	
+	FTimeline								SpringArmArmLengthTimeline;
+	float									SpringArmTargetArmLength;
+	float									SpringArmTargetZOffset;
 };

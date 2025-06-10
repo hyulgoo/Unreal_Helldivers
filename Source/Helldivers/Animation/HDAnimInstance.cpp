@@ -126,7 +126,7 @@ void UHDAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 		RightHandRotation = LookAtRotation;
 
 		CombatState = WeaponInterface->GetCombatState();
-		bUseFABRIK = CombatState != EHDCombatState::ThrowingGrenade;
-		bTransformRightHand = CombatState != EHDCombatState::Unoccupied;
+		bUseFABRIK = CombatState == EHDCombatState::Unoccupied;
+		bTransformRightHand = CombatState == EHDCombatState::ThrowingGrenade;
 	}
 }
