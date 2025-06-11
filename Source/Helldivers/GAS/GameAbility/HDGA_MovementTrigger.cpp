@@ -15,7 +15,7 @@ void UHDGA_MovementTrigger::ActivateAbility(const FGameplayAbilitySpecHandle Han
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 
-	FGameplayTagContainer CurrentTagContainer = GetAssetInputTags();
+	FGameplayTagContainer CurrentTagContainer = GetAssetTags();
 	CONDITION_CHECK(CurrentTagContainer.IsValid() == false);
 
 	TScriptInterface<IHDCharacterMovementInterface> CharacterMovementInterface = ActorInfo->AvatarActor.Get();
@@ -57,7 +57,7 @@ void UHDGA_MovementTrigger::EndAbility(const FGameplayAbilitySpecHandle Handle, 
 	TScriptInterface<IHDCharacterMovementInterface> CharacterMovementInterface = ActorInfo->AvatarActor.Get();
 	NULL_CHECK(CharacterMovementInterface);
 
-	FGameplayTagContainer CurrentTagContainer = GetAssetInputTags();
+	FGameplayTagContainer CurrentTagContainer = GetAssetTags();
 	CONDITION_CHECK(CurrentTagContainer.IsValid() == false);
 
 	if (CurrentTagContainer.HasTagExact(HDTAG_INPUT_AIMING))

@@ -3,11 +3,11 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GAS/GameAbility/HDGameplayAbility.h"
+#include "Abilities/GameplayAbility.h"
 #include "HDGA_Jump.generated.h"
 
 UCLASS()
-class HELLDIVERS_API UHDGA_Jump : public UHDGameplayAbility
+class HELLDIVERS_API UHDGA_Jump : public UGameplayAbility
 {
 	GENERATED_BODY()
 	

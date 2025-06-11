@@ -3,13 +3,13 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "HDGameplayAbility.h"
+#include "Abilities/GameplayAbility.h"
 #include "HDGA_WeaponTrigger.generated.h"
 
 class IHDWeaponInterface;
 
 UCLASS()
-class HELLDIVERS_API UHDGA_WeaponTrigger : public UHDGameplayAbility
+class HELLDIVERS_API UHDGA_WeaponTrigger : public UGameplayAbility
 {
 	GENERATED_BODY()
 

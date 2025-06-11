@@ -3,11 +3,11 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "HDGameplayAbility.h"
+#include "Abilities/GameplayAbility.h"
 #include "HDGA_MovementTrigger.generated.h"
 
 UCLASS()
-class HELLDIVERS_API UHDGA_MovementTrigger : public UHDGameplayAbility
+class HELLDIVERS_API UHDGA_MovementTrigger : public UGameplayAbility
 {
 	GENERATED_BODY()
 

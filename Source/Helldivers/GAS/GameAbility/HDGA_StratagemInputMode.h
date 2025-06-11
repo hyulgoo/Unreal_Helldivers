@@ -3,11 +3,11 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GAS/GameAbility/HDGameplayAbility.h"
+#include "Abilities/GameplayAbility.h"
 #include "HDGA_StratagemInputMode.generated.h"
 
 UCLASS()
-class HELLDIVERS_API UHDGA_StratagemInputMode : public UHDGameplayAbility
+class HELLDIVERS_API UHDGA_StratagemInputMode : public UGameplayAbility
 {
 	GENERATED_BODY()
 	

@@ -4,7 +4,6 @@
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "AbilitySystemComponent.h"
-#include "GAS/GameAbility/HDGameplayAbility.h"
 #include "Character/HDCharacterControlData.h"
 #include "Player/HDGASPlayerState.h"
 #include "Controller/HDPlayerController.h"
@@ -172,14 +171,8 @@ void AHDGASCharacterPlayer::GASInputPressed(const FGameplayTag Tag)
     TArray<FGameplayAbilitySpec>& ActivatebleAbilities = AbilitySystemComponent->GetActivatableAbilities();
     for (FGameplayAbilitySpec& Spec : ActivatebleAbilities)
     {
-        UHDGameplayAbility* HDAbility = Cast<UHDGameplayAbility>(Spec.Ability);
-        if (HDAbility == nullptr)
-        {
-            continue;
-        }
-
-        const FGameplayTagContainer& InputTagContainer = HDAbility->GetAssetInputTags();
-        if (InputTagContainer.IsValid() == false || InputTagContainer.HasTagExact(Tag) == false)
+        const FGameplayTagContainer& TagContainer = Spec.Ability->GetAssetTags();
+        if (TagContainer.IsValid() == false || TagContainer.HasTagExact(Tag) == false)
         {
             continue;
         }
@@ -203,14 +196,8 @@ void AHDGASCharacterPlayer::GASInputReleased(const FGameplayTag Tag)
     TArray<FGameplayAbilitySpec>& ActivatebleAbilities = AbilitySystemComponent->GetActivatableAbilities();
     for (FGameplayAbilitySpec& Spec : ActivatebleAbilities)
     {
-        UHDGameplayAbility* HDAbility = Cast<UHDGameplayAbility>(Spec.Ability);
-        if (HDAbility == nullptr)
-        {
-            continue;
-        }
-
-        const FGameplayTagContainer& InputTagContainer = HDAbility->GetAssetInputTags();
-        if (InputTagContainer.IsValid() == false || InputTagContainer.HasTagExact(Tag) == false)
+        const FGameplayTagContainer& TagContainer = Spec.Ability->GetAssetTags();
+        if (TagContainer.IsValid() == false || TagContainer.HasTagExact(Tag) == false)
         {
             continue;
         }
@@ -230,14 +217,8 @@ void AHDGASCharacterPlayer::GASInputToggled(const FGameplayTag Tag)
     TArray<FGameplayAbilitySpec>& ActivatebleAbilities = AbilitySystemComponent->GetActivatableAbilities();
     for (FGameplayAbilitySpec& Spec : ActivatebleAbilities)
     {
-        UHDGameplayAbility* HDAbility = Cast<UHDGameplayAbility>(Spec.Ability);
-        if (HDAbility == nullptr)
-        {
-            continue;
-        }
-
-        const FGameplayTagContainer& InputTagContainer = HDAbility->GetAssetInputTags();
-        if (InputTagContainer.IsValid() == false || InputTagContainer.HasTagExact(Tag) == false)
+        const FGameplayTagContainer& TagContainer = Spec.Ability->GetAssetTags();
+        if (TagContainer.IsValid() == false || TagContainer.HasTagExact(Tag) == false)
         {
             continue;
         }

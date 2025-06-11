@@ -25,7 +25,7 @@ void UHDGA_WeaponTrigger::ActivateAbility(const FGameplayAbilitySpecHandle Handl
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 
-	FGameplayTagContainer CurrentTagContainer = GetAssetInputTags();
+	FGameplayTagContainer CurrentTagContainer = GetAssetTags();
 	CONDITION_CHECK(CurrentTagContainer.IsValid() == false);
 
 	WeaponInterface = ActorInfo->AvatarActor.Get();
@@ -54,7 +54,7 @@ void UHDGA_WeaponTrigger::EndAbility(const FGameplayAbilitySpecHandle Handle, co
 {
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 
-	FGameplayTagContainer CurrentTagContainer = GetAssetInputTags();
+	FGameplayTagContainer CurrentTagContainer = GetAssetTags();
 	CONDITION_CHECK(CurrentTagContainer.IsValid() == false);
 
 	NULL_CHECK(WeaponInterface);
@@ -71,7 +71,7 @@ void UHDGA_WeaponTrigger::EndAbility(const FGameplayAbilitySpecHandle Handle, co
 
 void UHDGA_WeaponTrigger::OnDelayCompleted()
 {
-	FGameplayTagContainer CurrentTagContainer = GetAssetInputTags();
+	FGameplayTagContainer CurrentTagContainer = GetAssetTags();
 	CONDITION_CHECK(CurrentTagContainer.IsValid() == false);
 
 	NULL_CHECK(WeaponInterface);
