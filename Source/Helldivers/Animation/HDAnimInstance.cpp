@@ -11,8 +11,6 @@
 #include "Weapon/HDWeapon.h"
 #include "Define/HDDefine.h"
 
-#define AimOffset_Yaw_CorrectionFigure 30.f
-
 UHDAnimInstance::UHDAnimInstance()
 	: Owner(nullptr)
 	, Movement(nullptr)
@@ -107,9 +105,24 @@ void UHDAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 	VALID_CHECK(CharacterMesh);
 	NULL_CHECK(WeaponInterface);
 
+	CombatState = WeaponInterface->GetCombatState();
 	AHDWeapon* Weapon = WeaponInterface->GetWeapon();
-	if (Weapon)
+	if (CombatState != EHDCombatState::Unoccupied && CombatState != EHDCombatState::Reloading)
 	{
+		bUseFABRIK = false;
+		bTransformRightHand = false;
+		if (Weapon)
+		{
+			HitTarget = WeaponInterface->GetHitTarget();
+		}
+	}
+	else
+	{
+		if (Weapon == nullptr)
+		{
+			return;
+		}
+
 		USkeletalMeshComponent* WeaponMesh = Weapon->GetWeaponMesh();
 		NULL_CHECK(WeaponMesh);
 
@@ -125,7 +138,6 @@ void UHDAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 		const FRotator LookAtRotation = UKismetMathLibrary::FindLookAtRotation(MuzzleFlashSocketTransform.GetLocation(), HitTarget);
 		RightHandRotation = LookAtRotation;
 
-		CombatState = WeaponInterface->GetCombatState();
 		bUseFABRIK = CombatState == EHDCombatState::Unoccupied;
 		bTransformRightHand = CombatState == EHDCombatState::ThrowingGrenade;
 	}

@@ -22,7 +22,7 @@ void UHDGA_Fire::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const 
 	TScriptInterface<IHDWeaponInterface> WeaponInterface = ActorInfo->AvatarActor.Get();
 	NULL_CHECK(WeaponInterface);
 
-	WeaponInterface->Fire(true);
+	WeaponInterface->Attack(true);
 }
 
 void UHDGA_Fire::InputReleased(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo)
@@ -30,7 +30,7 @@ void UHDGA_Fire::InputReleased(const FGameplayAbilitySpecHandle Handle, const FG
 	TScriptInterface<IHDWeaponInterface> WeaponInterface = ActorInfo->AvatarActor.Get();
 	NULL_CHECK(WeaponInterface);
 
-	WeaponInterface->Fire(false);
+	WeaponInterface->Attack(false);
 
 	const bool bReplicatedEndAbility = true;
 	const bool bWasCancelled = true;

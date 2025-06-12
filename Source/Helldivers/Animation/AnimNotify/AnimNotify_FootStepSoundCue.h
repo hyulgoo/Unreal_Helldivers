@@ -3,14 +3,15 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "GameplayTagContainer.h"
 #include "Animation/AnimNotifies/AnimNotify.h"
 #include "AnimNotify_FootStepSoundCue.generated.h"
 
 UENUM(BlueprintType)
 enum class EPhysicsMaterialType : uint8
 {
-	Default,
-	Dirt,
+	Default_Dirt,
+	Stone,
 	Wood,
 	Metal,
 	Count
@@ -39,5 +40,5 @@ public:
 	float													TraceDistance;
 	
 	UPROPERTY(EditAnywhere, Category = "AnimNotify")
-	TMap<EPhysicsMaterialType, TObjectPtr<USoundBase>>		PhysicsSoundMap;
+	TMap<EPhysicsMaterialType, FGameplayTag>				PhysicsCueTagMap;
 };

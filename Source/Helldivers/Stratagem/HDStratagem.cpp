@@ -8,6 +8,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "Game/HDGameState.h"
 #include "Define/HDDefine.h"
+#include "Collision/HDCollision.h"
 
 AHDStratagem::AHDStratagem()
     : StratagemMesh(nullptr)
@@ -22,8 +23,9 @@ AHDStratagem::AHDStratagem()
     PrimaryActorTick.bCanEverTick = true;
 
     CollisionSphere = CreateDefaultSubobject<USphereComponent>(TEXT("CollisionSphere"));
-    SetRootComponent(CollisionSphere);
-	CollisionSphere->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	SetRootComponent(CollisionSphere);
+    CollisionSphere->SetCollisionProfileName(HDCOLLISION_PROFILE_STRATAGEM);
+    CollisionSphere->IgnoreActorWhenMoving(GetInstigator(), true);
     CollisionSphere->OnComponentHit.AddDynamic(this, &AHDStratagem::OnHit);
 
     StratagemMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("StratagemMesh"));

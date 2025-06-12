@@ -5,6 +5,7 @@
 #include "Define/HDDefine.h"
 #include "Tag/HDGameplayTag.h"
 #include "Interface/HDWeaponInterface.h"
+#include "Weapon/HDWeapon.h"
 
 UHDGA_WeaponTrigger::UHDGA_WeaponTrigger()
 	: WeaponInterface(nullptr)
@@ -33,7 +34,10 @@ void UHDGA_WeaponTrigger::ActivateAbility(const FGameplayAbilitySpecHandle Handl
 
 	if (CurrentTagContainer.HasTagExact(HDTAG_INPUT_FIRE))
 	{
-		const float FireDelay = WeaponInterface->Fire(true);
+		WeaponInterface->Attack(true);
+
+		AHDWeapon* Weapon = WeaponInterface->GetWeapon();
+		const float FireDelay = Weapon->GetFireDelay();
 		SetAbilityTimer(Handle, ActorInfo, ActivationInfo, FireDelay);
 	}
 	else if (CurrentTagContainer.HasTagExact(HDTAG_INPUT_RELOAD))
@@ -61,7 +65,7 @@ void UHDGA_WeaponTrigger::EndAbility(const FGameplayAbilitySpecHandle Handle, co
 
 	if (CurrentTagContainer.HasTagExact(HDTAG_INPUT_FIRE))
 	{
-		WeaponInterface->Fire(false);
+		WeaponInterface->Attack(false);
 	}
 	else if (CurrentTagContainer.HasTagExact(HDTAG_INPUT_RELOAD))
 	{

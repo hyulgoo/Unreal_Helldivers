@@ -30,7 +30,7 @@ public:
 	UDataTable*								GetAvaliableStratagemDataTable()						{ return AvaliableStratagemDataTable; }
 
 protected:
-    virtual void							SetDead() override;
+	virtual void							SetDead() override final;
     virtual void							Tick(float DeltaTime) override;
 	virtual void							PossessedBy(AController* NewController) override;
 
@@ -42,6 +42,8 @@ protected:
 	virtual AHDWeapon*						GetWeapon() const override final;
 	virtual const FVector&					GetHitTarget() const override final;
 	virtual const EHDCombatState			GetCombatState() const override final;
+	void									SetCombatState(const EHDCombatState State);
+	virtual void							Attack(const bool bActive) override final;
     virtual const float 					Fire(const bool IsPressed);
 	virtual const bool						FireFinished() override final;
     virtual void							SetWeaponActive(const bool bActive) override final;
@@ -69,7 +71,10 @@ protected:
 	// CharacterCommandInterface
 	virtual AHDStratagem*					GetStratagem() const override final						{ return Stratagem; }
 	virtual const FVector&					GetThrowDirection() const override final;
-	virtual void							ThrowStratagem() override final;
+	virtual void							HoldStratagem() override final;
+	virtual void							ThrowFinished() override final;
+	void									ThrowStratagem();
+	void									CancleStratagem();
 
 	// CommandInput
 	FORCEINLINE TArray<FName>				GetCommandMatchStratagemNameList() const 				{ return CommandMatchStratagemNameList; }

@@ -13,7 +13,6 @@ FString UAnimNotify_ThrowMontageDetach::GetNotifyName_Implementation() const
 void UAnimNotify_ThrowMontageDetach::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, const FAnimNotifyEventReference& EventReference)
 {
     Super::Notify(MeshComp, Animation, EventReference);
-
     NULL_CHECK(MeshComp);
 
     TScriptInterface<IHDCharacterCommandInterface> CharacterCommandInterface = MeshComp->GetOwner();
@@ -24,6 +23,7 @@ void UAnimNotify_ThrowMontageDetach::Notify(USkeletalMeshComponent* MeshComp, UA
 
     FVector ThrowDirection = CharacterCommandInterface->GetThrowDirection();
     ThrowDirection.Normalize();
-
     Stratagem->AddImpulseToStratagem(ThrowDirection);
+
+    CharacterCommandInterface->ThrowFinished();
 }

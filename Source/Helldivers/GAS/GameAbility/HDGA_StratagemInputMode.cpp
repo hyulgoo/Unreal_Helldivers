@@ -33,7 +33,7 @@ void UHDGA_StratagemInputMode::InputReleased(const FGameplayAbilitySpecHandle Ha
     TScriptInterface<IHDCharacterCommandInterface> CharacterCommandInterface = ActorInfo->AvatarActor.Get();
     NULL_CHECK(CharacterCommandInterface);
 
-    CharacterCommandInterface->ThrowStratagem();
+    CharacterCommandInterface->HoldStratagem();
 
     FGameplayEventData EventData;
     EventData.EventTag = HDTAG_EVENT_STRATAGEMHUD_DISAPPEAR;

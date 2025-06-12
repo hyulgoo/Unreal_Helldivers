@@ -4,6 +4,7 @@
 #include "Define/HDDefine.h"
 #include "Components/BoxComponent.h"
 #include "Components/CapsuleComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "Camera/CameraComponent.h"
 #include "Camera/CameraShakeSourceComponent.h"
 #include "Player/HDGASPlayerState.h"
@@ -169,9 +170,6 @@ void AHDHellpod::SpawnCharacter()
 	NULL_CHECK(PlayerController);
 
 	PlayerController->Possess(Cast<APawn>(SpawnedCharacter));
-	PlayerController->SetViewTargetWithBlend(SpawnedCharacter, SpawnTime, EViewTargetBlendFunction::VTBlend_Cubic);
-	SpawnedCharacter->GetCapsuleComponent()->Activate(false);
-	SpawnedCharacter->GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	UGameplayStatics::FinishSpawningActor(SpawnedCharacter, CurrentHellpodTransform);
 
 	PlayerController = SpawnedCharacter->GetController<APlayerController>();
@@ -193,6 +191,7 @@ void AHDHellpod::OnSpawnTimelineUpdate(const float Value)
 	const FVector& CharacterLocation	= SpawnedCharacter->GetActorLocation();
 	const FVector NewLocation(CharacterLocation.X, CharacterLocation.Y, Interpolated);
 	SpawnedCharacter->SetActorLocation(NewLocation);
+	SpawnedCharacter->GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Walking);
 }
 
 void AHDHellpod::SpawnCharacterEnd()
@@ -202,7 +201,7 @@ void AHDHellpod::SpawnCharacterEnd()
 	SpawnedCharacter->EnableInput(PlayerController);
 
 	NULL_CHECK(SpawnedCharacter);
-	SpawnedCharacter->GetCapsuleComponent()->Activate(true);
+	SpawnedCharacter->GetCapsuleComponent()->SetCollisionProfileName(HDCOLLISION_PROFILE_PAWN);
 	SpawnedCharacter->GetMesh()->SetCollisionProfileName(HDCOLLISION_PROFILE_PLAYER);
 
 	SetLifeSpan(30.f);

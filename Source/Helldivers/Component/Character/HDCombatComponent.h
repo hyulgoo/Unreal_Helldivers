@@ -13,26 +13,38 @@ class HELLDIVERS_API UHDCombatComponent : public UActorComponent
 {
 	GENERATED_BODY()
 
-    friend class            AHDCharacterPlayer;
-
 public:	
 	explicit                UHDCombatComponent();
-
 
     const bool				Fire(const bool IsPressed);
     void                    EquipWeapon(AHDWeapon* NewWeapon);
     AHDWeapon*              GetWeapon() const { return Weapon; }
     const bool 				CanFire();
 
-    const bool              CanReload();
+    const bool              CanReload() const;
     void                    Reload();
+
+    const EHDCombatState    GetCombatState() const;
+    void                    SetCombatState(const EHDCombatState State);
+
+    const bool              IsShoulder() const;
+    void                    SetShoulder(const bool bShoudler);
+
+    const bool              FireFinished();
+    void                    ReloadFinished();
+
+    const FVector&          GetHitTarget() const;
+    void                    SetHitTarget(const FVector& NewHitTarget);
+
+    const float             GetCurrentFOV() const;
+    void                    SetCurrentFOV(const float NewFOV);
+
+    const float             GetZoomInterpSpeed() const { return ZoomInterpSpeed; }
 
 protected:
     virtual void            TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 private:
-    const bool              FireFinished();
-    void                    ReloadFinished();
     void					TraceUnderCrosshairs();
 
 private:

@@ -3,12 +3,14 @@
 
 #include "AnimNotify_FootStepSoundCue.h"
 #include "Define\HDDefine.h"
+#include "AbilitySystemComponent.h"
+#include "AbilitySystemInterface.h"
 #include "Kismet/GameplayStatics.h"
 
 UAnimNotify_FootStepSoundCue::UAnimNotify_FootStepSoundCue()
     : FootSocketName(FName())
     , TraceDistance(0.f)
-    , PhysicsSoundMap{}
+    , PhysicsCueTagMap{}
 {
 }
 
@@ -21,10 +23,20 @@ void UAnimNotify_FootStepSoundCue::Notify(USkeletalMeshComponent* MeshComp, UAni
 {
     Super::Notify(MeshComp, Animation, EventReference);
 
-    CONDITION_CHECK(PhysicsSoundMap.IsEmpty());
+    CONDITION_CHECK(PhysicsCueTagMap.IsEmpty());
 
-    AActor* OwnerActor = MeshComp->GetOwner();
+	AActor* OwnerActor = MeshComp->GetOwner();
     NULL_CHECK(OwnerActor);
+
+
+	UWorld* World = OwnerActor->GetWorld();
+	VALID_CHECK(World);
+
+    TScriptInterface<IAbilitySystemInterface> AbilitySystemInterface = OwnerActor;
+    NULL_CHECK(AbilitySystemInterface);
+
+    UAbilitySystemComponent* ASC = AbilitySystemInterface->GetAbilitySystemComponent();
+    NULL_CHECK(ASC);
 
     const FVector& SocketLocation = MeshComp->GetSocketLocation(FootSocketName);
     const FVector TraceStart = SocketLocation;
@@ -34,9 +46,6 @@ void UAnimNotify_FootStepSoundCue::Notify(USkeletalMeshComponent* MeshComp, UAni
     QueryParams.bReturnPhysicalMaterial = true;
     QueryParams.AddIgnoredActor(OwnerActor);
 
-	UWorld* World = OwnerActor->GetWorld();
-	VALID_CHECK(World);
-
     FHitResult HitResult;
     const bool bHit = World->LineTraceSingleByChannel(HitResult, TraceStart, TraceEnd, ECC_Visibility, QueryParams);
     if (bHit && HitResult.PhysMaterial.IsValid())
@@ -44,9 +53,14 @@ void UAnimNotify_FootStepSoundCue::Notify(USkeletalMeshComponent* MeshComp, UAni
         const EPhysicalSurface SurfaceType = UPhysicalMaterial::DetermineSurfaceType(HitResult.PhysMaterial.Get());
         const EPhysicsMaterialType MaterialType = GetPhysicsMaterialTypeByPhysicSurface(SurfaceType);
 
-        CONDITION_CHECK(PhysicsSoundMap.Contains(MaterialType) == false);
+        CONDITION_CHECK(PhysicsCueTagMap.Contains(MaterialType) == false);
 
-        UGameplayStatics::PlaySoundAtLocation(World, PhysicsSoundMap[MaterialType], SocketLocation);
+        FGameplayCueParameters Params;
+        Params.Location = HitResult.ImpactPoint;
+        Params.Normal = HitResult.ImpactNormal;
+        Params.AggregatedSourceTags = FGameplayTagContainer(PhysicsCueTagMap[MaterialType]);
+
+        ASC->ExecuteGameplayCue(PhysicsCueTagMap[MaterialType], Params);
     }
 }
 
@@ -57,10 +71,10 @@ const EPhysicsMaterialType UAnimNotify_FootStepSoundCue::GetPhysicsMaterialTypeB
     switch (PhysicSurface)
     {
     case SurfaceType_Default:
-        ret = EPhysicsMaterialType::Default;
+        ret = EPhysicsMaterialType::Default_Dirt;
     break;
     case SurfaceType1:
-        ret = EPhysicsMaterialType::Dirt;
+        ret = EPhysicsMaterialType::Stone;
     break;
     case SurfaceType2:
         ret = EPhysicsMaterialType::Wood;

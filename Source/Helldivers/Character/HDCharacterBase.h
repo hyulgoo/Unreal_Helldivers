@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "Interface/HDCharacterRagdollInterface.h"
+#include "Interface/HDDeadInterface.h"
 #include "HDCharacterBase.generated.h"
 
 class UHDCharacterControlData;
@@ -12,7 +13,7 @@ class USkeletalMeshComponent;
 enum class EHDCharacterControlType   : uint8;
 
 UCLASS()
-class HELLDIVERS_API AHDCharacterBase : public ACharacter, public IHDCharacterRagdollInterface
+class HELLDIVERS_API AHDCharacterBase : public ACharacter, public IHDCharacterRagdollInterface, public IHDDeadInterface
 {
     GENERATED_BODY()
 
@@ -20,7 +21,7 @@ public:
     explicit                    AHDCharacterBase();
 
 protected:
-    virtual void                SetDead();
+    virtual void                SetDead() override;
     void                        PlayDeadAnimation();
 
     virtual void				SetRagdoll(const bool bRagdoll, const FVector& Impulse = FVector::ZeroVector) override;

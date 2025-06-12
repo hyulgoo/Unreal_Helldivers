@@ -71,7 +71,6 @@ AHDCharacterPlayer::AHDCharacterPlayer()
 
     // Combat
     Combat = CreateDefaultSubobject<UHDCombatComponent>(TEXT("Combat"));
-    Combat->CombatState = EHDCombatState::Unoccupied;
 
     static ConstructorHelpers::FObjectFinder<UDataTable> StratagemDataListRef(TEXT("/Script/Engine.DataTable'/Game/Helldivers/GameData/DT_StratagenData.DT_StratagenData'"));
     if (StratagemDataListRef.Succeeded())
@@ -110,7 +109,7 @@ void AHDCharacterPlayer::SetRagdoll(const bool bRagdoll, const FVector& Impulse)
 
         FTimerDelegate LamdaDelegate;
         LamdaDelegate.BindLambda([this]() {
-            Combat->CombatState = EHDCombatState::Unoccupied;
+            SetCombatState(EHDCombatState::Unoccupied);
             });
         GetWorldTimerManager().SetTimerForNextTick(LamdaDelegate);
     }
@@ -144,17 +143,19 @@ const float AHDCharacterPlayer::Reload()
 
 	Combat->Reload();
 
+    const bool bIsShoulder = IsShouldering();
+
 	FName SectionName;
 	switch (Weapon->GetFireType())
 	{
 	case EHDFireType::HitScan:
 	case EHDFireType::Projectile:
 		SectionName = MovementState == EHDCharacterMovementState::Prone ? MONTAGESECTIONNAME_RIFLE_PRONE
-			: Combat->bIsShoulder ? MONTAGESECTIONNAME_RIFLE_AIM : MONTAGESECTIONNAME_RIFLE_HIP;
+			: bIsShoulder ? MONTAGESECTIONNAME_RIFLE_AIM : MONTAGESECTIONNAME_RIFLE_HIP;
 		break;
 	case EHDFireType::Shotgun:
 		SectionName = MovementState == EHDCharacterMovementState::Prone ? MONTAGESECTIONNAME_SHOTGUN_PRONE
-			: Combat->bIsShoulder ? MONTAGESECTIONNAME_SHOTGUN_AIM : MONTAGESECTIONNAME_SHOTGUN_HIP;
+			: bIsShoulder ? MONTAGESECTIONNAME_SHOTGUN_AIM : MONTAGESECTIONNAME_SHOTGUN_HIP;
 		break;
 	}
 
@@ -162,7 +163,7 @@ const float AHDCharacterPlayer::Reload()
 
 	PlayMontage(ReloadWeaponMontage, SectionName);
 
-    return Weapon->GetReloadDelay(Combat->bIsShoulder);
+    return Weapon->GetReloadDelay(bIsShoulder);
 }
 
 void AHDCharacterPlayer::ReloadFinished()
@@ -179,12 +180,12 @@ void AHDCharacterPlayer::ReloadFinished()
 
 const bool AHDCharacterPlayer::IsShouldering() const
 {
-	return Combat->bIsShoulder;
+	return Combat->IsShoulder();
 }
 
 void AHDCharacterPlayer::SetShouldering(const bool bShoulder)
 {
-    Combat->bIsShoulder = bShoulder;   
+    Combat->SetShoulder(bShoulder);   
 
     if (bShoulder)
     {
@@ -210,17 +211,35 @@ void AHDCharacterPlayer::EquipWeapon(AHDWeapon* NewWeapon)
 
 AHDWeapon* AHDCharacterPlayer::GetWeapon() const
 {
-    return Combat->Weapon;
+    return Combat->GetWeapon();
 }
 
 const FVector& AHDCharacterPlayer::GetHitTarget() const
 {
-    return Combat->HitTarget;
+    return Combat->GetHitTarget();
 }
 
 const EHDCombatState AHDCharacterPlayer::GetCombatState() const
 {
-    return Combat->CombatState;
+    return Combat->GetCombatState();
+}
+
+void AHDCharacterPlayer::SetCombatState(const EHDCombatState State)
+{
+    Combat->SetCombatState(State);
+}
+
+void AHDCharacterPlayer::Attack(const bool bActive)
+{
+    const EHDCombatState CombatState = GetCombatState();
+    if (CombatState == EHDCombatState::Unoccupied)
+    {
+        Fire(bActive);
+    }
+    else if (CombatState == EHDCombatState::HoldStratagem)
+    {
+        ThrowStratagem();
+    }
 }
 
 void AHDCharacterPlayer::AddStratagemCommand(const EHDCommandInput NewInput)
@@ -306,7 +325,7 @@ void AHDCharacterPlayer::SetCharacterMovementState(const EHDCharacterMovementSta
     MovementState = NewState;
 	if (bForced)
 	{
-        Combat->CombatState = NewState == EHDCharacterMovementState::Prone ? EHDCombatState::Ragdoll : EHDCombatState::Unoccupied;
+        SetCombatState(NewState == EHDCharacterMovementState::Prone ? EHDCombatState::Ragdoll : EHDCombatState::Unoccupied);
     }
 
     ChangeCameraZOffsetByCharacterMovementState(MovementState);
@@ -314,15 +333,17 @@ void AHDCharacterPlayer::SetCharacterMovementState(const EHDCharacterMovementSta
 
 void AHDCharacterPlayer::RestoreMovementState()
 {
-    CONDITION_CHECK(MovementState == PrevMovementState);
-
-    if (MovementState == EHDCharacterMovementState::Prone)
+    if (MovementState == EHDCharacterMovementState::Crouch)
     {
-        MovementState = PrevMovementState;
+        MovementState = EHDCharacterMovementState::Idle;
+    }
+    else if (MovementState == EHDCharacterMovementState::Prone)
+    {
+        MovementState = PrevMovementState == EHDCharacterMovementState::Crouch ? PrevMovementState : EHDCharacterMovementState::Idle;
     }
     else
     {
-        MovementState = EHDCharacterMovementState::Idle;
+        CONDITION_CHECK(true);
     }
 
     ChangeCameraZOffsetByCharacterMovementState(MovementState);
@@ -330,20 +351,16 @@ void AHDCharacterPlayer::RestoreMovementState()
 
 const FVector& AHDCharacterPlayer::GetThrowDirection() const
 {
-    return Combat->HitTarget;
+    return GetHitTarget();
 }
 
-void AHDCharacterPlayer::ThrowStratagem()
+void AHDCharacterPlayer::HoldStratagem()
 {   
-    NULL_CHECK(ThrowMontage);
     NULL_CHECK(StratagemClass);
 
     if (SelectedStratagemName.IsNone() == false)
     {
         SetWeaponActive(false);
-
-        // TODO(25/03/27)  추후 Crouch 등 다른 자세 생기면 해당 섹션으로 점프하기
-        PlayMontage(ThrowMontage);
 
         UWorld* World = GetWorld();
         VALID_CHECK(World);
@@ -352,23 +369,53 @@ void AHDCharacterPlayer::ThrowStratagem()
         const USkeletalMeshSocket* RightHandSocket = CharacterMesh->GetSocketByName(SOCKETNAME_RIGHTHAND);
         NULL_CHECK(RightHandSocket);
 
-        FActorSpawnParameters SpawnParams;
-        SpawnParams.Owner = this;
-        SpawnParams.Instigator = Cast<APawn>(this);
+        if (GetCombatState() != EHDCombatState::HoldStratagem)
+        {
+            const FTransform SocketTransform = RightHandSocket->GetSocketTransform(CharacterMesh);
+            FRotator TargetRotation = (GetHitTarget() - SocketTransform.GetLocation()).Rotation();
+            TargetRotation.Roll = 0;
 
-        const FTransform SocketTransform = RightHandSocket->GetSocketTransform(CharacterMesh);
-        FRotator TargetRotation = (Combat->HitTarget - SocketTransform.GetLocation()).Rotation();
-        TargetRotation.Roll = 0;
-        Stratagem = World->SpawnActor<AHDStratagem>(StratagemClass, SocketTransform.GetLocation(), TargetRotation, SpawnParams);
+            FActorSpawnParameters SpawnParams;
+            SpawnParams.Owner = this;
+            SpawnParams.Instigator = Cast<APawn>(this);
+
+            Stratagem = World->SpawnActor<AHDStratagem>(StratagemClass, SocketTransform.GetLocation(), TargetRotation, SpawnParams);
+        }
+
+        NULL_CHECK(Stratagem);
+
         RightHandSocket->AttachActor(Stratagem, CharacterMesh);
-        Stratagem->SetOwner(this);
         Stratagem->StratagemName = SelectedStratagemName;
         Stratagem->StratagemActiveDelay = SelecteddStratagemActiveDelay;
+
+        SetCombatState(EHDCombatState::HoldStratagem);
     }
 
     SelectedStratagemName = FName();
     CommandMatchStratagemNameList.Empty();
     CurrentInputCommandList.Empty();
+}
+
+void AHDCharacterPlayer::ThrowFinished()
+{
+    SetCombatState(EHDCombatState::Unoccupied);
+}
+
+void AHDCharacterPlayer::ThrowStratagem()
+{
+    NULL_CHECK(ThrowMontage);
+
+    // TODO(25/03/27)  추후 Crouch 등 다른 자세 생기면 해당 섹션으로 점프하기
+    PlayMontage(ThrowMontage);
+}
+
+void AHDCharacterPlayer::CancleStratagem()
+{
+    VALID_CHECK(Stratagem);
+
+    Stratagem->Destroy();
+
+    SetCombatState(EHDCombatState::Unoccupied);
 }
 
 void AHDCharacterPlayer::AimOffset(const float DeltaTime)
@@ -387,7 +434,7 @@ void AHDCharacterPlayer::AimOffset(const float DeltaTime)
     const FRotator BaseAimRoatation = GetBaseAimRotation();
     const FRotator ControlRotation  = GetControlRotation();
 
-    if (Combat->bIsShoulder)
+    if (IsShouldering())
     {
         bIsCharacterLookingViewport = true;
         bUseControllerRotationYaw = true;
@@ -501,12 +548,13 @@ void AHDCharacterPlayer::InterpFOV(float DeltaSeconds)
     {
         return;
     }
-
-    const float TargetFOV = Combat->bIsShoulder ? Weapon->GetZoomedFOV() : DefaultFOV;
-    const float InterpSpeed = Combat->bIsShoulder ? Weapon->GetZoomInterpSpeed() : Combat->ZoomInterpSpeed;
-    Combat->CurrentFOV = FMath::FInterpTo(Combat->CurrentFOV, TargetFOV, DeltaSeconds, InterpSpeed);
+    const bool bIsShoulder = IsShouldering();
+    const float TargetFOV = bIsShoulder ? Weapon->GetZoomedFOV() : DefaultFOV;
+    const float InterpSpeed = bIsShoulder ? Weapon->GetZoomInterpSpeed() : Combat->GetZoomInterpSpeed();
+    const float NewInterpFOV = FMath::FInterpTo(Combat->GetCurrentFOV(), TargetFOV, DeltaSeconds, InterpSpeed);
+    Combat->SetCurrentFOV(NewInterpFOV);
     
-    FollowCamera->SetFieldOfView(Combat->CurrentFOV);
+    FollowCamera->SetFieldOfView(Combat->GetCurrentFOV());
 }
 
 void AHDCharacterPlayer::PlayMontage(UAnimMontage* Montage, const FName SectionName)
@@ -517,7 +565,7 @@ void AHDCharacterPlayer::PlayMontage(UAnimMontage* Montage, const FName SectionN
 
     AnimInstance->Montage_Play(Montage);
 
-    if (SectionName.IsValid())
+    if (SectionName.IsNone() == false)
     {
         AnimInstance->Montage_JumpToSection(SectionName);
     }
@@ -568,14 +616,14 @@ const float AHDCharacterPlayer::Fire(const bool IsPressed)
     case EHDFireType::HitScan:
     case EHDFireType::Projectile:
     {
-        const FName SectionName = Combat->bIsShoulder ? MONTAGESECTIONNAME_RIFLE_AIM : MONTAGESECTIONNAME_RIFLE_HIP;
+        const FName SectionName = IsShouldering() ? MONTAGESECTIONNAME_RIFLE_AIM : MONTAGESECTIONNAME_RIFLE_HIP;
         PlayMontage(FireWeaponMontage, SectionName);
     }
     break;
     case EHDFireType::Shotgun:
     {
         // TODO
-        //const FName SectionName = Combat->bIsShoulder ? MONTAGESECTIONNAME_SHOTGUN_AIM : MONTAGESECTIONNAME_SHOTGUN_HIP;
+        //const FName SectionName = IsShouldering() ? MONTAGESECTIONNAME_SHOTGUN_AIM : MONTAGESECTIONNAME_SHOTGUN_HIP;
         //PlayMontage(FireWeaponMontage);
         //Shotgun->FireShotgun(TraceHitTargets);
         //CombatState = ECombatState::ECS_Unoccupied;

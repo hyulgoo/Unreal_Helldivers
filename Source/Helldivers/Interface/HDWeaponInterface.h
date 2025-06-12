@@ -26,10 +26,15 @@ public:
 	virtual const FVector&			GetHitTarget() const = 0;
 	virtual const EHDCombatState	GetCombatState() const = 0;
 
-	virtual const float				Fire(const bool bIsPressed) = 0;
+	virtual void					Attack(const bool bActive) = 0;
 	virtual const bool				FireFinished() = 0;
+
 	virtual void					SetWeaponActive(const bool bActive) = 0;
 
 	virtual const float				Reload() = 0;
 	virtual void					ReloadFinished() = 0;
+
+protected:
+	virtual const float				Fire(const bool bIsPressed) = 0;
+
 };

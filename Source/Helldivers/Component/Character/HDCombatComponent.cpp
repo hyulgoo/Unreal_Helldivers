@@ -48,6 +48,26 @@ void UHDCombatComponent::ReloadFinished()
     CombatState = EHDCombatState::Unoccupied;
 }
 
+const FVector& UHDCombatComponent::GetHitTarget() const
+{
+    return HitTarget;
+}
+
+void UHDCombatComponent::SetHitTarget(const FVector& NewHitTarget)
+{
+    HitTarget = NewHitTarget;
+}
+
+const float UHDCombatComponent::GetCurrentFOV() const
+{
+    return CurrentFOV;
+}
+
+void UHDCombatComponent::SetCurrentFOV(const float NewFOV)
+{
+    CurrentFOV = NewFOV;
+}
+
 void UHDCombatComponent::TraceUnderCrosshairs()
 {
     FVector2D ViewportSize;
@@ -132,7 +152,29 @@ const bool UHDCombatComponent::CanFire()
     return (CombatState == EHDCombatState::Unoccupied);
 }
 
-const bool UHDCombatComponent::CanReload()
+const EHDCombatState UHDCombatComponent::GetCombatState() const
+{
+    return CombatState;
+}
+
+void UHDCombatComponent::SetCombatState(const EHDCombatState State)
+{
+    CONDITION_CHECK(CombatState == State);
+
+    CombatState = State;
+}
+
+const bool UHDCombatComponent::IsShoulder() const
+{
+    return bIsShoulder;
+}
+
+void UHDCombatComponent::SetShoulder(const bool bShoudler)
+{
+    bIsShoulder = bShoudler;
+}
+
+const bool UHDCombatComponent::CanReload() const
 {
     if (IsValid(Weapon) == false || Weapon->IsCapacityEmpty() || Weapon->IsAmmoFull())
     {

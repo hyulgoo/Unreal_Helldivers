@@ -2,6 +2,8 @@
 
 #include "Attribute/HDHealthAttributeSet.h"
 #include "Character/CharacterTypes/HDCharacterStateTypes.h"
+#include "Character/HDCharacterBase.h"
+#include "GameplayEffectExtension.h"
 
 UHDHealthAttributeSet::UHDHealthAttributeSet()
 	: CurrentHealth(FGameplayAttributeData())
