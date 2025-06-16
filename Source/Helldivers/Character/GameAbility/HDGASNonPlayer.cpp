@@ -21,7 +21,6 @@ void AHDGASNonPlayer::BeginPlay()
 {
     Super::BeginPlay();
 
-    NULL_CHECK(AbilitySystemComponent);
     InitAbilitySystemComponent();
 }
 
@@ -29,10 +28,24 @@ void AHDGASNonPlayer::InitAbilitySystemComponent()
 {
     NULL_CHECK(AbilitySystemComponent);
 
-    for (const TSubclassOf<UGameplayAbility>& StartAbility : StartAbilities)
-    {
-        AbilitySystemComponent->GiveAbility(StartAbility);
-    }
+    // Passive Ability
+	{
+		for (const TSubclassOf<UGameplayAbility>& PassiveAbility : PassiveAbilities)
+		{
+			AbilitySystemComponent->GiveAbility(PassiveAbility);
+		}
+
+		TArray<FGameplayAbilitySpec>& ActivatebleAbilities = AbilitySystemComponent->GetActivatableAbilities();
+		for (FGameplayAbilitySpec& Spec : ActivatebleAbilities)
+		{
+			AbilitySystemComponent->TryActivateAbility(Spec.Handle);
+		}
+	}
+
+	for (const TSubclassOf<UGameplayAbility>& StartAbility : StartAbilities)
+	{
+		AbilitySystemComponent->GiveAbility(StartAbility);
+	}
 
     InitializeAttributeSet();
 }
@@ -48,4 +61,6 @@ void AHDGASNonPlayer::InitializeAttributeSet()
     NULL_CHECK(HealthAttributeSet);
     HealthAttributeSet->MaxHealth.SetBaseValue(150.f);
     HealthAttributeSet->MaxHealth.SetCurrentValue(150.f);
+    HealthAttributeSet->CurrentHealth.SetBaseValue(150.f);
+    HealthAttributeSet->CurrentHealth.SetCurrentValue(150.f);
 }

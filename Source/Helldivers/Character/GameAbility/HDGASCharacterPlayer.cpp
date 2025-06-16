@@ -275,7 +275,7 @@ void AHDGASCharacterPlayer::HandleGameplayEvent(const FGameplayEventData* Payloa
 
 void AHDGASCharacterPlayer::SetStratagemHUDAppear(const bool bAppear)
 {
-    AHDPlayerController* PlayerController = Cast<AHDPlayerController>(GetController());
+    AHDPlayerController* PlayerController = GetController<AHDPlayerController>();
     NULL_CHECK(PlayerController);
 
     if (PlayerController->IsLocalController())
@@ -293,6 +293,20 @@ void AHDGASCharacterPlayer::InitAbilitySystemComponent()
     NULL_CHECK(AbilitySystemComponent);
 
     AbilitySystemComponent->InitAbilityActorInfo(GASPlayerState, this);
+
+    // Passive Ability
+    {
+        for (const TSubclassOf<UGameplayAbility>& PassiveAbility : PassiveAbilities)
+        {
+            AbilitySystemComponent->GiveAbility(PassiveAbility);
+        }
+
+        TArray<FGameplayAbilitySpec>& ActivatebleAbilities = AbilitySystemComponent->GetActivatableAbilities();
+        for (FGameplayAbilitySpec& Spec : ActivatebleAbilities)
+        {
+            AbilitySystemComponent->TryActivateAbility(Spec.Handle);
+        }
+    }
 
     for (const TSubclassOf<UGameplayAbility>& StartAbility : StartAbilities)
     {

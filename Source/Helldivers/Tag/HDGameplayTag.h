@@ -10,6 +10,7 @@
 #define HDTAG_CHARACTER_STATE_ISFIRING				FGameplayTag::RequestGameplayTag(FName("Character.State.IsFiring"))
 #define HDTAG_CHARACTER_STATE_ISSHOULDER			FGameplayTag::RequestGameplayTag(FName("Character.State.IsShoulder"))
 #define HDTAG_CHARACTER_STATE_ISSPRINT				FGameplayTag::RequestGameplayTag(FName("Character.State.IsSprint"))
+#define HDTAG_CHARACTER_STATE_ISDEAD				FGameplayTag::RequestGameplayTag(FName("Character.State.IsDead"))
 
 #define HDTAG_INPUT_AIMING							FGameplayTag::RequestGameplayTag(FName("Input.Aiming"))
 #define HDTAG_INPUT_SHOULDER						FGameplayTag::RequestGameplayTag(FName("Input.Shoulder"))

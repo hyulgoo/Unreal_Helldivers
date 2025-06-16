@@ -12,5 +12,5 @@ class HELLDIVERS_API UHDGE_ApplyDamage : public UGameplayEffect
 	GENERATED_BODY()
 	
 public:
-	explicit UHDGE_ApplyDamage();
+	explicit UHDGE_ApplyDamage(const FObjectInitializer& ObjectInitializer);
 };

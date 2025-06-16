@@ -4,19 +4,17 @@
 
 #include "CoreMinimal.h"
 #include "Abilities/GameplayAbility.h"
-#include "Abilities/Tasks/AbilityTask_WaitAttributeChange.h"
-#include "GameplayEffectTypes.h"
-#include "HDGA_Dead.generated.h"
+#include "HDGA_DeadWatcher.generated.h"
 
 UCLASS()
-class HELLDIVERS_API UHDGA_Dead : public UGameplayAbility
+class HELLDIVERS_API UHDGA_DeadWatcher : public UGameplayAbility
 {
 	GENERATED_BODY()
 
 public:
-	explicit UHDGA_Dead();
+	explicit UHDGA_DeadWatcher();
 
 	virtual void	ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData) override final;
 
-	void			OnHealthChanged(FOnAttributeChangeData Data);
+	void			OnHealthChanged(const FOnAttributeChangeData& Data);
 };

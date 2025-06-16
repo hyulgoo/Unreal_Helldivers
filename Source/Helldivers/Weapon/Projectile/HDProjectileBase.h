@@ -38,10 +38,10 @@ private:
     void			                            StartDestroyTimer();
     void			                            DestroyTimerFinished();
     void                                        SpawnTrailSystem();
-    void                                        ApplyExplode(const FVector& HitLocation);
+    void                                        ApplyExplode(UAbilitySystemComponent* SourceAbiltySystemComponent, const FVector& HitLocation);
 
-    void                                        ApplyImpactGameEffect(UAbilitySystemComponent* TargetAbiltySystemComponent, const float InterpImpactDamage);
-    void                                        ApplyImpactGameAbility(UAbilitySystemComponent* TargetAbiltySystemComponent, const float InterpKnockbackImpulse);
+    void                                        ApplyDamageGameEffect(UAbilitySystemComponent* SourceAbiltySystemComponent, UAbilitySystemComponent* TargetAbiltySystemComponent, const float InterpImpactDamage);
+    void                                        ApplyKnockbackGameAbility(UAbilitySystemComponent* SourceAbiltySystemComponent, UAbilitySystemComponent* TargetAbiltySystemComponent, const float InterpKnockbackImpulse);
     void                                        ExcuteGameplayCue(UAbilitySystemComponent* OwnerAbilitySystemComponent, const FGameplayTag& Tag, const FHitResult& Hit);
     
 protected:
@@ -64,7 +64,7 @@ protected:
     EImpactType                                 ImpactType;
 
     UPROPERTY(EditDefaultsOnly, Category = "Info|Default")
-    TSubclassOf<UGameplayEffect>                ImpactGameEffect;
+    TSubclassOf<UGameplayEffect>                DamageGameEffect;
     
     UPROPERTY(EditDefaultsOnly, Category = "Info|Default")
     float                                       ImpactDamage;

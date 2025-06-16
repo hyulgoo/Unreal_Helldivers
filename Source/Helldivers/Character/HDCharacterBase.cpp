@@ -48,7 +48,7 @@ void AHDCharacterBase::SetDead()
 	MeshComponent->SetSimulatePhysics(true);
 	GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_None);
 	PlayDeadAnimation();
-	SetActorEnableCollision(false);
+	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 }
 
 void AHDCharacterBase::PlayDeadAnimation()
