@@ -3,69 +3,114 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "Character/CharacterTypes/HDCharacterStateTypes.h"
+#include "GameFramework/CharacterMovementComponent.h"
+#include "Components/TimelineComponent.h"
 #include "HDCombatComponent.generated.h"
 
 class AHDWeapon;
+class AHDStratagem;
+class UCharacterMovementComponent;
+class USpringArmComponent;
 enum class EHDCombatState : uint8;
 
-UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
+UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent, DependsOn=CharacterMovementComponent))
 class HELLDIVERS_API UHDCombatComponent : public UActorComponent
 {
 	GENERATED_BODY()
 
 public:	
-	explicit                UHDCombatComponent();
+	explicit                                UHDCombatComponent();
 
-    const bool				Fire(const bool IsPressed);
-    void                    EquipWeapon(AHDWeapon* NewWeapon);
-    AHDWeapon*              GetWeapon() const { return Weapon; }
-    const bool 				CanFire();
+    const bool				                Fire(const bool IsPressed);
+    void                                    EquipWeapon(AHDWeapon* NewWeapon);
+    AHDWeapon*                              GetWeapon() const;
+    const bool 				                CanFire();
 
-    const bool              CanReload() const;
-    void                    Reload();
+    const bool                              CanReload() const;
+    void                                    Reload();
 
-    const EHDCombatState    GetCombatState() const;
-    void                    SetCombatState(const EHDCombatState State);
+    const EHDCombatState                    GetCombatState() const;
+    void                                    SetCombatState(const EHDCombatState State);
 
-    const bool              IsShoulder() const;
-    void                    SetShoulder(const bool bShoudler);
+    const bool                              IsShoulder() const;
+    void                                    SetShoulder(const bool bShoudler);
 
-    const bool              FireFinished();
-    void                    ReloadFinished();
+	const bool                              FireFinished();
+	void                                    ReloadFinished();
 
-    const FVector&          GetHitTarget() const;
-    void                    SetHitTarget(const FVector& NewHitTarget);
+    const float                             GetAimOffset_Yaw() const;
+    const float                             GetAimOffset_Pitch() const;
 
-    const float             GetCurrentFOV() const;
-    void                    SetCurrentFOV(const float NewFOV);
+    const FVector&                          GetHitTarget() const;
+    void                                    SetHitTarget(const FVector& NewHitTarget);
 
-    const float             GetZoomInterpSpeed() const { return ZoomInterpSpeed; }
+    const float                             GetCurrentFOV() const;
+    void                                    SetCurrentFOV(const float NewFOV);
+
+    const float                             GetZoomInterpSpeed() const;
+
+    const bool                              IsCharacterLookingViewport() const;
+    void                                    SetSpringArmTargetLength(const float TargetArmLength);
+
+    const float                             GetDefaultFOV() const;
 
 protected:
-    virtual void            TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+    virtual void                            BeginPlay() override final;
+    virtual void                            TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 private:
-    void					TraceUnderCrosshairs();
+    void					                TraceUnderCrosshairs();
+    void					                AimOffset(const float DeltaTime);
+    void									TurnInPlace(const float DeltaTime);
+
+    UFUNCTION()
+    void                                    OnSpringArmLengthUpdate(const float Value);
 
 private:
-    bool					bIsShoulder;
-    bool					bIsFireButtonPressed;
+    UPROPERTY()
+    TObjectPtr<UCharacterMovementComponent> CharacterMovement;
 
-    EHDCombatState			CombatState;
-
-    FVector					HitTarget;
-
-    UPROPERTY(EditAnywhere, Category = "FOV")
-	float					ZoomedFOV;
-
-	float					CurrentFOV;
-
-    UPROPERTY(EditAnywhere, Category = "FOV")
-	float					ZoomInterpSpeed;
-
-    float					ErgonomicFactor;
+    UPROPERTY()
+    TObjectPtr<USpringArmComponent>         SpringArm;
     
-private:
-    UPROPERTY(EditAnywhere, Category = "Weapon")
-	TObjectPtr<AHDWeapon>	Weapon;
+    FRotator				                StartingAimRotation;
+    float					                AimOffset_Yaw;
+    float					                InterpAimOffset_Yaw;
+    float					                AimOffset_Pitch;
+
+    bool					                bIsCharacterLookingViewport;
+    bool					                bUseRotateRootBone;
+    
+	UPROPERTY(EditAnywhere,                 Category = "Combat")
+	float					                TurnThreshold;
+
+	EHDTurningInPlace		                TurningInPlace;
+
+    bool					                bIsShoulder;
+    bool					                bIsFireButtonPressed;
+
+    EHDCombatState			                CombatState;
+
+    FVector					                HitTarget;
+
+    float                                   DefaultFOV;
+    UPROPERTY(EditAnywhere,                 Category = "Combat")
+	float					                ZoomedFOV;
+
+	float					                CurrentFOV;
+
+    UPROPERTY(EditAnywhere,                 Category = "Combat")
+	float					                ZoomInterpSpeed;
+
+    float					                ErgonomicFactor;
+    
+    UPROPERTY()
+	TObjectPtr<AHDWeapon>	                Weapon;
+    
+    UPROPERTY(EditAnywhere,                 Category = "Combat")
+	TObjectPtr<UCurveFloat>	                DefaultCurve;
+
+	FTimeline				                SpringArmArmLengthTimeline;
+	float					                SpringArmTargetArmLength;
 };

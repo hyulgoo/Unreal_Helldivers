@@ -6,6 +6,8 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Component/Character/HDCombatComponent.h"
+#include "Component/Character/HDInputActionComponent.h"
+#include "Component/Character/HDStratagemComponent.h"
 #include "CharacterTypes/HDCharacterStateTypes.h"
 #include "InputMappingContext.h"
 #include "EnhancedInputComponent.h"
@@ -19,7 +21,6 @@
 #include "Animation/HDAnimInstance.h"
 #include "Character/HDCharacterControlData.h"
 
-#define AIMOFFSET_PITCH_OFFSET 20.f
 #define MONTAGESECTIONNAME_RIFLE_AIM FName("Rifle_Aim")
 #define MONTAGESECTIONNAME_RIFLE_HIP FName("Rifle_Hip")
 #define MONTAGESECTIONNAME_PISTOL FName("Pistol")
@@ -32,30 +33,8 @@
 AHDCharacterPlayer::AHDCharacterPlayer()
     : SpringArm(nullptr)
 	, FollowCamera(nullptr)
-    , CurrentInputCommandList{}
 	, Combat(nullptr)
 	, DefaultWeaponClass(nullptr)
-	, StartingAimRotation(FRotator())
-	, AimOffset_Yaw(0.f)
-	, InterpAimOffset_Yaw(0.f)
-	, AimOffset_Pitch(0.f)
-    , MovementState(EHDCharacterMovementState::Idle)
-    , PrevMovementState(EHDCharacterMovementState::Idle)
-	, bIsSprint(false)
-	, bIsCharacterLookingViewport(false)
-	, bUseRotateRootBone(false)
-	, TurnThreshold(0.f)
-	, TurningInPlace(EHDTurningInPlace::NotTurning)
-	, StratagemClass(nullptr)
-	, Stratagem(nullptr)
-	, SelectedStratagemName(FName())
-	, SelecteddStratagemActiveDelay(0.f)
-    , CommandMatchStratagemNameList{}
-	, AvaliableStratagemDataTable(nullptr)
-	, DefaultFOV(0.f)
-    , SpringArmArmLengthTimeline(FTimeline())
-    , SpringArmTargetArmLength(0.f)
-    , SpringArmTargetZOffset(0.f)
 {
     GetCharacterMovement()->bOrientRotationToMovement = true;
 
@@ -69,22 +48,13 @@ AHDCharacterPlayer::AHDCharacterPlayer()
     FollowCamera->SetupAttachment(SpringArm, USpringArmComponent::SocketName);
     FollowCamera->bUsePawnControlRotation = false;
 
-    // Combat
     Combat = CreateDefaultSubobject<UHDCombatComponent>(TEXT("Combat"));
-
-    static ConstructorHelpers::FObjectFinder<UDataTable> StratagemDataListRef(TEXT("/Script/Engine.DataTable'/Game/Helldivers/GameData/DT_StratagenData.DT_StratagenData'"));
-    if (StratagemDataListRef.Succeeded())
-    {
-        AvaliableStratagemDataTable = StratagemDataListRef.Object;
-    }
+    InputAction = CreateDefaultSubobject<UHDInputActionComponent>(TEXT("InputAction"));
 }
 
 void AHDCharacterPlayer::Tick(float DeltaTime)
 {
     Super::Tick(DeltaTime);
-
-	AimOffset(DeltaTime);
-    SpringArmArmLengthTimeline.TickTimeline(DeltaTime);
 }
 
 void AHDCharacterPlayer::PossessedBy(AController* NewController)
@@ -92,11 +62,6 @@ void AHDCharacterPlayer::PossessedBy(AController* NewController)
     Super::PossessedBy(NewController);
 
     SpawnDefaultWeapon();
-
-    FOnTimelineFloat ArmLengthTimelineProgress;
-    ArmLengthTimelineProgress.BindUFunction(this, FName("OnCameraSpringArmLengthTimelineUpdate"));
-    SpringArmArmLengthTimeline.AddInterpFloat(DefaultCurve, ArmLengthTimelineProgress);
-    SpringArmArmLengthTimeline.SetLooping(false);
 }
 
 void AHDCharacterPlayer::SetRagdoll(const bool bRagdoll, const FVector& Impulse)
@@ -144,6 +109,7 @@ const float AHDCharacterPlayer::Reload()
 	Combat->Reload();
 
     const bool bIsShoulder = IsShouldering();
+    const EHDCharacterMovementState MovementState = InputAction->GetCharacterMovementState();
 
 	FName SectionName;
 	switch (Weapon->GetFireType())
@@ -178,6 +144,16 @@ void AHDCharacterPlayer::ReloadFinished()
     PlayerController->ChangeCapacityHUDInfo(Weapon->GetCapacityCount());
 }
 
+const float AHDCharacterPlayer::GetAimOffset_Yaw() const
+{
+    return Combat->GetAimOffset_Yaw();
+}
+
+const float AHDCharacterPlayer::GetAimOffset_Pitch() const
+{
+    return Combat->GetAimOffset_Pitch();
+}
+
 const bool AHDCharacterPlayer::IsShouldering() const
 {
 	return Combat->IsShoulder();
@@ -186,15 +162,21 @@ const bool AHDCharacterPlayer::IsShouldering() const
 void AHDCharacterPlayer::SetShouldering(const bool bShoulder)
 {
     Combat->SetShoulder(bShoulder);   
+}
 
-    if (bShoulder)
-    {
-        SpringArmArmLengthTimeline.PlayFromStart();
-    }
-    else
-    {
-        SpringArmArmLengthTimeline.ReverseFromEnd();
-    }
+const bool AHDCharacterPlayer::IsCharacterLookingViewport() const
+{
+    return Combat->IsCharacterLookingViewport();
+}
+
+const EHDTurningInPlace AHDCharacterPlayer::GetTurningInPlace() const
+{
+    return EHDTurningInPlace();
+}
+
+const bool AHDCharacterPlayer::IsUseRotateBone() const
+{
+    return false;
 }
 
 void AHDCharacterPlayer::EquipWeapon(AHDWeapon* NewWeapon)
@@ -238,51 +220,12 @@ void AHDCharacterPlayer::Attack(const bool bActive)
     }
     else if (CombatState == EHDCombatState::HoldStratagem)
     {
-        ThrowStratagem();
+        NULL_CHECK(ThrowMontage);
+
+        // TODO(25/03/27)  추후 Crouch 등 다른 자세 생기면 해당 섹션으로 점프하기
+        // 실제 AddImpulse는 AnimNotify에서 DetachTiming에 함
+        PlayMontage(ThrowMontage);
     }
-}
-
-void AHDCharacterPlayer::AddStratagemCommand(const EHDCommandInput NewInput)
-{
-    CurrentInputCommandList.Add(NewInput);
-    CommandMatchStratagemNameList.Empty();
-    const TArray<FName> StratagemDataNameList = AvaliableStratagemDataTable->GetRowNames();
-
-    const FString FindString(TEXT("Lookup"));
-    for (const FName& StratagemDataName : StratagemDataNameList)
-    {
-        FHDStratagemData* StratagemData = AvaliableStratagemDataTable->FindRow<FHDStratagemData>(StratagemDataName, FindString);
-        const TArray<EHDCommandInput>& CommandList = StratagemData->CommandSequence;
-        if (CurrentInputCommandList.Num() > CommandList.Num())
-        {
-            continue;
-        }
-
-        bool bCommandMatch = true;
-        for (int32 index = 0; index < CurrentInputCommandList.Num(); ++index)
-        {
-            if (CurrentInputCommandList[index] != CommandList[index])
-            {
-                bCommandMatch = false;
-                break;
-            }
-        }
-
-        if(bCommandMatch)
-        {
-            if (CurrentInputCommandList.Num() == CommandList.Num())
-            {
-                SelectedStratagemName = StratagemDataName;
-                SelecteddStratagemActiveDelay = StratagemData->StratagemDelay;
-            }
-
-            CommandMatchStratagemNameList.Add(StratagemDataName);
-        }
-    }
-
-    AHDPlayerController* PlayerController = GetController<AHDPlayerController>();
-    NULL_CHECK(PlayerController);
-    PlayerController->SetHUDActiveByCurrentInputMatchList(CommandMatchStratagemNameList, CurrentInputCommandList.Num());
 }
 
 void AHDCharacterPlayer::SetCharacterControlData(UHDCharacterControlData* CharacterControlData)
@@ -294,8 +237,6 @@ void AHDCharacterPlayer::SetCharacterControlData(UHDCharacterControlData* Charac
     CharacterMovementComponent->bUseControllerDesiredRotation   = CharacterControlData->bUseControllerDesiredRotation;
     CharacterMovementComponent->RotationRate                    = CharacterControlData->RotationRate;
 
-    SpringArmTargetZOffset             = CharacterControlData->TargetOffset.Z;
-    SpringArmTargetArmLength           = CharacterControlData->TargetArmLength;
     SpringArm->TargetArmLength         = CharacterControlData->TargetArmLength;
     SpringArm->TargetOffset            = CharacterControlData->TargetOffset;
     SpringArm->SocketOffset            = CharacterControlData->SocketOffset;
@@ -304,228 +245,68 @@ void AHDCharacterPlayer::SetCharacterControlData(UHDCharacterControlData* Charac
     SpringArm->bInheritYaw             = CharacterControlData->bInheritYaw;
     SpringArm->bInheritRoll            = CharacterControlData->bInheritRoll;
     SpringArm->bDoCollisionTest        = CharacterControlData->bDoCollisionTest;
+
+    Combat->SetSpringArmTargetLength(CharacterControlData->TargetArmLength);
+    InputAction->SetSpringArmDefaultZOffset(CharacterControlData->TargetOffset.Z);
+}
+
+const bool AHDCharacterPlayer::IsSprint() const
+{
+    return InputAction->IsSprint();
 }
 
 void AHDCharacterPlayer::SetSprint(const bool bSprint)
 {
     // 해당 클래스를 상속받은 캐릭터에서 해당 함수 Override하여 스피드 조정 중
-    bIsSprint = bSprint;
+    InputAction->SetSprint(bSprint);
 }
 
 const EHDCharacterMovementState AHDCharacterPlayer::GetCharacterMovementState() const
 {
-    return MovementState;
+    return InputAction->GetCharacterMovementState();
 }
 
 void AHDCharacterPlayer::SetCharacterMovementState(const EHDCharacterMovementState NewState, const bool bForced)
 {
-    CONDITION_CHECK(NewState == EHDCharacterMovementState::Count);
-
-    PrevMovementState = (PrevMovementState != MovementState) ? MovementState : PrevMovementState;
-    MovementState = NewState;
+    InputAction->SetCharacterMovementState(NewState, bForced);
 	if (bForced)
 	{
         SetCombatState(NewState == EHDCharacterMovementState::Prone ? EHDCombatState::Ragdoll : EHDCombatState::Unoccupied);
     }
-
-    ChangeCameraZOffsetByCharacterMovementState(MovementState);
 }
 
 void AHDCharacterPlayer::RestoreMovementState()
 {
-    if (MovementState == EHDCharacterMovementState::Crouch)
-    {
-        MovementState = EHDCharacterMovementState::Idle;
-    }
-    else if (MovementState == EHDCharacterMovementState::Prone)
-    {
-        MovementState = PrevMovementState == EHDCharacterMovementState::Crouch ? PrevMovementState : EHDCharacterMovementState::Idle;
-    }
-    else
-    {
-        CONDITION_CHECK(true);
-    }
-
-    ChangeCameraZOffsetByCharacterMovementState(MovementState);
+    InputAction->RestoreMovementState();
+    InputAction->ChangeCameraZOffsetByCharacterMovementState(InputAction->GetCharacterMovementState());
 }
 
-const FVector& AHDCharacterPlayer::GetThrowDirection() const
+void AHDCharacterPlayer::DetachStratagemWhileThrow()
 {
-    return GetHitTarget();
+    Stratagem->ThrowFinished();
+    SetCombatState(EHDCombatState::Unoccupied);
+    SetWeaponActive(false);
 }
 
 void AHDCharacterPlayer::HoldStratagem()
 {   
-    NULL_CHECK(StratagemClass);
-
-    if (SelectedStratagemName.IsNone() == false)
+    if (GetCombatState() != EHDCombatState::HoldStratagem)
     {
-        SetWeaponActive(false);
-
-        UWorld* World = GetWorld();
-        VALID_CHECK(World);
-
-        USkeletalMeshComponent* CharacterMesh = GetMesh();
-        const USkeletalMeshSocket* RightHandSocket = CharacterMesh->GetSocketByName(SOCKETNAME_RIGHTHAND);
-        NULL_CHECK(RightHandSocket);
-
-        if (GetCombatState() != EHDCombatState::HoldStratagem)
-        {
-            const FTransform SocketTransform = RightHandSocket->GetSocketTransform(CharacterMesh);
-            FRotator TargetRotation = (GetHitTarget() - SocketTransform.GetLocation()).Rotation();
-            TargetRotation.Roll = 0;
-
-            FActorSpawnParameters SpawnParams;
-            SpawnParams.Owner = this;
-            SpawnParams.Instigator = Cast<APawn>(this);
-
-            Stratagem = World->SpawnActor<AHDStratagem>(StratagemClass, SocketTransform.GetLocation(), TargetRotation, SpawnParams);
-        }
-
-        NULL_CHECK(Stratagem);
-
-        RightHandSocket->AttachActor(Stratagem, CharacterMesh);
-        Stratagem->StratagemName = SelectedStratagemName;
-        Stratagem->StratagemActiveDelay = SelecteddStratagemActiveDelay;
+        Stratagem->HoldStratagem(GetMesh(), GetHitTarget());
+        SetWeaponActive(true);
 
         SetCombatState(EHDCombatState::HoldStratagem);
     }
 
-    SelectedStratagemName = FName();
-    CommandMatchStratagemNameList.Empty();
-    CurrentInputCommandList.Empty();
-}
-
-void AHDCharacterPlayer::ThrowFinished()
-{
-    SetCombatState(EHDCombatState::Unoccupied);
-}
-
-void AHDCharacterPlayer::ThrowStratagem()
-{
-    NULL_CHECK(ThrowMontage);
-
-    // TODO(25/03/27)  추후 Crouch 등 다른 자세 생기면 해당 섹션으로 점프하기
-    PlayMontage(ThrowMontage);
+    Stratagem->ClearCommand();
 }
 
 void AHDCharacterPlayer::CancleStratagem()
 {
     VALID_CHECK(Stratagem);
 
-    Stratagem->Destroy();
-
+    Stratagem->CancleStratagem();
     SetCombatState(EHDCombatState::Unoccupied);
-}
-
-void AHDCharacterPlayer::AimOffset(const float DeltaTime)
-{
-    if (IsValid(GetWeapon()) == false)
-    {
-        return;
-    }
-
-    UCharacterMovementComponent* CharacterMovementComponent = GetCharacterMovement();
-
-    FVector Velocity = GetVelocity();
-    Velocity.Z = 0.f;
-    const bool bIsMoving            = Velocity.Size() > 0.1f;
-    const bool bIsFalling           = CharacterMovementComponent->IsFalling();
-    const FRotator BaseAimRoatation = GetBaseAimRotation();
-    const FRotator ControlRotation  = GetControlRotation();
-
-    if (IsShouldering())
-    {
-        bIsCharacterLookingViewport = true;
-        bUseControllerRotationYaw = true;
-        bUseRotateRootBone = false;
-        CharacterMovementComponent->bOrientRotationToMovement = false;
-
-        const FRotator TargetRotation(0.f, ControlRotation.Yaw, 0.f);
-        const FRotator SmoothRotation = FMath::RInterpTo(GetActorRotation(), TargetRotation, DeltaTime, 20.f);
-        SetActorRotation(SmoothRotation);
-
-        if (bIsMoving == false && bIsFalling == false)
-        {
-            const FRotator DeltaRotation = UKismetMathLibrary::NormalizedDeltaRotator(TargetRotation, StartingAimRotation);
-            AimOffset_Yaw = DeltaRotation.Yaw;
-
-            if (TurningInPlace == EHDTurningInPlace::NotTurning)
-            {
-                InterpAimOffset_Yaw = AimOffset_Yaw;
-            }
-
-            TurnInPlace(DeltaTime);
-        }
-
-        if (bIsMoving || bIsFalling)
-        {
-            AimOffset_Yaw = 0.f;
-            InterpAimOffset_Yaw = 0.f;
-            StartingAimRotation = TargetRotation;
-        }
-    }
-    else
-    {
-        bIsCharacterLookingViewport = true;
-        bUseRotateRootBone = true;
-        bUseControllerRotationYaw = false;
-        CharacterMovementComponent->bOrientRotationToMovement = false;
-        const FRotator TargetRotation(0.f, BaseAimRoatation.Yaw, 0.f);
-        const FRotator DeltaRotation = UKismetMathLibrary::NormalizedDeltaRotator(TargetRotation, StartingAimRotation);
-        AimOffset_Yaw = DeltaRotation.Yaw;
-
-        if (bIsMoving == false && bIsFalling == false)
-        {
-            if (TurningInPlace == EHDTurningInPlace::NotTurning)
-            {
-                InterpAimOffset_Yaw = AimOffset_Yaw;
-            }
-
-            bUseRotateRootBone = false;
-            bUseControllerRotationYaw = true;
-            TurnInPlace(DeltaTime);
-        }
-
-        if (bIsMoving || bIsFalling)
-        {
-            bIsCharacterLookingViewport = false;
-            bUseRotateRootBone = false;
-            CharacterMovementComponent->bOrientRotationToMovement = true;
-            AimOffset_Yaw = 0.f;
-            StartingAimRotation = BaseAimRoatation;
-        }
-    }
-
-    CalculationAimOffset_Pitch();
-}
-
-void AHDCharacterPlayer::TurnInPlace(float DeltaTime)
-{
-    if (AimOffset_Yaw > TurnThreshold)
-    {
-        TurningInPlace = EHDTurningInPlace::Turn_Right;
-    }
-    else if (AimOffset_Yaw < -TurnThreshold)
-    {
-        TurningInPlace = EHDTurningInPlace::Turn_Left;
-    }
-
-    if (TurningInPlace != EHDTurningInPlace::NotTurning)
-    {
-        InterpAimOffset_Yaw = FMath::FInterpTo(InterpAimOffset_Yaw, 0.f, DeltaTime, 4.f);
-        AimOffset_Yaw = InterpAimOffset_Yaw;
-        if (FMath::Abs(AimOffset_Yaw) < 15.f)
-        {
-            StartingAimRotation = FRotator(0.f, GetBaseAimRotation().Yaw, 0.f);
-            TurningInPlace = EHDTurningInPlace::NotTurning;
-        }
-    }
-}
-
-void AHDCharacterPlayer::CalculationAimOffset_Pitch()
-{
-    AimOffset_Pitch= GetBaseAimRotation().Pitch - AIMOFFSET_PITCH_OFFSET;
 }
 
 void AHDCharacterPlayer::SpawnDefaultWeapon()
@@ -548,8 +329,9 @@ void AHDCharacterPlayer::InterpFOV(float DeltaSeconds)
     {
         return;
     }
+
     const bool bIsShoulder = IsShouldering();
-    const float TargetFOV = bIsShoulder ? Weapon->GetZoomedFOV() : DefaultFOV;
+    const float TargetFOV = bIsShoulder ? Weapon->GetZoomedFOV() : Combat->GetDefaultFOV();
     const float InterpSpeed = bIsShoulder ? Weapon->GetZoomInterpSpeed() : Combat->GetZoomInterpSpeed();
     const float NewInterpFOV = FMath::FInterpTo(Combat->GetCurrentFOV(), TargetFOV, DeltaSeconds, InterpSpeed);
     Combat->SetCurrentFOV(NewInterpFOV);
@@ -569,31 +351,6 @@ void AHDCharacterPlayer::PlayMontage(UAnimMontage* Montage, const FName SectionN
     {
         AnimInstance->Montage_JumpToSection(SectionName);
     }
-}
-
-void AHDCharacterPlayer::ChangeCameraZOffsetByCharacterMovementState(const EHDCharacterMovementState State)
-{
-    switch (State)
-    {
-    case EHDCharacterMovementState::Idle:
-        SpringArm->TargetOffset.Z = SpringArmTargetZOffset;
-        break;
-    case EHDCharacterMovementState::Crouch:
-        SpringArm->TargetOffset.Z = SpringArmTargetZOffset - 40.f;
-        break;
-    case EHDCharacterMovementState::Prone:
-        SpringArm->TargetOffset.Z = SpringArmTargetZOffset - 80.f;
-        break;
-    default:
-        LOG("EHDCharacterMovementState is Invalid!!");
-        break;
-    }
-}
-
-void AHDCharacterPlayer::OnCameraSpringArmLengthTimelineUpdate(const float Value)
-{
-    const float Interpolated = FMath::Lerp(SpringArmTargetArmLength, SpringArmTargetArmLength / 2.f, Value);
-    SpringArm->TargetArmLength = Interpolated;
 }
 
 const float AHDCharacterPlayer::Fire(const bool IsPressed)

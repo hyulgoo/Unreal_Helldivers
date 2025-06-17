@@ -16,6 +16,8 @@
 class USpringArmComponent;
 class UCameraComponent;
 class UHDCombatComponent;
+class UHDInputActionComponent;
+class UHDStratagemComponent;
 class AHDWeapon;
 class AHDStratagem;
 class UHDCharacterControlData;
@@ -27,7 +29,6 @@ class HELLDIVERS_API AHDCharacterPlayer : public AHDCharacterBase, public IHDCha
 
 public:
 	explicit								AHDCharacterPlayer();
-	UDataTable*								GetAvaliableStratagemDataTable()						{ return AvaliableStratagemDataTable; }
 
 protected:
 	virtual void							SetDead() override final;
@@ -51,57 +52,35 @@ protected:
 	virtual void							ReloadFinished() override;
 
 	// CharacterMovementInterface
-	virtual const float						GetAimOffset_Yaw() const override final					{ return AimOffset_Yaw; }
-	virtual const float						GetAimOffset_Pitch() const override final				{ return AimOffset_Pitch; }
-
+	virtual const float						GetAimOffset_Yaw() const override final;
+	virtual const float						GetAimOffset_Pitch() const override final;
     virtual const bool						IsShouldering() const override final;
 	virtual void							SetShouldering(const bool bSetAiming) override final;
-	virtual const bool						IsCharacterLookingViewport() const override final		{ return bIsCharacterLookingViewport; }
-
-	virtual const EHDTurningInPlace			GetTurningInPlace() const override final				{ return TurningInPlace; }
-	virtual const bool						IsUseRotateBone() const override final					{ return bUseRotateRootBone; }
-
-	virtual const bool						IsSprint() const override final							{ return bIsSprint; }
+	virtual const bool						IsCharacterLookingViewport() const override final;
+	virtual const EHDTurningInPlace			GetTurningInPlace() const override final;
+	virtual const bool						IsUseRotateBone() const override final;
+	virtual const bool						IsSprint() const override final;
 	virtual void							SetSprint(const bool bSprint) override;
-
 	virtual const EHDCharacterMovementState	GetCharacterMovementState() const override;
 	virtual void							SetCharacterMovementState(const EHDCharacterMovementState NewState, const bool bForced = false);
 	virtual void							RestoreMovementState() override;
 
 	// CharacterCommandInterface
-	virtual AHDStratagem*					GetStratagem() const override final						{ return Stratagem; }
-	virtual const FVector&					GetThrowDirection() const override final;
+	virtual void							DetachStratagemWhileThrow() override final;
 	virtual void							HoldStratagem() override final;
-	virtual void							ThrowFinished() override final;
-	void									ThrowStratagem();
 	void									CancleStratagem();
-
-	// CommandInput
-	FORCEINLINE TArray<FName>				GetCommandMatchStratagemNameList() const 				{ return CommandMatchStratagemNameList; }
-	FORCEINLINE FName						GetSelectedStraragemName() const						{ return SelectedStratagemName; }
-	virtual void							AddStratagemCommand(const EHDCommandInput NewInput);
 
 	void									SetCharacterControlData(UHDCharacterControlData* CharacterControlData);
 	
 private:
-    void									AimOffset(const float DeltaTime);
-	void									TurnInPlace(const float DeltaTime);
-	void									CalculationAimOffset_Pitch();
-
 	void									SpawnDefaultWeapon();
 
 	void									InterpFOV(float DeltaSeconds);
 
 	void									PlayMontage(UAnimMontage* Montage, const FName SectionName = FName());
 
-
-	void									ChangeCameraZOffsetByCharacterMovementState(const EHDCharacterMovementState State);
-
-	UFUNCTION()
-	void									OnCameraSpringArmLengthTimelineUpdate(const float Value);
-
 protected:
-	// Camera Section
+	// Component
 	UPROPERTY(EditDefaultsOnly)
 	TObjectPtr<USpringArmComponent>			SpringArm;
 
@@ -109,55 +88,15 @@ protected:
 	TObjectPtr<UCameraComponent>			FollowCamera;
 			
 	UPROPERTY()
-	TArray<EHDCommandInput>					CurrentInputCommandList;
-
-	// Combat
-	UPROPERTY()
 	TObjectPtr<UHDCombatComponent>			Combat;
+
+	UPROPERTY()
+	TObjectPtr<UHDInputActionComponent>		InputAction;
+
+	UPROPERTY()
+	TObjectPtr<UHDStratagemComponent>		Stratagem;
+
 
 	UPROPERTY(EditAnywhere, Category = "Player|Weapon")
 	TSubclassOf<AHDWeapon>					DefaultWeaponClass;
-
-private:
-	FRotator								StartingAimRotation;
-	float									AimOffset_Yaw;
-	float									InterpAimOffset_Yaw;
-	float									AimOffset_Pitch;
-
-	EHDCharacterMovementState				MovementState;
-	EHDCharacterMovementState				PrevMovementState;
-	bool									bIsSprint;
-
-	bool									bIsCharacterLookingViewport;
-	bool									bUseRotateRootBone;
-
-	UPROPERTY(EditAnywhere, Category = "Player|Input")
-	float									TurnThreshold;
-
-	EHDTurningInPlace						TurningInPlace;
-
-	UPROPERTY(EditAnywhere, Category = "Player|Stratagem")
-	TSubclassOf<AHDStratagem>				StratagemClass;
-
-	UPROPERTY()
-	TObjectPtr<AHDStratagem>				Stratagem;
-	
-	FName									SelectedStratagemName;
-	float									SelecteddStratagemActiveDelay;
-	
-	UPROPERTY()
-	TArray<FName>							CommandMatchStratagemNameList;
-	
-	UPROPERTY(EditAnywhere, Category = "Player|Stratagem")
-	TObjectPtr<UDataTable>					AvaliableStratagemDataTable;
-
-	// HUD, Crosshair
-	float									DefaultFOV;
-
-	UPROPERTY(EditAnywhere)
-	TObjectPtr<UCurveFloat>					DefaultCurve;
-	
-	FTimeline								SpringArmArmLengthTimeline;
-	float									SpringArmTargetArmLength;
-	float									SpringArmTargetZOffset;
 };

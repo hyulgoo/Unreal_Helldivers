@@ -7,6 +7,7 @@
 #include "Character/HDCharacterControlData.h"
 #include "Player/HDGASPlayerState.h"
 #include "Controller/HDPlayerController.h"
+#include "Component/Character/HDStratagemComponent.h"
 #include "Define/HDDefine.h"
 #include "Tag/HDGameplayTag.h"
 #include "Attribute/HDHealthAttributeSet.h"
@@ -257,7 +258,12 @@ void AHDGASCharacterPlayer::InputStratagemCommand(const FInputActionValue& Value
             return;
         }
 
-        AddStratagemCommand(NewCommand);
+        Stratagem->AddStratagemCommand(NewCommand);
+
+        FGameplayEventData Payload;
+        Payload.EventTag = FGameplayTag::RequestGameplayTag(TEXT("Event.Stratagem.CommandChanged"));
+        Payload.Instigator = this;
+        AbilitySystemComponent->HandleGameplayEvent(Payload.EventTag, &Payload);
     }
 }
 

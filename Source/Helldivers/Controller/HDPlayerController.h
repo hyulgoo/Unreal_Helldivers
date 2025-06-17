@@ -4,10 +4,12 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/PlayerController.h"
+#include "Abilities/GameplayAbilityTypes.h"
 #include "HDPlayerController.generated.h"
 
 class UHDGASPlayerUserWidget;
 class UHDStratagemHUDUserWidget;
+class UAbilitySystemComponent;
 class AHDWeapon;
 class ACharacter;
 
@@ -18,6 +20,7 @@ class HELLDIVERS_API AHDPlayerController : public APlayerController
 
 public:
 	explicit								AHDPlayerController();
+	void									SetPossessPawnAbilitySystemComponent(UAbilitySystemComponent* ASC);
 	void									CreateHUDWidget(ACharacter* PlayerCharacter);
 	void									SetWeaponHUDInfo(AHDWeapon* NewWeapon);
 
@@ -31,7 +34,14 @@ protected:
     virtual void							BeginPlay() override final;
 	virtual void							OnPossess(APawn* Pawn) override;
 
+private:
+	void									OnPlayerHUDInfoChanged(const FGameplayEventData& Data);
+	void									OnStratagemHUDInfoChanged(const FGameplayEventData& Data);
+
 protected:
+	UPROPERTY(EditAnywhere, Category = "UI")
+	TObjectPtr<UAbilitySystemComponent>		PossessPawnAbilitySystemComponent;
+
 	// Widget Section
 	UPROPERTY(EditAnywhere, Category = "UI")
 	TSubclassOf<UHDGASPlayerUserWidget>		PlayerHUDWidgetClass;

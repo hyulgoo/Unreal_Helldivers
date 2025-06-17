@@ -15,15 +15,8 @@ void UAnimNotify_ThrowMontageDetach::Notify(USkeletalMeshComponent* MeshComp, UA
     Super::Notify(MeshComp, Animation, EventReference);
     NULL_CHECK(MeshComp);
 
-    TScriptInterface<IHDCharacterCommandInterface> CharacterCommandInterface = MeshComp->GetOwner();
-    NULL_CHECK(CharacterCommandInterface);
+    TScriptInterface<IHDCharacterCommandInterface> CommandInterface = MeshComp->GetOwner();
+    NULL_CHECK(CommandInterface);
 
-    AHDStratagem* Stratagem = CharacterCommandInterface->GetStratagem();
-    NULL_CHECK(Stratagem);
-
-    FVector ThrowDirection = CharacterCommandInterface->GetThrowDirection();
-    ThrowDirection.Normalize();
-    Stratagem->AddImpulseToStratagem(ThrowDirection);
-
-    CharacterCommandInterface->ThrowFinished();
+    CommandInterface->DetachStratagemWhileThrow();
 }

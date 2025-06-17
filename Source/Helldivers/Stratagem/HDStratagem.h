@@ -20,6 +20,7 @@ class HELLDIVERS_API AHDStratagem : public AActor
 public:	
 	explicit							AHDStratagem();
 
+	void								SetStratagemInfo(const FName StratagemName, const float StratagemActiveDelay);
 	void								AddImpulseToStratagem(const FVector& ThrowDirection);
 
 protected:

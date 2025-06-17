@@ -199,7 +199,7 @@ void AHDEagleFighter::CreateProjectile(TSubclassOf<AHDProjectileBase> Projectile
 
     FActorSpawnParameters Params;
     Params.Owner = OwnerActor;
-    Params.Instigator = Cast<APawn>(this);
+    Params.Instigator = Cast<APawn>(OwnerActor);
     Params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
 
     AHDProjectileBase* SpawnProjectile = World->SpawnActor<AHDProjectileBase>(ProjectileClass, SpawnTransform, Params);

@@ -33,6 +33,12 @@ AHDStratagem::AHDStratagem()
     StratagemMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 }
 
+void AHDStratagem::SetStratagemInfo(const FName SelectedStratagemName, const float SelectedStratagemActiveDelay)
+{
+    StratagemName = SelectedStratagemName;
+    StratagemActiveDelay = SelectedStratagemActiveDelay;
+}
+
 void AHDStratagem::AddImpulseToStratagem(const FVector& NewThrowDirection)
 {
     CONDITION_CHECK(NewThrowDirection.IsNormalized() == false);

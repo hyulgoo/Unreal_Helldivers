@@ -20,29 +20,29 @@ void UHDGA_StratagemInputMode::ActivateAbility(const FGameplayAbilitySpecHandle 
 {
     Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 
-    FGameplayEventData EventData;
-    EventData.EventTag = HDTAG_EVENT_STRATAGEMHUD_APPEAR;
-    EventData.Instigator = GetAvatarActorFromActorInfo();
-    EventData.Target = GetAvatarActorFromActorInfo();
-
-    ActorInfo->AbilitySystemComponent->HandleGameplayEvent(EventData.EventTag, &EventData);
+    SendGameplayEvect(HDTAG_EVENT_STRATAGEMHUD_APPEAR, ActorInfo);
 }
 
 void UHDGA_StratagemInputMode::InputReleased(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo)
 {
-    TScriptInterface<IHDCharacterCommandInterface> CharacterCommandInterface = ActorInfo->AvatarActor.Get();
-    NULL_CHECK(CharacterCommandInterface);
+    TScriptInterface<IHDCharacterCommandInterface> CommandInterface = ActorInfo->AvatarActor.Get();
+    NULL_CHECK(CommandInterface);
 
-    CharacterCommandInterface->HoldStratagem();
+    CommandInterface->HoldStratagem();
 
-    FGameplayEventData EventData;
-    EventData.EventTag = HDTAG_EVENT_STRATAGEMHUD_DISAPPEAR;
-    EventData.Instigator = GetAvatarActorFromActorInfo();
-    EventData.Target = GetAvatarActorFromActorInfo();
-
-    ActorInfo->AbilitySystemComponent->HandleGameplayEvent(EventData.EventTag, &EventData);
+    SendGameplayEvect(HDTAG_EVENT_STRATAGEMHUD_DISAPPEAR, ActorInfo);
 
     const bool bReplicatedEndAbility = true;
     const bool bWasCancelled = true;
     Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicatedEndAbility, bWasCancelled);
+}
+
+void UHDGA_StratagemInputMode::SendGameplayEvect(const FGameplayTag EventTag, const FGameplayAbilityActorInfo* ActorInfo)
+{
+    FGameplayEventData EventData;
+    EventData.EventTag = EventTag;
+    EventData.Instigator = GetAvatarActorFromActorInfo();
+    EventData.Target = GetAvatarActorFromActorInfo();
+
+    ActorInfo->AbilitySystemComponent->HandleGameplayEvent(EventData.EventTag, &EventData);
 }
