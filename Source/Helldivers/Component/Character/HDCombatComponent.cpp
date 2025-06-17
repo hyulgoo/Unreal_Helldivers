@@ -59,6 +59,7 @@ void UHDCombatComponent::TickComponent(float DeltaTime, ELevelTick TickType, FAc
     Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
     TraceUnderCrosshairs();
+    AimOffset(DeltaTime);
     SpringArmArmLengthTimeline.TickTimeline(DeltaTime);
 }
 

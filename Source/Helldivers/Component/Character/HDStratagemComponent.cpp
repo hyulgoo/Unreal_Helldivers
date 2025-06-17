@@ -2,13 +2,12 @@
 
 #include "Component/Character/HDStratagemComponent.h"
 #include "Define/HDDefine.h"
+#include "Define/HDSocketNames.h"
 #include "GameData/HDStratagemData.h"
 #include "Components/SkinnedMeshComponent.h"
 #include "Engine/SkeletalMeshSocket.h"
 #include "Stratagem/HDStratagem.h"
 #include "Abilities/GameplayAbilityTypes.h"
-
-#define SOCKETNAME_RIGHTHAND FName("RightHandSocket")
 
 UHDStratagemComponent::UHDStratagemComponent()
 {
@@ -87,7 +86,7 @@ void UHDStratagemComponent::HoldStratagem(USkeletalMeshComponent* MeshComponent,
     UWorld* World = GetWorld();
     VALID_CHECK(World);
 
-    const USkeletalMeshSocket* RightHandSocket = MeshComponent->GetSocketByName(SOCKETNAME_RIGHTHAND);
+    const USkeletalMeshSocket* RightHandSocket = MeshComponent->GetSocketByName(HDSOCKETNAME_RIGRHTHAND);
     NULL_CHECK(RightHandSocket);
 
 	const FTransform SocketTransform = RightHandSocket->GetSocketTransform(MeshComponent);

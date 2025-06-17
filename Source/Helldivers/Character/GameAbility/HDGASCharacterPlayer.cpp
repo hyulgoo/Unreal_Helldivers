@@ -260,8 +260,9 @@ void AHDGASCharacterPlayer::InputStratagemCommand(const FInputActionValue& Value
 
         Stratagem->AddStratagemCommand(NewCommand);
 
+        // HUD ¿¬µ¿¿ë GAS Event
         FGameplayEventData Payload;
-        Payload.EventTag = FGameplayTag::RequestGameplayTag(TEXT("Event.Stratagem.CommandChanged"));
+        Payload.EventTag = HDTAG_EVENT_STRATAGEMHUD_ADDCOMMAND;
         Payload.Instigator = this;
         AbilitySystemComponent->HandleGameplayEvent(Payload.EventTag, &Payload);
     }

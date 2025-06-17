@@ -43,19 +43,21 @@ void AHDPlayerController::OnPossess(APawn* aPawn)
 
 void AHDPlayerController::OnPlayerHUDInfoChanged(const FGameplayEventData& Data)
 {
-    if (Data.EventTag == HDTAG_EVENT_STRATAGEMHUD_DISAPPEAR)
+    if (Data.EventTag == HDTAG_EVENT_PLAYERHUD_AMMO)
     {
-
+        const int32 NewAmmoCount = static_cast<int32>(Data.EventMagnitude);
+        ChangeAmmoHUDInfo(NewAmmoCount);
     }
-    else if (Data.EventTag == HDTAG_EVENT_STRATAGEMHUD_DISAPPEAR)
+    else if (Data.EventTag == HDTAG_EVENT_PLAYERHUD_CAPACITY)
     {
-
+        const int32 NewCapacityCount = static_cast<int32>(Data.EventMagnitude);
+        ChangeCapacityHUDInfo(NewCapacityCount);
     }
 }
 
 void AHDPlayerController::OnStratagemHUDInfoChanged(const FGameplayEventData& Data)
 {
-    if (Data.EventTag == HDTAG_EVENT_STRATAGEMHUD_DISAPPEAR)
+    if (Data.EventTag == HDTAG_EVENT_STRATAGEMHUD_ADDCOMMAND)
     {
         UHDStratagemComponent* StratagemComponent = Data.Instigator->GetComponentByClass<UHDStratagemComponent>();
         NULL_CHECK(StratagemComponent);
@@ -84,7 +86,7 @@ void AHDPlayerController::CreateHUDWidget(ACharacter* PlayerCharacter)
     }
     else
     {
-        UE_LOG(LogTemp, Warning, TEXT("PlayerHUDWidgetClass is nullptr!"));
+        LOG("PlayerHUDWidgetClass is nullptr!");
     }
 
     if(StratagemHUDWidgetClass)
@@ -100,7 +102,7 @@ void AHDPlayerController::CreateHUDWidget(ACharacter* PlayerCharacter)
     }
     else
     {
-        UE_LOG(LogTemp, Warning, TEXT("StratagemHUDWidgetClass is nullptr!"));
+        LOG("StratagemHUDWidgetClass is nullptr!");
     }
 }
 

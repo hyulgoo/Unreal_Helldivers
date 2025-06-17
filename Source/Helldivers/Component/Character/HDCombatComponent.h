@@ -79,16 +79,16 @@ private:
     float					                InterpAimOffset_Yaw;
     float					                AimOffset_Pitch;
 
-    bool					                bIsCharacterLookingViewport;
-    bool					                bUseRotateRootBone;
+    uint8					                bIsCharacterLookingViewport : 1;
+    uint8					                bUseRotateRootBone : 1;
     
 	UPROPERTY(EditAnywhere,                 Category = "Combat")
 	float					                TurnThreshold;
 
 	EHDTurningInPlace		                TurningInPlace;
 
-    bool					                bIsShoulder;
-    bool					                bIsFireButtonPressed;
+    uint8					                bIsShoulder : 1;
+    uint8					                bIsFireButtonPressed : 1;
 
     EHDCombatState			                CombatState;
 

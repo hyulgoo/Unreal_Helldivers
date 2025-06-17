@@ -1,6 +1,8 @@
 
 #include "Character/HDCharacterPlayer.h"
 #include "Define/HDDefine.h"
+#include "Define/HDMontageSectionNames.h"
+#include "Define/HDSocketNames.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
@@ -21,19 +23,12 @@
 #include "Animation/HDAnimInstance.h"
 #include "Character/HDCharacterControlData.h"
 
-#define MONTAGESECTIONNAME_RIFLE_AIM FName("Rifle_Aim")
-#define MONTAGESECTIONNAME_RIFLE_HIP FName("Rifle_Hip")
-#define MONTAGESECTIONNAME_PISTOL FName("Pistol")
-#define MONTAGESECTIONNAME_SHOTGUN_AIM FName("Shotgun_Aim")
-#define MONTAGESECTIONNAME_SHOTGUN_HIP FName("Shotgun_Hip")
-#define MONTAGESECTIONNAME_RIFLE_PRONE FName("Rifle_Prone")
-#define MONTAGESECTIONNAME_SHOTGUN_PRONE FName("Shotgun_Prone")
-#define SOCKETNAME_RIGHTHAND FName("RightHandSocket")
-
 AHDCharacterPlayer::AHDCharacterPlayer()
     : SpringArm(nullptr)
 	, FollowCamera(nullptr)
 	, Combat(nullptr)
+    , InputAction(nullptr)
+    , Stratagem(nullptr)
 	, DefaultWeaponClass(nullptr)
 {
     GetCharacterMovement()->bOrientRotationToMovement = true;
@@ -116,12 +111,12 @@ const float AHDCharacterPlayer::Reload()
 	{
 	case EHDFireType::HitScan:
 	case EHDFireType::Projectile:
-		SectionName = MovementState == EHDCharacterMovementState::Prone ? MONTAGESECTIONNAME_RIFLE_PRONE
-			: bIsShoulder ? MONTAGESECTIONNAME_RIFLE_AIM : MONTAGESECTIONNAME_RIFLE_HIP;
+		SectionName = MovementState == EHDCharacterMovementState::Prone ? HDMONTAGE_SECTIONNAME_RIFLE_PRONE
+			: bIsShoulder ? HDMONTAGE_SECTIONNAME_RIFLE_AIM : HDMONTAGE_SECTIONNAME_RIFLE_HIP;
 		break;
 	case EHDFireType::Shotgun:
-		SectionName = MovementState == EHDCharacterMovementState::Prone ? MONTAGESECTIONNAME_SHOTGUN_PRONE
-			: bIsShoulder ? MONTAGESECTIONNAME_SHOTGUN_AIM : MONTAGESECTIONNAME_SHOTGUN_HIP;
+		SectionName = MovementState == EHDCharacterMovementState::Prone ? HDMONTAGE_SECTIONNAME_SHOTGUN_PRONE
+			: bIsShoulder ? HDMONTAGE_SECTIONNAME_SHOTGUN_AIM : HDMONTAGE_SECTIONNAME_SHOTGUN_HIP;
 		break;
 	}
 
@@ -186,7 +181,7 @@ void AHDCharacterPlayer::EquipWeapon(AHDWeapon* NewWeapon)
     NewWeapon->SetOwner(this);
     Combat->EquipWeapon(NewWeapon);
 
-    const USkeletalMeshSocket* RightHandSocket = GetMesh()->GetSocketByName(SOCKETNAME_RIGHTHAND);
+    const USkeletalMeshSocket* RightHandSocket = GetMesh()->GetSocketByName(HDSOCKETNAME_RIGRHTHAND);
     NULL_CHECK(RightHandSocket);
     RightHandSocket->AttachActor(NewWeapon, GetMesh());
 }
@@ -373,7 +368,7 @@ const float AHDCharacterPlayer::Fire(const bool IsPressed)
     case EHDFireType::HitScan:
     case EHDFireType::Projectile:
     {
-        const FName SectionName = IsShouldering() ? MONTAGESECTIONNAME_RIFLE_AIM : MONTAGESECTIONNAME_RIFLE_HIP;
+        const FName SectionName = IsShouldering() ? HDMONTAGE_SECTIONNAME_RIFLE_AIM : HDMONTAGE_SECTIONNAME_RIFLE_HIP;
         PlayMontage(FireWeaponMontage, SectionName);
     }
     break;
