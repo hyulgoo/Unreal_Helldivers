@@ -3,7 +3,7 @@
 #include "HDCasing.h"
 #include "Define/HDDefine.h"
 #include "Collision/HDCollision.h"
-#include "Interface/HDWeaponInterface.h"
+#include "Component/Character/HDCombatComponent.h"
 #include "Components/SphereComponent.h"
 #include "Engine/SkeletalMeshSocket.h"
 #include "Kismet/KismetMathLibrary.h"
@@ -143,10 +143,10 @@ void AHDWeapon::AddCapacity(const int32 NewCapacityCount)
 
 void AHDWeapon::OnSphereOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, const int32 OtherBodyIndex, const bool bFromSweep, const FHitResult& SweepResult)
 {
-	TScriptInterface<IHDWeaponInterface> WeaponInterface = OtherActor;
-	if(WeaponInterface)
+	UHDCombatComponent* Combat = OtherActor->GetComponentByClass<UHDCombatComponent>();
+	if(Combat)
 	{
-		WeaponInterface->EquipWeapon(this);
+		Combat->EquipWeapon(this);
 	}
 }
 

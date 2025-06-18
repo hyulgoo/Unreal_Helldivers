@@ -10,6 +10,13 @@
 #include "Abilities/GameplayAbilityTypes.h"
 
 UHDStratagemComponent::UHDStratagemComponent()
+    : StratagemClass(nullptr)
+    , Stratagem(nullptr)
+    , CurrentInputCommandList{}
+    , SelectedStratagemName(FName())
+    , SelecteddStratagemActiveDelay(0.f)
+    , CommandMatchStratagemNameList{}
+    , AvaliableStratagemDataTable(nullptr)
 {
 	PrimaryComponentTick.bCanEverTick = true;
 
@@ -28,11 +35,6 @@ FORCEINLINE const TArray<FName>& UHDStratagemComponent::GetCommandMatchStratagem
 FORCEINLINE const int32 UHDStratagemComponent::GetCurrentInputNum() const
 {
     return CurrentInputCommandList.Num();
-}
-
-FORCEINLINE const FName UHDStratagemComponent::GetSelectedStraragemName() const
-{
-    return SelectedStratagemName;
 }
 
 void UHDStratagemComponent::AddStratagemCommand(const EHDCommandInput NewInput)
@@ -74,6 +76,11 @@ void UHDStratagemComponent::AddStratagemCommand(const EHDCommandInput NewInput)
     }
 }
 
+const bool UHDStratagemComponent::IsSelectedStratagemExist() const
+{
+    return (SelectedStratagemName.IsNone() == false);
+}
+
 void UHDStratagemComponent::HoldStratagem(USkeletalMeshComponent* MeshComponent, const FVector& ThrowDirection)
 {
     NULL_CHECK(StratagemClass);
@@ -110,14 +117,17 @@ void UHDStratagemComponent::ThrowFinished()
 
     const FRotator& BaseAim = GetOwner<APawn>()->GetBaseAimRotation();
     const FVector ThrowDirection = BaseAim.Vector().GetSafeNormal();
-    Stratagem->AddImpulseToStratagem(ThrowDirection);
+    Stratagem->AddImpulseToStratagem(ThrowDirection); 
+    Stratagem = nullptr;
 }
 
 void UHDStratagemComponent::CancleStratagem()
 {
-    VALID_CHECK(Stratagem);
-
-    Stratagem->Destroy();
+    if (Stratagem)
+    {
+        Stratagem->Destroy();
+        Stratagem = nullptr;
+    }
 }
 
 void UHDStratagemComponent::ClearCommand()

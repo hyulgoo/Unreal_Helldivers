@@ -33,17 +33,6 @@ void UHDGASPlayerUserWidget::SetAbilitySystemComponent(UAbilitySystemComponent* 
     UpdateProgressbar(Pb_HPbar, CurrentHealth / CurrentMaxHealth);
 }
 
-void UHDGASPlayerUserWidget::SetAbilitySystemComponentByOwningCharacter(ACharacter* PlayerCharacter)
-{
-    IAbilitySystemInterface* ASCInterface = Cast<IAbilitySystemInterface>(PlayerCharacter);
-    NULL_CHECK(ASCInterface);
-
-    UAbilitySystemComponent* ASC = ASCInterface->GetAbilitySystemComponent();
-    NULL_CHECK(ASC);
-
-    SetAbilitySystemComponent(ASC);
-}
-
 void UHDGASPlayerUserWidget::OnHealthChangeds(const FOnAttributeChangeData& ChangeData)
 {
     CurrentHealth = ChangeData.NewValue;

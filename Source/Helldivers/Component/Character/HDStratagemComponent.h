@@ -21,9 +21,9 @@ public:
 
 	FORCEINLINE const TArray<FName>& GetCommandMatchStratagemNameList() const;
 	FORCEINLINE const int32		GetCurrentInputNum() const;
-	FORCEINLINE const FName		GetSelectedStraragemName() const;
 	void						AddStratagemCommand(const EHDCommandInput NewInput);
 
+	const bool					IsSelectedStratagemExist() const;
 	void						HoldStratagem(USkeletalMeshComponent* MeshComponent, const FVector& ThrowDirection);
 	void						ThrowFinished();
 	void						CancleStratagem();

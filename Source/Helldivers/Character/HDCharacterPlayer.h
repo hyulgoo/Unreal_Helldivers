@@ -39,13 +39,12 @@ protected:
 	virtual void							SetRagdoll(const bool bRagdoll, const FVector& Impulse = FVector::ZeroVector) override final;
 
 	// WeaponInferface
-	virtual void							EquipWeapon(AHDWeapon* NewWeapon) override final;
 	virtual AHDWeapon*						GetWeapon() const override final;
 	virtual const FVector&					GetHitTarget() const override final;
 	virtual const EHDCombatState			GetCombatState() const override final;
 	void									SetCombatState(const EHDCombatState State);
 	virtual void							Attack(const bool bActive) override final;
-    virtual const float 					Fire(const bool IsPressed);
+    const float 							Fire(const bool IsPressed);
 	virtual const bool						FireFinished() override final;
     virtual void							SetWeaponActive(const bool bActive) override final;
 	virtual const float						Reload() override final;
@@ -67,19 +66,19 @@ protected:
 
 	// CharacterCommandInterface
 	virtual void							DetachStratagemWhileThrow() override final;
-	virtual void							HoldStratagem() override final;
+	virtual void							TryHoldStratagem() override final;
 	void									CancleStratagem();
 
 	void									SetCharacterControlData(UHDCharacterControlData* CharacterControlData);
+
+	UHDStratagemComponent*					GetStratagemComponent();
 	
 private:
-	void									SpawnDefaultWeapon();
-
 	void									InterpFOV(float DeltaSeconds);
 
 	void									PlayMontage(UAnimMontage* Montage, const FName SectionName = FName());
 
-protected:
+private:
 	// Component
 	UPROPERTY(EditDefaultsOnly)
 	TObjectPtr<USpringArmComponent>			SpringArm;
@@ -87,16 +86,12 @@ protected:
 	UPROPERTY(EditDefaultsOnly)
 	TObjectPtr<UCameraComponent>			FollowCamera;
 			
-	UPROPERTY()
+	UPROPERTY(EditDefaultsOnly)
 	TObjectPtr<UHDCombatComponent>			Combat;
 
-	UPROPERTY()
+	UPROPERTY(EditDefaultsOnly)
 	TObjectPtr<UHDInputActionComponent>		InputAction;
 
-	UPROPERTY()
+	UPROPERTY(EditDefaultsOnly)
 	TObjectPtr<UHDStratagemComponent>		Stratagem;
-
-
-	UPROPERTY(EditAnywhere, Category = "Player|Weapon")
-	TSubclassOf<AHDWeapon>					DefaultWeaponClass;
 };

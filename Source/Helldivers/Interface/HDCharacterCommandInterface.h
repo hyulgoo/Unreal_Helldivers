@@ -21,5 +21,5 @@ class HELLDIVERS_API IHDCharacterCommandInterface
 
 public:
 	virtual void DetachStratagemWhileThrow() = 0;
-	virtual void HoldStratagem() = 0;
+	virtual void TryHoldStratagem() = 0;
 };

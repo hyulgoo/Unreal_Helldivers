@@ -28,7 +28,7 @@ void UHDGA_StratagemInputMode::InputReleased(const FGameplayAbilitySpecHandle Ha
     TScriptInterface<IHDCharacterCommandInterface> CommandInterface = ActorInfo->AvatarActor.Get();
     NULL_CHECK(CommandInterface);
 
-    CommandInterface->HoldStratagem();
+    CommandInterface->TryHoldStratagem();
 
     SendGameplayEvect(HDTAG_EVENT_STRATAGEMHUD_DISAPPEAR, ActorInfo);
 

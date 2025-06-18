@@ -14,7 +14,6 @@
 #include "Attribute/Player/HDPlayerSpeedAttributeSet.h"
 #include "GameData/HDCharacterStat.h"
 #include "GameFramework/CharacterMovementComponent.h"
-#include "GameFramework/SpringArmComponent.h"
 
 AHDGASCharacterPlayer::AHDGASCharacterPlayer()
 	: AbilitySystemComponent(nullptr)
@@ -102,15 +101,7 @@ void AHDGASCharacterPlayer::PossessedBy(AController* NewController)
     Super::PossessedBy(NewController);
 
     InitAbilitySystemComponent();
-
     SetCharacterControl(CurrentCharacterControlType);
-
-    AHDPlayerController* PlayerController = GetController<AHDPlayerController>();
-    NULL_CHECK(PlayerController);
-
-    PlayerController->PlayerCameraManager->ViewPitchMin = -60.f;
-    PlayerController->PlayerCameraManager->ViewPitchMax = 70.f;
-    PlayerController->SetWeaponHUDInfo(GetWeapon());
 }
 
 void AHDGASCharacterPlayer::SetupGASInputComponent(UEnhancedInputComponent* EnhancedInputComponent)
@@ -258,7 +249,7 @@ void AHDGASCharacterPlayer::InputStratagemCommand(const FInputActionValue& Value
             return;
         }
 
-        Stratagem->AddStratagemCommand(NewCommand);
+        GetStratagemComponent()->AddStratagemCommand(NewCommand);
 
         // HUD ¿¬µ¿¿ë GAS Event
         FGameplayEventData Payload;

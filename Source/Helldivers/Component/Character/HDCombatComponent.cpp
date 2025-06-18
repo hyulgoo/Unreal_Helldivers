@@ -1,6 +1,7 @@
 
 #include "Component/Character/HDCombatComponent.h"
 #include "Define/HDDefine.h"
+#include "Define/HDSocketNames.h"
 #include "Weapon/HDWeapon.h"
 #include "Engine/SkeletalMeshSocket.h"
 #include "Components/SkeletalMeshComponent.h"
@@ -49,7 +50,7 @@ void UHDCombatComponent::BeginPlay()
     check(SpringArm);
 
     FOnTimelineFloat ArmLengthTimelineProgress;
-    ArmLengthTimelineProgress.BindUFunction(this, FName("OnCameraSpringArmLengthTimelineUpdate"));
+    ArmLengthTimelineProgress.BindUFunction(this, FName("OnSpringArmLengthUpdate"));
     SpringArmArmLengthTimeline.AddInterpFloat(DefaultCurve, ArmLengthTimelineProgress);
     SpringArmArmLengthTimeline.SetLooping(false);
 }
@@ -128,6 +129,11 @@ void UHDCombatComponent::SetSpringArmTargetLength(const float TargetArmLength)
 const float UHDCombatComponent::GetDefaultFOV() const
 {
     return DefaultFOV;
+}
+
+const bool UHDCombatComponent::IsUseRotateBone() const
+{
+    return bUseRotateRootBone;
 }
 
 void UHDCombatComponent::TraceUnderCrosshairs()
@@ -309,8 +315,16 @@ void UHDCombatComponent::EquipWeapon(AHDWeapon* NewWeapon)
     VALID_CHECK(NewWeapon);
 
     Weapon = NewWeapon;
+    Weapon->SetOwner(GetOwner());
     Weapon->SetWeaponState(EWeaponState::Equip);
     ErgonomicFactor = Weapon->GetErgonomicFactor();
+
+    USkeletalMeshComponent* SkeletalMesh = GetOwner()->GetComponentByClass<USkeletalMeshComponent>();
+    NULL_CHECK(SkeletalMesh);
+
+    const USkeletalMeshSocket* RightHandSocket = SkeletalMesh->GetSocketByName(HDSOCKETNAME_RIGRHTHAND);
+    NULL_CHECK(RightHandSocket);
+    RightHandSocket->AttachActor(NewWeapon, SkeletalMesh);
 }
 
 AHDWeapon* UHDCombatComponent::GetWeapon() const
@@ -318,7 +332,76 @@ AHDWeapon* UHDCombatComponent::GetWeapon() const
     return Weapon;
 }
 
-const bool UHDCombatComponent::CanFire()
+void UHDCombatComponent::SetWeaponActive(const bool bActive)
+{
+    VALID_CHECK(Weapon);
+    Weapon->SetActorTickEnabled(bActive);
+    Weapon->SetActorHiddenInGame(bActive == false);
+    Weapon->SetActorEnableCollision(bActive);
+}
+
+const EHDFireType UHDCombatComponent::GetWeaponFireType() const
+{
+    VALID_CHECK_WITH_RETURNTYPE(Weapon, EHDFireType::Count);
+
+    return Weapon->GetFireType();
+}
+
+const float UHDCombatComponent::GetWeaponFireDelay() const
+{
+    VALID_CHECK_WITH_RETURNTYPE(Weapon, 0.f);
+
+    return Weapon->GetFireDelay();
+}
+
+const int32 UHDCombatComponent::GetWeaponAmmoCount() const
+{
+    VALID_CHECK_WITH_RETURNTYPE(Weapon, 0);
+
+    return Weapon->GetAmmoCount();
+}
+
+const int32 UHDCombatComponent::GetWeaponMaxAmmoCount() const
+{
+    VALID_CHECK_WITH_RETURNTYPE(Weapon, 0);
+
+    return Weapon->GetMaxAmmoCount();
+}
+
+const int32 UHDCombatComponent::GetWeaponCapacityCount() const
+{
+    VALID_CHECK_WITH_RETURNTYPE(Weapon, 0);
+
+    return Weapon->GetCapacityCount();
+}
+
+const int32 UHDCombatComponent::GetWeaponMaxCapacityCount() const
+{
+    VALID_CHECK_WITH_RETURNTYPE(Weapon, 0);
+
+    return Weapon->GetMaxCapacityCount();
+}
+
+const float UHDCombatComponent::GetWeaponZoomedFOV() const
+{
+    VALID_CHECK_WITH_RETURNTYPE(Weapon, 0.f);
+
+    return Weapon->GetCapacityCount();
+}
+
+const float UHDCombatComponent::GetWeaponZoomInterpSpeed() const
+{
+    VALID_CHECK_WITH_RETURNTYPE(Weapon, 0.f);
+
+    return Weapon->GetCapacityCount();
+}
+
+const bool UHDCombatComponent::NeedReload() const
+{
+    return (CanReload() && Weapon->IsAmmoEmpty());
+}
+
+const bool UHDCombatComponent::CanFire() const
 {
     if (IsValid(Weapon) == false || Weapon->IsAmmoEmpty())
     {
@@ -331,6 +414,18 @@ const bool UHDCombatComponent::CanFire()
     }
 
     return (CombatState == EHDCombatState::Unoccupied);
+}
+
+void UHDCombatComponent::SpawnDefaultWeapon()
+{
+    NULL_CHECK(DefaultWeaponClass);
+
+    UWorld* World = GetWorld();
+    VALID_CHECK(World);
+
+    AHDWeapon* SpawnWeapon = World->SpawnActor<AHDWeapon>(DefaultWeaponClass);
+    NULL_CHECK(SpawnWeapon);
+    EquipWeapon(SpawnWeapon);
 }
 
 const EHDCombatState UHDCombatComponent::GetCombatState() const
@@ -380,4 +475,11 @@ void UHDCombatComponent::Reload()
 
     CombatState = EHDCombatState::Reloading;
     Weapon->Reload(bIsShoulder);
+}
+
+const float UHDCombatComponent::GetWeaponReloadDelay(const bool bShoulder) const
+{
+    VALID_CHECK_WITH_RETURNTYPE(Weapon, 0.f);
+
+    return Weapon->GetReloadDelay(bShoulder);
 }

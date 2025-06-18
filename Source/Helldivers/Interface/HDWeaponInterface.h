@@ -20,7 +20,6 @@ class HELLDIVERS_API IHDWeaponInterface
 	GENERATED_BODY()
 
 public:
-	virtual void					EquipWeapon(AHDWeapon* NewWeapon) = 0;
 	virtual AHDWeapon*				GetWeapon() const = 0;
 
 	virtual const FVector&			GetHitTarget() const = 0;
@@ -33,8 +32,4 @@ public:
 
 	virtual const float				Reload() = 0;
 	virtual void					ReloadFinished() = 0;
-
-protected:
-	virtual const float				Fire(const bool bIsPressed) = 0;
-
 };

@@ -17,8 +17,7 @@ class HELLDIVERS_API UHDGASPlayerUserWidget : public UHDGASUserWidget
 	GENERATED_BODY()
 
 public:
-    void                        SetAbilitySystemComponentByOwningCharacter(ACharacter* PlayerCharacter);
-
+    virtual void                SetAbilitySystemComponent(UAbilitySystemComponent* NewAbilitySystemComponent) override final;
     virtual void                OnHealthChangeds(const FOnAttributeChangeData& ChangeData);
     virtual void                OnMaxHealthChangeds(const FOnAttributeChangeData& ChangeData);
 
@@ -30,7 +29,6 @@ public:
     void                        OnGrenadeCountChanged(const int32 NewGrenadeCount);
 	
 private:
-    virtual void                SetAbilitySystemComponent(UAbilitySystemComponent* NewAbilitySystemComponent) override final;
     void                        UpdateProgressbar(UProgressBar* Progressbar, const float Value);
     void                        UpdateTextblock(UTextBlock* TextBlock, const FText& Text);
     void                        UpdateImage(UImage* ImageWidget, UTexture2D* Texture);

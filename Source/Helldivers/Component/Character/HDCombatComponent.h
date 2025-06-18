@@ -13,6 +13,7 @@ class AHDStratagem;
 class UCharacterMovementComponent;
 class USpringArmComponent;
 enum class EHDCombatState : uint8;
+enum class EHDFireType :uint8;
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent, DependsOn=CharacterMovementComponent))
 class HELLDIVERS_API UHDCombatComponent : public UActorComponent
@@ -23,12 +24,27 @@ public:
 	explicit                                UHDCombatComponent();
 
     const bool				                Fire(const bool IsPressed);
-    void                                    EquipWeapon(AHDWeapon* NewWeapon);
-    AHDWeapon*                              GetWeapon() const;
-    const bool 				                CanFire();
+    const bool 				                CanFire() const;
 
+    void                                    SpawnDefaultWeapon();
+    void                                    EquipWeapon(AHDWeapon* NewWeapon);
+
+    AHDWeapon*                              GetWeapon() const;
+    void                                    SetWeaponActive(const bool bActive);
+    const EHDFireType                       GetWeaponFireType() const;
+    const float                             GetWeaponFireDelay() const;
+    const int32                             GetWeaponAmmoCount() const;
+    const int32                             GetWeaponMaxAmmoCount() const;
+    const int32                             GetWeaponCapacityCount() const;
+    const int32                             GetWeaponMaxCapacityCount() const;
+    const float                             GetWeaponZoomedFOV() const;
+    const float                             GetWeaponZoomInterpSpeed() const;
+
+
+    const bool                              NeedReload() const;
     const bool                              CanReload() const;
     void                                    Reload();
+    const float                             GetWeaponReloadDelay(const bool bShoulder) const;
 
     const EHDCombatState                    GetCombatState() const;
     void                                    SetCombatState(const EHDCombatState State);
@@ -54,6 +70,7 @@ public:
     void                                    SetSpringArmTargetLength(const float TargetArmLength);
 
     const float                             GetDefaultFOV() const;
+    const bool                              IsUseRotateBone() const;
 
 protected:
     virtual void                            BeginPlay() override final;
@@ -113,4 +130,7 @@ private:
 
 	FTimeline				                SpringArmArmLengthTimeline;
 	float					                SpringArmTargetArmLength;
+    
+	UPROPERTY(EditAnywhere, Category = "Combat")
+	TSubclassOf<AHDWeapon>					DefaultWeaponClass;
 };

@@ -2,24 +2,14 @@
 #include "Character/HDCharacterPlayer.h"
 #include "Define/HDDefine.h"
 #include "Define/HDMontageSectionNames.h"
-#include "Define/HDSocketNames.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
-#include "Components/CapsuleComponent.h"
 #include "Component/Character/HDCombatComponent.h"
 #include "Component/Character/HDInputActionComponent.h"
 #include "Component/Character/HDStratagemComponent.h"
-#include "CharacterTypes/HDCharacterStateTypes.h"
-#include "InputMappingContext.h"
-#include "EnhancedInputComponent.h"
-#include "EnhancedInputSubsystems.h"
-#include "Kismet/KismetMathLibrary.h"
-#include "Engine/SkeletalMeshSocket.h"
 #include "Controller/HDPlayerController.h"
-#include "Weapon/HDWeapon.h"
 #include "Stratagem/HDStratagem.h"
-#include "GameData/HDStratagemData.h"
 #include "Animation/HDAnimInstance.h"
 #include "Character/HDCharacterControlData.h"
 
@@ -29,7 +19,6 @@ AHDCharacterPlayer::AHDCharacterPlayer()
 	, Combat(nullptr)
     , InputAction(nullptr)
     , Stratagem(nullptr)
-	, DefaultWeaponClass(nullptr)
 {
     GetCharacterMovement()->bOrientRotationToMovement = true;
 
@@ -43,8 +32,9 @@ AHDCharacterPlayer::AHDCharacterPlayer()
     FollowCamera->SetupAttachment(SpringArm, USpringArmComponent::SocketName);
     FollowCamera->bUsePawnControlRotation = false;
 
-    Combat = CreateDefaultSubobject<UHDCombatComponent>(TEXT("Combat"));
+    Combat      = CreateDefaultSubobject<UHDCombatComponent>(TEXT("Combat"));
     InputAction = CreateDefaultSubobject<UHDInputActionComponent>(TEXT("InputAction"));
+    Stratagem   = CreateDefaultSubobject<UHDStratagemComponent>(TEXT("Stratagem"));
 }
 
 void AHDCharacterPlayer::Tick(float DeltaTime)
@@ -56,7 +46,7 @@ void AHDCharacterPlayer::PossessedBy(AController* NewController)
 {
     Super::PossessedBy(NewController);
 
-    SpawnDefaultWeapon();
+    Combat->SpawnDefaultWeapon();
 }
 
 void AHDCharacterPlayer::SetRagdoll(const bool bRagdoll, const FVector& Impulse)
@@ -77,25 +67,16 @@ void AHDCharacterPlayer::SetRagdoll(const bool bRagdoll, const FVector& Impulse)
 
 void AHDCharacterPlayer::SetWeaponActive(const bool bActive)
 {
-    AHDWeapon* Weapon = GetWeapon();
-    if (IsValid(Weapon))
-    {
-        UHDAnimInstance* HDCharacterInstance = Cast<UHDAnimInstance>(GetMesh()->GetAnimInstance());
-        NULL_CHECK(HDCharacterInstance);
+    Combat->SetWeaponActive(bActive);
 
-        HDCharacterInstance->SetUseUpperSlot(bActive == false);
+    UHDAnimInstance* HDCharacterInstance = Cast<UHDAnimInstance>(GetMesh()->GetAnimInstance());
+    NULL_CHECK(HDCharacterInstance);
 
-        Weapon->SetActorTickEnabled(bActive);
-        Weapon->SetActorHiddenInGame(bActive == false);
-        Weapon->SetActorEnableCollision(bActive);
-    }  
+    HDCharacterInstance->SetUseUpperSlot(bActive == false);
 }
 
 const float AHDCharacterPlayer::Reload()
 {
-    AHDWeapon* Weapon = GetWeapon();
-    NULL_CHECK_WITH_RETURNTYPE(Weapon, 0.f);
-
     if (Combat->CanReload() == false)
     {
         return 0.f;
@@ -107,7 +88,7 @@ const float AHDCharacterPlayer::Reload()
     const EHDCharacterMovementState MovementState = InputAction->GetCharacterMovementState();
 
 	FName SectionName;
-	switch (Weapon->GetFireType())
+    switch (Combat->GetWeaponFireType())
 	{
 	case EHDFireType::HitScan:
 	case EHDFireType::Projectile:
@@ -124,19 +105,19 @@ const float AHDCharacterPlayer::Reload()
 
 	PlayMontage(ReloadWeaponMontage, SectionName);
 
-    return Weapon->GetReloadDelay(bIsShoulder);
+    return Combat->GetWeaponReloadDelay(bIsShoulder);
 }
 
 void AHDCharacterPlayer::ReloadFinished()
 {
     Combat->ReloadFinished();
 
+
+
     AHDPlayerController* PlayerController = GetController<AHDPlayerController>();
     NULL_CHECK(PlayerController);
 
-    AHDWeapon* Weapon = GetWeapon();
-    NULL_CHECK(Weapon);
-    PlayerController->ChangeCapacityHUDInfo(Weapon->GetCapacityCount());
+    PlayerController->ChangeCapacityHUDInfo(Combat->GetWeaponCapacityCount());
 }
 
 const float AHDCharacterPlayer::GetAimOffset_Yaw() const
@@ -171,19 +152,7 @@ const EHDTurningInPlace AHDCharacterPlayer::GetTurningInPlace() const
 
 const bool AHDCharacterPlayer::IsUseRotateBone() const
 {
-    return false;
-}
-
-void AHDCharacterPlayer::EquipWeapon(AHDWeapon* NewWeapon)
-{
-    VALID_CHECK(NewWeapon);
-
-    NewWeapon->SetOwner(this);
-    Combat->EquipWeapon(NewWeapon);
-
-    const USkeletalMeshSocket* RightHandSocket = GetMesh()->GetSocketByName(HDSOCKETNAME_RIGRHTHAND);
-    NULL_CHECK(RightHandSocket);
-    RightHandSocket->AttachActor(NewWeapon, GetMesh());
+    return Combat->IsUseRotateBone();
 }
 
 AHDWeapon* AHDCharacterPlayer::GetWeapon() const
@@ -245,6 +214,11 @@ void AHDCharacterPlayer::SetCharacterControlData(UHDCharacterControlData* Charac
     InputAction->SetSpringArmDefaultZOffset(CharacterControlData->TargetOffset.Z);
 }
 
+UHDStratagemComponent* AHDCharacterPlayer::GetStratagemComponent()
+{
+    return Stratagem;
+}
+
 const bool AHDCharacterPlayer::IsSprint() const
 {
     return InputAction->IsSprint();
@@ -280,17 +254,22 @@ void AHDCharacterPlayer::DetachStratagemWhileThrow()
 {
     Stratagem->ThrowFinished();
     SetCombatState(EHDCombatState::Unoccupied);
-    SetWeaponActive(false);
+    SetWeaponActive(true);
 }
 
-void AHDCharacterPlayer::HoldStratagem()
+void AHDCharacterPlayer::TryHoldStratagem()
 {   
-    if (GetCombatState() != EHDCombatState::HoldStratagem)
+    const bool CanHoldStrategem = Stratagem->IsSelectedStratagemExist() && GetCombatState() != EHDCombatState::HoldStratagem;
+    if (CanHoldStrategem)
     {
         Stratagem->HoldStratagem(GetMesh(), GetHitTarget());
-        SetWeaponActive(true);
+        SetWeaponActive(false);
 
         SetCombatState(EHDCombatState::HoldStratagem);
+    }
+    else
+    {
+        CancleStratagem();
     }
 
     Stratagem->ClearCommand();
@@ -298,36 +277,20 @@ void AHDCharacterPlayer::HoldStratagem()
 
 void AHDCharacterPlayer::CancleStratagem()
 {
-    VALID_CHECK(Stratagem);
+    if (Combat->GetCombatState() != EHDCombatState::HoldStratagem)
+    {
+        return;
+    }
 
     Stratagem->CancleStratagem();
     SetCombatState(EHDCombatState::Unoccupied);
 }
 
-void AHDCharacterPlayer::SpawnDefaultWeapon()
-{
-    NULL_CHECK(DefaultWeaponClass);
-
-    UWorld* World = GetWorld();
-    VALID_CHECK(World);
-
-    AHDWeapon* Weapon = World->SpawnActor<AHDWeapon>(DefaultWeaponClass);
-    NULL_CHECK(Weapon);
-
-    EquipWeapon(Weapon);
-}
-
 void AHDCharacterPlayer::InterpFOV(float DeltaSeconds)
 {
-    AHDWeapon* Weapon = GetWeapon();
-    if (IsValid(Weapon) == false)
-    {
-        return;
-    }
-
     const bool bIsShoulder = IsShouldering();
-    const float TargetFOV = bIsShoulder ? Weapon->GetZoomedFOV() : Combat->GetDefaultFOV();
-    const float InterpSpeed = bIsShoulder ? Weapon->GetZoomInterpSpeed() : Combat->GetZoomInterpSpeed();
+    const float TargetFOV = bIsShoulder ? Combat->GetWeaponZoomedFOV() : Combat->GetDefaultFOV();
+    const float InterpSpeed = bIsShoulder ? Combat->GetWeaponZoomInterpSpeed() : Combat->GetZoomInterpSpeed();
     const float NewInterpFOV = FMath::FInterpTo(Combat->GetCurrentFOV(), TargetFOV, DeltaSeconds, InterpSpeed);
     Combat->SetCurrentFOV(NewInterpFOV);
     
@@ -350,12 +313,9 @@ void AHDCharacterPlayer::PlayMontage(UAnimMontage* Montage, const FName SectionN
 
 const float AHDCharacterPlayer::Fire(const bool IsPressed)
 {
-    AHDWeapon* Weapon = GetWeapon();
-    NULL_CHECK_WITH_RETURNTYPE(Weapon, 0.f);
-
     if(Combat->Fire(IsPressed) == false)
     {
-        if (Combat->CanReload() && Weapon->IsAmmoEmpty())
+        if (Combat->NeedReload())
         {
             Reload();
         }
@@ -363,7 +323,7 @@ const float AHDCharacterPlayer::Fire(const bool IsPressed)
         return 0.f;
     }
 
-    switch (Weapon->GetFireType())
+    switch (Combat->GetWeaponFireType())
     {
     case EHDFireType::HitScan:
     case EHDFireType::Projectile:
@@ -383,17 +343,15 @@ const float AHDCharacterPlayer::Fire(const bool IsPressed)
     break;
     }
 
-    return Weapon->GetFireDelay();
+    return Combat->GetWeaponFireDelay();
 }
 
 const bool AHDCharacterPlayer::FireFinished()
 {
-    AHDWeapon* Weapon = GetWeapon();
-    NULL_CHECK_WITH_RETURNTYPE(Weapon, false);
-
     AHDPlayerController* PlayerController = GetController<AHDPlayerController>();
-    NULL_CHECK_WITH_RETURNTYPE(PlayerController, 0.f);
-    PlayerController->ChangeAmmoHUDInfo(Weapon->GetAmmoCount());
+    NULL_CHECK_WITH_RETURNTYPE(PlayerController, false);
+
+    PlayerController->ChangeAmmoHUDInfo(Combat->GetWeaponAmmoCount());
 
     return Combat->FireFinished();
 }

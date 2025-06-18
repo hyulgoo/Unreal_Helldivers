@@ -10,7 +10,6 @@
 class UHDGASPlayerUserWidget;
 class UHDStratagemHUDUserWidget;
 class UAbilitySystemComponent;
-class AHDWeapon;
 class ACharacter;
 
 UCLASS()
@@ -20,9 +19,7 @@ class HELLDIVERS_API AHDPlayerController : public APlayerController
 
 public:
 	explicit								AHDPlayerController();
-	void									SetPossessPawnAbilitySystemComponent(UAbilitySystemComponent* ASC);
-	void									CreateHUDWidget(ACharacter* PlayerCharacter);
-	void									SetWeaponHUDInfo(AHDWeapon* NewWeapon);
+	void									CreateHUDWidget(APawn* aPawn);
 
 	void									ChangeAmmoHUDInfo(const int32 NewAmmoCount);
 	void									ChangeCapacityHUDInfo(const int32 NewCapacityCount);
@@ -32,15 +29,16 @@ public:
 		
 protected:
     virtual void							BeginPlay() override final;
-	virtual void							OnPossess(APawn* Pawn) override;
+	virtual void							OnPossess(APawn* Pawn) override final;
 
 private:
-	void									OnPlayerHUDInfoChanged(const FGameplayEventData& Data);
-	void									OnStratagemHUDInfoChanged(const FGameplayEventData& Data);
+	void									SetPossessAbilitySystemComponentBindEventCall(UAbilitySystemComponent* ASC);
+	void									OnPlayerHUDInfoChanged(const FGameplayEventData* Payload);
+	void									OnStratagemHUDInfoChanged(const FGameplayEventData* Payload);
 
 protected:
 	UPROPERTY(EditAnywhere, Category = "UI")
-	TObjectPtr<UAbilitySystemComponent>		PossessPawnAbilitySystemComponent;
+	TObjectPtr<UAbilitySystemComponent>		PossessPawnASC;
 
 	// Widget Section
 	UPROPERTY(EditAnywhere, Category = "UI")

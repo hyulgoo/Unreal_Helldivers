@@ -4,26 +4,22 @@
 #include "Define/HDDefine.h"
 #include "Tag/HDGameplayTag.h"
 #include "Component/Character/HDStratagemComponent.h"
-#include "Character/GameAbility/HDGASCharacterPlayer.h"
+#include "Component/Character/HDCombatComponent.h"
 #include "Character/CharacterTypes/HDCharacterStateTypes.h"
 #include "UI/HDGASPlayerUserWidget.h"
 #include "UI/HDStratagemHUDUserWidget.h"
+#include "AbilitySystemInterface.h"
+#include "AbilitySystemComponent.h"
+#include "Attribute/HDHealthAttributeSet.h"
 #include "Weapon/HDWeapon.h"
 
 AHDPlayerController::AHDPlayerController()
-    : PossessPawnAbilitySystemComponent(nullptr)
+    : PossessPawnASC(nullptr)
     , PlayerHUDWidgetClass(nullptr)
     , PlayerHUDWidget(nullptr)
     , StratagemHUDWidgetClass(nullptr)
     , StratagemHUDWidget(nullptr)
 {
-}
-
-void AHDPlayerController::SetPossessPawnAbilitySystemComponent(UAbilitySystemComponent* ASC)
-{
-    NULL_CHECK(ASC);
-
-    PossessPawnAbilitySystemComponent = ASC;
 }
 
 void AHDPlayerController::BeginPlay()
@@ -38,28 +34,50 @@ void AHDPlayerController::OnPossess(APawn* aPawn)
 {
     Super::OnPossess(aPawn);
 
+    TScriptInterface<IAbilitySystemInterface> AbilityInterface = aPawn;
+    if (AbilityInterface)
+    {
+        PossessPawnASC = AbilityInterface->GetAbilitySystemComponent();
+        SetPossessAbilitySystemComponentBindEventCall(PossessPawnASC);
+
+        CreateHUDWidget(aPawn);
+	}
+	else
+	{
+		PossessPawnASC = nullptr;
+	}
+
     ConsoleCommand(TEXT("showdebug abilitysystem"));
 }
 
-void AHDPlayerController::OnPlayerHUDInfoChanged(const FGameplayEventData& Data)
+void AHDPlayerController::SetPossessAbilitySystemComponentBindEventCall(UAbilitySystemComponent* ASC)
 {
-    if (Data.EventTag == HDTAG_EVENT_PLAYERHUD_AMMO)
+    NULL_CHECK(ASC);
+
+    ASC->GenericGameplayEventCallbacks.FindOrAdd(HDTAG_EVENT_PLAYERHUD_AMMO).AddUObject(this, &AHDPlayerController::OnPlayerHUDInfoChanged);
+    ASC->GenericGameplayEventCallbacks.FindOrAdd(HDTAG_EVENT_PLAYERHUD_CAPACITY).AddUObject(this, &AHDPlayerController::OnPlayerHUDInfoChanged);
+    ASC->GenericGameplayEventCallbacks.FindOrAdd(HDTAG_EVENT_STRATAGEMHUD_ADDCOMMAND).AddUObject(this, &AHDPlayerController::OnStratagemHUDInfoChanged);
+}
+
+void AHDPlayerController::OnPlayerHUDInfoChanged(const FGameplayEventData* Payload)
+{
+    if (Payload->EventTag == HDTAG_EVENT_PLAYERHUD_AMMO)
     {
-        const int32 NewAmmoCount = static_cast<int32>(Data.EventMagnitude);
+        const int32 NewAmmoCount = static_cast<int32>(Payload->EventMagnitude);
         ChangeAmmoHUDInfo(NewAmmoCount);
     }
-    else if (Data.EventTag == HDTAG_EVENT_PLAYERHUD_CAPACITY)
+    else if (Payload->EventTag == HDTAG_EVENT_PLAYERHUD_CAPACITY)
     {
-        const int32 NewCapacityCount = static_cast<int32>(Data.EventMagnitude);
+        const int32 NewCapacityCount = static_cast<int32>(Payload->EventMagnitude);
         ChangeCapacityHUDInfo(NewCapacityCount);
     }
 }
 
-void AHDPlayerController::OnStratagemHUDInfoChanged(const FGameplayEventData& Data)
+void AHDPlayerController::OnStratagemHUDInfoChanged(const FGameplayEventData* Payload)
 {
-    if (Data.EventTag == HDTAG_EVENT_STRATAGEMHUD_ADDCOMMAND)
+    if (Payload->EventTag == HDTAG_EVENT_STRATAGEMHUD_ADDCOMMAND)
     {
-        UHDStratagemComponent* StratagemComponent = Data.Instigator->GetComponentByClass<UHDStratagemComponent>();
+        UHDStratagemComponent* StratagemComponent = Payload->Instigator->GetComponentByClass<UHDStratagemComponent>();
         NULL_CHECK(StratagemComponent);
         
         const TArray<FName> CommandMatchStratagemNameList = StratagemComponent->GetCommandMatchStratagemNameList();
@@ -69,19 +87,30 @@ void AHDPlayerController::OnStratagemHUDInfoChanged(const FGameplayEventData& Da
     }
 }
 
-void AHDPlayerController::CreateHUDWidget(ACharacter* PlayerCharacter)
+void AHDPlayerController::CreateHUDWidget(APawn* aPawn)
 {
-    NULL_CHECK(PlayerCharacter);
+    NULL_CHECK(aPawn);
 
     UWorld* World = GetWorld();
     VALID_CHECK(World);
 
     if(PlayerHUDWidgetClass)
     {
+        if (PlayerHUDWidget)
+        {
+            PlayerHUDWidget->Destruct();
+            PlayerHUDWidget = nullptr;
+        }
+
         PlayerHUDWidget = CreateWidget<UHDGASPlayerUserWidget>(World, PlayerHUDWidgetClass, FName("PlayerHUDWidget"));
         NULL_CHECK(PlayerHUDWidget);
 
-        PlayerHUDWidget->SetAbilitySystemComponentByOwningCharacter(PlayerCharacter);
+        UHDCombatComponent* Combat = aPawn->GetComponentByClass<UHDCombatComponent>();
+        NULL_CHECK(Combat);
+
+        PlayerHUDWidget->SetChangedWeaponAmmoCountInfo(Combat->GetWeaponAmmoCount(), Combat->GetWeaponMaxAmmoCount());
+        PlayerHUDWidget->SetChangedWeaponCapacityCountInfo(Combat->GetWeaponCapacityCount(), Combat->GetWeaponMaxCapacityCount());
+        PlayerHUDWidget->SetAbilitySystemComponent(PossessPawnASC);
         PlayerHUDWidget->AddToViewport();
     }
     else
@@ -94,7 +123,7 @@ void AHDPlayerController::CreateHUDWidget(ACharacter* PlayerCharacter)
         StratagemHUDWidget = CreateWidget<UHDStratagemHUDUserWidget>(World, StratagemHUDWidgetClass, FName("StratagemHUDWidget"));
         NULL_CHECK(StratagemHUDWidget);
 
-        UHDStratagemComponent* StratagemComponent = PlayerCharacter->GetComponentByClass<UHDStratagemComponent>();
+        UHDStratagemComponent* StratagemComponent = aPawn->GetComponentByClass<UHDStratagemComponent>();
         NULL_CHECK(StratagemComponent);
 
         StratagemHUDWidget->SetStratagemListHUD(StratagemComponent->GetAvaliableStratagemDataTable());
@@ -104,29 +133,6 @@ void AHDPlayerController::CreateHUDWidget(ACharacter* PlayerCharacter)
     {
         LOG("StratagemHUDWidgetClass is nullptr!");
     }
-}
-
-void AHDPlayerController::SetWeaponHUDInfo(AHDWeapon* NewWeapon)
-{
-	VALID_CHECK(NewWeapon);
-
-    AActor* WeaponOwner = NewWeapon->GetOwner();
-    NULL_CHECK(WeaponOwner);
-
-    AHDGASCharacterPlayer* GASPlayer = Cast<AHDGASCharacterPlayer>(WeaponOwner);
-    NULL_CHECK(GASPlayer);
-
-    CreateHUDWidget(GASPlayer);
-
-    VALID_CHECK(PlayerHUDWidget);
-
-    PlayerHUDWidget->SetChangedWeaponAmmoCountInfo(NewWeapon->GetAmmoCount(), NewWeapon->GetMaxAmmoCount());
-    PlayerHUDWidget->SetChangedWeaponCapacityCountInfo(NewWeapon->GetCapacityCount(), NewWeapon->GetMaxCapacityCount());
-
-    // TODO Grenade HUD
-    /*AHDCharacterPlayer* CharacterPlayer = Cast<AHDCharacterPlayer>(GetPawn());
-    NULL_CHECK(CharacterPlayer);
-    PlayerHUDWidget->OnGrenadeCountChanged(CharacterPlayer->GetGrenade);*/
 }
 
 void AHDPlayerController::ChangeAmmoHUDInfo(const int32 NewAmmoCount)

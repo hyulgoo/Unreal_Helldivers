@@ -13,9 +13,6 @@ UHDGE_ApplyDamage::UHDGE_ApplyDamage(const FObjectInitializer& ObjectInitializer
     UTargetTagRequirementsGameplayEffectComponent* TagReqComp =
         ObjectInitializer.CreateDefaultSubobject<UTargetTagRequirementsGameplayEffectComponent>(this, TEXT("TargetTagReq"));
 
-    const FGameplayTag DeadTag = HDTAG_CHARACTER_STATE_ISDEAD;
-    TagReqComp->ApplicationTagRequirements.IgnoreTags.AddTag(DeadTag);
-
     FGameplayModifierInfo HealthModifier;
     HealthModifier.Attribute = UHDHealthAttributeSet::GetCurrentHealthAttribute();
     HealthModifier.ModifierOp = EGameplayModOp::Additive;
