@@ -17,11 +17,12 @@ void AHDCharacterNonPlayer::SetDead()
 {
     Super::SetDead();
 
+	const float RandomDeadEventDelayTime = FMath::FRandRange(DeadEventDelayTime, DeadEventDelayTime * 1.5f);
     FTimerHandle DeadTimerHandle;
 	GetWorld()->GetTimerManager().SetTimer(DeadTimerHandle, FTimerDelegate::CreateLambda(
 		[&]()
 		{
 			Destroy();
 		}
-    ), DeadEventDelayTime, false);
+    ), RandomDeadEventDelayTime, false);
 }

@@ -76,7 +76,7 @@ private:
 	float								MaxRollAngle;
 
 	FRotator							MeshDefaultRelativeRotation;
-	bool								bIsLanded;
+	uint8								bIsLanded : 1;
 
 	// Camera
     UPROPERTY(EditDefaultsOnly, Category = "Hellpod|Camera")

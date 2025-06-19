@@ -59,7 +59,7 @@ private:
 
     FVector                             FlightStartLocation;
     FVector                             FlightDirection;
-    bool                                bIsAirStrikeDone;
+    uint8                               bIsAirStrikeDone : 1;
     float                               SplineLength;
 
     // Projectile

@@ -120,7 +120,7 @@ void AHDGASCharacterPlayer::SetupGASInputComponent(UEnhancedInputComponent* Enha
     {
         if (TaggedToggleAction.InputAction == nullptr || TaggedToggleAction.InputTag.IsValid() == false)
         {
-            UE_LOG(LogTemp, Error, TEXT("TaggedToggleAction is InValid!"));
+            LOG("TaggedToggleAction is InValid!");
             continue;
         }
 

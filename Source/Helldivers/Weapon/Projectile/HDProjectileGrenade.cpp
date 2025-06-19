@@ -13,8 +13,8 @@ AHDProjectileGrenade::AHDProjectileGrenade()
     ProjectileMesh->SetupAttachment(RootComponent);
     ProjectileMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
-    ProjectileMovementComponent->SetIsReplicated(true);
-    ProjectileMovementComponent->bShouldBounce = true;
+    ProjectileMovement->SetIsReplicated(true);
+    ProjectileMovement->bShouldBounce = true;
 }
 
 void AHDProjectileGrenade::Destroyed()
@@ -26,7 +26,7 @@ void AHDProjectileGrenade::BeginPlay()
 {
     AActor::BeginPlay();
 
-    ProjectileMovementComponent->OnProjectileBounce.AddDynamic(this, &AHDProjectileGrenade::OnBounce);
+    ProjectileMovement->OnProjectileBounce.AddDynamic(this, &AHDProjectileGrenade::OnBounce);
 }
 
 void AHDProjectileGrenade::OnBounce(const FHitResult& ImpactResult, const FVector& ImpactVelocity)

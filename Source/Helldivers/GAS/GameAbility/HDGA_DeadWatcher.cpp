@@ -14,24 +14,25 @@ void UHDGA_DeadWatcher::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
 {
     Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 
-    UAbilitySystemComponent* AbilitySystemComponent = GetAbilitySystemComponentFromActorInfo();
-    VALID_CHECK(AbilitySystemComponent);
+    UAbilitySystemComponent* OwnerASC = GetAbilitySystemComponentFromActorInfo();
+    VALID_CHECK(OwnerASC);
 
-    AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(UHDHealthAttributeSet::GetCurrentHealthAttribute()).AddUObject(this, &UHDGA_DeadWatcher::OnHealthChanged);
+    OwnerASC->GetGameplayAttributeValueChangeDelegate(UHDHealthAttributeSet::GetCurrentHealthAttribute()).AddUObject(this, &UHDGA_DeadWatcher::OnHealthChanged);
 }
 
 void UHDGA_DeadWatcher::OnHealthChanged(const FOnAttributeChangeData& Data)
 {
     if (Data.NewValue <= 0.f)
     {
-        UAbilitySystemComponent* AbilitySystemComponent = GetAbilitySystemComponentFromActorInfo();
-        TArray<FGameplayAbilitySpec>& ActivatebleAbilities = AbilitySystemComponent->GetActivatableAbilities();
+        UAbilitySystemComponent* OwnerASC = GetAbilitySystemComponentFromActorInfo();
+        VALID_CHECK(OwnerASC);
+        TArray<FGameplayAbilitySpec>& ActivatebleAbilities = OwnerASC->GetActivatableAbilities();
         for (FGameplayAbilitySpec& Spec : ActivatebleAbilities)
         {
             const FGameplayTagContainer& TagContainer = Spec.Ability->GetAssetTags();
             if (TagContainer.IsValid() && TagContainer.HasTagExact(GetAssetTags().First()))
             {
-                AbilitySystemComponent->AbilitySpecInputReleased(Spec);
+                OwnerASC->AbilitySpecInputReleased(Spec);
             }
         }
 
@@ -39,7 +40,7 @@ void UHDGA_DeadWatcher::OnHealthChanged(const FOnAttributeChangeData& Data)
         NULL_CHECK(DeadInterface);
         DeadInterface->SetDead();
 
-        AbilitySystemComponent->AddLooseGameplayTag(HDTAG_CHARACTER_STATE_ISDEAD);
+        OwnerASC->AddLooseGameplayTag(HDTAG_CHARACTER_STATE_ISDEAD);
 
         const bool bReplicatedEndAbility = true;
         const bool bWasCancelled = false;

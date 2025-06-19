@@ -2,6 +2,7 @@
 #include "Weapon/HDWeapon.h"
 #include "HDCasing.h"
 #include "Define/HDDefine.h"
+#include "Define/HDSocketNames.h"
 #include "Collision/HDCollision.h"
 #include "Component/Character/HDCombatComponent.h"
 #include "Components/SphereComponent.h"
@@ -61,7 +62,7 @@ void AHDWeapon::Fire(const FVector& HitTarget, const bool bIsShoulder)
 	NULL_CHECK(FireAnim);
 	WeaponMesh->PlayAnimation(FireAnim, false);
 
-	const USkeletalMeshSocket* AmmoEjectSocket = WeaponMesh->GetSocketByName(FName("AmmoEject"));
+	const USkeletalMeshSocket* AmmoEjectSocket = WeaponMesh->GetSocketByName(HDSOCKETNAME_AMMOEJECT);
 	NULL_CHECK(AmmoEjectSocket);
 
     const FTransform& SocketTransform = AmmoEjectSocket->GetSocketTransform(WeaponMesh);
@@ -79,7 +80,7 @@ const void AHDWeapon::TraceEndWithScatter(const FVector& HitTarget)
 {
 	NULL_CHECK(WeaponMesh);
 
-	const USkeletalMeshSocket* MuzzleFlashSocket = WeaponMesh->GetSocketByName(FName("MuzzleFlash"));
+	const USkeletalMeshSocket* MuzzleFlashSocket = WeaponMesh->GetSocketByName(HDSOCKETNAME_MUZZLEFLASH);
 	NULL_CHECK(MuzzleFlashSocket);
 
 	const FTransform& SocketTransform = MuzzleFlashSocket->GetSocketTransform(WeaponMesh);

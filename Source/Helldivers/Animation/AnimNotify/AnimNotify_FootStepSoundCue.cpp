@@ -28,7 +28,6 @@ void UAnimNotify_FootStepSoundCue::Notify(USkeletalMeshComponent* MeshComp, UAni
 	AActor* OwnerActor = MeshComp->GetOwner();
     NULL_CHECK(OwnerActor);
 
-
 	UWorld* World = OwnerActor->GetWorld();
 	VALID_CHECK(World);
 
@@ -83,7 +82,7 @@ const EPhysicsMaterialType UAnimNotify_FootStepSoundCue::GetPhysicsMaterialTypeB
         ret = EPhysicsMaterialType::Metal;
     break;
     default:
-        CONDITION_CHECK_WITH_RETURNTYPE(ret == EPhysicsMaterialType::Count, ret);
+        LOG("PhysicSurface is Invalid");
     break;
     }
 

@@ -10,14 +10,15 @@ public class Helldivers : ModuleRules
 
         PublicIncludePaths.Add("Helldivers");
 
-        PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "EnhancedInput", "UMG", "Niagara", "PhysicsCore" });
+        PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "EnhancedInput", "UMG", "Niagara", "PhysicsCore", "Landscape", "Foliage" });
 
 		PrivateDependencyModuleNames.AddRange(new string[] {
             "GameFeatures",
             "GameplayAbilities",
             "GameplayTasks",
-            "GameplayTags" 
-		});
+            "GameplayTags",
+            "Landscape"
+        });
 
 		// Uncomment if you are using Slate UI
 		// PrivateDependencyModuleNames.AddRange(new string[] { "Slate", "SlateCore" });

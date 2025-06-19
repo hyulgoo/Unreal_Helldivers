@@ -60,5 +60,5 @@ protected:
     FTransform 							StratagemTransform;
     FTimerHandle						ActiveStratagemTimerHandle;
     uint8								CurrentStratagemIndex;
-    bool								bCanUseStratagem;
+    uint8								bCanUseStratagem : 1;
 };

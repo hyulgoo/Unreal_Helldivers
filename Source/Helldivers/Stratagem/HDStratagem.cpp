@@ -76,7 +76,7 @@ void AHDStratagem::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrim
     ThrowDirection.Z = 0.f;
     ThrowDirection.Normalize();
 
-    FTransform Transform(ThrowDirection.Rotation(), Hit.ImpactPoint);
+    const FTransform Transform(ThrowDirection.Rotation(), Hit.ImpactPoint);
     BattleShip->ActivateStratagem(StratagemName, Transform, StratagemActiveDelay);
 
     CollisionSphere->SetAllPhysicsAngularVelocityInDegrees(FVector::ZeroVector);

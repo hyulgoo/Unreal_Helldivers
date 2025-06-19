@@ -12,7 +12,7 @@ AHDCharacterBase::AHDCharacterBase()
 	: FireWeaponMontage(nullptr)
     , ThrowMontage(nullptr)
     , DeadMontage(nullptr)
-    , DeadEventDelayTime(5.f)
+    , DeadEventDelayTime(10.f)
 {
 	// Pawn
 	bUseControllerRotationPitch = false;

@@ -53,8 +53,8 @@ public:
     virtual void                        Fire(const FVector& HitTarget, const bool bIsShoulder);
     const void                          TraceEndWithScatter(const FVector& HitTarget);
 
-    const EWeaponType                   GetWeaponType() const { return WeaponType; }
-    const EHDFireType                   GetFireType() const { return FireType; }
+    FORCEINLINE const EWeaponType       GetWeaponType() const { return WeaponType; }
+    FORCEINLINE const EHDFireType       GetFireType() const { return FireType; }
     const bool                          IsAmmoEmpty() const;
     const bool                          IsAmmoFull() const;
     const bool                          IsCapacityEmpty() const;

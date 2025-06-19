@@ -15,7 +15,7 @@ class USpringArmComponent;
 enum class EHDCombatState : uint8;
 enum class EHDFireType :uint8;
 
-UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent, DependsOn=CharacterMovementComponent))
+UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
 class HELLDIVERS_API UHDCombatComponent : public UActorComponent
 {
 	GENERATED_BODY()

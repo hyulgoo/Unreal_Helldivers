@@ -20,7 +20,7 @@ void UHDGA_StratagemInputMode::ActivateAbility(const FGameplayAbilitySpecHandle 
 {
     Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 
-    SendGameplayEvect(HDTAG_EVENT_STRATAGEMHUD_APPEAR, ActorInfo);
+    SendGameplayEvent(HDTAG_EVENT_STRATAGEMHUD_APPEAR, ActorInfo);
 }
 
 void UHDGA_StratagemInputMode::InputReleased(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo)
@@ -30,19 +30,20 @@ void UHDGA_StratagemInputMode::InputReleased(const FGameplayAbilitySpecHandle Ha
 
     CommandInterface->TryHoldStratagem();
 
-    SendGameplayEvect(HDTAG_EVENT_STRATAGEMHUD_DISAPPEAR, ActorInfo);
+    SendGameplayEvent(HDTAG_EVENT_STRATAGEMHUD_DISAPPEAR, ActorInfo);
 
     const bool bReplicatedEndAbility = true;
     const bool bWasCancelled = true;
     Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicatedEndAbility, bWasCancelled);
 }
 
-void UHDGA_StratagemInputMode::SendGameplayEvect(const FGameplayTag EventTag, const FGameplayAbilityActorInfo* ActorInfo)
+void UHDGA_StratagemInputMode::SendGameplayEvent(const FGameplayTag EventTag, const FGameplayAbilityActorInfo* ActorInfo)
 {
+    AActor* OwningActor = GetAvatarActorFromActorInfo();;
     FGameplayEventData EventData;
     EventData.EventTag = EventTag;
-    EventData.Instigator = GetAvatarActorFromActorInfo();
-    EventData.Target = GetAvatarActorFromActorInfo();
+    EventData.Instigator = OwningActor
+    EventData.Target = OwningActor
 
     ActorInfo->AbilitySystemComponent->HandleGameplayEvent(EventData.EventTag, &EventData);
 }

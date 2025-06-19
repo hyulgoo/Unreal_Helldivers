@@ -19,5 +19,5 @@ public:
 	virtual void InputReleased(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo) override final;
 
 private:
-	void SendGameplayEvect(const FGameplayTag EventTag, const FGameplayAbilityActorInfo* ActorInfo);
+	void SendGameplayEvent(const FGameplayTag EventTag, const FGameplayAbilityActorInfo* ActorInfo);
 };

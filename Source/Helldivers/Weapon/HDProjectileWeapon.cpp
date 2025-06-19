@@ -5,6 +5,7 @@
 #include "Projectile/HDProjectileBase.h"
 #include "Kismet/GameplayStatics.h"
 #include "Define/HDDefine.h"
+#include "Define/HDSocketNames.h"
 
 AHDProjectileWeapon::AHDProjectileWeapon()
 {
@@ -17,7 +18,7 @@ void AHDProjectileWeapon::Fire(const FVector& HitTarget, const bool bIsShoulder)
 
     NULL_CHECK(ProjectileClass);
 
-    const USkeletalMeshSocket* MuzzleFlashSocket = WeaponMesh->GetSocketByName(FName("MuzzleFlash"));
+    const USkeletalMeshSocket* MuzzleFlashSocket = WeaponMesh->GetSocketByName(HDSOCKETNAME_MUZZLEFLASH);
     NULL_CHECK(MuzzleFlashSocket);
 
     UWorld* World = GetWorld();

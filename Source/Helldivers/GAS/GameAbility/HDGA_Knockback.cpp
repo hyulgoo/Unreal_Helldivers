@@ -3,6 +3,7 @@
 #include "HDGA_Knockback.h"
 #include "Define/HDDefine.h"
 #include "Tag/HDGameplayTag.h"
+#include "AbilitySystemComponent.h"
 #include "Interface/HDCharacterRagdollInterface.h"
 
 UHDGA_Knockback::UHDGA_Knockback()
@@ -57,7 +58,11 @@ void UHDGA_Knockback::CheckCharacterRagdollState()
         bRecoveryFromRagdoll = true;
 
         World->GetTimerManager().ClearTimer(StateCheckTimerHandle);
-        World->GetTimerManager().SetTimer(RecoveryFromRagdollTimerHandle, this, &UHDGA_Knockback::RecoveryFromRagdoll, 0.5f, false);
+        const bool bIsDead = GetAbilitySystemComponentFromActorInfo()->HasMatchingGameplayTag(HDTAG_CHARACTER_STATE_ISDEAD);
+        if (bIsDead == false)
+        {
+            World->GetTimerManager().SetTimer(RecoveryFromRagdollTimerHandle, this, &UHDGA_Knockback::RecoveryFromRagdoll, 0.5f, false);
+        }
     }
 }
 

@@ -4,11 +4,11 @@
 #include "AbilitySystemBlueprintLibrary.h"
 #include "Define/HDDefine.h"
 
-void UHDGASUserWidget::SetAbilitySystemComponent(UAbilitySystemComponent* NewAbilitySystemComponent)
+void UHDGASUserWidget::SetAbilitySystemComponent(UAbilitySystemComponent* NewASC)
 {
-    NULL_CHECK(NewAbilitySystemComponent);
+    NULL_CHECK(NewASC);
 
-    AbilitySystemComponent = NewAbilitySystemComponent;
+    AbilitySystemComponent = NewASC;
 }
 
 UAbilitySystemComponent* UHDGASUserWidget::GetAbilitySystemComponent() const

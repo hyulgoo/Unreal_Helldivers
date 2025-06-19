@@ -43,13 +43,15 @@ private:
     void                                        ApplyDamageGameEffect(UAbilitySystemComponent* SourceAbiltySystemComponent, UAbilitySystemComponent* TargetAbiltySystemComponent, const float InterpImpactDamage);
     void                                        ApplyKnockbackGameAbility(UAbilitySystemComponent* SourceAbiltySystemComponent, UAbilitySystemComponent* TargetAbiltySystemComponent, const float InterpKnockbackImpulse);
     void                                        ExcuteGameplayCue(UAbilitySystemComponent* OwnerAbilitySystemComponent, const FGameplayTag& Tag, const FHitResult& Hit);
+
+    void                                        CreateCrater(AActor* OtherActor);
     
 protected:
 	UPROPERTY(EditAnywhere, Category = "Info|Default")
 	TObjectPtr<UStaticMeshComponent>			ProjectileMesh;
 	
 	UPROPERTY(VisibleAnywhere)
-	TObjectPtr<UProjectileMovementComponent>	ProjectileMovementComponent;
+	TObjectPtr<UProjectileMovementComponent>	ProjectileMovement;
 	
 	UPROPERTY(EditAnywhere)
 	TObjectPtr<UBoxComponent>					CollisionBox;
