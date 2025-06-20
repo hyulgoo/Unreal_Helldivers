@@ -3,8 +3,8 @@
 #include "Controller/HDPlayerController.h"
 #include "Define/HDDefine.h"
 #include "Tag/HDGameplayTag.h"
-#include "Component/Character/HDStratagemComponent.h"
-#include "Component/Character/HDCombatComponent.h"
+#include "Component/HDStratagemComponent.h"
+#include "Component/HDCombatComponent.h"
 #include "Character/CharacterTypes/HDCharacterStateTypes.h"
 #include "UI/HDGASPlayerUserWidget.h"
 #include "UI/HDStratagemHUDUserWidget.h"
@@ -57,6 +57,9 @@ void AHDPlayerController::SetPossessAbilitySystemComponentBindEventCall(UAbility
     ASC->GenericGameplayEventCallbacks.FindOrAdd(HDTAG_EVENT_PLAYERHUD_AMMO).AddUObject(this, &AHDPlayerController::OnPlayerHUDInfoChanged);
     ASC->GenericGameplayEventCallbacks.FindOrAdd(HDTAG_EVENT_PLAYERHUD_CAPACITY).AddUObject(this, &AHDPlayerController::OnPlayerHUDInfoChanged);
     ASC->GenericGameplayEventCallbacks.FindOrAdd(HDTAG_EVENT_STRATAGEMHUD_ADDCOMMAND).AddUObject(this, &AHDPlayerController::OnStratagemHUDInfoChanged);
+    ASC->GenericGameplayEventCallbacks.FindOrAdd(HDTAG_EVENT_STRATAGEMHUD_APPEAR).AddUObject(this, &AHDPlayerController::StratagemHUDAppear);
+    ASC->GenericGameplayEventCallbacks.FindOrAdd(HDTAG_EVENT_STRATAGEMHUD_DISAPPEAR).AddUObject(this, &AHDPlayerController::StratagemHUDAppear);
+
 }
 
 void AHDPlayerController::OnPlayerHUDInfoChanged(const FGameplayEventData* Payload)
@@ -115,7 +118,7 @@ void AHDPlayerController::CreateHUDWidget(APawn* aPawn)
     }
     else
     {
-        LOG("PlayerHUDWidgetClass is nullptr!");
+        LOG(TEXT("PlayerHUDWidgetClass is nullptr!"));
     }
 
     if(StratagemHUDWidgetClass)
@@ -131,7 +134,7 @@ void AHDPlayerController::CreateHUDWidget(APawn* aPawn)
     }
     else
     {
-        LOG("StratagemHUDWidgetClass is nullptr!");
+        LOG(TEXT("StratagemHUDWidgetClass is nullptr!"));
     }
 }
 
@@ -153,8 +156,15 @@ void AHDPlayerController::SetHUDActiveByCurrentInputMatchList(const TArray<FName
     StratagemHUDWidget->SetHUDActiveByCurrentInputMatchList(MatchStratagemList, CurrentInputNum);
 }
 
-void AHDPlayerController::SetStratagemHUDAppear(const bool bAppear)
+void AHDPlayerController::StratagemHUDAppear(const FGameplayEventData* Payload)
 {
     VALID_CHECK(StratagemHUDWidget);
-    StratagemHUDWidget->WidgetAppear(bAppear);
+    if (Payload->EventTag == HDTAG_EVENT_STRATAGEMHUD_APPEAR)
+    {
+        StratagemHUDWidget->WidgetAppear(true);
+    }
+    else if(Payload->EventTag == HDTAG_EVENT_STRATAGEMHUD_DISAPPEAR)
+    {
+        StratagemHUDWidget->WidgetAppear(false);
+    }
 }

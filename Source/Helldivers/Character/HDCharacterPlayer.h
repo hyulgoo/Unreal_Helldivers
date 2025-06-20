@@ -38,7 +38,7 @@ protected:
 	// RagdollInterface
 	virtual void							SetRagdoll(const bool bRagdoll, const FVector& Impulse = FVector::ZeroVector) override final;
 
-	// WeaponInferface
+	// WeaponInterface
 	virtual AHDWeapon*						GetWeapon() const override final;
 	virtual const FVector&					GetHitTarget() const override final;
 	virtual const EHDCombatState			GetCombatState() const override final;

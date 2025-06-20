@@ -75,10 +75,7 @@ protected:
 	UFUNCTION()
 	void										InputStratagemCommand(const FInputActionValue& Value);
 
-	void										HandleGameplayEvent(const FGameplayEventData* Payload);
-
 private:
-	void										SetStratagemHUDAppear(const bool bAppear);
 
 	void										InitAbilitySystemComponent();
 	void										InitializeAttributeSet();

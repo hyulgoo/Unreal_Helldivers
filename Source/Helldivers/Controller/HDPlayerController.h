@@ -25,7 +25,6 @@ public:
 	void									ChangeCapacityHUDInfo(const int32 NewCapacityCount);
 
 	void									SetHUDActiveByCurrentInputMatchList(const TArray<FName>& MatchStratagemList, const int32 CurrentInputNum);
-	void									SetStratagemHUDAppear(const bool bAppear);
 		
 protected:
     virtual void							BeginPlay() override final;
@@ -35,6 +34,7 @@ private:
 	void									SetPossessAbilitySystemComponentBindEventCall(UAbilitySystemComponent* ASC);
 	void									OnPlayerHUDInfoChanged(const FGameplayEventData* Payload);
 	void									OnStratagemHUDInfoChanged(const FGameplayEventData* Payload);
+	void									StratagemHUDAppear(const FGameplayEventData* Payload);
 
 protected:
 	UPROPERTY(EditAnywhere, Category = "UI")

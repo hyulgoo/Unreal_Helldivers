@@ -1,5 +1,5 @@
 
-#include "Component/Character/HDCombatComponent.h"
+#include "Component/HDCombatComponent.h"
 #include "Define/HDDefine.h"
 #include "Define/HDSocketNames.h"
 #include "Weapon/HDWeapon.h"

@@ -1,6 +1,6 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-#include "Component/Character/HDStratagemComponent.h"
+#include "Component/HDStratagemComponent.h"
 #include "Define/HDDefine.h"
 #include "Define/HDSocketNames.h"
 #include "GameData/HDStratagemData.h"
@@ -85,7 +85,7 @@ void UHDStratagemComponent::HoldStratagem(USkeletalMeshComponent* MeshComponent,
 {
     NULL_CHECK(StratagemClass);
 
-    if (SelectedStratagemName.IsNone())
+    if (IsSelectedStratagemExist() == false)
     {
         return;
     }
@@ -121,7 +121,7 @@ void UHDStratagemComponent::ThrowFinished()
     Stratagem = nullptr;
 }
 
-void UHDStratagemComponent::CancleStratagem()
+void UHDStratagemComponent::CancelStratagem()
 {
     if (Stratagem)
     {

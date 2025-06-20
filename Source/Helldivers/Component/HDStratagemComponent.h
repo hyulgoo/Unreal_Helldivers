@@ -26,7 +26,7 @@ public:
 	const bool							IsSelectedStratagemExist() const;
 	void								HoldStratagem(USkeletalMeshComponent* MeshComponent, const FVector& ThrowDirection);
 	void								ThrowFinished();
-	void								CancleStratagem();
+	void								CancelStratagem();
 	void								ClearCommand();
 
 private:

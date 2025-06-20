@@ -19,6 +19,7 @@
 #define HDTAG_INPUT_PRONE							FGameplayTag::RequestGameplayTag(FName("Input.Prone"))
 #define HDTAG_INPUT_FIRE							FGameplayTag::RequestGameplayTag(FName("Input.Fire"))
 #define HDTAG_INPUT_RELOAD							FGameplayTag::RequestGameplayTag(FName("Input.Reload"))
+#define HDTAG_INPUT_STRATAGEMINPUTMODE				FGameplayTag::RequestGameplayTag(FName("Input.StratagemInputMode"))
 
 #define HDTAG_EVENT_STRATAGEMHUD_APPEAR             FGameplayTag::RequestGameplayTag(FName("Event.StratagemHUD.Active"))
 #define HDTAG_EVENT_STRATAGEMHUD_DISAPPEAR          FGameplayTag::RequestGameplayTag(FName("Event.StratagemHUD.Deactive"))

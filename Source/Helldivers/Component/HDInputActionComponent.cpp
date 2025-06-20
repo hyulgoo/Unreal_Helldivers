@@ -1,6 +1,6 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-#include "Component/Character/HDInputActionComponent.h"
+#include "Component/HDInputActionComponent.h"
 #include "Character/CharacterTypes/HDCharacterStateTypes.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Define/HDDefine.h"
@@ -78,7 +78,7 @@ void UHDInputActionComponent::ChangeCameraZOffsetByCharacterMovementState(const 
 		SpringArm->TargetOffset.Z = SpringArmZOffset - CHARACTERMOVESTATEZOFFSET * 2;
 		break;
 	default:
-		LOG("EHDCharacterMovementState is Invalid!!");
+		LOG(TEXT("EHDCharacterMovementState is Invalid!!"));
 		break;
 	}
 }

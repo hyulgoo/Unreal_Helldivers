@@ -2,7 +2,7 @@
 
 #include "HDGA_StratagemInputMode.h"
 #include "Interface/HDCharacterCommandInterface.h"
-#include "AbilitySystemComponent.h"
+#include "GAS/GameplayAbilityHelper.h"
 #include "Define/HDDefine.h"
 #include "Tag/HDGameplayTag.h"
 
@@ -20,7 +20,7 @@ void UHDGA_StratagemInputMode::ActivateAbility(const FGameplayAbilitySpecHandle 
 {
     Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 
-    SendGameplayEvent(HDTAG_EVENT_STRATAGEMHUD_APPEAR, ActorInfo);
+    FGameplayAbilityHelper::SendGameplayEventToTarget(HDTAG_EVENT_STRATAGEMHUD_APPEAR, CurrentActorInfo, ActorInfo);
 }
 
 void UHDGA_StratagemInputMode::InputReleased(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo)
@@ -30,20 +30,9 @@ void UHDGA_StratagemInputMode::InputReleased(const FGameplayAbilitySpecHandle Ha
 
     CommandInterface->TryHoldStratagem();
 
-    SendGameplayEvent(HDTAG_EVENT_STRATAGEMHUD_DISAPPEAR, ActorInfo);
+    FGameplayAbilityHelper::SendGameplayEventToTarget(HDTAG_EVENT_STRATAGEMHUD_DISAPPEAR, CurrentActorInfo, ActorInfo);
 
     const bool bReplicatedEndAbility = true;
     const bool bWasCancelled = true;
     Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicatedEndAbility, bWasCancelled);
-}
-
-void UHDGA_StratagemInputMode::SendGameplayEvent(const FGameplayTag EventTag, const FGameplayAbilityActorInfo* ActorInfo)
-{
-    AActor* OwningActor = GetAvatarActorFromActorInfo();;
-    FGameplayEventData EventData;
-    EventData.EventTag = EventTag;
-    EventData.Instigator = OwningActor
-    EventData.Target = OwningActor
-
-    ActorInfo->AbilitySystemComponent->HandleGameplayEvent(EventData.EventTag, &EventData);
 }

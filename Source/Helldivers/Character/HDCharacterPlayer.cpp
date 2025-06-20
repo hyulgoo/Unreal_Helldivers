@@ -5,9 +5,9 @@
 #include "Camera/CameraComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
-#include "Component/Character/HDCombatComponent.h"
-#include "Component/Character/HDInputActionComponent.h"
-#include "Component/Character/HDStratagemComponent.h"
+#include "Component/HDCombatComponent.h"
+#include "Component/HDInputActionComponent.h"
+#include "Component/HDStratagemComponent.h"
 #include "Controller/HDPlayerController.h"
 #include "Stratagem/HDStratagem.h"
 #include "Animation/HDAnimInstance.h"
@@ -111,8 +111,6 @@ const float AHDCharacterPlayer::Reload()
 void AHDCharacterPlayer::ReloadFinished()
 {
     Combat->ReloadFinished();
-
-
 
     AHDPlayerController* PlayerController = GetController<AHDPlayerController>();
     NULL_CHECK(PlayerController);
@@ -282,7 +280,7 @@ void AHDCharacterPlayer::CancleStratagem()
         return;
     }
 
-    Stratagem->CancleStratagem();
+    Stratagem->CancelStratagem();
     SetCombatState(EHDCombatState::Unoccupied);
 }
 

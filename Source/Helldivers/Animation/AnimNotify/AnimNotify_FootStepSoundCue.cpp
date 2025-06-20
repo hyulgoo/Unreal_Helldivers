@@ -82,7 +82,7 @@ const EPhysicsMaterialType UAnimNotify_FootStepSoundCue::GetPhysicsMaterialTypeB
         ret = EPhysicsMaterialType::Metal;
     break;
     default:
-        LOG("PhysicSurface is Invalid");
+        LOG(TEXT("PhysicSurface is Invalid"));
     break;
     }
 

@@ -26,7 +26,7 @@ void UHDGASPlayerUserWidget::SetAbilitySystemComponent(UAbilitySystemComponent* 
     CurrentMaxHealth = AttributeSet->GetMaxHealth();
     if (CurrentMaxHealth <= 0.f)
     {
-        UE_LOG(LogTemp, Error, TEXT("MaxHealth is Invalid!"));
+        LOG(TEXT("MaxHealth is Invalid"));
         return;
     }
 
@@ -89,7 +89,7 @@ void UHDGASPlayerUserWidget::UpdateProgressbar(UProgressBar* Progressbar, const 
 
     if (Value < 0.f || Value > 1.f)
     {
-        UE_LOG(LogTemp, Error, TEXT("Progressbar Value is Invalid!"));
+        LOG(TEXT("Progressbar Value is Invalid"));
         return;
     }
 

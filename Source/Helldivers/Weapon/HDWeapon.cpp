@@ -4,7 +4,7 @@
 #include "Define/HDDefine.h"
 #include "Define/HDSocketNames.h"
 #include "Collision/HDCollision.h"
-#include "Component/Character/HDCombatComponent.h"
+#include "Component/HDCombatComponent.h"
 #include "Components/SphereComponent.h"
 #include "Engine/SkeletalMeshSocket.h"
 #include "Kismet/KismetMathLibrary.h"

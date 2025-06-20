@@ -42,7 +42,7 @@ private:
 
     void                                        ApplyDamageGameEffect(UAbilitySystemComponent* SourceAbiltySystemComponent, UAbilitySystemComponent* TargetAbiltySystemComponent, const float InterpImpactDamage);
     void                                        ApplyKnockbackGameAbility(UAbilitySystemComponent* SourceAbiltySystemComponent, UAbilitySystemComponent* TargetAbiltySystemComponent, const float InterpKnockbackImpulse);
-    void                                        ExcuteGameplayCue(UAbilitySystemComponent* OwnerAbilitySystemComponent, const FGameplayTag& Tag, const FHitResult& Hit);
+    void                                        ExecuteGameplayCue(UAbilitySystemComponent* OwnerAbilitySystemComponent, const FGameplayTag& Tag, const FHitResult& Hit);
 
     void                                        CreateCrater(AActor* OtherActor);
     

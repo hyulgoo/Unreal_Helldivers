@@ -13,8 +13,8 @@
 #include "Tag/HDGameplayTag.h"
 #include "Collision/HDCollision.h"
 #include "Engine/OverlapResult.h"
-#include "LandScape.h"
-#include "LandScapeEdit.h"
+#include "Landscape.h"
+#include "LandscapeEdit.h"
 #include "EngineUtils.h"
 
 AHDProjectileBase::AHDProjectileBase()
@@ -101,7 +101,7 @@ void AHDProjectileBase::OnBoxHit(UPrimitiveComponent* HitComp, AActor* OtherActo
 	if (ImpactType == EImpactType::Explode)
 	{
 		ApplyExplode(OwnerASC, Hit.ImpactPoint);
-		ExcuteGameplayCue(OwnerASC, ImpactHitCueTag, Hit);
+		ExecuteGameplayCue(OwnerASC, ImpactHitCueTag, Hit);
 		//CreateCrater(OtherActor);
 	}
 	else
@@ -113,7 +113,7 @@ void AHDProjectileBase::OnBoxHit(UPrimitiveComponent* HitComp, AActor* OtherActo
 			ApplyDamageGameEffect(OwnerASC, TargetASC, ImpactDamage);
 		}
 
-		ExcuteGameplayCue(OwnerASC, TargetASC ? ImpactHitCueTag : ImpactBlocklCueTag, Hit);
+		ExecuteGameplayCue(OwnerASC, TargetASC ? ImpactHitCueTag : ImpactBlocklCueTag, Hit);
 	}
 
 	Destroy();
@@ -254,7 +254,7 @@ void AHDProjectileBase::ApplyKnockbackGameAbility(UAbilitySystemComponent* Sourc
 	TargetASC->HandleGameplayEvent(EventData.EventTag, &EventData);
 }
 
-void AHDProjectileBase::ExcuteGameplayCue(UAbilitySystemComponent* OwnerASC, const FGameplayTag& Tag, const FHitResult& Hit)
+void AHDProjectileBase::ExecuteGameplayCue(UAbilitySystemComponent* OwnerASC, const FGameplayTag& Tag, const FHitResult& Hit)
 {
 	NULL_CHECK(OwnerASC);
 

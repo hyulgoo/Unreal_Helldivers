@@ -7,13 +7,14 @@
 #include "Character/HDCharacterControlData.h"
 #include "Player/HDGASPlayerState.h"
 #include "Controller/HDPlayerController.h"
-#include "Component/Character/HDStratagemComponent.h"
+#include "Component/HDStratagemComponent.h"
 #include "Define/HDDefine.h"
 #include "Tag/HDGameplayTag.h"
 #include "Attribute/HDHealthAttributeSet.h"
 #include "Attribute/Player/HDPlayerSpeedAttributeSet.h"
 #include "GameData/HDCharacterStat.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "GAS/GameplayAbilityHelper.h"
 
 AHDGASCharacterPlayer::AHDGASCharacterPlayer()
 	: AbilitySystemComponent(nullptr)
@@ -120,7 +121,7 @@ void AHDGASCharacterPlayer::SetupGASInputComponent(UEnhancedInputComponent* Enha
     {
         if (TaggedToggleAction.InputAction == nullptr || TaggedToggleAction.InputTag.IsValid() == false)
         {
-            LOG("TaggedToggleAction is InValid!");
+            LOG(TEXT("TaggedToggleAction is InValid!"));
             continue;
         }
 
@@ -139,13 +140,6 @@ void AHDGASCharacterPlayer::SetupGASInputComponent(UEnhancedInputComponent* Enha
 void AHDGASCharacterPlayer::SetGASEventInputComponent(UEnhancedInputComponent* EnhancedInputComponent)
 {
     NULL_CHECK(EnhancedInputComponent);
-    NULL_CHECK(AbilitySystemComponent);
-
-    const TArray<FGameplayTag>& EventTagArray = EventCallTags.GetGameplayTagArray();
-    for (const FGameplayTag& EventCallTag : EventTagArray)
-    {
-        AbilitySystemComponent->GenericGameplayEventCallbacks.FindOrAdd(EventCallTag).AddUObject(this, &AHDGASCharacterPlayer::HandleGameplayEvent);
-    }
 
     for (const FTagEventBindInfo& TagEventBindInfo : TagEventBindInfoList)
     {
@@ -245,40 +239,14 @@ void AHDGASCharacterPlayer::InputStratagemCommand(const FInputActionValue& Value
 
         if (NewCommand == EHDCommandInput::Count)
         {
-            UE_LOG(LogTemp, Warning, TEXT("CommandInput is Invalid!!"));
+            LOG(TEXT("CommandInput is Invalid!!"));
             return;
         }
 
         GetStratagemComponent()->AddStratagemCommand(NewCommand);
 
         // HUD ¿¬µ¿¿ë GAS Event
-        FGameplayEventData Payload;
-        Payload.EventTag = HDTAG_EVENT_STRATAGEMHUD_ADDCOMMAND;
-        Payload.Instigator = this;
-        AbilitySystemComponent->HandleGameplayEvent(Payload.EventTag, &Payload);
-    }
-}
-
-void AHDGASCharacterPlayer::HandleGameplayEvent(const FGameplayEventData* Payload)
-{
-    if (Payload->EventTag.MatchesTagExact(HDTAG_EVENT_STRATAGEMHUD_APPEAR))
-    {
-        SetStratagemHUDAppear(true);
-    }
-    else if (Payload->EventTag.MatchesTagExact(HDTAG_EVENT_STRATAGEMHUD_DISAPPEAR))
-    {
-        SetStratagemHUDAppear(false);
-    }
-}
-
-void AHDGASCharacterPlayer::SetStratagemHUDAppear(const bool bAppear)
-{
-    AHDPlayerController* PlayerController = GetController<AHDPlayerController>();
-    NULL_CHECK(PlayerController);
-
-    if (PlayerController->IsLocalController())
-    {
-        PlayerController->SetStratagemHUDAppear(bAppear);
+        FGameplayAbilityHelper::SendGameplayEventToTarget(HDTAG_EVENT_STRATAGEMHUD_ADDCOMMAND, this, AbilitySystemComponent);
     }
 }
 
