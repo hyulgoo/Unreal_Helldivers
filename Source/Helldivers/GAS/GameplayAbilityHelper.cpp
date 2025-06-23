@@ -36,8 +36,8 @@ void FGameplayAbilityHelper::SendGameplayEventToTarget(const FGameplayTag EventT
 
 void FGameplayAbilityHelper::SendGameplayEventToSelf(const FGameplayTag EventTag, const FGameplayAbilityActorInfo* SourceActorInfo, const float Magnitude /*= 0.f*/)
 {
+    NULL_CHECK(SourceActorInfo->AvatarActor);
     AActor* OwningActor = SourceActorInfo->AvatarActor.Get();
-    VALID_CHECK(OwningActor);
 
     FGameplayEventData EventData;
     EventData.EventTag = EventTag;

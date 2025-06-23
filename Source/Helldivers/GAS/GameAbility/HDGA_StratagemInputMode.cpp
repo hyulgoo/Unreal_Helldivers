@@ -23,7 +23,8 @@ void UHDGA_StratagemInputMode::ActivateAbility(const FGameplayAbilitySpecHandle 
     FGameplayAbilityHelper::SendGameplayEventToTarget(HDTAG_EVENT_STRATAGEMHUD_APPEAR, CurrentActorInfo, ActorInfo);
 }
 
-void UHDGA_StratagemInputMode::InputReleased(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo)
+void UHDGA_StratagemInputMode::InputReleased(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo,
+    const FGameplayAbilityActivationInfo ActivationInfo)
 {
     TScriptInterface<IHDCharacterCommandInterface> CommandInterface = ActorInfo->AvatarActor.Get();
     NULL_CHECK(CommandInterface);
