@@ -94,8 +94,7 @@ void AHDCharacterBase::SetRagdoll(const bool bRagdoll, const FVector& Impulse)
 
 const float AHDCharacterBase::GetRagdollPysicsLinearVelocity() const
 {
-	USkeletalMeshComponent* CharacterMesh = GetMesh();
-	return CharacterMesh->GetPhysicsLinearVelocity().Size();
+	return GetMesh()->GetPhysicsLinearVelocity().Size();
 }
 
 void AHDCharacterBase::LoadDefaultMontage()
