@@ -103,9 +103,6 @@ private:
 	TArray<TSubclassOf<UGameplayAbility>>		StartAbilities;
 	
 	UPROPERTY(EditAnywhere, Category = "GASPlayer|Input")
-	TArray<TSubclassOf<UGameplayAbility>>		PassiveAbilities;
-
-	UPROPERTY(EditAnywhere, Category = "GASPlayer|Input")
 	TArray<FTaggedInputAction>					TaggedHoldActions;
 	
 	UPROPERTY(EditAnywhere, Category = "GASPlayer|Input")

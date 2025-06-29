@@ -33,7 +33,4 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category = "GASNonPlayer|Input")
 	TArray<TSubclassOf<UGameplayAbility>>	StartAbilities;
-
-	UPROPERTY(EditAnywhere, Category = "GASNonPlayer|Input")
-	TArray<TSubclassOf<UGameplayAbility>>	PassiveAbilities;
 };

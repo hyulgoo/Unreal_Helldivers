@@ -5,10 +5,13 @@
 #include "Define/HDDefine.h"
 #include "Interface/HDCharacterMovementInterface.h"
 #include "Character/CharacterTypes/HDCharacterStateTypes.h"
+#include "GAS/GameplayAbilityHelper.h"
 
 UHDGA_MovementTrigger::UHDGA_MovementTrigger()
 { 
 	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
+
+	ActivationBlockedTags.AddTag(HDTAG_CHARACTER_STATE_ISDEAD);
 }
 
 void UHDGA_MovementTrigger::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)

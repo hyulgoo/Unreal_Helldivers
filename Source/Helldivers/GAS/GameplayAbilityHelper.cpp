@@ -65,3 +65,10 @@ void FGameplayAbilityHelper::SendGameplayEventToSelf(const FGameplayTag EventTag
 
     SourceASC->HandleGameplayEvent(EventData.EventTag, &EventData);
 }
+
+const bool FGameplayAbilityHelper::HasMatchingTagGameplayTag(UAbilitySystemComponent* TargetASC, const FGameplayTag TagToCheck)
+{
+    VALID_CHECK_WITH_RETURNTYPE(TargetASC, false);
+
+    return TargetASC->HasMatchingGameplayTag(TagToCheck);
+}
