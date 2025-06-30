@@ -59,7 +59,6 @@ void AHDPlayerController::SetPossessAbilitySystemComponentBindEventCall(UAbility
     ASC->GenericGameplayEventCallbacks.FindOrAdd(HDTAG_EVENT_STRATAGEMHUD_ADDCOMMAND).AddUObject(this, &AHDPlayerController::OnStratagemHUDInfoChanged);
     ASC->GenericGameplayEventCallbacks.FindOrAdd(HDTAG_EVENT_STRATAGEMHUD_APPEAR).AddUObject(this, &AHDPlayerController::StratagemHUDAppear);
     ASC->GenericGameplayEventCallbacks.FindOrAdd(HDTAG_EVENT_STRATAGEMHUD_DISAPPEAR).AddUObject(this, &AHDPlayerController::StratagemHUDAppear);
-
 }
 
 void AHDPlayerController::OnPlayerHUDInfoChanged(const FGameplayEventData* Payload)

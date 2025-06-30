@@ -9,11 +9,8 @@
 UHDGA_StratagemInputMode::UHDGA_StratagemInputMode()
 {
     InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
-}
 
-bool UHDGA_StratagemInputMode::CanActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayTagContainer* SourceTags, const FGameplayTagContainer* TargetTags, OUT FGameplayTagContainer* OptionalRelevantTags) const
-{
-    return Super::CanActivateAbility(Handle, ActorInfo, SourceTags, TargetTags, OptionalRelevantTags);
+    TargetBlockedTags.AddTag(HDTAG_CHARACTER_STATE_ISDEAD);
 }
 
 void UHDGA_StratagemInputMode::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)

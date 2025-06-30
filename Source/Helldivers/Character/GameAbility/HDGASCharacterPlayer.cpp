@@ -28,6 +28,7 @@ AHDGASCharacterPlayer::AHDGASCharacterPlayer()
 	, ArmorType(EHDArmorType::Count)
 	, ArmorTypeStatusDataTable(nullptr)
     , CurrentCharacterControlType(EHDCharacterControlType::ThirdPerson)
+    , CharacterControlDataMap{}
 {
     static ConstructorHelpers::FObjectFinder<UHDCharacterControlData> ThirdPersonDataRef(TEXT("/Script/Helldivers.HDCharacterControlData'/Game/Helldivers/CharacterControl/HDC_ThirdPerson.HDC_ThirdPerson'"));
     if (ThirdPersonDataRef.Succeeded())
@@ -76,14 +77,8 @@ void AHDGASCharacterPlayer::SetArmor(const EHDArmorType NewArmorType)
 
 void AHDGASCharacterPlayer::ChangeCharacterControlType()
 {
-    if (CurrentCharacterControlType == EHDCharacterControlType::FirstPerson)
-    {
-        SetCharacterControl(EHDCharacterControlType::ThirdPerson);
-    }
-    else if (CurrentCharacterControlType == EHDCharacterControlType::ThirdPerson)
-    {
-        SetCharacterControl(EHDCharacterControlType::FirstPerson);
-    }
+	SetCharacterControl(CurrentCharacterControlType == EHDCharacterControlType::FirstPerson ?
+		EHDCharacterControlType::ThirdPerson : EHDCharacterControlType::FirstPerson);
 }
 
 void AHDGASCharacterPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)

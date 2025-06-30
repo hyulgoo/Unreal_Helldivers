@@ -1,4 +1,5 @@
 {
+<<<<<<< HEAD
   "FileVersion": 3,
   "EngineAssociation": "5.6",
   "Category": "",
@@ -31,4 +32,39 @@
   "AdditionalRootDirectories": [],
   "AdditionalPluginDirectories": [],
   "EpicSampleNameHash": ""
+=======
+	"FileVersion": 3,
+	"EngineAssociation": "5.6",
+	"Category": "",
+	"Description": "",
+	"Modules": [
+		{
+			"Name": "Helldivers",
+			"Type": "Runtime",
+			"LoadingPhase": "PostDefault",
+			"AdditionalDependencies": [
+				"Engine",
+				"GameplayAbilities"
+			]
+		}
+	],
+	"Plugins": [
+		{
+			"Name": "GameplayAbilities",
+			"Enabled": true
+		},
+		{
+			"Name": "ModelingToolsEditorMode",
+			"Enabled": true
+		},
+		{
+			"Name": "VisualStudioTools",
+			"Enabled": true,
+			"SupportedTargetPlatforms": [
+				"Win64"
+			],
+			"MarketplaceURL": "com.epicgames.launcher://ue/marketplace/product/362651520df94e4fa65492dbcba44ae2"
+		}
+	]
+>>>>>>> cb67fba7b5747c47e81bc20be678092c0f424731
 }

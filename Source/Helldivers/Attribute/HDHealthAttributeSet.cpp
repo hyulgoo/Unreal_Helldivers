@@ -4,6 +4,7 @@
 #include "Character/CharacterTypes/HDCharacterStateTypes.h"
 #include "Character/HDCharacterBase.h"
 #include "GameplayEffectExtension.h"
+#include "Tag/HDGameplayTag.h"
 
 UHDHealthAttributeSet::UHDHealthAttributeSet()
 	: CurrentHealth(FGameplayAttributeData())
@@ -17,7 +18,7 @@ void UHDHealthAttributeSet::PreAttributeChange(const FGameplayAttribute& Attribu
     if(Attribute == GetCurrentHealthAttribute()) 
     {
         NewValue = NewValue <= 0.f ? 0.f : (NewValue > GetMaxHealth() ? GetMaxHealth() : NewValue);
-    }	
+    }
 }
 
 bool UHDHealthAttributeSet::PreGameplayEffectExecute(FGameplayEffectModCallbackData& Data)
@@ -27,5 +28,12 @@ bool UHDHealthAttributeSet::PreGameplayEffectExecute(FGameplayEffectModCallbackD
 
 void UHDHealthAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallbackData& Data)
 {
-	Super::PostGameplayEffectExecute(Data);
+	if (Data.EvaluatedData.Attribute == GetCurrentHealthAttribute())
+	{
+		UAbilitySystemComponent* ASC = GetOwningAbilitySystemComponent();
+		if (ASC)
+		{
+			ASC->AddLooseGameplayTag(HDTAG_CHARACTER_STATE_ISDEAD);
+		}
+	}
 }
