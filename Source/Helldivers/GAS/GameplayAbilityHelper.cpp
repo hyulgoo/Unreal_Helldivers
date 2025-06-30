@@ -72,3 +72,10 @@ const bool FGameplayAbilityHelper::HasMatchingTagGameplayTag(UAbilitySystemCompo
 
     return TargetASC->HasMatchingGameplayTag(TagToCheck);
 }
+
+void FGameplayAbilityHelper::AddTagToTarget(UAbilitySystemComponent* TargetASC, const FGameplayTag Tag)
+{
+    VALID_CHECK(TargetASC);
+
+    TargetASC->AddLooseGameplayTag(Tag);
+}

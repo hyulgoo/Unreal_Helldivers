@@ -11,5 +11,6 @@ public:
 	static void SendGameplayEventToSelf(const FGameplayTag EventTag, UAbilitySystemComponent* SourceASC, const float Magnitude = 0.f);
 
 	static const bool HasMatchingTagGameplayTag(UAbilitySystemComponent* TargetASC, const FGameplayTag TagToCheck);
+	static void AddTagToTarget(UAbilitySystemComponent* TargetASC, const FGameplayTag Tag);
 };
 

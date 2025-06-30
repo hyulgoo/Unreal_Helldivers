@@ -21,6 +21,11 @@ void UHDHealthAttributeSet::PreAttributeChange(const FGameplayAttribute& Attribu
     }
 }
 
+void UHDHealthAttributeSet::PostAttributeChange(const FGameplayAttribute& Attribute, float OldValue, float NewValue)
+{
+
+}
+
 bool UHDHealthAttributeSet::PreGameplayEffectExecute(FGameplayEffectModCallbackData& Data)
 {
 	return true;

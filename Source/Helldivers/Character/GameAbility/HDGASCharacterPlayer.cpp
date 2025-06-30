@@ -48,20 +48,17 @@ UAbilitySystemComponent* AHDGASCharacterPlayer::GetAbilitySystemComponent() cons
     return AbilitySystemComponent;
 }
 
-void AHDGASCharacterPlayer::SetArmor(const EHDArmorType NewArmorType)
+void AHDGASCharacterPlayer::SetAttributeStatByArmor(const EHDArmorType NewArmorType)
 {
     NULL_CHECK(AbilitySystemComponent);
     NULL_CHECK(InitStatEffect);
 
-    CONDITION_CHECK(ArmorType == NewArmorType);
     ArmorType = NewArmorType;
 
     const FHDCharacterStat* ArmorStatus = GetCharacterStatByArmorType(ArmorType);
     NULL_CHECK(ArmorStatus);
 
     FGameplayEffectContextHandle Context = AbilitySystemComponent->MakeEffectContext();
-    Context.AddSourceObject(this);
-
     FGameplayEffectSpecHandle InitStatusSpec = AbilitySystemComponent->MakeOutgoingSpec(InitStatEffect, 1.f, Context);
     CONDITION_CHECK(InitStatusSpec.IsValid() == false);
 
@@ -263,34 +260,13 @@ void AHDGASCharacterPlayer::InitializeAttributeSet()
 {
     NULL_CHECK(AbilitySystemComponent);
 
-    AbilitySystemComponent->InitStats(UHDHealthAttributeSet::StaticClass(), nullptr);
-    AbilitySystemComponent->InitStats(UHDPlayerSpeedAttributeSet::StaticClass(), nullptr);
+    UHDHealthAttributeSet* HealthAttributeSet = NewObject<UHDHealthAttributeSet>(this);
+    UHDPlayerSpeedAttributeSet* SpeedAttributeSet = NewObject<UHDPlayerSpeedAttributeSet>(this);
 
-    // 추후 확장 시 GE로 초기화하게 변경할 것
-    const FHDCharacterStat* InitCharacterStat = GetCharacterStatByArmorType(EHDArmorType::Medium);
-    NULL_CHECK(InitCharacterStat);
+    AbilitySystemComponent->AddAttributeSetSubobject(HealthAttributeSet);
+    AbilitySystemComponent->AddAttributeSetSubobject(SpeedAttributeSet);
 
-    UHDHealthAttributeSet* HealthAttributeSet = const_cast<UHDHealthAttributeSet*>(AbilitySystemComponent->GetSet<UHDHealthAttributeSet>());
-    NULL_CHECK(HealthAttributeSet);
-    HealthAttributeSet->MaxHealth.SetBaseValue(InitCharacterStat->MaxHealth);
-    HealthAttributeSet->CurrentHealth.SetBaseValue(InitCharacterStat->MaxHealth);
-
-    HealthAttributeSet->CurrentHealth.SetCurrentValue(InitCharacterStat->MaxHealth);
-    HealthAttributeSet->MaxHealth.SetCurrentValue(InitCharacterStat->MaxHealth);
-
-    UHDPlayerSpeedAttributeSet* SpeedAttribute = const_cast<UHDPlayerSpeedAttributeSet*>(AbilitySystemComponent->GetSet<UHDPlayerSpeedAttributeSet>());
-    NULL_CHECK(SpeedAttribute);
-    SpeedAttribute->CrawlingSpeed.SetBaseValue(InitCharacterStat->CrawlingSpeed);
-    SpeedAttribute->CrouchSpeed.SetBaseValue(InitCharacterStat->CrouchSpeed);
-    SpeedAttribute->WalkSpeed.SetBaseValue(InitCharacterStat->WalkSpeed);
-	SpeedAttribute->SprintSpeed.SetBaseValue(InitCharacterStat->SprintSpeed);
-
-	SpeedAttribute->CrawlingSpeed.SetCurrentValue(InitCharacterStat->CrawlingSpeed);
-	SpeedAttribute->CrouchSpeed.SetCurrentValue(InitCharacterStat->CrouchSpeed);
-	SpeedAttribute->WalkSpeed.SetCurrentValue(InitCharacterStat->WalkSpeed);
-	SpeedAttribute->SprintSpeed.SetCurrentValue(InitCharacterStat->SprintSpeed);
-
-    GetCharacterMovement()->MaxWalkSpeed = SpeedAttribute->GetWalkSpeed();
+    SetAttributeStatByArmor(EHDArmorType::Medium);
 }
 const FHDCharacterStat* AHDGASCharacterPlayer::GetCharacterStatByArmorType(const EHDArmorType NewArmorType) const
 {

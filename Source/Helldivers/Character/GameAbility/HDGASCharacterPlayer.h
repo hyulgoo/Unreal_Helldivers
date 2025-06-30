@@ -60,7 +60,7 @@ public:
 	explicit									AHDGASCharacterPlayer();
 
 	virtual UAbilitySystemComponent*			GetAbilitySystemComponent() const override final;
-	void										SetArmor(const EHDArmorType NewArmorType);
+	void										SetAttributeStatByArmor(const EHDArmorType NewArmorType);
 	void										ChangeCharacterControlType();
 
 protected:	
