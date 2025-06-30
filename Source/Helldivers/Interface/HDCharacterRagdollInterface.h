@@ -18,7 +18,6 @@ class HELLDIVERS_API IHDCharacterRagdollInterface
 	GENERATED_BODY()
 
 public:
-	// Ragdoll
 	virtual void							SetRagdoll(const bool bIsRagdell, const FVector& Impulse = FVector::ZeroVector) = 0;
 	virtual const float						GetRagdollPysicsLinearVelocity() const = 0;
 };

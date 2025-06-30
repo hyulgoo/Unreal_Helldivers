@@ -187,21 +187,21 @@ void UHDCombatComponent::AimOffset(const float DeltaTime)
         return;
     }
 
-    AActor* Owner = GetOwner();
-    APawn* OwnerPawn = Cast<APawn>(Owner);
+	APawn* Owner = GetOwner<APawn>();
+    NULL_CHECK(Owner);
 
     FVector Velocity = Owner->GetVelocity();
     Velocity.Z = 0.f;
     const bool bIsMoving = Velocity.Size() > 0.1f;
     const bool bIsFalling = CharacterMovement->IsFalling();
-    const FRotator BaseAimRoatation = OwnerPawn->GetBaseAimRotation();
-    const FRotator ControlRotation = OwnerPawn->GetControlRotation();
+    const FRotator BaseAimRoatation = Owner->GetBaseAimRotation();
+    const FRotator ControlRotation = Owner->GetControlRotation();
 
     if (bIsShoulder)
     {
         bIsCharacterLookingViewport = true;
         bUseRotateRootBone = false;
-        OwnerPawn->bUseControllerRotationYaw = true;
+        Owner->bUseControllerRotationYaw = true;
         CharacterMovement->bOrientRotationToMovement = false;
 
         const FRotator TargetRotation(0.f, ControlRotation.Yaw, 0.f);
@@ -232,7 +232,7 @@ void UHDCombatComponent::AimOffset(const float DeltaTime)
     {
         bIsCharacterLookingViewport = true;
         bUseRotateRootBone = true;
-        OwnerPawn->bUseControllerRotationYaw = false;
+        Owner->bUseControllerRotationYaw = false;
         CharacterMovement->bOrientRotationToMovement = false;
         const FRotator TargetRotation(0.f, BaseAimRoatation.Yaw, 0.f);
         const FRotator DeltaRotation = UKismetMathLibrary::NormalizedDeltaRotator(TargetRotation, StartingAimRotation);
@@ -246,7 +246,7 @@ void UHDCombatComponent::AimOffset(const float DeltaTime)
             }
 
             bUseRotateRootBone = false;
-            OwnerPawn->bUseControllerRotationYaw = true;
+            Owner->bUseControllerRotationYaw = true;
             TurnInPlace(DeltaTime);
         }
 

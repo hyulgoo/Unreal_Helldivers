@@ -21,11 +21,6 @@ void UHDPlayerSpeedAttributeSet::PreAttributeChange(const FGameplayAttribute& At
 
 bool UHDPlayerSpeedAttributeSet::PreGameplayEffectExecute(FGameplayEffectModCallbackData& Data)
 {
-	if (Super::PreGameplayEffectExecute(Data) == false)
-	{
-		return false;
-	}
-
 	return true;
 }
 

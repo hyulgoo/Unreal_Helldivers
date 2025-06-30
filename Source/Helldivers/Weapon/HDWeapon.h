@@ -44,35 +44,33 @@ class HELLDIVERS_API AHDWeapon : public AActor
 public:
     explicit                            AHDWeapon();
 
-    FORCEINLINE void                    SetAutoFire(const bool AutoFire) { bIsAutoFire = AutoFire; }
-    FORCEINLINE void                    SetWeaponState(const EWeaponState NewState) { WeaponState = NewState; }
+    void                                SetAutoFire(const bool bAutoFire);
+    void                                SetWeaponState(const EWeaponState NewState);
 
-    FORCEINLINE USkeletalMeshComponent* GetWeaponMesh() const { return WeaponMesh; }
-    FORCEINLINE USphereComponent*       GetAreaSphere() const { return AreaSphere; }
+    USkeletalMeshComponent*             GetWeaponMesh() const;
+    USphereComponent*                   GetAreaSphere() const;
 
     virtual void                        Fire(const FVector& HitTarget, const bool bIsShoulder);
     const void                          TraceEndWithScatter(const FVector& HitTarget);
 
-    FORCEINLINE const EWeaponType       GetWeaponType() const { return WeaponType; }
-    FORCEINLINE const EHDFireType       GetFireType() const { return FireType; }
+    const EWeaponType                   GetWeaponType() const;
+    const EHDFireType                   GetFireType() const;
     const bool                          IsAmmoEmpty() const;
     const bool                          IsAmmoFull() const;
     const bool                          IsCapacityEmpty() const;
     const bool                          IsCapacityFull() const;
-    FORCEINLINE const bool              IsUseScatter() const { return bUseScatter; }
-    FORCEINLINE const bool              IsAutoFire() const { return bIsAutoFire; }
-    FORCEINLINE const float             GetFireDelay() const { return FireDelay; }
-    FORCEINLINE const float             GetErgonomicFactor() const { return ErgonomicFactor; }
-    FORCEINLINE const int32             GetAmmoCount() const { return Ammo; }
-    FORCEINLINE const int32             GetMaxAmmoCount() const { return MaxAmmo; }
-    FORCEINLINE const int32             GetCapacityCount() const { return Capacity; }
-    FORCEINLINE const int32             GetMaxCapacityCount() const { return MaxCapacity; }
-    FORCEINLINE const float             GetReloadDelay(const bool bIsShoulder) const;
-    UTexture2D*                         GetWeaponIconImage() const { return WeaponIconImage; }
-    
-
-    FORCEINLINE const float             GetZoomedFOV() const { return ZoomedFOV; }
-    FORCEINLINE const float             GetZoomInterpSpeed() const { return ZoomInterpSpeed; }
+    const bool                          IsUseScatter() const;
+    const bool                          IsAutoFire() const;
+    const float                         GetFireDelay() const;
+    const float                         GetErgonomicFactor() const;
+    const int32                         GetAmmoCount() const;
+    const int32                         GetMaxAmmoCount() const;
+    const int32                         GetCapacityCount() const;
+    const int32                         GetMaxCapacityCount() const;
+    const float                         GetReloadDelay(const bool bIsShoulder) const;
+    UTexture2D*                         GetWeaponIconImage() const;   
+    const float                         GetZoomedFOV() const;
+    const float                         GetZoomInterpSpeed() const;
 
     void                                Reload(const bool bIsShoulder);
     void                                AddCapacity(const int32 NewCapacityCount);

@@ -45,12 +45,33 @@ AHDWeapon::AHDWeapon()
 	AreaSphere->OnComponentBeginOverlap.AddDynamic(this, &AHDWeapon::OnSphereOverlap);
 }
 
+void AHDWeapon::SetAutoFire(const bool bAutoFire)
+{
+	bIsAutoFire = bAutoFire;
+}
+
+void AHDWeapon::SetWeaponState(const EWeaponState NewState)
+{
+	CONDITION_CHECK(NewState == EWeaponState::Count);
+	WeaponState = NewState;
+}
+
 void AHDWeapon::BeginPlay()
 {
 	Super::BeginPlay();
 
 	Ammo = MaxAmmo;
 	Capacity = MaxCapacity;
+}
+
+USkeletalMeshComponent* AHDWeapon::GetWeaponMesh() const
+{
+	return WeaponMesh;
+}
+
+USphereComponent* AHDWeapon::GetAreaSphere() const
+{
+	return AreaSphere;
 }
 
 void AHDWeapon::Fire(const FVector& HitTarget, const bool bIsShoulder)
@@ -97,6 +118,16 @@ const void AHDWeapon::TraceEndWithScatter(const FVector& HitTarget)
 	DrawDebugSphere(World, HitTarget, 15.f, 12, FColor::Orange, false, 0.1f);
 }
 
+const EWeaponType AHDWeapon::GetWeaponType() const
+{
+	return WeaponType;
+}
+
+const EHDFireType AHDWeapon::GetFireType() const
+{
+	return FireType;
+}
+
 const bool AHDWeapon::IsAmmoEmpty() const
 {
 	return Ammo <= 0;
@@ -117,12 +148,67 @@ const bool AHDWeapon::IsCapacityFull() const
 	return Capacity == MaxCapacity;
 }
 
+const bool AHDWeapon::IsUseScatter() const
+{
+	return bUseScatter;
+}
+
+const bool AHDWeapon::IsAutoFire() const
+{
+	return bIsAutoFire;
+}
+
+const float AHDWeapon::GetFireDelay() const
+{
+	return FireDelay;
+}
+
+const float AHDWeapon::GetErgonomicFactor() const
+{
+	return ErgonomicFactor;
+}
+
+const int32 AHDWeapon::GetAmmoCount() const
+{
+	return Ammo;
+}
+
+const int32 AHDWeapon::GetMaxAmmoCount() const
+{
+	return MaxAmmo;
+}
+
+const int32 AHDWeapon::GetCapacityCount() const
+{
+	return Capacity;
+}
+
+const int32 AHDWeapon::GetMaxCapacityCount() const
+{
+	return MaxCapacity;
+}
+
 FORCEINLINE const float AHDWeapon::GetReloadDelay(const bool bIsShoulder) const
 {
 	CONDITION_CHECK_WITH_RETURNTYPE(WeaponAnimationMap.Num() != static_cast<int32>(EHDWeaponAnimationType::Count), 0.f);
 	UAnimationAsset* ReloadAnim = bIsShoulder ? WeaponAnimationMap[EHDWeaponAnimationType::Reload_Aim] : WeaponAnimationMap[EHDWeaponAnimationType::Reload_Hip];
 	NULL_CHECK_WITH_RETURNTYPE(ReloadAnim, 0.f);
 	return ReloadAnim->GetPlayLength();
+}
+
+UTexture2D* AHDWeapon::GetWeaponIconImage() const
+{
+	return WeaponIconImage;
+}
+
+const float AHDWeapon::GetZoomedFOV() const
+{
+	return ZoomedFOV;
+}
+
+const float AHDWeapon::GetZoomInterpSpeed() const
+{
+	return ZoomInterpSpeed;
 }
 
 void AHDWeapon::Reload(const bool bIsShoulder)

@@ -28,20 +28,6 @@ void AHDGASNonPlayer::InitAbilitySystemComponent()
 {
     NULL_CHECK(AbilitySystemComponent);
 
-    // Passive Ability
-	{
-		for (const TSubclassOf<UGameplayAbility>& PassiveAbility : PassiveAbilities)
-		{
-			AbilitySystemComponent->GiveAbility(PassiveAbility);
-		}
-
-		TArray<FGameplayAbilitySpec>& ActivatebleAbilities = AbilitySystemComponent->GetActivatableAbilities();
-		for (FGameplayAbilitySpec& Spec : ActivatebleAbilities)
-		{
-			AbilitySystemComponent->TryActivateAbility(Spec.Handle);
-		}
-	}
-
 	for (const TSubclassOf<UGameplayAbility>& StartAbility : StartAbilities)
 	{
 		AbilitySystemComponent->GiveAbility(StartAbility);

@@ -125,7 +125,7 @@ void AHDGASCharacterPlayer::SetupGASInputComponent(UEnhancedInputComponent* Enha
             continue;
         }
 
-        EnhancedInputComponent->BindAction(TaggedToggleAction.InputAction, ETriggerEvent::Triggered, this, &AHDGASCharacterPlayer::GASInputToggled, TaggedToggleAction.InputTag);
+        EnhancedInputComponent->BindAction(TaggedToggleAction.InputAction, ETriggerEvent::Started, this, &AHDGASCharacterPlayer::GASInputToggled, TaggedToggleAction.InputTag);
     }
     
     CONDITION_CHECK(InputActionMap.Num() != static_cast<uint8>(EHDCharacterInputAction::Count));
@@ -163,7 +163,6 @@ void AHDGASCharacterPlayer::GASInputPressed(const FGameplayTag Tag)
             continue;
         }
 
-        Spec.InputPressed = true;
         if (Spec.IsActive())
         {
             AbilitySystemComponent->AbilitySpecInputPressed(Spec);
@@ -188,7 +187,6 @@ void AHDGASCharacterPlayer::GASInputReleased(const FGameplayTag Tag)
             continue;
         }
 
-        Spec.InputPressed = false;
         if (Spec.IsActive())
         {
             AbilitySystemComponent->AbilitySpecInputReleased(Spec);
@@ -211,12 +209,10 @@ void AHDGASCharacterPlayer::GASInputToggled(const FGameplayTag Tag)
 
         if (Spec.IsActive())
         {
-            Spec.InputPressed = false;
             AbilitySystemComponent->AbilitySpecInputReleased(Spec);
         }
         else
         {
-            Spec.InputPressed = true;
             AbilitySystemComponent->TryActivateAbility(Spec.Handle);
         }
     }
@@ -259,20 +255,6 @@ void AHDGASCharacterPlayer::InitAbilitySystemComponent()
     NULL_CHECK(AbilitySystemComponent);
 
     AbilitySystemComponent->InitAbilityActorInfo(GASPlayerState, this);
-
-    // Passive Ability
-    {
-        for (const TSubclassOf<UGameplayAbility>& PassiveAbility : PassiveAbilities)
-        {
-            AbilitySystemComponent->GiveAbility(PassiveAbility);
-        }
-
-        TArray<FGameplayAbilitySpec>& ActivatebleAbilities = AbilitySystemComponent->GetActivatableAbilities();
-        for (FGameplayAbilitySpec& Spec : ActivatebleAbilities)
-        {
-            AbilitySystemComponent->TryActivateAbility(Spec.Handle);
-        }
-    }
 
     for (const TSubclassOf<UGameplayAbility>& StartAbility : StartAbilities)
     {

@@ -22,11 +22,6 @@ void UHDHealthAttributeSet::PreAttributeChange(const FGameplayAttribute& Attribu
 
 bool UHDHealthAttributeSet::PreGameplayEffectExecute(FGameplayEffectModCallbackData& Data)
 {
-	if (Super::PreGameplayEffectExecute(Data) == false)
-	{
-		return false;
-	}
-
 	return true;
 }
 
