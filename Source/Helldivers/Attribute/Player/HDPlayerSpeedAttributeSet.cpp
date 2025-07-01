@@ -9,6 +9,7 @@ UHDPlayerSpeedAttributeSet::UHDPlayerSpeedAttributeSet()
 	, CrouchSpeed(FGameplayAttributeData())
 	, WalkSpeed(FGameplayAttributeData())
 	, SprintSpeed(FGameplayAttributeData())
+	, CurrentStamina(FGameplayAttributeData())
 	, MaxStamina(FGameplayAttributeData())
 {
 	InitCurrentSpeed(GetWalkSpeed());

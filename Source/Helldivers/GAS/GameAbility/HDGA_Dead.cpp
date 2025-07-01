@@ -2,6 +2,7 @@
 
 #include "GAS/GameAbility/HDGA_Dead.h"
 #include "Interface/HDDeadInterface.h"
+#include "Define/HDDefine.h"
 
 UHDGA_Dead::UHDGA_Dead()
 {
@@ -12,8 +13,7 @@ void UHDGA_Dead::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const 
     Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 
     TScriptInterface<IHDDeadInterface> DeadInterface = ActorInfo->AvatarActor.Get();
-    if (DeadInterface)
-    {
-        DeadInterface->SetDead();
-    }
+    NULL_CHECK(DeadInterface);
+
+    DeadInterface->SetDead();
 }

@@ -44,9 +44,11 @@ AHDCharacterBase::AHDCharacterBase()
 
 void AHDCharacterBase::SetDead()
 {
+	UE_LOG(LogTemp, Error, TEXT("SetDead Call!!"));
+
 	USkeletalMeshComponent* MeshComponent = GetMesh();
 	MeshComponent->SetSimulatePhysics(true);
-	GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_None);
+	GetCharacterMovement()->DisableMovement();
 	PlayDeadAnimation();
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 }

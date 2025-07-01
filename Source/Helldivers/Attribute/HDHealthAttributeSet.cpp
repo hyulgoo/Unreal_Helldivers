@@ -10,7 +10,6 @@ UHDHealthAttributeSet::UHDHealthAttributeSet()
 	: CurrentHealth(FGameplayAttributeData())
 	, MaxHealth(FGameplayAttributeData())
 {
-	InitCurrentHealth(GetMaxHealth());
 }
 
 void UHDHealthAttributeSet::PreAttributeChange(const FGameplayAttribute& Attribute, float& NewValue)
@@ -23,7 +22,18 @@ void UHDHealthAttributeSet::PreAttributeChange(const FGameplayAttribute& Attribu
 
 void UHDHealthAttributeSet::PostAttributeChange(const FGameplayAttribute& Attribute, float OldValue, float NewValue)
 {
-
+	if (Attribute == GetCurrentHealthAttribute())
+	{
+		if (OldValue > 0.f && NewValue <= 0.f)
+		{
+			UAbilitySystemComponent* ASC = GetOwningAbilitySystemComponent();
+			if (ASC)
+			{
+				UE_LOG(LogTemp, Error, TEXT("AddLooseGameplayDeadTag!"));
+				ASC->AddLooseGameplayTag(HDTAG_CHARACTER_STATE_ISDEAD);
+			}
+		}
+	}
 }
 
 bool UHDHealthAttributeSet::PreGameplayEffectExecute(FGameplayEffectModCallbackData& Data)
@@ -32,13 +42,5 @@ bool UHDHealthAttributeSet::PreGameplayEffectExecute(FGameplayEffectModCallbackD
 }
 
 void UHDHealthAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallbackData& Data)
-{
-	if (Data.EvaluatedData.Attribute == GetCurrentHealthAttribute())
-	{
-		UAbilitySystemComponent* ASC = GetOwningAbilitySystemComponent();
-		if (ASC)
-		{
-			ASC->AddLooseGameplayTag(HDTAG_CHARACTER_STATE_ISDEAD);
-		}
-	}
+{	
 }

@@ -42,6 +42,8 @@ void AHDGASNonPlayer::InitializeAttributeSet()
 {
     NULL_CHECK(AbilitySystemComponent);
 
+    AbilitySystemComponent->InitAbilityActorInfo(this, this);
+
     // 테스트용 초기화. 나중에 DataTable 기반으로 변경할 것
 
     UHDHealthAttributeSet* HealthAttributeSet = NewObject<UHDHealthAttributeSet>(this);

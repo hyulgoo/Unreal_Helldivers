@@ -110,6 +110,7 @@ void AHDProjectileBase::OnBoxHit(UPrimitiveComponent* HitComp, AActor* OtherActo
 		UAbilitySystemComponent* TargetASC = OtherActor->GetComponentByClass<UAbilitySystemComponent>();
 		if (TargetASC)
 		{
+			UE_LOG(LogTemp, Error, TEXT("ApplyDamageGameEffect Target is Valid!"));
 			ApplyDamageGameEffect(OwnerASC, TargetASC, ImpactDamage);
 		}
 

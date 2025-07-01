@@ -28,7 +28,7 @@ private:
 	void									InitializeAttributeSet();
 
 protected:
-	UPROPERTY()
+	UPROPERTY(VisibleAnywhere, Category = "GASNonPlayer")
 	TObjectPtr<UAbilitySystemComponent>		AbilitySystemComponent;
 
 	UPROPERTY(EditAnywhere, Category = "GASNonPlayer|Input")

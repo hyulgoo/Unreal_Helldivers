@@ -26,6 +26,7 @@ public:
 	ATTRIBUTE_ACCESSORS(UHDPlayerSpeedAttributeSet, CrouchSpeed);
 	ATTRIBUTE_ACCESSORS(UHDPlayerSpeedAttributeSet, WalkSpeed);
 	ATTRIBUTE_ACCESSORS(UHDPlayerSpeedAttributeSet, SprintSpeed);
+	ATTRIBUTE_ACCESSORS(UHDPlayerSpeedAttributeSet, CurrentStamina);
 	ATTRIBUTE_ACCESSORS(UHDPlayerSpeedAttributeSet, MaxStamina);
 
 	virtual void PreAttributeChange(const FGameplayAttribute& Attribute, float& NewValue) override;
@@ -49,6 +50,9 @@ public:
 	UPROPERTY(BlueprintReadOnly, Category = "Speed")
     FGameplayAttributeData SprintSpeed;	
 										
+	UPROPERTY(BlueprintReadOnly, Category = "Speed")
+    FGameplayAttributeData CurrentStamina;
+
 	UPROPERTY(BlueprintReadOnly, Category = "Speed")
     FGameplayAttributeData MaxStamina;
 };
