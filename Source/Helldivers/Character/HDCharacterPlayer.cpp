@@ -12,6 +12,8 @@
 #include "Stratagem/HDStratagem.h"
 #include "Animation/HDAnimInstance.h"
 #include "Character/HDCharacterControlData.h"
+#include "Component/HDAbilitySystemComponent.h"
+#include "Attribute/Player/HDPlayerSpeedAttributeSet.h"
 
 AHDCharacterPlayer::AHDCharacterPlayer()
     : SpringArm(nullptr)
@@ -55,7 +57,7 @@ void AHDCharacterPlayer::SetRagdoll(const bool bRagdoll, const FVector& Impulse)
 
     if (bRagdoll == false)
     {
-        SetCharacterMovementState(EHDCharacterMovementState::Prone, true);
+        SetCharacterPoseState(EHDCharacterPoseState::Prone, true);
 
         GetWorldTimerManager().SetTimerForNextTick(FTimerDelegate::CreateLambda([this](void) {
             SetCombatState(EHDCombatState::Unoccupied);
@@ -84,18 +86,18 @@ const float AHDCharacterPlayer::Reload()
 	Combat->Reload();
 
     const bool bIsShoulder = IsShouldering();
-    const EHDCharacterMovementState MovementState = InputAction->GetCharacterMovementState();
+    const EHDCharacterPoseState MovementState = InputAction->GetCharacterPoseState();
 
 	FName SectionName;
     switch (Combat->GetWeaponFireType())
 	{
 	case EHDFireType::HitScan:
 	case EHDFireType::Projectile:
-		SectionName = MovementState == EHDCharacterMovementState::Prone ? HDMONTAGE_SECTIONNAME_RIFLE_PRONE
+		SectionName = MovementState == EHDCharacterPoseState::Prone ? HDMONTAGE_SECTIONNAME_RIFLE_PRONE
 			: bIsShoulder ? HDMONTAGE_SECTIONNAME_RIFLE_AIM : HDMONTAGE_SECTIONNAME_RIFLE_HIP;
 		break;
 	case EHDFireType::Shotgun:
-		SectionName = MovementState == EHDCharacterMovementState::Prone ? HDMONTAGE_SECTIONNAME_SHOTGUN_PRONE
+		SectionName = MovementState == EHDCharacterPoseState::Prone ? HDMONTAGE_SECTIONNAME_SHOTGUN_PRONE
 			: bIsShoulder ? HDMONTAGE_SECTIONNAME_SHOTGUN_AIM : HDMONTAGE_SECTIONNAME_SHOTGUN_HIP;
 		break;
 	}
@@ -227,24 +229,33 @@ void AHDCharacterPlayer::SetSprint(const bool bSprint)
     InputAction->SetSprint(bSprint);
 }
 
-const EHDCharacterMovementState AHDCharacterPlayer::GetCharacterMovementState() const
+const EHDCharacterPoseState AHDCharacterPlayer::GetCharacterPoseState() const
 {
-    return InputAction->GetCharacterMovementState();
+    return InputAction->GetCharacterPoseState();
 }
 
-void AHDCharacterPlayer::SetCharacterMovementState(const EHDCharacterMovementState NewState, const bool bForced)
+void AHDCharacterPlayer::SetCharacterPoseState(const EHDCharacterPoseState NewState, const bool bForced)
 {
-    InputAction->SetCharacterMovementState(NewState, bForced);
+    InputAction->SetCharacterPoseState(NewState, bForced);
 	if (bForced)
 	{
-        SetCombatState(NewState == EHDCharacterMovementState::Prone ? EHDCombatState::Ragdoll : EHDCombatState::Unoccupied);
+        SetCombatState(NewState == EHDCharacterPoseState::Prone ? EHDCombatState::Ragdoll : EHDCombatState::Unoccupied);
     }
+
+    FGameplayAttribute SpeedAttribute = InputAction->GetCharacterMovementState() == EHDCharacterMovementState::Sprint ? UHDPlayerSpeedAttributeSet::GetSprintSpeedAttribute() : UHDPlayerSpeedAttributeSet::GetWalkSpeedAttribute();
+    const float NewSpeed = GetAbilitySystemComponent()->GetNumericAttribute(SpeedAttribute);
+    GetCharacterMovement()->MaxWalkSpeed = NewSpeed;
 }
 
-void AHDCharacterPlayer::RestoreMovementState()
+void AHDCharacterPlayer::RestorePoseState()
 {
-    InputAction->RestoreMovementState();
-    InputAction->ChangeCameraZOffsetByCharacterMovementState(InputAction->GetCharacterMovementState());
+    InputAction->RestorePoseState();
+    InputAction->ChangeCameraZOffsetByCharacterMovementState(InputAction->GetCharacterPoseState());
+
+    const float NewSpeed = GetAbilitySystemComponent()->GetNumericAttribute(SpeedAttribute);
+    const float NewSpeed = GetMoveSpeedByMovementStateAndIsSprint(GetCharacterPoseState(), IsSprint());
+    GetCharacterMovement()->MaxWalkSpeed = NewSpeed;
+    GetCharacterMovement()->MaxWalkSpeed = NewSpeed;
 }
 
 void AHDCharacterPlayer::DetachStratagemWhileThrow()
@@ -292,6 +303,17 @@ void AHDCharacterPlayer::InterpFOV(float DeltaSeconds)
     Combat->SetCurrentFOV(NewInterpFOV);
     
     FollowCamera->SetFieldOfView(Combat->GetCurrentFOV());
+}
+
+void AHDCharacterPlayer::SetAbilitySystemComponent(UAbilitySystemComponent* ASC)
+{
+    Super::SetAbilitySystemComponent(ASC);
+
+    UHDAbilitySystemComponent* HDASC = Cast<UHDAbilitySystemComponent>(ASC);
+    NULL_CHECK(HDASC);
+
+    FHDCharacterStat* StatData = Combat->GetCharacterStatByArmorType(Combat->GetArmorType());
+    HDASC->SetAttributeSetStat(StatData);
 }
 
 const float AHDCharacterPlayer::Fire(const bool IsPressed)

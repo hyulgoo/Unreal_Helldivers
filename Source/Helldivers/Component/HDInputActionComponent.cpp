@@ -8,8 +8,8 @@
 #define CHARACTERMOVESTATEZOFFSET 40.f
 
 UHDInputActionComponent::UHDInputActionComponent()
-	: MovementState(EHDCharacterMovementState::Idle)
-	, PrevMovementState(EHDCharacterMovementState::Idle)
+	: PoseState(EHDCharacterPoseState::Idle)
+	, PrevPoseState(EHDCharacterPoseState::Idle)
 	, bIsSprint(false)
 	, SpringArmZOffset(0.f)
 {
@@ -25,37 +25,47 @@ void UHDInputActionComponent::SetSprint(const bool bSprint)
 	bIsSprint = bSprint;
 }
 
-const EHDCharacterMovementState UHDInputActionComponent::GetCharacterMovementState() const
+const EHDCharacterPoseState UHDInputActionComponent::GetCharacterPoseState() const
 {
-	return MovementState;
+	return PoseState;
 }
 
-void UHDInputActionComponent::SetCharacterMovementState(const EHDCharacterMovementState NewState, const bool bForced)
+void UHDInputActionComponent::SetCharacterPoseState(const EHDCharacterPoseState NewState, const bool bForced)
 {
-	CONDITION_CHECK(NewState == EHDCharacterMovementState::Count);
+	CONDITION_CHECK(NewState == EHDCharacterPoseState::Count);
 
-	PrevMovementState = (PrevMovementState != MovementState) ? MovementState : PrevMovementState;
-	MovementState = NewState;
+	PrevPoseState = (PrevPoseState != PoseState) ? PoseState : PrevPoseState;
+	PoseState = NewState;
 
-	ChangeCameraZOffsetByCharacterMovementState(MovementState);
+	ChangeCameraZOffsetByCharacterMovementState(PoseState);
 }
 
-void UHDInputActionComponent::RestoreMovementState()
+void UHDInputActionComponent::RestorePoseState()
 {
-	if (MovementState == EHDCharacterMovementState::Crouch)
+	if (PoseState == EHDCharacterPoseState::Crouch)
 	{
-		MovementState = EHDCharacterMovementState::Idle;
+		PoseState = EHDCharacterPoseState::Idle;
 	}
-	else if (MovementState == EHDCharacterMovementState::Prone)
+	else if (PoseState == EHDCharacterPoseState::Prone)
 	{
-		MovementState = PrevMovementState == EHDCharacterMovementState::Crouch ? PrevMovementState : EHDCharacterMovementState::Idle;
+		PoseState = PrevPoseState == EHDCharacterPoseState::Crouch ? PrevPoseState : EHDCharacterPoseState::Idle;
 	}
 	else
 	{
 		CONDITION_CHECK(true);
 	}
 
-	ChangeCameraZOffsetByCharacterMovementState(MovementState);
+	ChangeCameraZOffsetByCharacterMovementState(PoseState);
+}
+
+const EHDCharacterMovementState UHDInputActionComponent::GetCharacterMovementState() const
+{
+    return MovementState;
+}
+
+void UHDInputActionComponent::SetCharacterMovementState(const EHDCharacterMovementState NewState)
+{
+    MovementState = NewState;
 }
 
 void UHDInputActionComponent::SetSpringArmDefaultZOffset(const float ZOffset)
@@ -63,18 +73,18 @@ void UHDInputActionComponent::SetSpringArmDefaultZOffset(const float ZOffset)
 	SpringArmZOffset = ZOffset;
 }
 
-void UHDInputActionComponent::ChangeCameraZOffsetByCharacterMovementState(const EHDCharacterMovementState State)
+void UHDInputActionComponent::ChangeCameraZOffsetByCharacterMovementState(const EHDCharacterPoseState State)
 {
 	USpringArmComponent* SpringArm = GetOwner()->GetComponentByClass<USpringArmComponent>();
 	switch (State)
 	{
-	case EHDCharacterMovementState::Idle:
+	case EHDCharacterPoseState::Idle:
 		SpringArm->TargetOffset.Z = SpringArmZOffset;
 		break;
-	case EHDCharacterMovementState::Crouch:
+	case EHDCharacterPoseState::Crouch:
 		SpringArm->TargetOffset.Z = SpringArmZOffset - CHARACTERMOVESTATEZOFFSET;
 		break;
-	case EHDCharacterMovementState::Prone:
+	case EHDCharacterPoseState::Prone:
 		SpringArm->TargetOffset.Z = SpringArmZOffset - CHARACTERMOVESTATEZOFFSET * 2;
 		break;
 	default:

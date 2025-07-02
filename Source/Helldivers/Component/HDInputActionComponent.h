@@ -7,7 +7,12 @@
 #include "Components/TimelineComponent.h"
 #include "HDInputActionComponent.generated.h"
 
-enum class EHDCharacterMovementState : uint8;
+class UInputAction;
+class UHDCharacterControlData;
+struct FTaggedInputAction;
+enum class EHDCharacterPoseState : uint8;
+enum class EHDCharacterControlType : uint8;
+enum class EHDCharacterInputAction : uint8;
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class HELLDIVERS_API UHDInputActionComponent : public UActorComponent
@@ -15,22 +20,42 @@ class HELLDIVERS_API UHDInputActionComponent : public UActorComponent
 	GENERATED_BODY()
 
 public:	
-	explicit						UHDInputActionComponent();
+	explicit						                                    UHDInputActionComponent();
 
-	const bool						IsSprint() const ;
-	void							SetSprint(const bool bSprint) ;
+	const bool						                                    IsSprint() const ;
+	void							                                    SetSprint(const bool bSprint) ;
 
-	const EHDCharacterMovementState	GetCharacterMovementState() const;
-	void							SetCharacterMovementState(const EHDCharacterMovementState NewState, const bool bForced = false);
-	void							RestoreMovementState();
+	const EHDCharacterPoseState	                                        GetCharacterPoseState() const;
+	void							                                    SetCharacterPoseState(const EHDCharacterPoseState NewState, const bool bForced = false);
+	void							                                    RestorePoseState();
 
-	void							SetSpringArmDefaultZOffset(const float ZOffset);
-	void							ChangeCameraZOffsetByCharacterMovementState(const EHDCharacterMovementState State);
+    const EHDCharacterMovementState                                     GetCharacterMovementState() const;
+    void                                                                SetCharacterMovementState(const EHDCharacterMovementState NewState);
+
+	void							                                    SetSpringArmDefaultZOffset(const float ZOffset);
+	void							                                    ChangeCameraZOffsetByCharacterMovementState(const EHDCharacterPoseState State);
 
 private:
-	EHDCharacterMovementState		MovementState;
-	EHDCharacterMovementState		PrevMovementState;
-	bool							bIsSprint;
+	UPROPERTY(EditAnywhere, )
+	TArray<FTaggedInputAction>					                        TaggedHoldActions;
 	
-	float					        SpringArmZOffset;
+	UPROPERTY(EditAnywhere, )
+	TArray<FTaggedInputAction>					                        TaggedToggleActions;
+	
+	UPROPERTY(EditAnywhere, )
+	TMap<EHDCharacterInputAction, TObjectPtr<UInputAction>>             InputActionMap;
+
+	EHDCharacterPoseState		                                        PoseState;
+	EHDCharacterPoseState		                                        PrevPoseState;
+    EHDCharacterMovementState                                           MovementState;
+
+	bool							                                    bIsSprint;
+	
+	float					                                            SpringArmZOffset;
+    
+	// Control
+	EHDCharacterControlType						                        CurrentCharacterControlType;
+	
+    UPROPERTY(EditAnywhere)
+    TMap<EHDCharacterControlType, TObjectPtr<UHDCharacterControlData>>  CharacterControlDataMap;	
 };

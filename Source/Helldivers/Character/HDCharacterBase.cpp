@@ -42,24 +42,31 @@ AHDCharacterBase::AHDCharacterBase()
 	LoadDefaultMontage();
 }
 
-void AHDCharacterBase::SetDead()
+UAbilitySystemComponent* AHDCharacterBase::GetAbilitySystemComponent() const
 {
-	USkeletalMeshComponent* MeshComponent = GetMesh();
-	MeshComponent->SetSimulatePhysics(true);
-	GetCharacterMovement()->DisableMovement();
-	PlayDeadAnimation();
-	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+    return AbilitySystemComponent;
 }
 
-void AHDCharacterBase::PlayDeadAnimation()
+void AHDCharacterBase::SetAbilitySystemComponent(AActor* OwnerActor, UAbilitySystemComponent* ASC)
 {
-	NULL_CHECK(DeadMontage);
+    AbilitySystemComponent = Cast<UHDAbilitySystemComponent>(ASC);
+    NULL_CHECK(AbilitySystemComponent);
 
-	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
-	NULL_CHECK(AnimInstance);
+    for (const TSubclassOf<UGameplayAbility>& Ability : Abilities)
+    {
+        AbilitySystemComponent->GiveAbility(Ability);
+    }
 
-	AnimInstance->StopAllMontages(0.f);
-	AnimInstance->Montage_Play(DeadMontage, 1.f);
+    AbilitySystemComponent->InitAbilityActorInfo(OwnerActor, this);
+    AbilitySystemComponent->InitAttributeSet();
+}
+
+void AHDCharacterBase::SetDead()
+{
+    GetMesh->SetSimulatePhysics(true);
+	GetCharacterMovement()->DisableMovement();
+    PlayAnimMontage(DeadMontage, 1.f);
+	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 }
 
 void AHDCharacterBase::SetRagdoll(const bool bRagdoll, const FVector& Impulse)
@@ -94,6 +101,15 @@ void AHDCharacterBase::SetRagdoll(const bool bRagdoll, const FVector& Impulse)
 const float AHDCharacterBase::GetRagdollPysicsLinearVelocity() const
 {
 	return GetMesh()->GetPhysicsLinearVelocity().Size();
+}
+
+FHDCharacterStat* AHDCharacterBase::GetAttributeStatDataByArmorType(const EHDArmorType NewArmorType)
+{
+    static const UEnum* EnumPtr = StaticEnum<EHDArmorType>();
+    FString ArmorTypetoString = EnumPtr->GetNameStringByValue(static_cast<int64>(NewArmorType));
+    FHDCharacterStat* ArmorStatus = ArmorTypeStatusDataTable->FindRow<FHDCharacterStat>(FName(ArmorTypetoString), TEXT("ArmorStatus"));
+
+    return ArmorStatus;
 }
 
 void AHDCharacterBase::LoadDefaultMontage()

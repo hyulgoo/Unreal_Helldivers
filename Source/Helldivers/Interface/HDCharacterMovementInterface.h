@@ -8,7 +8,7 @@
 
 enum class EHDTurningInPlace : uint8;
 enum class ECharacterMovementMode : uint8;
-enum class EHDCharacterMovementState : uint8;
+enum class EHDCharacterPoseState : uint8;
 enum class EHDCharacterControlType : uint8;
 enum class EHDCombatState : uint8;
 
@@ -39,7 +39,7 @@ public:
 	virtual const bool						IsSprint() const = 0;
 	virtual void							SetSprint(const bool bSprint) = 0;
 
-	virtual const EHDCharacterMovementState GetCharacterMovementState() const = 0;
-	virtual void							SetCharacterMovementState(const EHDCharacterMovementState NewState, const bool bForced = false) = 0;
-	virtual void							RestoreMovementState() = 0;
+	virtual const EHDCharacterPoseState GetCharacterPoseState() const = 0;
+	virtual void							SetCharacterPoseState(const EHDCharacterPoseState NewState, const bool bForced = false) = 0;
+	virtual void							RestorePoseState() = 0;
 };

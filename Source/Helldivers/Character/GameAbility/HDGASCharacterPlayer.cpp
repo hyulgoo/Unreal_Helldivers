@@ -17,16 +17,13 @@
 #include "GAS/GameplayAbilityHelper.h"
 
 AHDGASCharacterPlayer::AHDGASCharacterPlayer()
-	: AbilitySystemComponent(nullptr)
-	, InitStatEffect(nullptr)
+	: InitStatEffect(nullptr)
     , StartAbilities{}
     , TaggedHoldActions{}
     , TaggedToggleActions{}
     , InputActionMap{}
 	, EventCallTags(FGameplayTagContainer())
     , TagEventBindInfoList{}
-	, ArmorType(EHDArmorType::Count)
-	, ArmorTypeStatusDataTable(nullptr)
     , CurrentCharacterControlType(EHDCharacterControlType::ThirdPerson)
     , CharacterControlDataMap{}
 {
@@ -41,35 +38,6 @@ AHDGASCharacterPlayer::AHDGASCharacterPlayer()
     {
         CharacterControlDataMap.Add(EHDCharacterControlType::FirstPerson, FirstPersonDataRef.Object);
     }
-}
-
-UAbilitySystemComponent* AHDGASCharacterPlayer::GetAbilitySystemComponent() const
-{
-    return AbilitySystemComponent;
-}
-
-void AHDGASCharacterPlayer::SetAttributeStatByArmor(const EHDArmorType NewArmorType)
-{
-    NULL_CHECK(AbilitySystemComponent);
-    NULL_CHECK(InitStatEffect);
-
-    ArmorType = NewArmorType;
-
-    const FHDCharacterStat* ArmorStatus = GetCharacterStatByArmorType(ArmorType);
-    NULL_CHECK(ArmorStatus);
-
-    FGameplayEffectContextHandle Context = AbilitySystemComponent->MakeEffectContext();
-    FGameplayEffectSpecHandle InitStatusSpec = AbilitySystemComponent->MakeOutgoingSpec(InitStatEffect, 1.f, Context);
-    CONDITION_CHECK(InitStatusSpec.IsValid() == false);
-
-    InitStatusSpec.Data->SetSetByCallerMagnitude(HDTAG_DATA_STATUS_MAXHEALTH,       ArmorStatus->MaxHealth);
-    InitStatusSpec.Data->SetSetByCallerMagnitude(HDTAG_DATA_STATUS_CRAWLINGSPEED,   ArmorStatus->CrawlingSpeed);
-    InitStatusSpec.Data->SetSetByCallerMagnitude(HDTAG_DATA_STATUS_CROUCHSPEED,     ArmorStatus->CrouchSpeed);
-    InitStatusSpec.Data->SetSetByCallerMagnitude(HDTAG_DATA_STATUS_WALKSPEED,       ArmorStatus->WalkSpeed);
-    InitStatusSpec.Data->SetSetByCallerMagnitude(HDTAG_DATA_STATUS_SPRINTSPEED,     ArmorStatus->SprintSpeed);
-    InitStatusSpec.Data->SetSetByCallerMagnitude(HDTAG_DATA_STATUS_MAXSTAMINA,      ArmorStatus->MaxStamina);
-
-    AbilitySystemComponent->ApplyGameplayEffectSpecToSelf(*InitStatusSpec.Data.Get());
 }
 
 void AHDGASCharacterPlayer::ChangeCharacterControlType()
@@ -278,21 +246,11 @@ const FHDCharacterStat* AHDGASCharacterPlayer::GetCharacterStatByArmorType(const
     return ArmorStatus;
 }
 
-void AHDGASCharacterPlayer::SetCharacterMovementState(const EHDCharacterMovementState NewState, const bool bForce)
+void AHDGASCharacterPlayer::RestorePoseState()
 {
-    Super::SetCharacterMovementState(NewState, bForce);
-    NULL_CHECK(AbilitySystemComponent);
-    
-    const bool bSprint = IsSprint();
-    const float NewSpeed = GetMoveSpeedByMovementStateAndIsSprint(NewState, bSprint);
-    GetCharacterMovement()->MaxWalkSpeed = NewSpeed;
-}
+	Super::RestorePoseState();
 
-void AHDGASCharacterPlayer::RestoreMovementState()
-{
-	Super::RestoreMovementState();
-
-    const float NewSpeed = GetMoveSpeedByMovementStateAndIsSprint(GetCharacterMovementState(), IsSprint());
+    const float NewSpeed = GetMoveSpeedByMovementStateAndIsSprint(GetCharacterPoseState(), IsSprint());
     GetCharacterMovement()->MaxWalkSpeed = NewSpeed;
 }
 
@@ -300,7 +258,7 @@ void AHDGASCharacterPlayer::SetSprint(const bool bSprint)
 {
     Super::SetSprint(bSprint);
 
-    const float NewSpeed = GetMoveSpeedByMovementStateAndIsSprint(GetCharacterMovementState(), bSprint);
+    const float NewSpeed = GetMoveSpeedByMovementStateAndIsSprint(GetCharacterPoseState(), bSprint);
     GetCharacterMovement()->MaxWalkSpeed = NewSpeed;
 }
 
@@ -379,27 +337,27 @@ void AHDGASCharacterPlayer::SetCharacterControl(const EHDCharacterControlType Ne
     CurrentCharacterControlType = NewCharacterControlType;
 }
 
-const float AHDGASCharacterPlayer::GetMoveSpeedByMovementStateAndIsSprint(const EHDCharacterMovementState State, const bool bSprint)
+const float AHDGASCharacterPlayer::GetMoveSpeedByMovementStateAndIsSprint(const EHDCharacterPoseState State, const bool bSprint)
 {
     NULL_CHECK_WITH_RETURNTYPE(AbilitySystemComponent, 0.f);
 
     FGameplayAttribute Attribute;
     switch (State)
     {
-    case EHDCharacterMovementState::Idle:
+    case EHDCharacterPoseState::Idle:
         Attribute = bSprint ? UHDPlayerSpeedAttributeSet::GetSprintSpeedAttribute() : UHDPlayerSpeedAttributeSet::GetWalkSpeedAttribute();
         break;
-    case EHDCharacterMovementState::Crouch:
+    case EHDCharacterPoseState::Crouch:
         Attribute = UHDPlayerSpeedAttributeSet::GetCrouchSpeedAttribute();
         break;
-    case EHDCharacterMovementState::Prone:
+    case EHDCharacterPoseState::Prone:
         Attribute = UHDPlayerSpeedAttributeSet::GetCrawlingSpeedAttribute();
         break;
     }
 
     CONDITION_CHECK_WITH_RETURNTYPE(Attribute.IsValid() == false, 0.f);
     float Speed = AbilitySystemComponent->GetNumericAttribute(Attribute);
-    if (bSprint && State == EHDCharacterMovementState::Crouch)
+    if (bSprint && State == EHDCharacterPoseState::Crouch)
     {
         Speed *= 1.5f;
     }

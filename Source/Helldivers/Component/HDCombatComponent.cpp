@@ -136,6 +136,21 @@ const bool UHDCombatComponent::IsUseRotateBone() const
     return bUseRotateRootBone;
 }
 
+const EHDArmorType UHDCombatComponent::GetArmorType() const
+{
+    return ArmorType;
+}
+
+FHDCharacterStat* UHDCombatComponent::GetCharacterStatByArmorType(const EHDArmorType ArmorType) const
+{
+    NULL_CHECK_WITH_RETURNTYPE(ArmorTypeStatusDataTable, nullptr);
+
+    static const UEnum* EnumPtr = StaticEnum<EHDArmorType>();
+    FString ArmorTypetoString = EnumPtr->GetNameStringByValue(static_cast<int64>(ArmorType));
+    FHDCharacterStat* ArmorStatus = ArmorTypeStatusDataTable->FindRow<FHDCharacterStat>(FName(ArmorTypetoString), TEXT("ArmorStatus"));
+    return ArmorStatus;
+}
+
 void UHDCombatComponent::TraceUnderCrosshairs()
 {
     FVector2D ViewportSize;

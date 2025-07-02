@@ -5,6 +5,7 @@
 #include "Character/HDCharacterBase.h"
 #include "GameplayEffectExtension.h"
 #include "Tag/HDGameplayTag.h"
+#include "Define/HDDefine.h"
 #include "GAS/GameplayAbilityHelper.h"
 
 UHDHealthAttributeSet::UHDHealthAttributeSet()
@@ -28,10 +29,9 @@ void UHDHealthAttributeSet::PostAttributeChange(const FGameplayAttribute& Attrib
 		if (OldValue > 0.f && NewValue <= 0.f)
 		{
 			UAbilitySystemComponent* ASC = GetOwningAbilitySystemComponent();
-			if (ASC)
-			{
-				FGameplayAbilityHelper::AddTagToTarget(ASC, HDTAG_CHARACTER_STATE_ISDEAD);
-			}
+			NULL_CHECK(ASC);
+
+			FGameplayAbilityHelper::AddTagToTarget(ASC, HDTAG_CHARACTER_STATE_ISDEAD);
 		}
 	}
 }
