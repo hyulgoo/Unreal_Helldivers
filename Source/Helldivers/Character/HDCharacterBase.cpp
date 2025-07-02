@@ -44,8 +44,6 @@ AHDCharacterBase::AHDCharacterBase()
 
 void AHDCharacterBase::SetDead()
 {
-	UE_LOG(LogTemp, Error, TEXT("SetDead Call!!"));
-
 	USkeletalMeshComponent* MeshComponent = GetMesh();
 	MeshComponent->SetSimulatePhysics(true);
 	GetCharacterMovement()->DisableMovement();

@@ -5,6 +5,7 @@
 #include "Character/HDCharacterBase.h"
 #include "GameplayEffectExtension.h"
 #include "Tag/HDGameplayTag.h"
+#include "GAS/GameplayAbilityHelper.h"
 
 UHDHealthAttributeSet::UHDHealthAttributeSet()
 	: CurrentHealth(FGameplayAttributeData())
@@ -29,8 +30,7 @@ void UHDHealthAttributeSet::PostAttributeChange(const FGameplayAttribute& Attrib
 			UAbilitySystemComponent* ASC = GetOwningAbilitySystemComponent();
 			if (ASC)
 			{
-				UE_LOG(LogTemp, Error, TEXT("AddLooseGameplayDeadTag!"));
-				ASC->AddLooseGameplayTag(HDTAG_CHARACTER_STATE_ISDEAD);
+				FGameplayAbilityHelper::AddTagToTarget(ASC, HDTAG_CHARACTER_STATE_ISDEAD);
 			}
 		}
 	}
