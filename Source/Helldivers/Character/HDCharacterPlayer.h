@@ -42,13 +42,14 @@ protected:
 	virtual AHDWeapon*						GetWeapon() const override final;
 	virtual const FVector&					GetHitTarget() const override final;
 	virtual const EHDCombatState			GetCombatState() const override final;
-	void									SetCombatState(const EHDCombatState State);
 	virtual void							Attack(const bool bActive) override final;
-    const float 							Fire(const bool IsPressed);
 	virtual const bool						FireFinished() override final;
     virtual void							SetWeaponActive(const bool bActive) override final;
 	virtual const float						Reload() override final;
 	virtual void							ReloadFinished() override;
+
+	void									SetCombatState(const EHDCombatState State);
+	const float 							Fire(const bool IsPressed);
 
 	// CharacterMovementInterface
 	virtual const float						GetAimOffset_Yaw() const override final;
@@ -76,10 +77,7 @@ protected:
 private:
 	void									InterpFOV(float DeltaSeconds);
 
-	void									PlayMontage(UAnimMontage* Montage, const FName SectionName = FName());
-
 private:
-	// Component
 	UPROPERTY(EditDefaultsOnly)
 	TObjectPtr<USpringArmComponent>			SpringArm;
 

@@ -88,7 +88,6 @@ void AHDCharacterBase::SetRagdoll(const bool bRagdoll, const FVector& Impulse)
 		Capsule->SetWorldLocation(BonmeLocation);
 		Capsule->SetWorldRotation(NewMeshRotation);
 
-		//CharacterMesh->AttachToComponent(Capsule, FAttachmentTransformRules::SnapToTargetIncludingScale);
 		CharacterMesh->SetRelativeLocationAndRotation(FVector(0.f, 0.f, -100.f), FRotator(0.f, -90.f, 0.f));
 		CharacterMesh->SetAnimationMode(EAnimationMode::AnimationBlueprint);
 	}

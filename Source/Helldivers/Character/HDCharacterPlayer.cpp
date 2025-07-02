@@ -57,11 +57,10 @@ void AHDCharacterPlayer::SetRagdoll(const bool bRagdoll, const FVector& Impulse)
     {
         SetCharacterMovementState(EHDCharacterMovementState::Prone, true);
 
-        FTimerDelegate LamdaDelegate;
-        LamdaDelegate.BindLambda([this]() {
+        GetWorldTimerManager().SetTimerForNextTick(FTimerDelegate::CreateLambda([this](void) {
             SetCombatState(EHDCombatState::Unoccupied);
-            });
-        GetWorldTimerManager().SetTimerForNextTick(LamdaDelegate);
+            }
+        ));
     }
 }
 
@@ -103,7 +102,7 @@ const float AHDCharacterPlayer::Reload()
 
 	CONDITION_CHECK_WITH_RETURNTYPE(SectionName.IsNone(), 0.f);
 
-	PlayMontage(ReloadWeaponMontage, SectionName);
+    PlayAnimMontage(ReloadWeaponMontage, 1.f, SectionName);
 
     return Combat->GetWeaponReloadDelay(bIsShoulder);
 }
@@ -186,7 +185,7 @@ void AHDCharacterPlayer::Attack(const bool bActive)
 
         // TODO(25/03/27)  추후 Crouch 등 다른 자세 생기면 해당 섹션으로 점프하기
         // 실제 AddImpulse는 AnimNotify에서 DetachTiming에 함
-        PlayMontage(ThrowMontage);
+        PlayAnimMontage(ThrowMontage);
     }
 }
 
@@ -295,20 +294,6 @@ void AHDCharacterPlayer::InterpFOV(float DeltaSeconds)
     FollowCamera->SetFieldOfView(Combat->GetCurrentFOV());
 }
 
-void AHDCharacterPlayer::PlayMontage(UAnimMontage* Montage, const FName SectionName)
-{
-    UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
-    VALID_CHECK(AnimInstance);
-    NULL_CHECK(Montage);
-
-    AnimInstance->Montage_Play(Montage);
-
-    if (SectionName.IsNone() == false)
-    {
-        AnimInstance->Montage_JumpToSection(SectionName);
-    }
-}
-
 const float AHDCharacterPlayer::Fire(const bool IsPressed)
 {
     if(Combat->Fire(IsPressed) == false)
@@ -327,7 +312,7 @@ const float AHDCharacterPlayer::Fire(const bool IsPressed)
     case EHDFireType::Projectile:
     {
         const FName SectionName = IsShouldering() ? HDMONTAGE_SECTIONNAME_RIFLE_AIM : HDMONTAGE_SECTIONNAME_RIFLE_HIP;
-        PlayMontage(FireWeaponMontage, SectionName);
+        PlayAnimMontage(FireWeaponMontage, 1.f, SectionName);
     }
     break;
     case EHDFireType::Shotgun:

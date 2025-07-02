@@ -99,7 +99,7 @@ private:
     uint8					                bIsCharacterLookingViewport : 1;
     uint8					                bUseRotateRootBone : 1;
     
-	UPROPERTY(EditAnywhere,                 Category = "Combat")
+	UPROPERTY(EditAnywhere, Category = "Combat")
 	float					                TurnThreshold;
 
 	EHDTurningInPlace		                TurningInPlace;
@@ -112,12 +112,12 @@ private:
     FVector					                HitTarget;
 
     float                                   DefaultFOV;
-    UPROPERTY(EditAnywhere,                 Category = "Combat")
+    UPROPERTY(EditAnywhere, Category = "Combat")
 	float					                ZoomedFOV;
 
 	float					                CurrentFOV;
 
-    UPROPERTY(EditAnywhere,                 Category = "Combat")
+    UPROPERTY(EditAnywhere, Category = "Combat")
 	float					                ZoomInterpSpeed;
 
     float					                ErgonomicFactor;
@@ -125,7 +125,7 @@ private:
     UPROPERTY()
 	TObjectPtr<AHDWeapon>	                Weapon;
     
-    UPROPERTY(EditAnywhere,                 Category = "Combat")
+    UPROPERTY(EditAnywhere, Category = "Combat")
 	TObjectPtr<UCurveFloat>	                DefaultCurve;
 
 	FTimeline				                SpringArmArmLengthTimeline;
