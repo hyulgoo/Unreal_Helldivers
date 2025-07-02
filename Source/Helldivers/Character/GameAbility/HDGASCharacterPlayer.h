@@ -76,7 +76,6 @@ protected:
 	void										InputStratagemCommand(const FInputActionValue& Value);
 
 private:
-
 	void										InitAbilitySystemComponent();
 	void										InitializeAttributeSet();
 	const FHDCharacterStat*						GetCharacterStatByArmorType(const EHDArmorType ArmorType) const;
@@ -116,13 +115,6 @@ private:
 
 	UPROPERTY(EditAnywhere, Category = "GASPlayer|Input")
 	TArray<FTagEventBindInfo>					TagEventBindInfoList;
-
-	// Stat
-	UPROPERTY(EditAnywhere, Category = "GASPlayer|Stat")
-	EHDArmorType								ArmorType;
-	
-	UPROPERTY(EditAnywhere, Category = "GASPlayer|Stat")
-	TObjectPtr<UDataTable>						ArmorTypeStatusDataTable;
 
 	// Control
 	EHDCharacterControlType						CurrentCharacterControlType;

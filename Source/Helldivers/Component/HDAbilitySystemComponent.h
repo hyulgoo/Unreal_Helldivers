@@ -6,9 +6,24 @@
 #include "AbilitySystemComponent.h"
 #include "HDAbilitySystemComponent.generated.h"
 
+struct FHDCharacterStat;
+
 UCLASS()
 class HELLDIVERS_API UHDAbilitySystemComponent : public UAbilitySystemComponent
 {
 	GENERATED_BODY()
 	
+public:
+    explicit	                    UHDAbilitySystemComponent();
+
+    void		                    AbilityInputTagTriggered(const FGameplayTag Tag);
+    void		                    AbilityInputTagReleased(const FGameplayTag Tag);
+    void		                    AbilityInputTagToggled(const FGameplayTag Tag);
+
+private:
+    void		                    InitAttributeSet();
+    void                            SetAttributeSetStat(const FHDCharacterStat* StatData);
+
+private:
+	TSubclassOf<UGameplayEffect>    InitAttributeStatEffect;
 };
