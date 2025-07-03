@@ -18,7 +18,7 @@ UHDAnimInstance::UHDAnimInstance()
 	, Velocity(FVector())
 	, GroundSpeed(0.f)
 	, MovingThreshould(0.f)
-	, CharacterMoveState(EHDCharacterPoseState::Idle)
+	, CharacterMoveState(EHDCharacterMovementState::Idle)
 	, bIsIdle(false)
 	, bIsFalling(false)
 	, bIsJumping(false)
@@ -97,7 +97,7 @@ void UHDAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 		TurningInPlace		= CharacterMovementInterface->GetTurningInPlace();
 		bIsLookingViewport	= CharacterMovementInterface->IsCharacterLookingViewport();
 		YawOffset			= bIsLookingViewport ? DeltaRotation.Yaw : 0.f;
-		CharacterMoveState	= CharacterMovementInterface->GetCharacterPoseState();
+		CharacterMoveState	= CharacterMovementInterface->GetCharacterMovementState();
 	}
 
 	// WeaponInterface

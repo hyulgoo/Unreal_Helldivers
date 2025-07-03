@@ -42,7 +42,7 @@ protected:
 	float									MovingThreshould;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Movement")
-	EHDCharacterPoseState				CharacterMoveState;
+	EHDCharacterMovementState				CharacterMoveState;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Movement")
 	uint8									bIsIdle : 1;

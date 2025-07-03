@@ -12,10 +12,8 @@ class AHDWeapon;
 class AHDStratagem;
 class UCharacterMovementComponent;
 class USpringArmComponent;
-struct FHDCharacterStat;
 enum class EHDCombatState : uint8;
 enum class EHDFireType :uint8;
-enum class EHDArmorType :uint8;
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
 class HELLDIVERS_API UHDCombatComponent : public UActorComponent
@@ -74,9 +72,6 @@ public:
     const float                             GetDefaultFOV() const;
     const bool                              IsUseRotateBone() const;
 
-    const EHDArmorType                      GetArmorType() const;
-    FHDCharacterStat*                       GetCharacterStatByArmorType(const EHDArmorType ArmorType) const;
-
 protected:
     virtual void                            BeginPlay() override final;
     virtual void                            TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
@@ -98,13 +93,13 @@ private:
     
     FRotator				                StartingAimRotation;
     float					                AimOffset_Yaw;
-    float					                AimOffset_Pitch;
     float					                InterpAimOffset_Yaw;
+    float					                AimOffset_Pitch;
 
     uint8					                bIsCharacterLookingViewport : 1;
     uint8					                bUseRotateRootBone : 1;
     
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Category = "Combat")
 	float					                TurnThreshold;
 
 	EHDTurningInPlace		                TurningInPlace;
@@ -113,14 +108,16 @@ private:
     uint8					                bIsFireButtonPressed : 1;
 
     EHDCombatState			                CombatState;
-    FVector					                HitTarget;
-    float                                   DefaultFOV;
-    float					                CurrentFOV;
 
-    UPROPERTY(EditAnywhere)
+    FVector					                HitTarget;
+
+    float                                   DefaultFOV;
+    UPROPERTY(EditAnywhere, Category = "Combat")
 	float					                ZoomedFOV;
 
-    UPROPERTY(EditAnywhere)
+	float					                CurrentFOV;
+
+    UPROPERTY(EditAnywhere, Category = "Combat")
 	float					                ZoomInterpSpeed;
 
     float					                ErgonomicFactor;
@@ -128,27 +125,12 @@ private:
     UPROPERTY()
 	TObjectPtr<AHDWeapon>	                Weapon;
     
-    UPROPERTY(EditAnywhere)
+    UPROPERTY(EditAnywhere, Category = "Combat")
 	TObjectPtr<UCurveFloat>	                DefaultCurve;
 
 	FTimeline				                SpringArmArmLengthTimeline;
 	float					                SpringArmTargetArmLength;
     
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Category = "Combat")
 	TSubclassOf<AHDWeapon>					DefaultWeaponClass;
-    
-    UPROPERTY(EditAnywhere)
-    TObjectPtr<UAnimMontage>                FireWeaponMontage;
-    
-    UPROPERTY(EditAnywhere)
-    TObjectPtr<UAnimMontage>                ReloadWeaponMontage;
-    
-    UPROPERTY(EditAnywhere)
-    TObjectPtr<UAnimMontage>                ThrowMontage;
-
-    UPROPERTY(EditAnywhere)
-    EHDArmorType                            ArmorType;
-
-	UPROPERTY(EditAnywhere)
-    TObjectPtr<UDataTable>					ArmorTypeStatusDataTable;
 };

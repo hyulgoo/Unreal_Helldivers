@@ -61,9 +61,9 @@ protected:
 	virtual const bool						IsUseRotateBone() const override final;
 	virtual const bool						IsSprint() const override final;
 	virtual void							SetSprint(const bool bSprint) override;
-	virtual const EHDCharacterPoseState	    GetCharacterPoseState() const override;
-	virtual void							SetCharacterPoseState(const EHDCharacterPoseState NewState, const bool bForced = false);
-	virtual void							RestorePoseState() override;
+	virtual const EHDCharacterMovementState	GetCharacterMovementState() const override;
+	virtual void							SetCharacterMovementState(const EHDCharacterMovementState NewState, const bool bForced = false);
+	virtual void							RestoreMovementState() override;
 
 	// CharacterCommandInterface
 	virtual void							DetachStratagemWhileThrow() override final;
@@ -76,7 +76,6 @@ protected:
 	
 private:
 	void									InterpFOV(float DeltaSeconds);
-    virtual void                            SetAbilitySystemComponent(UAbilitySystemComponent* ASC) override final;
 
 private:
 	UPROPERTY(EditDefaultsOnly)
@@ -93,5 +92,4 @@ private:
 
 	UPROPERTY(EditDefaultsOnly)
 	TObjectPtr<UHDStratagemComponent>		Stratagem;
-
 };

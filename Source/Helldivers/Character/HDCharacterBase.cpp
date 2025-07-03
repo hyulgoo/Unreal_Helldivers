@@ -42,31 +42,24 @@ AHDCharacterBase::AHDCharacterBase()
 	LoadDefaultMontage();
 }
 
-UAbilitySystemComponent* AHDCharacterBase::GetAbilitySystemComponent() const
-{
-    return AbilitySystemComponent;
-}
-
-void AHDCharacterBase::SetAbilitySystemComponent(AActor* OwnerActor, UAbilitySystemComponent* ASC)
-{
-    AbilitySystemComponent = Cast<UHDAbilitySystemComponent>(ASC);
-    NULL_CHECK(AbilitySystemComponent);
-
-    for (const TSubclassOf<UGameplayAbility>& Ability : Abilities)
-    {
-        AbilitySystemComponent->GiveAbility(Ability);
-    }
-
-    AbilitySystemComponent->InitAbilityActorInfo(OwnerActor, this);
-    AbilitySystemComponent->InitAttributeSet();
-}
-
 void AHDCharacterBase::SetDead()
 {
-    GetMesh->SetSimulatePhysics(true);
+	USkeletalMeshComponent* MeshComponent = GetMesh();
+	MeshComponent->SetSimulatePhysics(true);
 	GetCharacterMovement()->DisableMovement();
-    PlayAnimMontage(DeadMontage, 1.f);
+	PlayDeadAnimation();
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+}
+
+void AHDCharacterBase::PlayDeadAnimation()
+{
+	NULL_CHECK(DeadMontage);
+
+	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+	NULL_CHECK(AnimInstance);
+
+	AnimInstance->StopAllMontages(0.f);
+	AnimInstance->Montage_Play(DeadMontage, 1.f);
 }
 
 void AHDCharacterBase::SetRagdoll(const bool bRagdoll, const FVector& Impulse)
@@ -101,15 +94,6 @@ void AHDCharacterBase::SetRagdoll(const bool bRagdoll, const FVector& Impulse)
 const float AHDCharacterBase::GetRagdollPysicsLinearVelocity() const
 {
 	return GetMesh()->GetPhysicsLinearVelocity().Size();
-}
-
-FHDCharacterStat* AHDCharacterBase::GetAttributeStatDataByArmorType(const EHDArmorType NewArmorType)
-{
-    static const UEnum* EnumPtr = StaticEnum<EHDArmorType>();
-    FString ArmorTypetoString = EnumPtr->GetNameStringByValue(static_cast<int64>(NewArmorType));
-    FHDCharacterStat* ArmorStatus = ArmorTypeStatusDataTable->FindRow<FHDCharacterStat>(FName(ArmorTypetoString), TEXT("ArmorStatus"));
-
-    return ArmorStatus;
 }
 
 void AHDCharacterBase::LoadDefaultMontage()

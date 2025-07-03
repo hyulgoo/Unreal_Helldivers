@@ -38,11 +38,11 @@ void UHDGA_MovementTrigger::ActivateAbility(const FGameplayAbilitySpecHandle Han
 	}
 	else if (CurrentTagContainer.HasTagExact(HDTAG_INPUT_CROUCH))
 	{
-		CharacterMovementInterface->SetCharacterPoseState(EHDCharacterPoseState::Crouch);
+		CharacterMovementInterface->SetCharacterMovementState(EHDCharacterMovementState::Crouch);
 	}
 	else if (CurrentTagContainer.HasTagExact(HDTAG_INPUT_PRONE))
 	{
-		CharacterMovementInterface->SetCharacterPoseState(EHDCharacterPoseState::Prone);
+		CharacterMovementInterface->SetCharacterMovementState(EHDCharacterMovementState::Prone);
 	}
 }
 
@@ -77,6 +77,6 @@ void UHDGA_MovementTrigger::EndAbility(const FGameplayAbilitySpecHandle Handle, 
 	}
 	else if (CurrentTagContainer.HasTagExact(HDTAG_INPUT_CROUCH) || CurrentTagContainer.HasTagExact(HDTAG_INPUT_PRONE))
 	{
-		CharacterMovementInterface->RestorePoseState();
+		CharacterMovementInterface->RestoreMovementState();
 	}
 }

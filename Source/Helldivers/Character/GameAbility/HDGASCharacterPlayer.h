@@ -52,13 +52,14 @@ public:
 };
 
 UCLASS()
-class HELLDIVERS_API AHDGASCharacterPlayer : public AHDCharacterPlayer
+class HELLDIVERS_API AHDGASCharacterPlayer : public AHDCharacterPlayer, public IAbilitySystemInterface
 {
 	GENERATED_BODY()
 
 public:
 	explicit									AHDGASCharacterPlayer();
 
+	virtual UAbilitySystemComponent*			GetAbilitySystemComponent() const override final;
 	void										SetAttributeStatByArmor(const EHDArmorType NewArmorType);
 	void										ChangeCharacterControlType();
 
@@ -75,12 +76,13 @@ protected:
 	void										InputStratagemCommand(const FInputActionValue& Value);
 
 private:
+
 	void										InitAbilitySystemComponent();
 	void										InitializeAttributeSet();
 	const FHDCharacterStat*						GetCharacterStatByArmorType(const EHDArmorType ArmorType) const;
 
-	virtual void								SetCharacterPoseState(const EHDCharacterPoseState NewState, const bool bForce = false) override final;
-	virtual void								RestorePoseState() override final;
+	virtual void								SetCharacterMovementState(const EHDCharacterMovementState NewState, const bool bForce = false) override final;
+	virtual void								RestoreMovementState() override final;
 	virtual	void								SetSprint(const bool bSprint) override final;
 	void										ThirdPersonLook(const FInputActionValue& Value);
 	void										ThirdPersonMove(const FInputActionValue& Value);
@@ -88,9 +90,12 @@ private:
 	void										FirstPersonMove(const FInputActionValue& Value);
 	void										SetCharacterControl(const EHDCharacterControlType NewCharacterControlType);
 
-	const float									GetMoveSpeedByMovementStateAndIsSprint(const EHDCharacterPoseState State, const bool bIsSprint);
+	const float									GetMoveSpeedByMovementStateAndIsSprint(const EHDCharacterMovementState State, const bool bIsSprint);
 
 private:
+	UPROPERTY()
+	TObjectPtr<UAbilitySystemComponent>			AbilitySystemComponent;
+
 	UPROPERTY(EditAnywhere, Category = "GASPlayer|Stat")
 	TSubclassOf<UGameplayEffect>				InitStatEffect;
 
@@ -111,6 +116,13 @@ private:
 
 	UPROPERTY(EditAnywhere, Category = "GASPlayer|Input")
 	TArray<FTagEventBindInfo>					TagEventBindInfoList;
+
+	// Stat
+	UPROPERTY(EditAnywhere, Category = "GASPlayer|Stat")
+	EHDArmorType								ArmorType;
+	
+	UPROPERTY(EditAnywhere, Category = "GASPlayer|Stat")
+	TObjectPtr<UDataTable>						ArmorTypeStatusDataTable;
 
 	// Control
 	EHDCharacterControlType						CurrentCharacterControlType;
