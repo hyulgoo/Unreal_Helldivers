@@ -5,7 +5,8 @@
 
 AHDCharacterNonPlayer::AHDCharacterNonPlayer()
 {
-    GetMesh()->SetHiddenInGame(true);
+    UHDAbilitySystemComponent* ASC = CreateDefaultSubobject<UHDAbilitySystemComponent>("HDAbilitySystem");
+    SetAbilitySystemComponent(ASC);
 }
 
 void AHDCharacterNonPlayer::PostInitializeComponents()

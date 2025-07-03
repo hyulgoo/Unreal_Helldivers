@@ -1,0 +1,28 @@
+root = true
+
+[*.{generated.h,gen.cpp,gen.h,bin,obj,pdb,dll,lib,tmp,bak}]
+ignore = true
+
+[Intermediate/**]
+ignore = true
+
+[Binaries/**]
+ignore = true
+
+[Saved/**]
+ignore = true
+
+[DerivedDataCache/**]
+ignore = true
+
+[*.cpp]
+indent_style = space
+indent_size = 4
+
+[*.h]
+indent_style = space
+indent_size = 4
+
+[*.cs]
+indent_style = space
+indent_size = 4
