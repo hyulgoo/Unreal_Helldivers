@@ -44,7 +44,7 @@ AHDCharacterBase::AHDCharacterBase()
 
 UAbilitySystemComponent* AHDCharacterBase::GetAbilitySystemComponent() const
 {
-    return AbilitySystemComponent;
+    return Cast<UAbilitySystemComponent>(AbilitySystemComponent);
 }
 
 void AHDCharacterBase::SetAbilitySystemComponent(AActor* OwnerActor, UAbilitySystemComponent* ASC)

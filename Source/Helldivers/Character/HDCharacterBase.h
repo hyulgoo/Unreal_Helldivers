@@ -12,7 +12,9 @@
 class UHDCharacterControlData;
 class USkeletalMeshComponent;
 class UHDAbilitySystemComponent;
-enum class EHDCharacterControlType   : uint8;
+class UGameplayAbility;
+struct FHDCharacterStat;
+enum class EHDCharacterControlType : uint8;
 
 UCLASS()
 class HELLDIVERS_API AHDCharacterBase : public ACharacter, public IAbilitySystemInterface, public IHDCharacterRagdollInterface, public IHDDeadInterface

@@ -22,7 +22,7 @@ public:
 
 private:
     void		                    InitAttributeSet();
-    void                            SetAttributeSetStat(const FHDCharacterStat* StatData);
+    void                            SetAttributeSetStat(FHDCharacterStat* StatData);
 
 private:
 	TSubclassOf<UGameplayEffect>    InitAttributeStatEffect;

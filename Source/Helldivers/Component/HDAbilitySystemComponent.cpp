@@ -4,6 +4,8 @@
 #include "Attribute/HDHealthAttributeSet.h"
 #include "Attribute/Player/HDPlayerSpeedAttributeSet.h"
 #include "GameData/HDCharacterStat.h"
+#include "Define/HDDefine.h"
+#include "Tag/HDGameplayTag.h"
 
 UHDAbilitySystemComponent::UHDAbilitySystemComponent()
     : InitAttributeStatEffect(nullptr)
@@ -92,7 +94,7 @@ void UHDAbilitySystemComponent::SetAttributeSetStat(FHDCharacterStat* StatData)
 
     FGameplayEffectContextHandle Context = MakeEffectContext();
     FGameplayEffectSpecHandle SpecHandle = MakeOutgoingSpec(InitAttributeStatEffect, 1.f, Context);
-    VALID_CHECK(SpecHandle);
+    CONDITION_CHECK(SpecHandle.IsValid() == false);
 
     SpecHandle.Data->SetSetByCallerMagnitude(HDTAG_DATA_STATUS_MAXHEALTH,       StatData->MaxHealth);
     SpecHandle.Data->SetSetByCallerMagnitude(HDTAG_DATA_STATUS_WALKSPEED,       StatData->WalkSpeed);
