@@ -2,9 +2,9 @@
 
 
 #include "AnimNotify_FootStepSoundCue.h"
-#include "Define\HDDefine.h"
+#include "Define/HDDefine.h"
 #include "AbilitySystemInterface.h"
-#include "GAS/GameplayAbilityHelper.h"
+#include "AbilitySystem/GameplayAbilityHelper.h"
 
 UAnimNotify_FootStepSoundCue::UAnimNotify_FootStepSoundCue()
     : FootSocketName(FName())

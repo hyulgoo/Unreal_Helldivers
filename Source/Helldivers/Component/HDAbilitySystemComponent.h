@@ -7,6 +7,7 @@
 #include "HDAbilitySystemComponent.generated.h"
 
 struct FHDCharacterStat;
+enum class EHDCharacterType : uint8;
 
 UCLASS()
 class HELLDIVERS_API UHDAbilitySystemComponent : public UAbilitySystemComponent
@@ -21,8 +22,5 @@ public:
     void		                    AbilityInputTagToggled(const FGameplayTag Tag);
 
     void		                    InitAttributeSet();
-    void                            SetAttributeSetStat(FHDCharacterStat* StatData);
-
-private:
-	TSubclassOf<UGameplayEffect>    InitAttributeStatEffect;
+    void                            SetAttributeSetStat(FHDCharacterStat* StatData, TSubclassOf<UGameplayEffect> InitAttributeStatEffect);
 };

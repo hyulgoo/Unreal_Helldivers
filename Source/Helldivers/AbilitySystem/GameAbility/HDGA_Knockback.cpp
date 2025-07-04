@@ -2,7 +2,7 @@
 
 #include "HDGA_Knockback.h"
 #include "Define/HDDefine.h"
-#include "Tag/HDGameplayTag.h"
+#include "Define/HDGameplayTag.h"
 #include "AbilitySystemComponent.h"
 #include "Interface/HDCharacterRagdollInterface.h"
 

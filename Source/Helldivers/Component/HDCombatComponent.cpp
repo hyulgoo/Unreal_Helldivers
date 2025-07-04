@@ -1,15 +1,15 @@
 
 #include "Component/HDCombatComponent.h"
+#include "Kismet/GameplayStatics.h"
+#include "Kismet/KismetMathLibrary.h"
+#include "Engine/SkeletalMeshSocket.h"
+#include "Components/SkeletalMeshComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
+#include "GameFramework/SpringArmComponent.h"
 #include "Define/HDDefine.h"
 #include "Define/HDSocketNames.h"
 #include "Weapon/HDWeapon.h"
-#include "Engine/SkeletalMeshSocket.h"
-#include "Components/SkeletalMeshComponent.h"
-#include "GameFramework/SpringArmComponent.h"
 #include "Character/CharacterTypes/HDCharacterStateTypes.h"
-#include "Kismet/GameplayStatics.h"
-#include "Kismet/KismetMathLibrary.h"
-#include "Animation/HDAnimInstance.h"
 
 #define AIMOFFSET_PITCH_OFFSET 20.f
 
@@ -35,6 +35,8 @@ UHDCombatComponent::UHDCombatComponent()
     , DefaultCurve(nullptr)
     , SpringArmArmLengthTimeline(FTimeline())
     , SpringArmTargetArmLength(0.f)
+    , DefaultWeaponClass(nullptr)
+    , CombatMontage{}
 {
     PrimaryComponentTick.bCanEverTick = true;
 }
@@ -134,6 +136,13 @@ const float UHDCombatComponent::GetDefaultFOV() const
 const bool UHDCombatComponent::IsUseRotateBone() const
 {
     return bUseRotateRootBone;
+}
+
+UAnimMontage* UHDCombatComponent::GetCombatMontage(const EHDCombatMontage MontageType)
+{
+    CONDITION_CHECK_WITH_RETURNTYPE(CombatMontage.Num() != static_cast<int32>(EHDCombatMontage::Count), nullptr);
+
+    return CombatMontage[MontageType];
 }
 
 void UHDCombatComponent::TraceUnderCrosshairs()

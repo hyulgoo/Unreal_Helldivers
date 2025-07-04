@@ -14,6 +14,7 @@ class UHDCharacterControlData;
 class USkeletalMeshComponent;
 class UHDAbilitySystemComponent;
 class UGameplayAbility;
+class UGameplayEffect;
 struct FHDCharacterStat;
 
 UCLASS()
@@ -26,7 +27,7 @@ public:
 
 protected:
     virtual UAbilitySystemComponent*        GetAbilitySystemComponent() const override final;
-    void                                    SetAbilitySystemComponent(AActor* OwnerActor, UAbilitySystemComponent* ASC);
+    void                                    SetAbilitySystemComponent(AActor* OwnerActor, UAbilitySystemComponent* ASC, const EHDCharacterType CharacterType);
     virtual void                            SetDead() override;
 
     virtual void				            SetRagdoll(const bool bRagdoll, const FVector& Impulse = FVector::ZeroVector) override;
@@ -38,21 +39,11 @@ private:
 
 protected:
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Montage")
-    TObjectPtr<UAnimMontage>                FireWeaponMontage;
-    
-    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Montage")
-    TObjectPtr<UAnimMontage>                ReloadWeaponMontage;
-    
-    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Montage")
-    TObjectPtr<UAnimMontage>                ThrowMontage;
-
-    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Montage")
     TObjectPtr<UAnimMontage>                DeadMontage;
     
     float                                   DeadEventDelayTime;
 
 private:
-	UPROPERTY()
 	TObjectPtr<UHDAbilitySystemComponent>	AbilitySystemComponent;
 
 	UPROPERTY(EditAnywhere)
@@ -63,4 +54,7 @@ private:
 
 	UPROPERTY(EditAnywhere)
     TObjectPtr<UDataTable>					ArmorTypeStatusDataTable;
+
+    UPROPERTY(EditAnywhere)
+    TSubclassOf<UGameplayEffect>            InitAttributeStatEffect;
 };

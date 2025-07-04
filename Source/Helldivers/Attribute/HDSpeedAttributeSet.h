@@ -5,7 +5,7 @@
 #include "CoreMinimal.h"
 #include "AttributeSet.h"
 #include "AbilitySystemComponent.h"
-#include "HDPlayerSpeedAttributeSet.generated.h"
+#include "HDSpeedAttributeSet.generated.h"
 
 #define ATTRIBUTE_ACCESSORS(ClassName, PropertyName) \
 	GAMEPLAYATTRIBUTE_PROPERTY_GETTER(ClassName, PropertyName) \
@@ -14,20 +14,20 @@
 	GAMEPLAYATTRIBUTE_VALUE_INITTER(PropertyName)
 
 UCLASS()
-class HELLDIVERS_API UHDPlayerSpeedAttributeSet : public UAttributeSet
+class HELLDIVERS_API UHDSpeedAttributeSet : public UAttributeSet
 {
 	GENERATED_BODY()
 
 public:
-	explicit UHDPlayerSpeedAttributeSet();
+	explicit UHDSpeedAttributeSet();
 
-	ATTRIBUTE_ACCESSORS(UHDPlayerSpeedAttributeSet, CurrentSpeed);
-	ATTRIBUTE_ACCESSORS(UHDPlayerSpeedAttributeSet, CrawlingSpeed);
-	ATTRIBUTE_ACCESSORS(UHDPlayerSpeedAttributeSet, CrouchSpeed);
-	ATTRIBUTE_ACCESSORS(UHDPlayerSpeedAttributeSet, WalkSpeed);
-	ATTRIBUTE_ACCESSORS(UHDPlayerSpeedAttributeSet, SprintSpeed);
-	ATTRIBUTE_ACCESSORS(UHDPlayerSpeedAttributeSet, CurrentStamina);
-	ATTRIBUTE_ACCESSORS(UHDPlayerSpeedAttributeSet, MaxStamina);
+	ATTRIBUTE_ACCESSORS(UHDSpeedAttributeSet, CurrentSpeed);
+	ATTRIBUTE_ACCESSORS(UHDSpeedAttributeSet, CrawlingSpeed);
+	ATTRIBUTE_ACCESSORS(UHDSpeedAttributeSet, CrouchSpeed);
+	ATTRIBUTE_ACCESSORS(UHDSpeedAttributeSet, WalkSpeed);
+	ATTRIBUTE_ACCESSORS(UHDSpeedAttributeSet, SprintSpeed);
+	ATTRIBUTE_ACCESSORS(UHDSpeedAttributeSet, CurrentStamina);
+	ATTRIBUTE_ACCESSORS(UHDSpeedAttributeSet, MaxStamina);
 
 	virtual void PreAttributeChange(const FGameplayAttribute& Attribute, float& NewValue) override;
 	//virtual void PostAttributeChange(const FGameplayAttribute& Attribute, float OldValue, float NewValue) override;

@@ -1,23 +1,21 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "Hellpod/HDHellpod.h"
-#include "Define/HDDefine.h"
-#include "Components/BoxComponent.h"
-#include "Components/CapsuleComponent.h"
+#include "EnhancedInputComponent.h"
+#include "EnhancedInputSubsystems.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Components/CapsuleComponent.h"
+#include "Components/BoxComponent.h"
 #include "Camera/CameraComponent.h"
 #include "Camera/CameraShakeSourceComponent.h"
-#include "Player/HDGASPlayerState.h"
-#include "Character/HDCharacterPlayer.h"
 #include "AbilitySystemComponent.h"
 #include "Kismet/GameplayStatics.h"
+#include "Define/HDDefine.h"
+#include "Player/HDGASPlayerState.h"
+#include "Character/Player/HDCharacterPlayer.h"
 #include "Collision/HDCollision.h"
 #include "Controller/HDPlayerController.h"
 #include "GameFramework/SpringArmComponent.h"
-#include "GameFramework/ProjectileMovementComponent.h"
-#include "GameFramework/FloatingPawnMovement.h"
-#include "EnhancedInputComponent.h"
-#include "EnhancedInputSubsystems.h"
 
 AHDHellpod::AHDHellpod()
 	: HellpodMesh(nullptr)

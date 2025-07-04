@@ -4,7 +4,6 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
-#include "Components/TimelineComponent.h"
 #include "HDInputActionComponent.generated.h"
 
 class UInputAction;

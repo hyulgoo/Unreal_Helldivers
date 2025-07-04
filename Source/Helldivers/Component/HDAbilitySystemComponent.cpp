@@ -1,20 +1,15 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-#include "Component/HDAbilitySystemComponent.h"
+#include "HDAbilitySystemComponent.h"
 #include "Attribute/HDHealthAttributeSet.h"
-#include "Attribute/Player/HDPlayerSpeedAttributeSet.h"
+#include "Attribute/HDSpeedAttributeSet.h"
 #include "GameData/HDCharacterStat.h"
 #include "Define/HDDefine.h"
-#include "Tag/HDGameplayTag.h"
+#include "Define/HDGameplayTag.h"
+#include "Character/CharacterTypes/HDCharacterStateTypes.h"
 
 UHDAbilitySystemComponent::UHDAbilitySystemComponent()
-    : InitAttributeStatEffect(nullptr)
 {
-    static ConstructorHelpers::FClassFinder<UGameplayEffect> InitStatGameplayEffectRef(TEXT("/Game/GB/GAS/Effect/GE_InitStats.GE_InitStats_C"));
-    if (InitStatGameplayEffectRef.Succeeded())
-    {
-        InitAttributeStatEffect = InitStatGameplayEffectRef.Class;
-    }
 }
 
 void UHDAbilitySystemComponent::AbilityInputTagTriggered(const FGameplayTag Tag)
@@ -82,12 +77,12 @@ void UHDAbilitySystemComponent::AbilityInputTagToggled(const FGameplayTag Tag)
 void UHDAbilitySystemComponent::InitAttributeSet()
 {
 	UHDHealthAttributeSet* HealthAttributeSet = NewObject<UHDHealthAttributeSet>(this);
-	UHDPlayerSpeedAttributeSet* ApeedAttributeSet = NewObject<UHDPlayerSpeedAttributeSet>(this);
+	UHDSpeedAttributeSet* ApeedAttributeSet = NewObject<UHDSpeedAttributeSet>(this);
 	AddAttributeSetSubobject(HealthAttributeSet);
 	AddAttributeSetSubobject(ApeedAttributeSet);
 }
 
-void UHDAbilitySystemComponent::SetAttributeSetStat(FHDCharacterStat* StatData)
+void UHDAbilitySystemComponent::SetAttributeSetStat(FHDCharacterStat* StatData, TSubclassOf<UGameplayEffect> InitAttributeStatEffect)
 {
     NULL_CHECK(StatData);
     NULL_CHECK(InitAttributeStatEffect);

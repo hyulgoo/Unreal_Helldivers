@@ -3,14 +3,14 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "HDCharacterBase.h"
-#include "CharacterTypes/HDCharacterStateTypes.h"
+#include "Character/HDCharacterBase.h"
+#include "Character/CharacterTypes/HDCharacterStateTypes.h"
 #include "InputActionValue.h"
 #include "Interface/HDCharacterMovementInterface.h"
 #include "Interface/HDCharacterCommandInterface.h"
 #include "Interface/HDWeaponInterface.h"
+#include "AbilitySystem/Struct/HDTaggedInputAction.h"
 #include "HDCharacterPlayer.generated.h"
-#include "GAS/Struct/HDTaggedInputAction.h"
 
 class USpringArmComponent;
 class UCameraComponent;
@@ -104,7 +104,7 @@ protected:
 	virtual const bool						IsUseRotateBone() const override final;
 	virtual const EHDCharacterMovementState	GetMovementState() const override final;
 	virtual void							SetMovementState(const EHDCharacterMovementState NewState) override;
-	virtual const EHDCharacterStanceState	GetCharacterStanceState() const override;
+	virtual const EHDCharacterStanceState	GetStanceState() const override;
 	virtual void							SetCharacterStanceState(const EHDCharacterStanceState NewState, const bool bForced = false);
 	virtual void							RestoreStanceState() override;
 
@@ -147,15 +147,15 @@ private:
 	UPROPERTY(EditDefaultsOnly)
 	TObjectPtr<UHDStratagemComponent>		Stratagem;
     
-	UPROPERTY(EditAnywhere, Category = "GASPlayer|Input")
+	UPROPERTY(EditAnywhere, Category = "Input")
 	TArray<FTaggedInputAction>				TaggedHoldActions;
 	
-	UPROPERTY(EditAnywhere, Category = "GASPlayer|Input")
+	UPROPERTY(EditAnywhere, Category = "Input")
 	TArray<FTaggedInputAction>				TaggedToggleActions;
 	
-	UPROPERTY(EditAnywhere, Category = "GASPlayer|Input")
+	UPROPERTY(EditAnywhere, Category = "Input")
 	FGameplayTagContainer					EventCallTags;
 
-	UPROPERTY(EditAnywhere, Category = "GASPlayer|Input")
+	UPROPERTY(EditAnywhere, Category = "Input")
 	TArray<FTagEventBindInfo>				TagEventBindInfoList;
 };

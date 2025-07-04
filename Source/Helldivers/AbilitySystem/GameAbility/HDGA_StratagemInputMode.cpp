@@ -2,9 +2,9 @@
 
 #include "HDGA_StratagemInputMode.h"
 #include "Interface/HDCharacterCommandInterface.h"
-#include "GAS/GameplayAbilityHelper.h"
+#include "AbilitySystem/GameplayAbilityHelper.h"
 #include "Define/HDDefine.h"
-#include "Tag/HDGameplayTag.h"
+#include "Define/HDGameplayTag.h"
 
 UHDGA_StratagemInputMode::UHDGA_StratagemInputMode()
 {

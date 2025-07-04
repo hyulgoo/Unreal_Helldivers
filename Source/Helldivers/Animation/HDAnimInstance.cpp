@@ -18,13 +18,13 @@ UHDAnimInstance::UHDAnimInstance()
 	, Velocity(FVector())
 	, GroundSpeed(0.f)
 	, MovingThreshould(0.f)
-	, CharacterMoveState(EHDCharacterStanceState::Idle)
+	, CharacterStanceState(EHDCharacterStanceState::Idle)
+	, CharacterMovementState(EHDCharacterMovementState::Idle)
 	, bIsIdle(false)
 	, bIsFalling(false)
 	, bIsJumping(false)
 	, JumpingThreshould(0.f)
 	, bIsRotateRootBone(false)
-	, bIsSprint(false)
 	, YawOffset(0.f)
 	, Lean(0.f)
 	, bIsLookingViewport(false)
@@ -89,15 +89,15 @@ void UHDAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 	TScriptInterface<IHDCharacterMovementInterface> CharacterMovementInterface = Owner;
 	if (CharacterMovementInterface)
 	{
-		bIsSprint			= CharacterMovementInterface->GetMovementState();
-		bIsShouldering		= CharacterMovementInterface->IsShouldering();
-		AimOffset_Yaw		= bIsShouldering ? 0.f : CharacterMovementInterface->GetAimOffset_Yaw();
-		AimOffset_Pitch		= CharacterMovementInterface->GetAimOffset_Pitch();
-		bIsRotateRootBone	= CharacterMovementInterface->IsUseRotateBone();
-		TurningInPlace		= CharacterMovementInterface->GetTurningInPlace();
-		bIsLookingViewport	= CharacterMovementInterface->IsCharacterLookingViewport();
-		YawOffset			= bIsLookingViewport ? DeltaRotation.Yaw : 0.f;
-		CharacterMoveState	= CharacterMovementInterface->GetCharacterStanceState();
+        CharacterMovementState  = CharacterMovementInterface->GetMovementState();
+        CharacterStanceState    = CharacterMovementInterface->GetStanceState();
+		bIsShouldering		    = CharacterMovementInterface->IsShouldering();
+		AimOffset_Yaw		    = bIsShouldering ? 0.f : CharacterMovementInterface->GetAimOffset_Yaw();
+		AimOffset_Pitch		    = CharacterMovementInterface->GetAimOffset_Pitch();
+		bIsRotateRootBone	    = CharacterMovementInterface->IsUseRotateBone();
+		TurningInPlace		    = CharacterMovementInterface->GetTurningInPlace();
+		bIsLookingViewport	    = CharacterMovementInterface->IsCharacterLookingViewport();
+		YawOffset			    = bIsLookingViewport ? DeltaRotation.Yaw : 0.f;
 	}
 
 	// WeaponInterface

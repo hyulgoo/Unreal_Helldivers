@@ -39,7 +39,7 @@ public:
 	virtual const EHDCharacterMovementState	GetMovementState() const = 0;
 	virtual void							SetMovementState(const EHDCharacterMovementState NewState) = 0;
 
-	virtual const EHDCharacterStanceState   GetCharacterStanceState() const = 0;
+	virtual const EHDCharacterStanceState   GetStanceState() const = 0;
 	virtual void							SetCharacterStanceState(const EHDCharacterStanceState NewState, const bool bForced = false) = 0;
 	virtual void							RestoreStanceState() = 0;
 };

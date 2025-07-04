@@ -1,9 +1,9 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-#include "GAS/GameAbility/HDGA_WeaponTrigger.h"
+#include "HDGA_WeaponTrigger.h"
 #include "Abilities/Tasks/AbilityTask_WaitDelay.h"
 #include "Define/HDDefine.h"
-#include "Tag/HDGameplayTag.h"
+#include "Define/HDGameplayTag.h"
 #include "Interface/HDWeaponInterface.h"
 #include "Weapon/HDWeapon.h"
 

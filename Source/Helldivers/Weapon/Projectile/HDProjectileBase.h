@@ -44,8 +44,6 @@ private:
     void                                        ApplyKnockbackGameAbility(UAbilitySystemComponent* SourceAbiltySystemComponent, UAbilitySystemComponent* TargetAbiltySystemComponent, const float InterpKnockbackImpulse);
     void                                        ExecuteGameplayCue(UAbilitySystemComponent* OwnerAbilitySystemComponent, const FGameplayTag& Tag, const FHitResult& Hit);
 
-    void                                        CreateCrater(AActor* OtherActor);
-    
 protected:
 	UPROPERTY(EditAnywhere, Category = "Info|Default")
 	TObjectPtr<UStaticMeshComponent>			ProjectileMesh;

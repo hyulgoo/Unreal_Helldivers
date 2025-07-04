@@ -1,8 +1,8 @@
 
-#include "Character/HDCharacterPlayer.h"
+#include "HDCharacterPlayer.h"
 #include "Define/HDDefine.h"
 #include "Define/HDMontageSectionNames.h"
-#include "Tag/HDGameplayTag.h"
+#include "Define/HDGameplayTag.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
@@ -13,11 +13,11 @@
 #include "Controller/HDPlayerController.h"
 #include "Stratagem/HDStratagem.h"
 #include "Animation/HDAnimInstance.h"
-#include "Character/HDCharacterControlData.h"
+#include "GameData/HDCharacterControlData.h"
 #include "AbilitySystemComponent.h"
-#include "GAS/GameplayAbilityHelper.h"
+#include "AbilitySystem/GameplayAbilityHelper.h"
 #include "Attribute/HDHealthAttributeSet.h"
-#include "Attribute/Player/HDPlayerSpeedAttributeSet.h"
+#include "Attribute/HDSpeedAttributeSet.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "Weapon/WeaponTypes.h"
@@ -30,6 +30,10 @@ AHDCharacterPlayer::AHDCharacterPlayer()
 	, Combat(nullptr)
     , InputAction(nullptr)
     , Stratagem(nullptr)
+    , TaggedHoldActions{}
+    , TaggedToggleActions{}
+    , EventCallTags(FGameplayTagContainer())
+    , TagEventBindInfoList{}
 {
     GetCharacterMovement()->bOrientRotationToMovement = true;
 
@@ -204,7 +208,7 @@ const float AHDCharacterPlayer::Reload()
 
 	CONDITION_CHECK_WITH_RETURNTYPE(SectionName.IsNone(), 0.f);
 
-    PlayAnimMontage(ReloadWeaponMontage, 1.f, SectionName);
+    PlayAnimMontage(Combat->GetCombatMontage(EHDCombatMontage::Reload), 1.f, SectionName);
 
     return Combat->GetWeaponReloadDelay(bIsShoulder);
 }
@@ -283,11 +287,9 @@ void AHDCharacterPlayer::Attack(const bool bActive)
     }
     else if (CombatState == EHDCombatState::HoldStratagem)
     {
-        NULL_CHECK(ThrowMontage);
-
         // TODO(25/03/27)  추후 Crouch 등 다른 자세 생기면 해당 섹션으로 점프하기
         // 실제 AddImpulse는 AnimNotify에서 DetachTiming에 함
-        PlayAnimMontage(ThrowMontage);
+        PlayAnimMontage(Combat->GetCombatMontage(EHDCombatMontage::Throw));
     }
 }
 
@@ -325,13 +327,13 @@ const float AHDCharacterPlayer::GetMoveSpeedByState(const EHDCharacterStanceStat
     switch (StanceState)
     {
     case EHDCharacterStanceState::Idle:
-        Attribute = bSprint ? UHDPlayerSpeedAttributeSet::GetSprintSpeedAttribute() : UHDPlayerSpeedAttributeSet::GetWalkSpeedAttribute();
+        Attribute = bSprint ? UHDSpeedAttributeSet::GetSprintSpeedAttribute() : UHDSpeedAttributeSet::GetWalkSpeedAttribute();
         break;
     case EHDCharacterStanceState::Crouch:
-        Attribute = UHDPlayerSpeedAttributeSet::GetCrouchSpeedAttribute();
+        Attribute = UHDSpeedAttributeSet::GetCrouchSpeedAttribute();
         break;
     case EHDCharacterStanceState::Prone:
-        Attribute = UHDPlayerSpeedAttributeSet::GetCrawlingSpeedAttribute();
+        Attribute = UHDSpeedAttributeSet::GetCrawlingSpeedAttribute();
         break;
     }
 
@@ -387,7 +389,7 @@ void AHDCharacterPlayer::SetMovementState(const EHDCharacterMovementState NewSta
     GetCharacterMovement()->MaxWalkSpeed = NewSpeed;
 }
 
-const EHDCharacterStanceState AHDCharacterPlayer::GetCharacterStanceState() const
+const EHDCharacterStanceState AHDCharacterPlayer::GetStanceState() const
 {
     return InputAction->GetStanceState();
 }
@@ -451,7 +453,7 @@ void AHDCharacterPlayer::InitAbilitySystemComponent()
     AHDGASPlayerState* GASPlayerState = GetPlayerState<AHDGASPlayerState>();
     NULL_CHECK(GASPlayerState);
 
-    SetAbilitySystemComponent(GASPlayerState,GASPlayerState->GetAbilitySystemComponent());
+    SetAbilitySystemComponent(GASPlayerState, GASPlayerState->GetAbilitySystemComponent(), EHDCharacterType::Player);
 }
 
 void AHDCharacterPlayer::InterpFOV(float DeltaSeconds)
@@ -468,7 +470,7 @@ void AHDCharacterPlayer::InterpFOV(float DeltaSeconds)
 void AHDCharacterPlayer::ThirdPersonLook(const FInputActionValue& Value)
 {
     const FVector2D& LookAxisVector = Value.Get<FVector2D>();
-    AddControllerYawInput(-LookAxisVector.X);
+    AddControllerYawInput(LookAxisVector.X);
     AddControllerPitchInput(LookAxisVector.Y);
 }
 
@@ -553,7 +555,7 @@ const float AHDCharacterPlayer::Fire(const bool IsPressed)
     case EHDFireType::Projectile:
     {
         const FName SectionName = IsShouldering() ? HDMONTAGE_SECTIONNAME_RIFLE_AIM : HDMONTAGE_SECTIONNAME_RIFLE_HIP;
-        PlayAnimMontage(FireWeaponMontage, 1.f, SectionName);
+        PlayAnimMontage(Combat->GetCombatMontage(EHDCombatMontage::Fire), 1.f, SectionName);
     }
     break;
     case EHDFireType::Shotgun:

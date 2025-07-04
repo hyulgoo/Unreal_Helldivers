@@ -1,15 +1,15 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-#include "Stratagem/BattleShip/HDBattleShip.h"
+#include "HDBattleShip.h"
+#include "Kismet/GameplayStatics.h"
+#include "AbilitySystemComponent.h"
+#include "Components/SphereComponent.h"
 #include "Stratagem/Eagle/HDEagleFighter.h"
 #include "Stratagem/Types/StratagemProjectileTypes.h"
 #include "GameData/HDStratagemEffectData.h"
 #include "Game/HDGameState.h"
-#include "Kismet/GameplayStatics.h"
 #include "Weapon/Projectile/HDProjectileBase.h"
 #include "Define/HDDefine.h"
-#include "AbilitySystemComponent.h"
-#include "Components/SphereComponent.h"
 
 AHDBattleShip::AHDBattleShip()
     : BattleShipMesh(nullptr)

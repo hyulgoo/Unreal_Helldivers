@@ -5,17 +5,17 @@
 #include "Kismet/GameplayStatics.h"  
 #include "Sound/SoundCue.h"
 #include "GameFramework/ProjectileMovementComponent.h"
-#include "Character/GameAbility/HDGASCharacterPlayer.h"
 #include "AbilitySystemComponent.h"
 #include "AbilitySystemBlueprintLibrary.h"
-#include "GAS/GameplayEffect/HDGE_ApplyDamage.h"
+#include "AbilitySystemInterface.h"
+#include "AbilitySystem/GameplayEffect/HDGE_ApplyDamage.h"
 #include "Define/HDDefine.h"
-#include "Tag/HDGameplayTag.h"
+#include "Define/HDGameplayTag.h"
 #include "Collision/HDCollision.h"
 #include "Engine/OverlapResult.h"
-#include "Landscape.h"
-#include "LandscapeEdit.h"
 #include "EngineUtils.h"
+#include "Weapon/WeaponTypes.h"
+
 
 AHDProjectileBase::AHDProjectileBase()
 	: ProjectileMesh(nullptr)
@@ -267,92 +267,4 @@ void AHDProjectileBase::ExecuteGameplayCue(UAbilitySystemComponent* OwnerASC, co
 		Params.SourceObject = this;
 		OwnerASC->ExecuteGameplayCue(Tag, Params);
 	}
-}
-
-void AHDProjectileBase::CreateCrater(AActor* OtherActor)
-{
-	ALandscape* LandscapeActor = nullptr;
-	for (TActorIterator<ALandscape> It(GetWorld()); It; ++It)
-	{
-		LandscapeActor = *It;
-		break;
-	}
-
-	if (LandscapeActor == nullptr)
-	{
-		return;
-	}
-
-	ULandscapeInfo* LandscapeInfo = LandscapeActor->GetLandscapeInfo();
-	NULL_CHECK(LandscapeInfo);
-
-	TArray<FIntPoint> Keys;
-	LandscapeInfo->XYtoComponentMap.GetKeys(Keys);
-	if (Keys.Num() == 0) return;
-
-	FLandscapeEditDataInterface LandscapeEdit(LandscapeInfo);
-	FIntPoint MinKey = Keys[0], MaxKey = Keys[0];
-	for (auto& K : Keys)
-	{
-		MinKey.X = FMath::Min(MinKey.X, K.X);
-		MinKey.Y = FMath::Min(MinKey.Y, K.Y);
-		MaxKey.X = FMath::Max(MaxKey.X, K.X);
-		MaxKey.Y = FMath::Max(MaxKey.Y, K.Y);
-	}
-	// 한 컴포넌트당 Quad 수
-	int32 QuadsPerComponent = LandscapeInfo->ComponentSizeQuads * LandscapeInfo->ComponentNumSubsections;
-
-	// 4) 월드 → Heightmap 인덱스로 변환 람다
-	auto WorldToDataXY = [&](const FVector& WP, int32& OutX, int32& OutY)
-		{
-			// Landscape 로컬 공간으로
-			FVector Local = LandscapeActor->GetTransform().InverseTransformPosition(WP);
-			// DrawScale 분할
-			OutX = FMath::RoundToInt(Local.X / LandscapeInfo->DrawScale.X);
-			OutY = FMath::RoundToInt(Local.Y / LandscapeInfo->DrawScale.Y);
-			// 전체 범위에 클램프
-			OutX = FMath::Clamp(OutX, MinKey.X, MaxKey.X + QuadsPerComponent);
-			OutY = FMath::Clamp(OutY, MinKey.Y, MaxKey.Y + QuadsPerComponent);
-		};
-
-	const FVector& ActorLocation = GetActorLocation();
-
-	// 5) 수정할 영역 계산
-	int32 MinX, MinY, MaxX, MaxY;
-	WorldToDataXY(ActorLocation - FVector(ExplodeDamageRange, ExplodeDamageRange, 0), MinX, MinY);
-	WorldToDataXY(ActorLocation + FVector(ExplodeDamageRange, ExplodeDamageRange, 0), MaxX, MaxY);
-
-	int32 SizeX = MaxX - MinX + 1;
-	int32 SizeY = MaxY - MinY + 1;
-	if (SizeX <= 0 || SizeY <= 0) return;
-
-	// 6) 기존 높이 읽기
-	TArray<uint16> OrigHeights;
-	OrigHeights.SetNum(SizeX * SizeY);
-	LandscapeEdit.GetHeightDataFast(MinX, MinY, MaxX, MaxY, OrigHeights.GetData(), 0);
-
-	// 7) 새 높이 계산
-	TArray<uint16> NewHeights;
-	NewHeights.SetNum(SizeX * SizeY);
-
-	float InvZ = 1.f / LandscapeInfo->DrawScale.Z;
-	for (int32 Y = 0; Y < SizeY; ++Y)
-	{
-		for (int32 X = 0; X < SizeX; ++X)
-		{
-			int32 I = X + Y * SizeX;
-			// 월드 거리 계산
-			float WX = (MinX + X) * LandscapeInfo->DrawScale.X;
-			float WY = (MinY + Y) * LandscapeInfo->DrawScale.Y;
-			float Dist = FVector2D(WX - ActorLocation.X, WY - ActorLocation.Y).Size();
-			float Atten = FMath::Clamp(1.f - Dist / ExplodeDamageRange, 0.f, 1.f);
-
-			float HF = OrigHeights[I] - ExplodeDamageRange * Atten * InvZ;
-			NewHeights[I] = FMath::Clamp<int32>(FMath::RoundToInt(HF), 0, MAX_uint16);
-		}
-	}
-
-	// 8) Heightmap 쓰기 & Flush
-	LandscapeEdit.SetHeightData(MinX, MinY, MaxX, MaxY, NewHeights.GetData(), 0, true);
-	LandscapeEdit.Flush();
 }

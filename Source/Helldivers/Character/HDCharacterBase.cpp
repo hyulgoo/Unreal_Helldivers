@@ -4,16 +4,19 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "CharacterTypes/HDCharacterStateTypes.h"
 #include "Component/HDAbilitySystemComponent.h"
-#include "GameData/HDCharacterControlData.h"
 #include "Animation/AnimMontage.h"
 #include "Collision/HDCollision.h"
 #include "Define/HDDefine.h"
+#include "GameData/HDCharacterStat.h"
 
 AHDCharacterBase::AHDCharacterBase()
-	: FireWeaponMontage(nullptr)
-    , ThrowMontage(nullptr)
-    , DeadMontage(nullptr)
+    : DeadMontage(nullptr)
     , DeadEventDelayTime(10.f)
+    , AbilitySystemComponent(nullptr)
+    , Abilities{}
+    , ArmorType(EHDArmorType::Medium)
+    , ArmorTypeStatusDataTable(nullptr)
+    , InitAttributeStatEffect(nullptr)
 {
 	// Pawn
 	bUseControllerRotationPitch = false;
@@ -48,7 +51,7 @@ UAbilitySystemComponent* AHDCharacterBase::GetAbilitySystemComponent() const
     return Cast<UAbilitySystemComponent>(AbilitySystemComponent);
 }
 
-void AHDCharacterBase::SetAbilitySystemComponent(AActor* OwnerActor, UAbilitySystemComponent* ASC)
+void AHDCharacterBase::SetAbilitySystemComponent(AActor* OwnerActor, UAbilitySystemComponent* ASC, const EHDCharacterType CharacterType)
 {
     AbilitySystemComponent = Cast<UHDAbilitySystemComponent>(ASC);
     NULL_CHECK(AbilitySystemComponent);
@@ -60,7 +63,7 @@ void AHDCharacterBase::SetAbilitySystemComponent(AActor* OwnerActor, UAbilitySys
 
     AbilitySystemComponent->InitAbilityActorInfo(OwnerActor, this);
     AbilitySystemComponent->InitAttributeSet();
-    AbilitySystemComponent->SetAttributeSetStat(GetAttributeStatDataByArmorType(ArmorType));
+    AbilitySystemComponent->SetAttributeSetStat(GetAttributeStatDataByArmorType(ArmorType), InitAttributeStatEffect);
 }
 
 void AHDCharacterBase::SetDead()
@@ -127,18 +130,6 @@ void AHDCharacterBase::LoadDefaultMontage()
 	if (AnimInstanceClassRef.Class)
 	{
 		SkeletalMeshComponent->SetAnimInstanceClass(AnimInstanceClassRef.Class);
-	}
-
-	static ConstructorHelpers::FObjectFinder<UAnimMontage> FireWeaponMontageRef(TEXT("/Script/Engine.AnimMontage'/Game/Helldivers/Animation/AM_Fire.AM_Fire'"));
-	if (FireWeaponMontageRef.Succeeded())
-	{
-		FireWeaponMontage = FireWeaponMontageRef.Object;
-	}
-
-	static ConstructorHelpers::FObjectFinder<UAnimMontage> ThrowMontageRef(TEXT("/Script/Engine.AnimMontage'/Game/Helldivers/Animation/AM_Throw.AM_Throw'"));
-	if (ThrowMontageRef.Succeeded())
-	{
-		ThrowMontage = ThrowMontageRef.Object;
 	}
 
 	static ConstructorHelpers::FObjectFinder<UAnimMontage> DeadMontageRef(TEXT("/Script/Engine.AnimMontage'/Game/Helldivers/Animation/AM_Dead.AM_Dead'"));

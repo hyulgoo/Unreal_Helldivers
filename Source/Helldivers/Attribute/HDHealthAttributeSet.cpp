@@ -1,12 +1,9 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-#include "Attribute/HDHealthAttributeSet.h"
-#include "Character/CharacterTypes/HDCharacterStateTypes.h"
-#include "Character/HDCharacterBase.h"
-#include "GameplayEffectExtension.h"
-#include "Tag/HDGameplayTag.h"
+#include "HDHealthAttributeSet.h"
+#include "Define/HDGameplayTag.h"
 #include "Define/HDDefine.h"
-#include "GAS/GameplayAbilityHelper.h"
+#include "AbilitySystem/GameplayAbilityHelper.h"
 
 UHDHealthAttributeSet::UHDHealthAttributeSet()
 	: CurrentHealth(FGameplayAttributeData())

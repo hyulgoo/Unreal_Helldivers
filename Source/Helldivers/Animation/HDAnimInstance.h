@@ -42,7 +42,10 @@ protected:
 	float									MovingThreshould;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Movement")
-	EHDCharacterStanceState				CharacterMoveState;
+	EHDCharacterStanceState				    CharacterStanceState;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Movement")
+	EHDCharacterMovementState				   CharacterMovementState;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Movement")
 	uint8									bIsIdle : 1;
@@ -59,9 +62,6 @@ protected:
 	UPROPERTY(BlueprintReadOnly, Category = "Movement")
 	uint8									bIsRotateRootBone : 1;
 
-	UPROPERTY(BlueprintReadOnly, Category = "Movement")
-	uint8									bIsSprint : 1;
-	
 	UPROPERTY(BlueprintReadOnly, Category = "Movement")
 	float									YawOffset;
 

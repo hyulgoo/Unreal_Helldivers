@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-#include "GAS/AbilityTask/HDAT_Trace.h"
-#include "GAS/GameplayAbilityTargetActor/HDTA_Trace.h"
+#include "AbilitySystem/AbilityTask/HDAT_Trace.h"
+#include "AbilitySystem/GameplayAbilityTargetActor/HDTA_Trace.h"
 #include "AbilitySystemComponent.h"
 
 UHDAT_Trace* UHDAT_Trace::CreateTask(UGameplayAbility* OwningAbility, TSubclassOf<AHDTA_Trace> TargetActor)

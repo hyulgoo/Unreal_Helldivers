@@ -1,17 +1,17 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-#include "Character/HDCharacterNonPlayer.h"
-#include "Engine/AssetManager.h"
+#include "HDCharacterNonPlayer.h"
 
 AHDCharacterNonPlayer::AHDCharacterNonPlayer()
 {
-    UHDAbilitySystemComponent* ASC = CreateDefaultSubobject<UHDAbilitySystemComponent>("HDAbilitySystem");
-    SetAbilitySystemComponent(this, Cast<UHDAbilitySystemComponent>(ASC));
 }
 
-void AHDCharacterNonPlayer::PostInitializeComponents()
+void AHDCharacterNonPlayer::BeginPlay()
 {
-    Super::PostInitializeComponents();
+    Super::BeginPlay();
+
+    UHDAbilitySystemComponent* ASC = CreateDefaultSubobject<UHDAbilitySystemComponent>("HDAbilitySystem");
+    SetAbilitySystemComponent(this, Cast<UAbilitySystemComponent>(ASC), EHDCharacterType::NPC);
 }
 
 void AHDCharacterNonPlayer::SetDead()

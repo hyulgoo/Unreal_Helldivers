@@ -2,16 +2,13 @@
 
 #include "Controller/HDPlayerController.h"
 #include "Define/HDDefine.h"
-#include "Tag/HDGameplayTag.h"
+#include "Define/HDGameplayTag.h"
 #include "Component/HDStratagemComponent.h"
 #include "Component/HDCombatComponent.h"
-#include "Character/CharacterTypes/HDCharacterStateTypes.h"
 #include "UI/HDGASPlayerUserWidget.h"
 #include "UI/HDStratagemHUDUserWidget.h"
 #include "AbilitySystemInterface.h"
 #include "AbilitySystemComponent.h"
-#include "Attribute/HDHealthAttributeSet.h"
-#include "Weapon/HDWeapon.h"
 
 AHDPlayerController::AHDPlayerController()
     : PossessPawnASC(nullptr)

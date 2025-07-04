@@ -64,3 +64,19 @@ enum class EHDCharacterMovementState : uint8
     Sprint,
 	Count,
 };
+
+UENUM(BlueprintType)
+enum class EHDCombatMontage : uint8
+{
+	Fire,
+    Reload,
+    Throw,
+	Count,
+};
+
+UENUM(BlueprintType)
+enum class EHDCharacterType: uint8
+{
+	Player,
+    NPC,
+};

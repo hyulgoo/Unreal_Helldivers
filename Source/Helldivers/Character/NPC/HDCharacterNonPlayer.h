@@ -17,6 +17,6 @@ public:
     explicit        AHDCharacterNonPlayer();
 
 protected:
-    virtual void    PostInitializeComponents() override final;
+    virtual void    BeginPlay() override final;
     virtual void    SetDead() override final;
 };

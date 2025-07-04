@@ -1,9 +1,9 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-#include "Attribute/Player/HDPlayerSpeedAttributeSet.h"
+#include "HDSpeedAttributeSet.h"
 #include "Define/HDDefine.h"
 
-UHDPlayerSpeedAttributeSet::UHDPlayerSpeedAttributeSet()
+UHDSpeedAttributeSet::UHDSpeedAttributeSet()
 	: CurrentSpeed(FGameplayAttributeData())
 	, CrawlingSpeed(FGameplayAttributeData())
 	, CrouchSpeed(FGameplayAttributeData())
@@ -15,17 +15,17 @@ UHDPlayerSpeedAttributeSet::UHDPlayerSpeedAttributeSet()
 	InitCurrentSpeed(GetWalkSpeed());
 }
 
-void UHDPlayerSpeedAttributeSet::PreAttributeChange(const FGameplayAttribute& Attribute, float& NewValue)
+void UHDSpeedAttributeSet::PreAttributeChange(const FGameplayAttribute& Attribute, float& NewValue)
 {
 	NewValue = NewValue < 0.f ? 0.f : NewValue;
 }
 
-bool UHDPlayerSpeedAttributeSet::PreGameplayEffectExecute(FGameplayEffectModCallbackData& Data)
+bool UHDSpeedAttributeSet::PreGameplayEffectExecute(FGameplayEffectModCallbackData& Data)
 {
 	return true;
 }
 
-void UHDPlayerSpeedAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallbackData& Data)
+void UHDSpeedAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallbackData& Data)
 {
 	Super::PostGameplayEffectExecute(Data);
 }

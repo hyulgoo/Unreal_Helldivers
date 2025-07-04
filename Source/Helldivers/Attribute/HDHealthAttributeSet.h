@@ -30,9 +30,9 @@ public:
 	virtual void			PostGameplayEffectExecute(const struct FGameplayEffectModCallbackData& Data) override;
 	
 public:
-	UPROPERTY(BlueprintReadOnly, Category = "CurrentHealth")
+	UPROPERTY(BlueprintReadOnly, Category = "Health")
 	FGameplayAttributeData	CurrentHealth;
 	
-	UPROPERTY(BlueprintReadOnly, Category = "CurrentHealth")
+	UPROPERTY(BlueprintReadOnly, Category = "Health")
 	FGameplayAttributeData	MaxHealth;
 };

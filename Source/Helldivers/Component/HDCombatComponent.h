@@ -4,17 +4,15 @@
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
 #include "Character/CharacterTypes/HDCharacterStateTypes.h"
-#include "GameFramework/CharacterMovementComponent.h"
 #include "Components/TimelineComponent.h"
 #include "HDCombatComponent.generated.h"
 
+class UAnimMontage;
 class AHDWeapon;
 class AHDStratagem;
 class UCharacterMovementComponent;
 class USpringArmComponent;
-enum class EHDCombatState : uint8;
 enum class EHDFireType :uint8;
-
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
 class HELLDIVERS_API UHDCombatComponent : public UActorComponent
@@ -72,6 +70,8 @@ public:
 
     const float                             GetDefaultFOV() const;
     const bool                              IsUseRotateBone() const;
+
+    UAnimMontage*                           GetCombatMontage(const EHDCombatMontage MontageType);
 
 protected:
     virtual void                            BeginPlay() override final;
@@ -134,11 +134,5 @@ private:
 	TSubclassOf<AHDWeapon>					DefaultWeaponClass;
     
     UPROPERTY(EditAnywhere)
-    TObjectPtr<UAnimMontage>                FireWeaponMontage;
-    
-    UPROPERTY(EditAnywhere)
-    TObjectPtr<UAnimMontage>                ReloadWeaponMontage;
-    
-    UPROPERTY(EditAnywhere)
-    TObjectPtr<UAnimMontage>                ThrowMontage;
+    TMap<EHDCombatMontage,TObjectPtr<UAnimMontage>> CombatMontage;
 };

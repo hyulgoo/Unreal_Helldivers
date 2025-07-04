@@ -7,7 +7,6 @@
 #include "Components/SkinnedMeshComponent.h"
 #include "Engine/SkeletalMeshSocket.h"
 #include "Stratagem/HDStratagem.h"
-#include "Abilities/GameplayAbilityTypes.h"
 
 UHDStratagemComponent::UHDStratagemComponent()
     : StratagemClass(nullptr)
