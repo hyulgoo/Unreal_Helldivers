@@ -3,9 +3,8 @@
 
 #include "AnimNotify_FootStepSoundCue.h"
 #include "Define\HDDefine.h"
-#include "AbilitySystemComponent.h"
 #include "AbilitySystemInterface.h"
-#include "Kismet/GameplayStatics.h"
+#include "GAS/GameplayAbilityHelper.h"
 
 UAnimNotify_FootStepSoundCue::UAnimNotify_FootStepSoundCue()
     : FootSocketName(FName())
@@ -54,12 +53,7 @@ void UAnimNotify_FootStepSoundCue::Notify(USkeletalMeshComponent* MeshComp, UAni
 
         CONDITION_CHECK(PhysicsCueTagMap.Contains(MaterialType) == false);
 
-        FGameplayCueParameters Params;
-        Params.Location = HitResult.ImpactPoint;
-        Params.Normal = HitResult.ImpactNormal;
-        Params.AggregatedSourceTags = FGameplayTagContainer(PhysicsCueTagMap[MaterialType]);
-
-        ASC->ExecuteGameplayCue(PhysicsCueTagMap[MaterialType], Params);
+        FGameplayAbilityHelper::ExcuteGameplayCue(PhysicsCueTagMap[MaterialType], FGameplayTagContainer(PhysicsCueTagMap[MaterialType]), HitResult.ImpactPoint, HitResult.ImpactNormal, ASC);
     }
 }
 

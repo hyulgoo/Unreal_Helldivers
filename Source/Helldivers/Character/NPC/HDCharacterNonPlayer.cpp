@@ -6,7 +6,7 @@
 AHDCharacterNonPlayer::AHDCharacterNonPlayer()
 {
     UHDAbilitySystemComponent* ASC = CreateDefaultSubobject<UHDAbilitySystemComponent>("HDAbilitySystem");
-    SetAbilitySystemComponent(ASC);
+    SetAbilitySystemComponent(this, Cast<UHDAbilitySystemComponent>(ASC));
 }
 
 void AHDCharacterNonPlayer::PostInitializeComponents()

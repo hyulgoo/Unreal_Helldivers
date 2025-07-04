@@ -7,8 +7,8 @@
 #include "HDCharacterMovementInterface.generated.h"
 
 enum class EHDTurningInPlace : uint8;
-enum class ECharacterMovementMode : uint8;
 enum class EHDCharacterMovementState : uint8;
+enum class EHDCharacterStanceState : uint8;
 enum class EHDCharacterControlType : uint8;
 enum class EHDCombatState : uint8;
 
@@ -36,10 +36,10 @@ public:
 	virtual const EHDTurningInPlace			GetTurningInPlace() const = 0;
 	virtual const bool						IsUseRotateBone() const = 0;
 
-	virtual const bool						IsSprint() const = 0;
-	virtual void							SetSprint(const bool bSprint) = 0;
+	virtual const EHDCharacterMovementState	GetMovementState() const = 0;
+	virtual void							SetMovementState(const EHDCharacterMovementState NewState) = 0;
 
-	virtual const EHDCharacterMovementState GetCharacterMovementState() const = 0;
-	virtual void							SetCharacterMovementState(const EHDCharacterMovementState NewState, const bool bForced = false) = 0;
-	virtual void							RestoreMovementState() = 0;
+	virtual const EHDCharacterStanceState   GetCharacterStanceState() const = 0;
+	virtual void							SetCharacterStanceState(const EHDCharacterStanceState NewState, const bool bForced = false) = 0;
+	virtual void							RestoreStanceState() = 0;
 };

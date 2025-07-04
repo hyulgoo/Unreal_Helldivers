@@ -3,7 +3,8 @@
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "CharacterTypes/HDCharacterStateTypes.h"
-#include "HDCharacterControlData.h"
+#include "Component/HDAbilitySystemComponent.h"
+#include "GameData/HDCharacterControlData.h"
 #include "Animation/AnimMontage.h"
 #include "Collision/HDCollision.h"
 #include "Define/HDDefine.h"
@@ -64,7 +65,7 @@ void AHDCharacterBase::SetAbilitySystemComponent(AActor* OwnerActor, UAbilitySys
 
 void AHDCharacterBase::SetDead()
 {
-    GetMesh->SetSimulatePhysics(true);
+    GetMesh()->SetSimulatePhysics(true);
 	GetCharacterMovement()->DisableMovement();
     PlayAnimMontage(DeadMontage, 1.f);
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);

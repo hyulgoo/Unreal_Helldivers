@@ -9,9 +9,8 @@
 #include "Interface/HDCharacterMovementInterface.h"
 #include "Interface/HDCharacterCommandInterface.h"
 #include "Interface/HDWeaponInterface.h"
-#include "Weapon/WeaponTypes.h"
-#include "Components/TimelineComponent.h"
 #include "HDCharacterPlayer.generated.h"
+#include "GAS/Struct/HDTaggedInputAction.h"
 
 class USpringArmComponent;
 class UCameraComponent;
@@ -22,6 +21,40 @@ class AHDWeapon;
 class AHDStratagem;
 class UHDCharacterControlData;
 
+UENUM(BlueprintType)
+enum class EHDCharacterInputAction : uint8
+{
+	ThirdLook,
+	ThirdMove,
+	FirstLook,
+	FirstMove,
+	ChangeControl,
+	Count
+};
+
+USTRUCT(BlueprintType)
+struct FTagEventBindInfo
+{
+    GENERATED_BODY()
+
+public:
+	FTagEventBindInfo()
+		: BindFunctionName(FName())
+		, InputAction(nullptr)
+		, EventConditionTag(FGameplayTag())
+	{
+	};
+
+    UPROPERTY(EditDefaultsOnly)
+    FName						BindFunctionName;
+
+    UPROPERTY(EditDefaultsOnly)
+    TObjectPtr<UInputAction>	InputAction;
+
+    UPROPERTY(EditDefaultsOnly)
+    FGameplayTag				EventConditionTag;
+};
+
 UCLASS()
 class HELLDIVERS_API AHDCharacterPlayer : public AHDCharacterBase, public IHDCharacterMovementInterface, public IHDWeaponInterface, public IHDCharacterCommandInterface
 {
@@ -30,10 +63,20 @@ class HELLDIVERS_API AHDCharacterPlayer : public AHDCharacterBase, public IHDCha
 public:
 	explicit								AHDCharacterPlayer();
 
+    void                                    ChangeCharacterControlType();
+
 protected:
 	virtual void							SetDead() override final;
     virtual void							Tick(float DeltaTime) override;
 	virtual void							PossessedBy(AController* NewController) override;
+
+    virtual void							SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override final;
+    void                                    SetupAbilitySystemInputComponent(UEnhancedInputComponent* EnhancedInputComponent);
+    void                                    SetupEventAbilitySystemInputComponent(UEnhancedInputComponent* EnhancedInputComponent);
+
+    void		                            AbilityInputTriggered(const FGameplayTag Tag);
+    void		                            AbilityInputReleased(const FGameplayTag Tag);
+    void		                            AbilityInputToggled(const FGameplayTag Tag);
 
 	// RagdollInterface
 	virtual void							SetRagdoll(const bool bRagdoll, const FVector& Impulse = FVector::ZeroVector) override final;
@@ -59,11 +102,11 @@ protected:
 	virtual const bool						IsCharacterLookingViewport() const override final;
 	virtual const EHDTurningInPlace			GetTurningInPlace() const override final;
 	virtual const bool						IsUseRotateBone() const override final;
-	virtual const bool						IsSprint() const override final;
-	virtual void							SetSprint(const bool bSprint) override;
-	virtual const EHDCharacterMovementState	GetCharacterMovementState() const override;
-	virtual void							SetCharacterMovementState(const EHDCharacterMovementState NewState, const bool bForced = false);
-	virtual void							RestoreMovementState() override;
+	virtual const EHDCharacterMovementState	GetMovementState() const override final;
+	virtual void							SetMovementState(const EHDCharacterMovementState NewState) override;
+	virtual const EHDCharacterStanceState	GetCharacterStanceState() const override;
+	virtual void							SetCharacterStanceState(const EHDCharacterStanceState NewState, const bool bForced = false);
+	virtual void							RestoreStanceState() override;
 
 	// CharacterCommandInterface
 	virtual void							DetachStratagemWhileThrow() override final;
@@ -73,9 +116,20 @@ protected:
 	void									SetCharacterControlData(UHDCharacterControlData* CharacterControlData);
 
 	UHDStratagemComponent*					GetStratagemComponent();
+    const float								GetMoveSpeedByState(const EHDCharacterStanceState StanceState, const EHDCharacterMovementState MoveState);
+        
+	UFUNCTION()
+	void									InputStratagemCommand(const FInputActionValue& Value);
 	
 private:
+    void                                    InitAbilitySystemComponent();
 	void									InterpFOV(float DeltaSeconds);
+
+    void									ThirdPersonLook(const FInputActionValue& Value);
+    void									ThirdPersonMove(const FInputActionValue& Value);
+    void									FirstPersonLook(const FInputActionValue& Value);
+    void									FirstPersonMove(const FInputActionValue& Value);
+    void									SetCharacterControl(const EHDCharacterControlType NewCharacterControlType);
 
 private:
 	UPROPERTY(EditDefaultsOnly)
@@ -92,4 +146,16 @@ private:
 
 	UPROPERTY(EditDefaultsOnly)
 	TObjectPtr<UHDStratagemComponent>		Stratagem;
+    
+	UPROPERTY(EditAnywhere, Category = "GASPlayer|Input")
+	TArray<FTaggedInputAction>				TaggedHoldActions;
+	
+	UPROPERTY(EditAnywhere, Category = "GASPlayer|Input")
+	TArray<FTaggedInputAction>				TaggedToggleActions;
+	
+	UPROPERTY(EditAnywhere, Category = "GASPlayer|Input")
+	FGameplayTagContainer					EventCallTags;
+
+	UPROPERTY(EditAnywhere, Category = "GASPlayer|Input")
+	TArray<FTagEventBindInfo>				TagEventBindInfoList;
 };

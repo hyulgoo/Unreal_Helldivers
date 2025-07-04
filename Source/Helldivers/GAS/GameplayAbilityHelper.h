@@ -12,5 +12,7 @@ public:
 
 	static const bool	HasMatchingTagGameplayTag(UAbilitySystemComponent* TargetASC, const FGameplayTag TagToCheck);
 	static void			AddTagToTarget(UAbilitySystemComponent* TargetASC, const FGameplayTag Tag);
+
+    static void         ExcuteGameplayCue(const FGameplayTag Tag, const FGameplayTagContainer TagContainer, const FVector& Location, const FVector Normal, UAbilitySystemComponent* ASC);
 };
 

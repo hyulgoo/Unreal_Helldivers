@@ -2,7 +2,6 @@
 
 #include "AnimNotify_ThrowMontageDetach.h"
 #include "Interface/HDCharacterCommandInterface.h"
-#include "Stratagem/HDStratagem.h"
 #include "Define/HDDefine.h"
 
 FString UAnimNotify_ThrowMontageDetach::GetNotifyName_Implementation() const

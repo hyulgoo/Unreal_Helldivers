@@ -79,3 +79,13 @@ void FGameplayAbilityHelper::AddTagToTarget(UAbilitySystemComponent* TargetASC, 
 
     TargetASC->AddLooseGameplayTag(Tag);
 }
+
+void FGameplayAbilityHelper::ExcuteGameplayCue(const FGameplayTag Tag, const FGameplayTagContainer TagContainer, const FVector& Location, const FVector Normal, UAbilitySystemComponent* ASC)
+{
+    FGameplayCueParameters Params;
+    Params.Location = Location;
+    Params.Normal = Normal;
+    Params.AggregatedSourceTags = TagContainer;
+
+    ASC->ExecuteGameplayCue(Tag, Params);
+}

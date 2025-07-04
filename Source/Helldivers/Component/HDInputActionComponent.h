@@ -7,7 +7,12 @@
 #include "Components/TimelineComponent.h"
 #include "HDInputActionComponent.generated.h"
 
+class UInputAction;
+class UHDCharacterControlData;
+enum class EHDCharacterStanceState : uint8;
 enum class EHDCharacterMovementState : uint8;
+enum class EHDCharacterControlType : uint8;
+enum class EHDCharacterInputAction : uint8;
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class HELLDIVERS_API UHDInputActionComponent : public UActorComponent
@@ -17,20 +22,33 @@ class HELLDIVERS_API UHDInputActionComponent : public UActorComponent
 public:	
 	explicit						UHDInputActionComponent();
 
-	const bool						IsSprint() const ;
-	void							SetSprint(const bool bSprint) ;
+	const EHDCharacterStanceState	GetStanceState() const;
+	void							SetStanceState(const EHDCharacterStanceState NewState, const bool bForced = false);
+	void							RestoreStanceState();
 
-	const EHDCharacterMovementState	GetCharacterMovementState() const;
-	void							SetCharacterMovementState(const EHDCharacterMovementState NewState, const bool bForced = false);
-	void							RestoreMovementState();
+    const EHDCharacterMovementState GetMovementState() const;
+    void                            SetMovementState(const EHDCharacterMovementState NewState);
 
 	void							SetSpringArmDefaultZOffset(const float ZOffset);
-	void							ChangeCameraZOffsetByCharacterMovementState(const EHDCharacterMovementState State);
+	void							ChangeCameraZOffsetByCharacterMovementState(const EHDCharacterStanceState State);
+
+    UHDCharacterControlData*        SetControlType(const EHDCharacterControlType Type);
+    const EHDCharacterControlType   GetControlType() const;
+
+    const TMap<EHDCharacterInputAction, TObjectPtr<UInputAction>>& GetInputActionMap() const;
 
 private:
-	EHDCharacterMovementState		MovementState;
-	EHDCharacterMovementState		PrevMovementState;
-	bool							bIsSprint;
+	EHDCharacterStanceState		    StanceState;
+	EHDCharacterStanceState		    PrevStanceState;
+	EHDCharacterMovementState       MovementState;
 	
 	float					        SpringArmZOffset;
+    
+	UPROPERTY(EditAnywhere)
+	TMap<EHDCharacterInputAction, TObjectPtr<UInputAction>> InputActionMap;
+
+	EHDCharacterControlType			CurrentCharacterControlType;
+	
+    UPROPERTY(EditAnywhere)
+    TMap<EHDCharacterControlType, TObjectPtr<UHDCharacterControlData>> CharacterControlDataMap;	
 };

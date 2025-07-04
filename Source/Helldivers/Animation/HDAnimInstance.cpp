@@ -18,7 +18,7 @@ UHDAnimInstance::UHDAnimInstance()
 	, Velocity(FVector())
 	, GroundSpeed(0.f)
 	, MovingThreshould(0.f)
-	, CharacterMoveState(EHDCharacterMovementState::Idle)
+	, CharacterMoveState(EHDCharacterStanceState::Idle)
 	, bIsIdle(false)
 	, bIsFalling(false)
 	, bIsJumping(false)
@@ -89,7 +89,7 @@ void UHDAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 	TScriptInterface<IHDCharacterMovementInterface> CharacterMovementInterface = Owner;
 	if (CharacterMovementInterface)
 	{
-		bIsSprint			= CharacterMovementInterface->IsSprint();
+		bIsSprint			= CharacterMovementInterface->GetMovementState();
 		bIsShouldering		= CharacterMovementInterface->IsShouldering();
 		AimOffset_Yaw		= bIsShouldering ? 0.f : CharacterMovementInterface->GetAimOffset_Yaw();
 		AimOffset_Pitch		= CharacterMovementInterface->GetAimOffset_Pitch();
@@ -97,7 +97,7 @@ void UHDAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 		TurningInPlace		= CharacterMovementInterface->GetTurningInPlace();
 		bIsLookingViewport	= CharacterMovementInterface->IsCharacterLookingViewport();
 		YawOffset			= bIsLookingViewport ? DeltaRotation.Yaw : 0.f;
-		CharacterMoveState	= CharacterMovementInterface->GetCharacterMovementState();
+		CharacterMoveState	= CharacterMovementInterface->GetCharacterStanceState();
 	}
 
 	// WeaponInterface

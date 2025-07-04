@@ -6,6 +6,7 @@
 #include "GameFramework/Character.h"
 #include "Interface/HDCharacterRagdollInterface.h"
 #include "Interface/HDDeadInterface.h"
+#include "Character/CharacterTypes/HDCharacterStateTypes.h"
 #include "AbilitySystemInterface.h"
 #include "HDCharacterBase.generated.h"
 
@@ -14,7 +15,6 @@ class USkeletalMeshComponent;
 class UHDAbilitySystemComponent;
 class UGameplayAbility;
 struct FHDCharacterStat;
-enum class EHDCharacterControlType : uint8;
 
 UCLASS()
 class HELLDIVERS_API AHDCharacterBase : public ACharacter, public IAbilitySystemInterface, public IHDCharacterRagdollInterface, public IHDDeadInterface
@@ -26,7 +26,7 @@ public:
 
 protected:
     virtual UAbilitySystemComponent*        GetAbilitySystemComponent() const override final;
-    void                                    SetAbilitySystemComponent(UAbilitySystemComponent* ASC);
+    void                                    SetAbilitySystemComponent(AActor* OwnerActor, UAbilitySystemComponent* ASC);
     virtual void                            SetDead() override;
 
     virtual void				            SetRagdoll(const bool bRagdoll, const FVector& Impulse = FVector::ZeroVector) override;

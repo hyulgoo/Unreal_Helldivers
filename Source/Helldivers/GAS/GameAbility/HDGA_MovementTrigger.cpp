@@ -1,11 +1,10 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "HDGA_MovementTrigger.h"
-#include "Tag/HDGameplayTag.h"
+#include "Define/HDGameplayTag.h"
 #include "Define/HDDefine.h"
 #include "Interface/HDCharacterMovementInterface.h"
 #include "Character/CharacterTypes/HDCharacterStateTypes.h"
-#include "GAS/GameplayAbilityHelper.h"
 
 UHDGA_MovementTrigger::UHDGA_MovementTrigger()
 { 
@@ -34,15 +33,15 @@ void UHDGA_MovementTrigger::ActivateAbility(const FGameplayAbilitySpecHandle Han
 	}
 	else if (CurrentTagContainer.HasTagExact(HDTAG_INPUT_SPRINT))
 	{
-		CharacterMovementInterface->SetSprint(true);
+		CharacterMovementInterface->SetMovementState(EHDCharacterMovementState::Sprint);
 	}
 	else if (CurrentTagContainer.HasTagExact(HDTAG_INPUT_CROUCH))
 	{
-		CharacterMovementInterface->SetCharacterMovementState(EHDCharacterMovementState::Crouch);
+		CharacterMovementInterface->SetCharacterStanceState(EHDCharacterStanceState::Crouch);
 	}
 	else if (CurrentTagContainer.HasTagExact(HDTAG_INPUT_PRONE))
 	{
-		CharacterMovementInterface->SetCharacterMovementState(EHDCharacterMovementState::Prone);
+		CharacterMovementInterface->SetCharacterStanceState(EHDCharacterStanceState::Prone);
 	}
 }
 
@@ -73,10 +72,10 @@ void UHDGA_MovementTrigger::EndAbility(const FGameplayAbilitySpecHandle Handle, 
 	}
 	else if (CurrentTagContainer.HasTagExact(HDTAG_INPUT_SPRINT))
 	{
-		CharacterMovementInterface->SetSprint(false);
+		CharacterMovementInterface->SetMovementState(EHDCharacterMovementState::Walk);
 	}
 	else if (CurrentTagContainer.HasTagExact(HDTAG_INPUT_CROUCH) || CurrentTagContainer.HasTagExact(HDTAG_INPUT_PRONE))
 	{
-		CharacterMovementInterface->RestoreMovementState();
+		CharacterMovementInterface->RestoreStanceState();
 	}
 }

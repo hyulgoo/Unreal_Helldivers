@@ -23,22 +23,22 @@ class HELLDIVERS_API UAnimNotify_FootStepSoundCue : public UAnimNotify
 	GENERATED_BODY()
 
 public:
-	explicit												UAnimNotify_FootStepSoundCue();
+    explicit											UAnimNotify_FootStepSoundCue();
 
 protected:
-	virtual FString											GetNotifyName_Implementation() const override final;
-	virtual void											Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, const FAnimNotifyEventReference& EventReference) override;
+    virtual FString										GetNotifyName_Implementation() const override final;
+    virtual void										Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, const FAnimNotifyEventReference& EventReference) override;
 
 private:
-	const EPhysicsMaterialType								GetPhysicsMaterialTypeByPhysicSurface(const EPhysicalSurface PhysicSurface);
+    const EPhysicsMaterialType							GetPhysicsMaterialTypeByPhysicSurface(const EPhysicalSurface PhysicSurface);
 
 public:
-	UPROPERTY(EditAnywhere, Category = "AnimNotify")
-	FName													FootSocketName;
+    UPROPERTY(EditAnywhere, Category = "AnimNotify")
+    FName												FootSocketName;
 
-	UPROPERTY(EditAnywhere, Category = "AnimNotify")
-	float													TraceDistance;
-	
-	UPROPERTY(EditAnywhere, Category = "AnimNotify")
-	TMap<EPhysicsMaterialType, FGameplayTag>				PhysicsCueTagMap;
+    UPROPERTY(EditAnywhere, Category = "AnimNotify")
+    float												TraceDistance;
+
+    UPROPERTY(EditAnywhere, Category = "AnimNotify")
+    TMap<EPhysicsMaterialType, FGameplayTag>			PhysicsCueTagMap;
 };

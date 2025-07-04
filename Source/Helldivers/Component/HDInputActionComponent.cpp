@@ -8,54 +8,69 @@
 #define CHARACTERMOVESTATEZOFFSET 40.f
 
 UHDInputActionComponent::UHDInputActionComponent()
-	: MovementState(EHDCharacterMovementState::Idle)
-	, PrevMovementState(EHDCharacterMovementState::Idle)
-	, bIsSprint(false)
+	: StanceState(EHDCharacterStanceState::Idle)
+	, PrevStanceState(EHDCharacterStanceState::Idle)
+    , MovementState(EHDCharacterMovementState::Idle)
 	, SpringArmZOffset(0.f)
+    , CurrentCharacterControlType(EHDCharacterControlType::ThirdPerson)
+    , CharacterControlDataMap{}
 {
+    static ConstructorHelpers::FObjectFinder<UHDCharacterControlData> ThirdPersonDataRef(TEXT("/Script/Helldivers.HDCharacterControlData'/Game/Helldivers/CharacterControl/HDC_ThirdPerson.HDC_ThirdPerson'"));
+    if (ThirdPersonDataRef.Succeeded())
+    {
+        CharacterControlDataMap.Add(EHDCharacterControlType::ThirdPerson, ThirdPersonDataRef.Object);
+    }
+
+    static ConstructorHelpers::FObjectFinder<UHDCharacterControlData> FirstPersonDataRef(TEXT("/Script/Helldivers.HDCharacterControlData'/Game/Helldivers/CharacterControl/HDC_FirstPerson.HDC_FirstPerson'"));
+    if (FirstPersonDataRef.Succeeded())
+    {
+        CharacterControlDataMap.Add(EHDCharacterControlType::FirstPerson, FirstPersonDataRef.Object);
+    }
 }
 
-const bool UHDInputActionComponent::IsSprint() const
+const EHDCharacterStanceState UHDInputActionComponent::GetStanceState() const
 {
-	return bIsSprint;
+	return StanceState;
 }
 
-void UHDInputActionComponent::SetSprint(const bool bSprint)
+void UHDInputActionComponent::SetStanceState(const EHDCharacterStanceState NewState, const bool bForced)
 {
-	bIsSprint = bSprint;
+	CONDITION_CHECK(NewState == EHDCharacterStanceState::Count);
+
+	PrevStanceState = (PrevStanceState != StanceState) ? StanceState : PrevStanceState;
+	StanceState = NewState;
+
+	ChangeCameraZOffsetByCharacterMovementState(StanceState);
 }
 
-const EHDCharacterMovementState UHDInputActionComponent::GetCharacterMovementState() const
+void UHDInputActionComponent::RestoreStanceState()
 {
-	return MovementState;
-}
-
-void UHDInputActionComponent::SetCharacterMovementState(const EHDCharacterMovementState NewState, const bool bForced)
-{
-	CONDITION_CHECK(NewState == EHDCharacterMovementState::Count);
-
-	PrevMovementState = (PrevMovementState != MovementState) ? MovementState : PrevMovementState;
-	MovementState = NewState;
-
-	ChangeCameraZOffsetByCharacterMovementState(MovementState);
-}
-
-void UHDInputActionComponent::RestoreMovementState()
-{
-	if (MovementState == EHDCharacterMovementState::Crouch)
+	if (StanceState == EHDCharacterStanceState::Crouch)
 	{
-		MovementState = EHDCharacterMovementState::Idle;
+		StanceState = EHDCharacterStanceState::Idle;
 	}
-	else if (MovementState == EHDCharacterMovementState::Prone)
+	else if (StanceState == EHDCharacterStanceState::Prone)
 	{
-		MovementState = PrevMovementState == EHDCharacterMovementState::Crouch ? PrevMovementState : EHDCharacterMovementState::Idle;
+		StanceState = PrevStanceState == EHDCharacterStanceState::Crouch ? PrevStanceState : EHDCharacterStanceState::Idle;
 	}
 	else
 	{
 		CONDITION_CHECK(true);
 	}
 
-	ChangeCameraZOffsetByCharacterMovementState(MovementState);
+	ChangeCameraZOffsetByCharacterMovementState(StanceState);
+}
+
+const EHDCharacterMovementState UHDInputActionComponent::GetMovementState() const
+{
+    return MovementState;
+}
+
+void UHDInputActionComponent::SetMovementState(const EHDCharacterMovementState NewState)
+{
+    CONDITION_CHECK(NewState == EHDCharacterMovementState::Count);
+
+    MovementState = NewState;
 }
 
 void UHDInputActionComponent::SetSpringArmDefaultZOffset(const float ZOffset)
@@ -63,22 +78,40 @@ void UHDInputActionComponent::SetSpringArmDefaultZOffset(const float ZOffset)
 	SpringArmZOffset = ZOffset;
 }
 
-void UHDInputActionComponent::ChangeCameraZOffsetByCharacterMovementState(const EHDCharacterMovementState State)
+void UHDInputActionComponent::ChangeCameraZOffsetByCharacterMovementState(const EHDCharacterStanceState State)
 {
 	USpringArmComponent* SpringArm = GetOwner()->GetComponentByClass<USpringArmComponent>();
 	switch (State)
 	{
-	case EHDCharacterMovementState::Idle:
+	case EHDCharacterStanceState::Idle:
 		SpringArm->TargetOffset.Z = SpringArmZOffset;
 		break;
-	case EHDCharacterMovementState::Crouch:
+	case EHDCharacterStanceState::Crouch:
 		SpringArm->TargetOffset.Z = SpringArmZOffset - CHARACTERMOVESTATEZOFFSET;
 		break;
-	case EHDCharacterMovementState::Prone:
+	case EHDCharacterStanceState::Prone:
 		SpringArm->TargetOffset.Z = SpringArmZOffset - CHARACTERMOVESTATEZOFFSET * 2;
 		break;
 	default:
 		LOG(TEXT("EHDCharacterMovementState is Invalid!!"));
 		break;
 	}
+}
+
+UHDCharacterControlData* UHDInputActionComponent::SetControlType(const EHDCharacterControlType Type)
+{
+    CONDITION_CHECK_WITH_RETURNTYPE(CharacterControlDataMap.IsEmpty(), nullptr);
+
+    CurrentCharacterControlType = Type;
+    return CharacterControlDataMap[CurrentCharacterControlType];
+}
+
+const EHDCharacterControlType UHDInputActionComponent::GetControlType() const
+{
+    return CurrentCharacterControlType;
+}
+
+const TMap<EHDCharacterInputAction, TObjectPtr<UInputAction>>& UHDInputActionComponent::GetInputActionMap() const
+{
+    return InputActionMap;
 }

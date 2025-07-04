@@ -20,7 +20,6 @@ public:
     void		                    AbilityInputTagReleased(const FGameplayTag Tag);
     void		                    AbilityInputTagToggled(const FGameplayTag Tag);
 
-private:
     void		                    InitAttributeSet();
     void                            SetAttributeSetStat(FHDCharacterStat* StatData);
 
