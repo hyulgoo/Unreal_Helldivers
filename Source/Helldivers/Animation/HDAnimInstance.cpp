@@ -108,10 +108,8 @@ void UHDAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 
 	CombatState = WeaponInterface->GetCombatState();
 	AHDWeapon* Weapon = WeaponInterface->GetWeapon();
-	if (CombatState != EHDCombatState::Unoccupied && CombatState != EHDCombatState::Reloading)
+	if (CombatState != EHDCombatState::Unoccupied && CombatState != EHDCombatState::Fire && CombatState != EHDCombatState::Reloading)
 	{
-		bUseFABRIK = false;
-		bTransformRightHand = false;
 		if (Weapon)
 		{
 			HitTarget = WeaponInterface->GetHitTarget();
@@ -119,25 +117,26 @@ void UHDAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 	}
 	else
 	{
-		if (Weapon)
-		{
-			USkeletalMeshComponent* WeaponMesh = Weapon->GetWeaponMesh();
-			NULL_CHECK(WeaponMesh);
+        if (Weapon)
+        {
+            USkeletalMeshComponent* WeaponMesh = Weapon->GetWeaponMesh();
+            NULL_CHECK(WeaponMesh);
 
-			LeftHandTransform = WeaponMesh->GetSocketTransform(HDSOCKETNAME_LEFTHAND, ERelativeTransformSpace::RTS_World);
-			HitTarget = WeaponInterface->GetHitTarget();
-			FVector OutPosition;
-			FRotator OutRotation;
-			CharacterMesh->TransformToBoneSpace(HDBONENAME_RIGHTHAND, LeftHandTransform.GetLocation(), FRotator::ZeroRotator, OutPosition, OutRotation);
-			LeftHandTransform.SetLocation(OutPosition);
-			LeftHandTransform.SetRotation(FQuat(OutRotation));
+            LeftHandTransform = WeaponMesh->GetSocketTransform(HDSOCKETNAME_LEFTHAND, ERelativeTransformSpace::RTS_World);
+            HitTarget = WeaponInterface->GetHitTarget();
+            FVector OutPosition;
+            FRotator OutRotation;
+            CharacterMesh->TransformToBoneSpace(HDBONENAME_RIGHTHAND, LeftHandTransform.GetLocation(), FRotator::ZeroRotator, OutPosition, OutRotation);
+            LeftHandTransform.SetLocation(OutPosition);
+            LeftHandTransform.SetRotation(FQuat(OutRotation));
 
-			const FTransform& MuzzleFlashSocketTransform = WeaponMesh->GetSocketTransform(HDSOCKETNAME_MUZZLEFLASH, ERelativeTransformSpace::RTS_World);
-			const FRotator LookAtRotation = UKismetMathLibrary::FindLookAtRotation(MuzzleFlashSocketTransform.GetLocation(), HitTarget);
-			RightHandRotation = LookAtRotation;
-
-			bUseFABRIK = CombatState == EHDCombatState::Unoccupied;
-			bTransformRightHand = CombatState == EHDCombatState::ThrowingGrenade;
+            //const FTransform& MuzzleFlashSocketTransform = WeaponMesh->GetSocketTransform(HDSOCKETNAME_MUZZLEFLASH, ERelativeTransformSpace::RTS_World);
+            //const FRotator LookAtRotation = UKismetMathLibrary::FindLookAtRotation(MuzzleFlashSocketTransform.GetLocation(), HitTarget);
+            //RightHandRotation = LookAtRotation;
 		}		
 	}
+
+    bTransformRightHand = CombatState == EHDCombatState::ThrowingGrenade;
+    bUseFABRIK = CombatState == EHDCombatState::Unoccupied;
+    bIsUpperSlotValid = (CombatState == EHDCombatState::Fire || CombatState == EHDCombatState::ThrowingGrenade);
 }

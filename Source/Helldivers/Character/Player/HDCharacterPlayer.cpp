@@ -11,18 +11,17 @@
 #include "Component/HDStratagemComponent.h"
 #include "Component/HDAbilitySystemComponent.h"
 #include "Controller/HDPlayerController.h"
-#include "Stratagem/HDStratagem.h"
 #include "Animation/HDAnimInstance.h"
 #include "GameData/HDCharacterControlData.h"
 #include "AbilitySystemComponent.h"
 #include "AbilitySystem/GameplayAbilityHelper.h"
-#include "Attribute/HDHealthAttributeSet.h"
 #include "Attribute/HDSpeedAttributeSet.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "Weapon/WeaponTypes.h"
 #include "Player/HDGASPlayerState.h"
 #include "Character/CharacterTypes/HDCharacterStateTypes.h"
+#include "GameData/HDTaggedInputAction.h"
 
 AHDCharacterPlayer::AHDCharacterPlayer()
     : SpringArm(nullptr)
@@ -30,8 +29,7 @@ AHDCharacterPlayer::AHDCharacterPlayer()
 	, Combat(nullptr)
     , InputAction(nullptr)
     , Stratagem(nullptr)
-    , TaggedHoldActions{}
-    , TaggedToggleActions{}
+    , TaggedInputDataAsset(nullptr)
     , EventCallTags(FGameplayTagContainer())
     , TagEventBindInfoList{}
 {
@@ -88,34 +86,19 @@ void AHDCharacterPlayer::SetupAbilitySystemInputComponent(UEnhancedInputComponen
 {
     NULL_CHECK(EnhancedInputComponent);
 
-    for (const FTaggedInputAction& TaggedHoldAction : TaggedHoldActions)
-    {
-        CONDITION_CHECK((TaggedHoldAction.InputAction == nullptr || TaggedHoldAction.InputTag.IsValid()) == false);
-
-        EnhancedInputComponent->BindAction(TaggedHoldAction.InputAction, ETriggerEvent::Triggered, this, &AHDCharacterPlayer::AbilityInputTriggered, TaggedHoldAction.InputTag);
-        EnhancedInputComponent->BindAction(TaggedHoldAction.InputAction, ETriggerEvent::Completed, this, &AHDCharacterPlayer::AbilityInputReleased, TaggedHoldAction.InputTag);
-    }
-
-    for (const FTaggedInputAction& TaggedToggleAction : TaggedToggleActions)
-    {
-        if (TaggedToggleAction.InputAction == nullptr || TaggedToggleAction.InputTag.IsValid() == false)
-        {
-            LOG(TEXT("TaggedToggleAction is InValid!"));
-            continue;
-        }
-
-        EnhancedInputComponent->BindAction(TaggedToggleAction.InputAction, ETriggerEvent::Started, this, &AHDCharacterPlayer::AbilityInputToggled, TaggedToggleAction.InputTag);
-    }
+    UHDInputActionComponent* HDInput = Cast<UHDInputActionComponent>(EnhancedInputComponent);
+    NULL_CHECK(HDInput);
 
     TMap<EHDCharacterInputAction, TObjectPtr<UInputAction>> InputActionMap = InputAction->GetInputActionMap();
 
     CONDITION_CHECK(InputActionMap.Num() != static_cast<uint8>(EHDCharacterInputAction::Count));
 
-    EnhancedInputComponent->BindAction(InputActionMap[EHDCharacterInputAction::ThirdLook], ETriggerEvent::Triggered, this, &AHDCharacterPlayer::ThirdPersonLook);
-    EnhancedInputComponent->BindAction(InputActionMap[EHDCharacterInputAction::ThirdMove], ETriggerEvent::Triggered, this, &AHDCharacterPlayer::ThirdPersonMove);
-    EnhancedInputComponent->BindAction(InputActionMap[EHDCharacterInputAction::FirstLook], ETriggerEvent::Triggered, this, &AHDCharacterPlayer::FirstPersonLook);
-    EnhancedInputComponent->BindAction(InputActionMap[EHDCharacterInputAction::FirstMove], ETriggerEvent::Triggered, this, &AHDCharacterPlayer::FirstPersonMove);
-    EnhancedInputComponent->BindAction(InputActionMap[EHDCharacterInputAction::ChangeControl], ETriggerEvent::Triggered, this, &AHDCharacterPlayer::ChangeCharacterControlType);
+    HDInput->BindAction(InputActionMap[EHDCharacterInputAction::ThirdLook], ETriggerEvent::Triggered, this, &AHDCharacterPlayer::ThirdPersonLook);
+    HDInput->BindAction(InputActionMap[EHDCharacterInputAction::ThirdMove], ETriggerEvent::Triggered, this, &AHDCharacterPlayer::ThirdPersonMove);
+    HDInput->BindAction(InputActionMap[EHDCharacterInputAction::FirstLook], ETriggerEvent::Triggered, this, &AHDCharacterPlayer::FirstPersonLook);
+    HDInput->BindAction(InputActionMap[EHDCharacterInputAction::FirstMove], ETriggerEvent::Triggered, this, &AHDCharacterPlayer::FirstPersonMove);
+    HDInput->BindAction(InputActionMap[EHDCharacterInputAction::ChangeControl], ETriggerEvent::Triggered, this, &AHDCharacterPlayer::ChangeCharacterControlType);
+    HDInput->SetTaggedInputActionDataAsset(TaggedInputDataAsset, this, &AHDCharacterPlayer::AbilityInputTriggered, &AHDCharacterPlayer::AbilityInputReleased, &AHDCharacterPlayer::AbilityInputToggled);
 }
 
 void AHDCharacterPlayer::SetupEventAbilitySystemInputComponent(UEnhancedInputComponent* EnhancedInputComponent)
@@ -176,8 +159,6 @@ void AHDCharacterPlayer::SetWeaponActive(const bool bActive)
 
     UHDAnimInstance* HDCharacterInstance = Cast<UHDAnimInstance>(GetMesh()->GetAnimInstance());
     NULL_CHECK(HDCharacterInstance);
-
-    HDCharacterInstance->SetUseUpperSlot(bActive == false);
 }
 
 const float AHDCharacterPlayer::Reload()
@@ -281,7 +262,7 @@ void AHDCharacterPlayer::SetCombatState(const EHDCombatState State)
 void AHDCharacterPlayer::Attack(const bool bActive)
 {
     const EHDCombatState CombatState = GetCombatState();
-    if (CombatState == EHDCombatState::Unoccupied)
+    if (CombatState == EHDCombatState::Unoccupied || CombatState == EHDCombatState::Fire)
     {
         Fire(bActive);
     }
@@ -369,6 +350,8 @@ void AHDCharacterPlayer::InputStratagemCommand(const FInputActionValue& Value)
             return;
         }
 
+        UE_LOG(LogTemp, Error, TEXT("%s"), *Input.ToString());
+
         GetStratagemComponent()->AddStratagemCommand(NewCommand);
 
         // HUD ¿¬µ¿¿ë GAS Event
@@ -409,7 +392,9 @@ void AHDCharacterPlayer::SetCharacterStanceState(const EHDCharacterStanceState N
 void AHDCharacterPlayer::RestoreStanceState()
 {
     InputAction->RestoreStanceState();
-    InputAction->ChangeCameraZOffsetByCharacterMovementState(InputAction->GetStanceState());
+
+    const float NewSpeed = GetMoveSpeedByState(InputAction->GetStanceState(), InputAction->GetMovementState());
+    GetCharacterMovement()->MaxWalkSpeed = NewSpeed;
 }
 
 void AHDCharacterPlayer::DetachStratagemWhileThrow()
@@ -548,6 +533,8 @@ const float AHDCharacterPlayer::Fire(const bool IsPressed)
 
         return 0.f;
     }
+
+    Combat->SetCombatState(EHDCombatState::Fire);
 
     switch (Combat->GetWeaponFireType())
     {

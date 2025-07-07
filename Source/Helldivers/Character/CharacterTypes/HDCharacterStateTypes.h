@@ -20,6 +20,7 @@ UENUM(BlueprintType)
 enum class EHDCombatState : uint8
 {
 	Unoccupied,
+    Fire,
 	Reloading,
 	SwappingWeapons,
 	HoldStratagem,

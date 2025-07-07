@@ -310,13 +310,10 @@ const bool UHDCombatComponent::Fire(const bool IsPressed)
         return false;
     }
 
-    if (CombatState == EHDCombatState::Unoccupied)
-    {
-        Weapon->Fire(HitTarget, bIsShoulder);
-        return true;
-    }
+    CombatState = EHDCombatState::Fire;
+    Weapon->Fire(HitTarget, bIsShoulder);
 
-    return false;
+    return true;
 }
 
 void UHDCombatComponent::EquipWeapon(AHDWeapon* NewWeapon)
@@ -422,7 +419,7 @@ const bool UHDCombatComponent::CanFire() const
         return true;
     }
 
-    return (CombatState == EHDCombatState::Unoccupied);
+    return (CombatState == EHDCombatState::Unoccupied || CombatState == EHDCombatState::Fire);
 }
 
 void UHDCombatComponent::SpawnDefaultWeapon()
@@ -444,7 +441,7 @@ const EHDCombatState UHDCombatComponent::GetCombatState() const
 
 void UHDCombatComponent::SetCombatState(const EHDCombatState State)
 {
-    CONDITION_CHECK(CombatState == State);
+    CONDITION_CHECK(CombatState == EHDCombatState::Count);
 
     CombatState = State;
 }

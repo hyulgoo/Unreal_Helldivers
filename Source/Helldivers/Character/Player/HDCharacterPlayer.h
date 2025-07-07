@@ -4,22 +4,25 @@
 
 #include "CoreMinimal.h"
 #include "Character/HDCharacterBase.h"
-#include "Character/CharacterTypes/HDCharacterStateTypes.h"
 #include "InputActionValue.h"
 #include "Interface/HDCharacterMovementInterface.h"
 #include "Interface/HDCharacterCommandInterface.h"
 #include "Interface/HDWeaponInterface.h"
-#include "AbilitySystem/Struct/HDTaggedInputAction.h"
 #include "HDCharacterPlayer.generated.h"
 
+class UInputAction;
 class USpringArmComponent;
 class UCameraComponent;
 class UHDCombatComponent;
 class UHDInputActionComponent;
 class UHDStratagemComponent;
 class AHDWeapon;
-class AHDStratagem;
 class UHDCharacterControlData;
+class UHDInputDataAsset;
+enum class EHDCombatState : uint8;
+enum class EHDTurningInPlace : uint8;
+enum class EHDCharacterMovementState : uint8;
+enum class EHDCharacterStanceState : uint8;
 
 UENUM(BlueprintType)
 enum class EHDCharacterInputAction : uint8
@@ -148,10 +151,7 @@ private:
 	TObjectPtr<UHDStratagemComponent>		Stratagem;
     
 	UPROPERTY(EditAnywhere, Category = "Input")
-	TArray<FTaggedInputAction>				TaggedHoldActions;
-	
-	UPROPERTY(EditAnywhere, Category = "Input")
-	TArray<FTaggedInputAction>				TaggedToggleActions;
+	TObjectPtr<UHDInputDataAsset>           TaggedInputDataAsset;
 	
 	UPROPERTY(EditAnywhere, Category = "Input")
 	FGameplayTagContainer					EventCallTags;
