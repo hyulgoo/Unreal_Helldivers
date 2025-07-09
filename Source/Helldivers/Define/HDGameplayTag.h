@@ -32,6 +32,7 @@
 #define HDTAG_DATA_DOTDAMAGE_TICKDAMAGE             FGameplayTag::RequestGameplayTag(FName("Data.DotDamage.TickDamage"))
 #define HDTAG_DATA_DOTDAMAGE_DURATION               FGameplayTag::RequestGameplayTag(FName("Data.Projectile.StatusEffectDuration"))
 
+#define HDTAG_DATA_STATUS_CURRENTHEALTH             FGameplayTag::RequestGameplayTag(FName("Data.Status.CurrentHealth"))
 #define HDTAG_DATA_STATUS_MAXHEALTH                 FGameplayTag::RequestGameplayTag(FName("Data.Status.MaxHealth"))
 #define HDTAG_DATA_STATUS_WALKSPEED                 FGameplayTag::RequestGameplayTag(FName("Data.Status.WalkSpeed"))
 #define HDTAG_DATA_STATUS_CRAWLINGSPEED             FGameplayTag::RequestGameplayTag(FName("Data.Status.CrawlingSpeed"))
@@ -44,3 +45,4 @@
 #define HDTAG_DATA_KNOCKBACK_RAGDOLL                FGameplayTag::RequestGameplayTag(FName("Data.Knockback.Ragdoll"))
 
 #define HDTAG_COST_STAMINA                          FGameplayTag::RequestGameplayTag(FName("Cost.Stamina"))
+#define HDTAG_REGEN_STAMINA                         FGameplayTag::RequestGameplayTag(FName("Regen.Stamina"))

@@ -242,7 +242,7 @@ void AHDHellpod::RotateHellpodByCurrentImpulse(const float DeltaTime)
 		MeshDefaultRelativeRotation.Yaw,
 		MeshDefaultRelativeRotation.Roll + TargetRoll);
 
-	FRotator NewRotation = FMath::RInterpTo(
+	const FRotator NewRotation = FMath::RInterpTo(
 		CurrentRotator,
 		TargetRotation,
 		DeltaTime,

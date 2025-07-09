@@ -6,7 +6,6 @@
 #include "GameData/HDCharacterStat.h"
 #include "Define/HDDefine.h"
 #include "Define/HDGameplayTag.h"
-#include "Character/CharacterTypes/HDCharacterStateTypes.h"
 
 UHDAbilitySystemComponent::UHDAbilitySystemComponent()
 {
@@ -76,8 +75,8 @@ void UHDAbilitySystemComponent::AbilityInputTagToggled(const FGameplayTag Tag)
 
 void UHDAbilitySystemComponent::InitAttributeSet()
 {
-	UHDHealthAttributeSet* HealthAttributeSet = NewObject<UHDHealthAttributeSet>(this);
-	UHDSpeedAttributeSet* ApeedAttributeSet = NewObject<UHDSpeedAttributeSet>(this);
+	UHDHealthAttributeSet* HealthAttributeSet = NewObject<UHDHealthAttributeSet>(GetOwnerActor());
+	UHDSpeedAttributeSet* ApeedAttributeSet = NewObject<UHDSpeedAttributeSet>(GetOwnerActor());
 	AddAttributeSetSubobject(HealthAttributeSet);
 	AddAttributeSetSubobject(ApeedAttributeSet);
 }
@@ -91,6 +90,7 @@ void UHDAbilitySystemComponent::SetAttributeSetStat(FHDCharacterStat* StatData, 
     FGameplayEffectSpecHandle SpecHandle = MakeOutgoingSpec(InitAttributeStatEffect, 1.f, Context);
     CONDITION_CHECK(SpecHandle.IsValid() == false);
 
+    SpecHandle.Data->SetSetByCallerMagnitude(HDTAG_DATA_STATUS_CURRENTHEALTH,   StatData->MaxHealth);
     SpecHandle.Data->SetSetByCallerMagnitude(HDTAG_DATA_STATUS_MAXHEALTH,       StatData->MaxHealth);
     SpecHandle.Data->SetSetByCallerMagnitude(HDTAG_DATA_STATUS_WALKSPEED,       StatData->WalkSpeed);
     SpecHandle.Data->SetSetByCallerMagnitude(HDTAG_DATA_STATUS_CRAWLINGSPEED,   StatData->CrawlingSpeed);

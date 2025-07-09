@@ -350,8 +350,6 @@ void AHDCharacterPlayer::InputStratagemCommand(const FInputActionValue& Value)
             return;
         }
 
-        UE_LOG(LogTemp, Error, TEXT("%s"), *Input.ToString());
-
         GetStratagemComponent()->AddStratagemCommand(NewCommand);
 
         // HUD ¿¬µ¿¿ë GAS Event
@@ -580,4 +578,6 @@ void AHDCharacterPlayer::SetDead()
     {
         DisableInput(PlayerController);
     }
+
+    InputAction->SetStanceState(EHDCharacterStanceState::Prone);
 }

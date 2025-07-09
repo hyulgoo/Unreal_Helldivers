@@ -6,8 +6,6 @@
 #include "Abilities/GameplayAbility.h"
 #include "HDGA_MovementTrigger.generated.h"
 
-class UAbilityTask_WaitAttributeChangeThreshold;
-
 UCLASS()
 class HELLDIVERS_API UHDGA_MovementTrigger : public UGameplayAbility
 {
@@ -25,5 +23,5 @@ private:
 	void		    OnCurrentStaminaChanged(bool bMatchesComparison, float CurrentValue);
 
 private:
-	TObjectPtr<UAbilityTask_WaitAttributeChangeThreshold> ThresholdTask;
+    float           MaxStamina;
 };

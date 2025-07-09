@@ -31,9 +31,8 @@ AHDCharacterBase::AHDCharacterBase()
 	UCharacterMovementComponent* CharacterMovementComponent = GetCharacterMovement();
 	CharacterMovementComponent->bOrientRotationToMovement	= true;
 	CharacterMovementComponent->RotationRate				= FRotator(0.f, 45.f, 0.f);
-	CharacterMovementComponent->JumpZVelocity				= 700.f;
 	CharacterMovementComponent->AirControl					= 0.35f;
-	CharacterMovementComponent->MaxWalkSpeed				= 500.f;
+	CharacterMovementComponent->MaxWalkSpeed				= 180.f;
 	CharacterMovementComponent->MinAnalogWalkSpeed			= 20.f;
 	CharacterMovementComponent->BrakingDecelerationWalking	= 2000.f;
 
