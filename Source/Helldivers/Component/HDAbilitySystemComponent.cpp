@@ -96,6 +96,7 @@ void UHDAbilitySystemComponent::SetAttributeSetStat(FHDCharacterStat* StatData, 
     SpecHandle.Data->SetSetByCallerMagnitude(HDTAG_DATA_STATUS_CRAWLINGSPEED,   StatData->CrawlingSpeed);
     SpecHandle.Data->SetSetByCallerMagnitude(HDTAG_DATA_STATUS_CROUCHSPEED,     StatData->CrouchSpeed);
     SpecHandle.Data->SetSetByCallerMagnitude(HDTAG_DATA_STATUS_SPRINTSPEED,     StatData->SprintSpeed);
+    SpecHandle.Data->SetSetByCallerMagnitude(HDTAG_DATA_STATUS_CURRENTSTAMINA,  StatData->MaxStamina);
     SpecHandle.Data->SetSetByCallerMagnitude(HDTAG_DATA_STATUS_MAXSTAMINA,      StatData->MaxStamina);
 
     ApplyGameplayEffectSpecToSelf(*SpecHandle.Data.Get());

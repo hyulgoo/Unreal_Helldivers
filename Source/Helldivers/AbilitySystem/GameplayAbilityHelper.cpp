@@ -89,3 +89,13 @@ void FGameplayAbilityHelper::ExcuteGameplayCue(const FGameplayTag Tag, const FGa
 
     ASC->ExecuteGameplayCue(Tag, Params);
 }
+
+void FGameplayAbilityHelper::RemoveActiveEffectByGrantedTag(const FGameplayTag Tag, UAbilitySystemComponent* ASC)
+{
+    VALID_CHECK(ASC);
+
+    FGameplayTagContainer GrantedTags(Tag);
+    FGameplayEffectQuery Query = FGameplayEffectQuery::MakeQuery_MatchAnyOwningTags(GrantedTags);
+
+    ASC->RemoveActiveEffects(Query);
+}

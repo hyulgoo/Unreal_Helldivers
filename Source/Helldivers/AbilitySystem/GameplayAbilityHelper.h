@@ -14,5 +14,7 @@ public:
 	static void			AddTagToTarget(UAbilitySystemComponent* TargetASC, const FGameplayTag Tag);
 
     static void         ExcuteGameplayCue(const FGameplayTag Tag, const FGameplayTagContainer TagContainer, const FVector& Location, const FVector Normal, UAbilitySystemComponent* ASC);
+
+    static void         RemoveActiveEffectByGrantedTag(const FGameplayTag Tag, UAbilitySystemComponent* ASC);
 };
 

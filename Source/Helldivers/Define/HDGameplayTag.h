@@ -37,7 +37,10 @@
 #define HDTAG_DATA_STATUS_CRAWLINGSPEED             FGameplayTag::RequestGameplayTag(FName("Data.Status.CrawlingSpeed"))
 #define HDTAG_DATA_STATUS_CROUCHSPEED               FGameplayTag::RequestGameplayTag(FName("Data.Status.CrouchSpeed"))
 #define HDTAG_DATA_STATUS_SPRINTSPEED               FGameplayTag::RequestGameplayTag(FName("Data.Status.SprintSpeed"))
+#define HDTAG_DATA_STATUS_CURRENTSTAMINA            FGameplayTag::RequestGameplayTag(FName("Data.Status.CurrentStamina"))
 #define HDTAG_DATA_STATUS_MAXSTAMINA                FGameplayTag::RequestGameplayTag(FName("Data.Status.MaxStamina"))
 
 #define HDTAG_DATA_KNOCKBACK_HIT                    FGameplayTag::RequestGameplayTag(FName("Data.Knockback.Hit"))
 #define HDTAG_DATA_KNOCKBACK_RAGDOLL                FGameplayTag::RequestGameplayTag(FName("Data.Knockback.Ragdoll"))
+
+#define HDTAG_COST_STAMINA                          FGameplayTag::RequestGameplayTag(FName("Cost.Stamina"))
