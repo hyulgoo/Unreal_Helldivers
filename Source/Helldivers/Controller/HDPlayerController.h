@@ -36,20 +36,20 @@ private:
 	void									OnStratagemHUDInfoChanged(const FGameplayEventData* Payload);
 	void									StratagemHUDAppear(const FGameplayEventData* Payload);
 
-protected:
-	UPROPERTY(EditAnywhere, Category = "UI")
+private:
+	UPROPERTY(EditDefaultsOnly, Category = "UI")
 	TObjectPtr<UAbilitySystemComponent>		PossessPawnASC;
 
 	// Widget Section
-	UPROPERTY(EditAnywhere, Category = "UI")
+	UPROPERTY(EditDefaultsOnly, Category = "UI")
 	TSubclassOf<UHDGASPlayerUserWidget>		PlayerHUDWidgetClass;
 	
-	UPROPERTY(EditAnywhere, Category = "UI")
+	UPROPERTY(EditDefaultsOnly, Category = "UI")
 	TObjectPtr<UHDGASPlayerUserWidget>		PlayerHUDWidget;
 	
-	UPROPERTY(EditAnywhere, Category = "UI")
+	UPROPERTY(EditDefaultsOnly, Category = "UI")
 	TSubclassOf<UHDStratagemHUDUserWidget>	StratagemHUDWidgetClass;
 	
-	UPROPERTY(EditAnywhere, Category = "UI")
+	UPROPERTY(EditDefaultsOnly, Category = "UI")
 	TObjectPtr<UHDStratagemHUDUserWidget>	StratagemHUDWidget;
 };

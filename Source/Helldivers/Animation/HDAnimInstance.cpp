@@ -108,16 +108,13 @@ void UHDAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 
 	CombatState = WeaponInterface->GetCombatState();
 	AHDWeapon* Weapon = WeaponInterface->GetWeapon();
-	if (CombatState != EHDCombatState::Unoccupied && CombatState != EHDCombatState::Fire && CombatState != EHDCombatState::Reloading)
-	{
-		if (Weapon)
-		{
-			HitTarget = WeaponInterface->GetHitTarget();
-		}
-	}
-	else
-	{
-        if (Weapon)
+    if (Weapon)
+    {
+        if (CombatState != EHDCombatState::Unoccupied && CombatState != EHDCombatState::Fire && CombatState != EHDCombatState::Reloading)
+        {
+            HitTarget = WeaponInterface->GetHitTarget();
+        }
+        else
         {
             USkeletalMeshComponent* WeaponMesh = Weapon->GetWeaponMesh();
             NULL_CHECK(WeaponMesh);
@@ -133,10 +130,14 @@ void UHDAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
             //const FTransform& MuzzleFlashSocketTransform = WeaponMesh->GetSocketTransform(HDSOCKETNAME_MUZZLEFLASH, ERelativeTransformSpace::RTS_World);
             //const FRotator LookAtRotation = UKismetMathLibrary::FindLookAtRotation(MuzzleFlashSocketTransform.GetLocation(), HitTarget);
             //RightHandRotation = LookAtRotation;
-		}		
-	}
+        }
+        bUseFABRIK = (CombatState == EHDCombatState::Unoccupied || CombatState == EHDCombatState::Fire);
+    }
+    else
+    {
+        bUseFABRIK = false;
+    }
 
-    bTransformRightHand = CombatState == EHDCombatState::ThrowingGrenade;
-    bUseFABRIK = CombatState == EHDCombatState::Unoccupied;
+    //bTransformRightHand = CombatState == EHDCombatState::ThrowingGrenade;
     bIsUpperSlotValid = (CombatState == EHDCombatState::Fire || CombatState == EHDCombatState::ThrowingGrenade);
 }

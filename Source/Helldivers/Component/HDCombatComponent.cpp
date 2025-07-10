@@ -128,6 +128,11 @@ void UHDCombatComponent::SetSpringArmTargetLength(const float TargetArmLength)
     SpringArmTargetArmLength = TargetArmLength;
 }
 
+const EHDTurningInPlace UHDCombatComponent::GetTurnInPlace() const
+{
+    return TurningInPlace;
+}
+
 const float UHDCombatComponent::GetDefaultFOV() const
 {
     return DefaultFOV;
@@ -265,6 +270,7 @@ void UHDCombatComponent::AimOffset(const float DeltaTime)
             bUseRotateRootBone = false;
             AimOffset_Yaw = 0.f;
             StartingAimRotation = BaseAimRoatation;
+            TurningInPlace = EHDTurningInPlace::NotTurning;
             CharacterMovement->bOrientRotationToMovement = true;
         }
     }

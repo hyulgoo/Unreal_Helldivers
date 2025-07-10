@@ -68,6 +68,8 @@ public:
     const bool                              IsCharacterLookingViewport() const;
     void                                    SetSpringArmTargetLength(const float TargetArmLength);
 
+    const EHDTurningInPlace                 GetTurnInPlace() const;
+
     const float                             GetDefaultFOV() const;
     const bool                              IsUseRotateBone() const;
 

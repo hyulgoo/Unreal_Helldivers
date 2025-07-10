@@ -21,7 +21,6 @@
 #include "Weapon/WeaponTypes.h"
 #include "Player/HDGASPlayerState.h"
 #include "Character/CharacterTypes/HDCharacterStateTypes.h"
-#include "GameData/HDTaggedInputAction.h"
 
 AHDCharacterPlayer::AHDCharacterPlayer()
     : SpringArm(nullptr)
@@ -231,7 +230,7 @@ const bool AHDCharacterPlayer::IsCharacterLookingViewport() const
 
 const EHDTurningInPlace AHDCharacterPlayer::GetTurningInPlace() const
 {
-    return EHDTurningInPlace();
+    return Combat->GetTurnInPlace();
 }
 
 const bool AHDCharacterPlayer::IsUseRotateBone() const

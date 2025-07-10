@@ -8,6 +8,7 @@
 #include "Interface/HDCharacterMovementInterface.h"
 #include "Interface/HDCharacterCommandInterface.h"
 #include "Interface/HDWeaponInterface.h"
+#include "GameplayTagContainer.h"
 #include "HDCharacterPlayer.generated.h"
 
 class UInputAction;
