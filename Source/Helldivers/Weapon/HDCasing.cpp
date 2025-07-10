@@ -6,8 +6,8 @@
 
 AHDCasing::AHDCasing()
 	: CasingMesh(nullptr)
+    , ShellSound(nullptr)
 	, ShellEjectionImpulse(10.f)
-	, ShellSound(nullptr)
 {
 	PrimaryActorTick.bCanEverTick = true;
 

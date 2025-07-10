@@ -23,12 +23,12 @@ protected:
     virtual void						OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
 	
 private:
-	UPROPERTY(VisibleAnywhere)
+	UPROPERTY(EditDefaultsOnly)
 	TObjectPtr<UStaticMeshComponent>	CasingMesh;
-
-	UPROPERTY(EditAnywhere)
-	float								ShellEjectionImpulse;
-	
-	UPROPERTY(EditAnywhere)
+    
+	UPROPERTY(EditDefaultsOnly)
 	TObjectPtr<USoundCue>				ShellSound;
+
+	UPROPERTY(EditDefaultsOnly)
+	float								ShellEjectionImpulse;
 };

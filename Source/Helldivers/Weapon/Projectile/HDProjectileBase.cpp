@@ -1,21 +1,15 @@
 #include "HDProjectileBase.h"  
 #include "Components/BoxComponent.h"  
 #include "NiagaraFunctionLibrary.h"  
-#include "NiagaraComponent.h"  
 #include "Kismet/GameplayStatics.h"  
-#include "Sound/SoundCue.h"
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "AbilitySystemComponent.h"
 #include "AbilitySystemBlueprintLibrary.h"
 #include "AbilitySystemInterface.h"
-#include "AbilitySystem/GameplayEffect/HDGE_ApplyDamage.h"
 #include "Define/HDDefine.h"
 #include "Define/HDGameplayTag.h"
 #include "Collision/HDCollision.h"
-#include "Engine/OverlapResult.h"
-#include "EngineUtils.h"
 #include "Weapon/WeaponTypes.h"
-
 
 AHDProjectileBase::AHDProjectileBase()
 	: ProjectileMesh(nullptr)
@@ -58,12 +52,6 @@ AHDProjectileBase::AHDProjectileBase()
 	ProjectileMovement = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("ProjectileMovement"));
 	ProjectileMovement->SetUpdatedComponent(RootComponent);
 	ProjectileMovement->bRotationFollowsVelocity = true;
-
-	static ConstructorHelpers::FClassFinder<UGameplayEffect> DamageGamEffectRef(TEXT("'/Game/Helldivers/Blueprint/GameAbility/_Effect/BP_GE_ApplyDamage.BP_GE_ApplyDamage_C'"));
-	if (DamageGamEffectRef.Succeeded())
-	{
-		DamageGameEffect = DamageGamEffectRef.Class;
-	}
 }
 
 void AHDProjectileBase::BeginPlay()

@@ -188,7 +188,7 @@ const int32 AHDWeapon::GetMaxCapacityCount() const
 	return MaxCapacity;
 }
 
-FORCEINLINE const float AHDWeapon::GetReloadDelay(const bool bIsShoulder) const
+const float AHDWeapon::GetReloadDelay(const bool bIsShoulder) const
 {
 	CONDITION_CHECK_WITH_RETURNTYPE(WeaponAnimationMap.Num() != static_cast<int32>(EHDWeaponAnimationType::Count), 0.f);
 	UAnimationAsset* ReloadAnim = bIsShoulder ? WeaponAnimationMap[EHDWeaponAnimationType::Reload_Aim] : WeaponAnimationMap[EHDWeaponAnimationType::Reload_Hip];
