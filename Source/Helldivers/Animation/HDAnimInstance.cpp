@@ -139,5 +139,5 @@ void UHDAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
     }
 
     //bTransformRightHand = CombatState == EHDCombatState::ThrowingGrenade;
-    bIsUpperSlotValid = (CombatState == EHDCombatState::Fire || CombatState == EHDCombatState::ThrowingGrenade);
+    bIsUpperSlotValid = (CombatState == EHDCombatState::Fire || CombatState == EHDCombatState::Throwing);
 }

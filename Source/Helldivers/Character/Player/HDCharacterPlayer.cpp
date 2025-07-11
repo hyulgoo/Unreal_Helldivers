@@ -270,6 +270,7 @@ void AHDCharacterPlayer::Attack(const bool bActive)
         // TODO(25/03/27)  추후 Crouch 등 다른 자세 생기면 해당 섹션으로 점프하기
         // 실제 AddImpulse는 AnimNotify에서 DetachTiming에 함
         PlayAnimMontage(Combat->GetCombatMontage(EHDCombatMontage::Throw));
+        SetCombatState(EHDCombatState::Throwing);
     }
 }
 
