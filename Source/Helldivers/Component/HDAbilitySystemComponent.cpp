@@ -90,14 +90,10 @@ void UHDAbilitySystemComponent::SetAttributeSetStat(FHDCharacterStat* StatData, 
     FGameplayEffectSpecHandle SpecHandle = MakeOutgoingSpec(InitAttributeStatEffect, 1.f, Context);
     CONDITION_CHECK(SpecHandle.IsValid() == false);
 
-    SpecHandle.Data->SetSetByCallerMagnitude(HDTAG_DATA_STATUS_CURRENTHEALTH,   StatData->MaxHealth);
-    SpecHandle.Data->SetSetByCallerMagnitude(HDTAG_DATA_STATUS_MAXHEALTH,       StatData->MaxHealth);
-    SpecHandle.Data->SetSetByCallerMagnitude(HDTAG_DATA_STATUS_WALKSPEED,       StatData->WalkSpeed);
-    SpecHandle.Data->SetSetByCallerMagnitude(HDTAG_DATA_STATUS_CRAWLINGSPEED,   StatData->CrawlingSpeed);
-    SpecHandle.Data->SetSetByCallerMagnitude(HDTAG_DATA_STATUS_CROUCHSPEED,     StatData->CrouchSpeed);
-    SpecHandle.Data->SetSetByCallerMagnitude(HDTAG_DATA_STATUS_SPRINTSPEED,     StatData->SprintSpeed);
-    SpecHandle.Data->SetSetByCallerMagnitude(HDTAG_DATA_STATUS_CURRENTSTAMINA,  StatData->MaxStamina);
-    SpecHandle.Data->SetSetByCallerMagnitude(HDTAG_DATA_STATUS_MAXSTAMINA,      StatData->MaxStamina);
+    for(const TPair<FGameplayTag, float>& TaggedStat : StatData->Stats)
+    {
+        SpecHandle.Data->SetSetByCallerMagnitude(TaggedStat.Key, TaggedStat.Value);
+    }
 
     ApplyGameplayEffectSpecToSelf(*SpecHandle.Data.Get());
 }
