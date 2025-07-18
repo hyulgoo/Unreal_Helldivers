@@ -8,11 +8,11 @@
         (strrchr(__FILE__, '/')  ? strrchr(__FILE__, '/')  + 1 : __FILE__)
 #endif
 
-#define LOG(txt) \
+#define LOG(Format, ...) \
 if (WITH_EDITOR && GIsEditor && GWorld && GWorld->IsPlayInEditor()) \
 { \
-    UE_LOG(LogTemp, Error, TEXT("[%s]!, At Function: %s (%s:%d)"), \
-        txt, ANSI_TO_TCHAR(__FUNCTION__), ANSI_TO_TCHAR(SHORT_FILE_NAME), __LINE__); \
+    UE_LOG(LogTemp, Error, TEXT("[%s] At Function: %s (%s:%d)"), \
+        *FString::Printf(Format, ##__VA_ARGS__), ANSI_TO_TCHAR(__FUNCTION__), ANSI_TO_TCHAR(SHORT_FILE_NAME), __LINE__); \
 } \
 
 #define CONDITION_CHECK(condition) \
