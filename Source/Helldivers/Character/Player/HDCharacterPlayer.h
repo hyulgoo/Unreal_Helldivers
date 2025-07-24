@@ -87,6 +87,7 @@ protected:
 
 	// WeaponInterface
 	virtual AHDWeapon*						GetWeapon() const override final;
+	virtual const float                     GetWeaponFireDelay() const override final;
 	virtual const FVector&					GetHitTarget() const override final;
 	virtual const EHDCombatState			GetCombatState() const override final;
 	virtual void							Attack(const bool bActive) override final;

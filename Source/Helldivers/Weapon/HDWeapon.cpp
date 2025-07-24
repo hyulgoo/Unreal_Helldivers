@@ -7,7 +7,6 @@
 #include "Component/HDCombatComponent.h"
 #include "Components/SphereComponent.h"
 #include "Engine/SkeletalMeshSocket.h"
-#include "Kismet/KismetMathLibrary.h"
 
 AHDWeapon::AHDWeapon()
 	: FireType(EHDFireType::Count)
@@ -52,7 +51,7 @@ void AHDWeapon::SetAutoFire(const bool bAutoFire)
 
 void AHDWeapon::SetWeaponState(const EWeaponState NewState)
 {
-	CONDITION_CHECK(NewState == EWeaponState::Count);
+	CONDITION_CHECK(NewState != EWeaponState::Count);
 	WeaponState = NewState;
 }
 
@@ -76,7 +75,7 @@ USphereComponent* AHDWeapon::GetAreaSphere() const
 
 void AHDWeapon::Fire(const FVector& HitTarget, const bool bIsShoulder)
 {
-	CONDITION_CHECK(WeaponAnimationMap.Num() != static_cast<int32>(EHDWeaponAnimationType::Count));
+	CONDITION_CHECK(WeaponAnimationMap.Num() == static_cast<int32>(EHDWeaponAnimationType::Count));
 	NULL_CHECK(CasingClass);
 
 	UAnimationAsset* FireAnim = bIsShoulder ? WeaponAnimationMap[EHDWeaponAnimationType::Fire_Aim] : WeaponAnimationMap[EHDWeaponAnimationType::Fire_Hip];
@@ -87,7 +86,7 @@ void AHDWeapon::Fire(const FVector& HitTarget, const bool bIsShoulder)
 	NULL_CHECK(AmmoEjectSocket);
 
     const FTransform& SocketTransform = AmmoEjectSocket->GetSocketTransform(WeaponMesh);
-    CONDITION_CHECK(SocketTransform.IsValid() == false);
+    CONDITION_CHECK(SocketTransform.IsValid());
 
     UWorld* World = GetWorld();
     VALID_CHECK(World);
@@ -105,7 +104,7 @@ const void AHDWeapon::TraceEndWithScatter(const FVector& HitTarget)
 	NULL_CHECK(MuzzleFlashSocket);
 
 	const FTransform& SocketTransform = MuzzleFlashSocket->GetSocketTransform(WeaponMesh);
-	CONDITION_CHECK(SocketTransform.IsValid() == false);
+	CONDITION_CHECK(SocketTransform.IsValid());
 
 	const FVector& Start		 = SocketTransform.GetLocation();
 	const FVector ToTarge		 = HitTarget - Start;
@@ -190,9 +189,11 @@ const int32 AHDWeapon::GetMaxCapacityCount() const
 
 const float AHDWeapon::GetReloadDelay(const bool bIsShoulder) const
 {
-	CONDITION_CHECK_WITH_RETURNTYPE(WeaponAnimationMap.Num() != static_cast<int32>(EHDWeaponAnimationType::Count), 0.f);
+	CONDITION_CHECK_WITH_RETURNTYPE(WeaponAnimationMap.Num() == static_cast<int32>(EHDWeaponAnimationType::Count), 0.f);
+
 	UAnimationAsset* ReloadAnim = bIsShoulder ? WeaponAnimationMap[EHDWeaponAnimationType::Reload_Aim] : WeaponAnimationMap[EHDWeaponAnimationType::Reload_Hip];
 	NULL_CHECK_WITH_RETURNTYPE(ReloadAnim, 0.f);
+
 	return ReloadAnim->GetPlayLength();
 }
 
@@ -239,14 +240,14 @@ void AHDWeapon::OnSphereOverlap(UPrimitiveComponent* OverlappedComponent, AActor
 
 void AHDWeapon::SpendRound()
 {
-	CONDITION_CHECK(WeaponState != EWeaponState::Equip);
+	CONDITION_CHECK(WeaponState== EWeaponState::Equip);
 
 	Ammo = FMath::Clamp(Ammo - 1, 0, MaxAmmo);
 }
 
 void AHDWeapon::ReloadFinished()
 {
-	CONDITION_CHECK(WeaponState != EWeaponState::Equip);
+	CONDITION_CHECK(WeaponState == EWeaponState::Equip);
 
 	Capacity = FMath::Clamp(Capacity - 1, 0, MaxCapacity);
 

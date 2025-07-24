@@ -32,7 +32,7 @@ void UHDStratagemHUDUserWidget::SetStratagemListHUD(UDataTable* StratagemDataTab
     NULL_CHECK(StratagemDataTable);
 
     const TArray<FName>& StratagemDataNameList = StratagemDataTable->GetRowNames();
-    CONDITION_CHECK(StratagemDataNameList.IsEmpty());
+    CONDITION_CHECK(StratagemDataNameList.IsEmpty() == false);
 
     const FString FindString(TEXT("Lookup"));
     const int32 StratagemDataNameListNum = StratagemDataNameList.Num();

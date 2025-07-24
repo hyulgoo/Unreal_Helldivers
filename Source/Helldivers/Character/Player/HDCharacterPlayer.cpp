@@ -90,7 +90,7 @@ void AHDCharacterPlayer::SetupAbilitySystemInputComponent(UEnhancedInputComponen
 
     TMap<EHDCharacterInputAction, TObjectPtr<UInputAction>> InputActionMap = InputAction->GetInputActionMap();
 
-    CONDITION_CHECK(InputActionMap.Num() != static_cast<uint8>(EHDCharacterInputAction::Count));
+    CONDITION_CHECK(InputActionMap.Num() == static_cast<uint8>(EHDCharacterInputAction::Count));
 
     HDInput->BindAction(InputActionMap[EHDCharacterInputAction::ThirdLook], ETriggerEvent::Triggered, this, &AHDCharacterPlayer::ThirdPersonLook);
     HDInput->BindAction(InputActionMap[EHDCharacterInputAction::ThirdMove], ETriggerEvent::Triggered, this, &AHDCharacterPlayer::ThirdPersonMove);
@@ -115,7 +115,7 @@ void AHDCharacterPlayer::SetupEventAbilitySystemInputComponent(UEnhancedInputCom
 
 void AHDCharacterPlayer::AbilityInputTriggered(const FGameplayTag Tag)
 {
-    UHDAbilitySystemComponent* HDASC = Cast<UHDAbilitySystemComponent>(GetAbilitySystemComponent());
+    UHDAbilitySystemComponent* HDASC = GetAbilitySystemComponent<UHDAbilitySystemComponent>();
     NULL_CHECK(HDASC);
 
     HDASC->AbilityInputTagTriggered(Tag);
@@ -123,7 +123,7 @@ void AHDCharacterPlayer::AbilityInputTriggered(const FGameplayTag Tag)
 
 void AHDCharacterPlayer::AbilityInputReleased(const FGameplayTag Tag)
 {
-    UHDAbilitySystemComponent* HDASC = Cast<UHDAbilitySystemComponent>(GetAbilitySystemComponent());
+    UHDAbilitySystemComponent* HDASC = GetAbilitySystemComponent<UHDAbilitySystemComponent>();
     NULL_CHECK(HDASC);
 
     HDASC->AbilityInputTagReleased(Tag);
@@ -131,7 +131,7 @@ void AHDCharacterPlayer::AbilityInputReleased(const FGameplayTag Tag)
 
 void AHDCharacterPlayer::AbilityInputToggled(const FGameplayTag Tag)
 {
-    UHDAbilitySystemComponent* HDASC = Cast<UHDAbilitySystemComponent>(GetAbilitySystemComponent());
+    UHDAbilitySystemComponent* HDASC = GetAbilitySystemComponent<UHDAbilitySystemComponent>();
     NULL_CHECK(HDASC);
 
     HDASC->AbilityInputTagToggled(Tag);
@@ -145,7 +145,7 @@ void AHDCharacterPlayer::SetRagdoll(const bool bRagdoll, const FVector& Impulse)
     {
         SetCharacterStanceState(EHDCharacterStanceState::Prone, true);
 
-        GetWorldTimerManager().SetTimerForNextTick(FTimerDelegate::CreateLambda([this](void) {
+        GetWorldTimerManager().SetTimerForNextTick(FTimerDelegate::CreateLambda([this]() {
             SetCombatState(EHDCombatState::Unoccupied);
             }
         ));
@@ -186,7 +186,7 @@ const float AHDCharacterPlayer::Reload()
 		break;
 	}
 
-	CONDITION_CHECK_WITH_RETURNTYPE(SectionName.IsNone(), 0.f);
+	CONDITION_CHECK_WITH_RETURNTYPE(SectionName.IsNone() == false, 0.f);
 
     PlayAnimMontage(Combat->GetCombatMontage(EHDCombatMontage::Reload), 1.f, SectionName);
 
@@ -241,6 +241,11 @@ const bool AHDCharacterPlayer::IsUseRotateBone() const
 AHDWeapon* AHDCharacterPlayer::GetWeapon() const
 {
     return Combat->GetWeapon();
+}
+
+const float AHDCharacterPlayer::GetWeaponFireDelay() const
+{
+    return Combat->GetWeaponFireDelay();
 }
 
 const FVector& AHDCharacterPlayer::GetHitTarget() const
@@ -318,7 +323,7 @@ const float AHDCharacterPlayer::GetMoveSpeedByState(const EHDCharacterStanceStat
         break;
     }
 
-    CONDITION_CHECK_WITH_RETURNTYPE(Attribute.IsValid() == false, 0.f);
+    CONDITION_CHECK_WITH_RETURNTYPE(Attribute.IsValid(), 0.f);
     float Speed = GetAbilitySystemComponent()->GetNumericAttribute(Attribute);
     if (bSprint && StanceState == EHDCharacterStanceState::Crouch)
     {
@@ -436,7 +441,7 @@ void AHDCharacterPlayer::InitAbilitySystemComponent()
     AHDGASPlayerState* GASPlayerState = GetPlayerState<AHDGASPlayerState>();
     NULL_CHECK(GASPlayerState);
 
-    SetAbilitySystemComponent(GASPlayerState, GASPlayerState->GetAbilitySystemComponent(), EHDCharacterType::Player);
+    SetAbilitySystemComponent(GASPlayerState, GASPlayerState->GetAbilitySystemComponent<UHDAbilitySystemComponent>(), EHDCharacterType::Player);
 }
 
 void AHDCharacterPlayer::InterpFOV(float DeltaSeconds)

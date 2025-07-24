@@ -22,7 +22,7 @@ void UAnimNotify_FootStepSoundCue::Notify(USkeletalMeshComponent* MeshComp, UAni
 {
     Super::Notify(MeshComp, Animation, EventReference);
 
-    CONDITION_CHECK(PhysicsCueTagMap.IsEmpty());
+    CONDITION_CHECK(PhysicsCueTagMap.IsEmpty() == false);
 
 	AActor* OwnerActor = MeshComp->GetOwner();
     NULL_CHECK(OwnerActor);
@@ -51,7 +51,7 @@ void UAnimNotify_FootStepSoundCue::Notify(USkeletalMeshComponent* MeshComp, UAni
         const EPhysicalSurface SurfaceType = UPhysicalMaterial::DetermineSurfaceType(HitResult.PhysMaterial.Get());
         const EPhysicsMaterialType MaterialType = GetPhysicsMaterialTypeByPhysicSurface(SurfaceType);
 
-        CONDITION_CHECK(PhysicsCueTagMap.Contains(MaterialType) == false);
+        CONDITION_CHECK(PhysicsCueTagMap.Contains(MaterialType));
 
         FGameplayAbilityHelper::ExcuteGameplayCue(PhysicsCueTagMap[MaterialType], FGameplayTagContainer(PhysicsCueTagMap[MaterialType]), HitResult.ImpactPoint, HitResult.ImpactNormal, ASC);
     }

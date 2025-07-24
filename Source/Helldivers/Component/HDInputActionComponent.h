@@ -39,7 +39,7 @@ public:
     const TMap<EHDCharacterInputAction, TObjectPtr<UInputAction>>& GetInputActionMap() const;
 
     template<class UserClass, typename TriggeredFuncType, typename ReleasedFuncType, typename ToggledFuncType>
-    void SetTaggedInputActionDataAsset(UHDInputDataAsset* DataAsset, UserClass* Object, TriggeredFuncType TriggeredFunc, ReleasedFuncType ReleasedFunc, ToggledFuncType ToggledFunc);
+    void                                                    SetTaggedInputActionDataAsset(UHDInputDataAsset* DataAsset, UserClass* Object, TriggeredFuncType TriggeredFunc, ReleasedFuncType ReleasedFunc, ToggledFuncType ToggledFunc);
 
 private:
 	EHDCharacterStanceState		                            StanceState;

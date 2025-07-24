@@ -26,7 +26,7 @@ private:
 
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "GameplayCue|Pacticle")
-	bool									bUseNiagara;
+	uint8									bUseNiagara : 1;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "GameplayCue|Pacticle", meta = (EditCondition = "!bUseNiagara"))
 	TArray<TObjectPtr<UParticleSystem>>		ParticleSystems;

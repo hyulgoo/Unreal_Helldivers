@@ -3,16 +3,16 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Abilities/GameplayAbility.h"
+#include "AbilitySystem/GameAbility/HDGA_Base.h"
 #include "HDGA_Dead.generated.h"
 
 UCLASS()
-class HELLDIVERS_API UHDGA_Dead : public UGameplayAbility
+class HELLDIVERS_API UHDGA_Dead : public UHDGA_Base
 {
 	GENERATED_BODY()
 
 public:
-	explicit UHDGA_Dead();
+	explicit UHDGA_Dead() = default;
 
 	virtual void ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData) override final;
 };

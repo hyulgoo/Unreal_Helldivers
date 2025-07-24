@@ -4,9 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Character/HDCharacterBase.h"
-#include "Engine/StreamableManager.h"
 #include "HDCharacterNonPlayer.generated.h"
-
 
 UCLASS()
 class HELLDIVERS_API AHDCharacterNonPlayer : public AHDCharacterBase

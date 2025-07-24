@@ -17,8 +17,7 @@ class HELLDIVERS_API UHDStratagemComponent : public UActorComponent
 public:	
 	explicit UHDStratagemComponent();
 
-	UDataTable*							GetAvaliableStratagemDataTable() { return AvaliableStratagemDataTable; }
-
+	UDataTable*							GetAvaliableStratagemDataTable() const;
 	FORCEINLINE const TArray<FName>&	GetCommandMatchStratagemNameList() const;
 	FORCEINLINE const int32				GetCurrentInputNum() const;
 	void								AddStratagemCommand(const EHDCommandInput NewInput);

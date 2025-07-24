@@ -43,7 +43,7 @@ protected:
 	EHDCharacterStanceState				    CharacterStanceState;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Movement")
-	EHDCharacterMovementState				   CharacterMovementState;
+	EHDCharacterMovementState				CharacterMovementState;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Movement")
 	uint8									bIsIdle : 1;

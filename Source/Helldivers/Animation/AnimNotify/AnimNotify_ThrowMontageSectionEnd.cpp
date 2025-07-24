@@ -15,10 +15,8 @@ void UAnimNotify_ThrowMontageSectionEnd::Notify(USkeletalMeshComponent* MeshComp
 
 	NULL_CHECK(MeshComp);
 
-	AActor* OwnerActor = MeshComp->GetOwner();
-	NULL_CHECK(OwnerActor);
-
-    TScriptInterface<IHDWeaponInterface> WeaponInterface = OwnerActor;
+    TScriptInterface<IHDWeaponInterface> WeaponInterface = MeshComp->GetOwner();
     NULL_CHECK(WeaponInterface);
+
     WeaponInterface->SetWeaponActive(true);
 }

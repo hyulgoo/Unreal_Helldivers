@@ -3,8 +3,6 @@
 #include "HDGA_StratagemInputMode.h"
 #include "Interface/HDCharacterCommandInterface.h"
 #include "AbilitySystem/GameplayAbilityHelper.h"
-#include "Define/HDDefine.h"
-#include "Define/HDGameplayTag.h"
 
 UHDGA_StratagemInputMode::UHDGA_StratagemInputMode()
 {
@@ -20,17 +18,14 @@ void UHDGA_StratagemInputMode::ActivateAbility(const FGameplayAbilitySpecHandle 
     FGameplayAbilityHelper::SendGameplayEventToTarget(HDTAG_EVENT_STRATAGEMHUD_APPEAR, CurrentActorInfo, ActorInfo);
 }
 
-void UHDGA_StratagemInputMode::InputReleased(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo,
-    const FGameplayAbilityActivationInfo ActivationInfo)
+void UHDGA_StratagemInputMode::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled)
 {
+    Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
+
     TScriptInterface<IHDCharacterCommandInterface> CommandInterface = ActorInfo->AvatarActor.Get();
     NULL_CHECK(CommandInterface);
 
     CommandInterface->TryHoldStratagem();
 
     FGameplayAbilityHelper::SendGameplayEventToTarget(HDTAG_EVENT_STRATAGEMHUD_DISAPPEAR, CurrentActorInfo, ActorInfo);
-
-    const bool bReplicatedEndAbility = true;
-    const bool bWasCancelled = true;
-    Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicatedEndAbility, bWasCancelled);
 }

@@ -24,9 +24,9 @@
 #define HDTAG_EVENT_STRATAGEMHUD_APPEAR             FGameplayTag::RequestGameplayTag(FName("Event.StratagemHUD.Active"))
 #define HDTAG_EVENT_STRATAGEMHUD_DISAPPEAR          FGameplayTag::RequestGameplayTag(FName("Event.StratagemHUD.Deactive"))
 #define HDTAG_EVENT_STRATAGEMHUD_ADDCOMMAND         FGameplayTag::RequestGameplayTag(FName("Event.StratagemHUD.AddCommand"))
-#define HDTAG_EVENT_PLAYERHUD_AMMO					FGameplayTag::RequestGameplayTag(FName("Event.PlayerHUD.AmmoChange"))
-#define HDTAG_EVENT_PLAYERHUD_CAPACITY				FGameplayTag::RequestGameplayTag(FName("Event.PlayerHUD.CapacityChange"))
-#define HDTAG_EVENT_PLAYERHUD_HEALTH				FGameplayTag::RequestGameplayTag(FName("Event.PlayerHUD.HealthChange"))
+#define HDTAG_EVENT_PLAYERHUD_AMMOCHANGE			FGameplayTag::RequestGameplayTag(FName("Event.PlayerHUD.AmmoChange"))
+#define HDTAG_EVENT_PLAYERHUD_CAPACITYCHANGE		FGameplayTag::RequestGameplayTag(FName("Event.PlayerHUD.CapacityChange"))
+#define HDTAG_EVENT_PLAYERHUD_HEALTHCHANGE			FGameplayTag::RequestGameplayTag(FName("Event.PlayerHUD.HealthChange"))
 
 #define HDTAG_DATA_DAMAGE_PROJECTILE                FGameplayTag::RequestGameplayTag(FName("Data.Damage.Projectile"))
 #define HDTAG_DATA_DOTDAMAGE_TICKDAMAGE             FGameplayTag::RequestGameplayTag(FName("Data.DotDamage.TickDamage"))

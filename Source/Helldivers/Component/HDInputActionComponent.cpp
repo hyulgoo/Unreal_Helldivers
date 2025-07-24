@@ -3,6 +3,7 @@
 #include "Component/HDInputActionComponent.h"
 #include "Character/CharacterTypes/HDCharacterStateTypes.h"
 #include "GameFramework/SpringArmComponent.h"
+#include "GameData/HDCharacterControlData.h"
 #include "Define/HDDefine.h"
 
 #define CHARACTERMOVESTATEZOFFSET 40.f
@@ -35,7 +36,7 @@ const EHDCharacterStanceState UHDInputActionComponent::GetStanceState() const
 
 void UHDInputActionComponent::SetStanceState(const EHDCharacterStanceState NewState, const bool bForced)
 {
-	CONDITION_CHECK(NewState == EHDCharacterStanceState::Count);
+	CONDITION_CHECK(NewState != EHDCharacterStanceState::Count);
 
 	PrevStanceState = (PrevStanceState != StanceState) ? StanceState : PrevStanceState;
 	StanceState = NewState;
@@ -55,7 +56,7 @@ void UHDInputActionComponent::RestoreStanceState()
 	}
 	else
 	{
-		CONDITION_CHECK(true);
+		CONDITION_CHECK(false);
 	}
 
 	ChangeCameraZOffsetByCharacterMovementState(StanceState);
@@ -68,7 +69,7 @@ const EHDCharacterMovementState UHDInputActionComponent::GetMovementState() cons
 
 void UHDInputActionComponent::SetMovementState(const EHDCharacterMovementState NewState)
 {
-    CONDITION_CHECK(NewState == EHDCharacterMovementState::Count);
+    CONDITION_CHECK(NewState != EHDCharacterMovementState::Count);
 
     MovementState = NewState;
 }
@@ -100,7 +101,7 @@ void UHDInputActionComponent::ChangeCameraZOffsetByCharacterMovementState(const 
 
 UHDCharacterControlData* UHDInputActionComponent::SetControlType(const EHDCharacterControlType Type)
 {
-    CONDITION_CHECK_WITH_RETURNTYPE(CharacterControlDataMap.IsEmpty(), nullptr);
+    CONDITION_CHECK_WITH_RETURNTYPE(CharacterControlDataMap.IsEmpty() == false, nullptr);
 
     CurrentCharacterControlType = Type;
     return CharacterControlDataMap[CurrentCharacterControlType];

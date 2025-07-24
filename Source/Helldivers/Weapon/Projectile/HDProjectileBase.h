@@ -27,8 +27,6 @@ public:
 
 protected:
 	virtual void	                            BeginPlay() override;
-	virtual void	                            Tick(float DeltaSeconds) override;
-	virtual void	                            Destroyed() override;
 	
 	UFUNCTION()
 	virtual void	                            OnBoxHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
@@ -36,13 +34,10 @@ protected:
 private:
     void                                        InitializeBeginPlay();
     void			                            StartDestroyTimer();
-    void			                            DestroyTimerFinished();
     void                                        SpawnTrailSystem();
     void                                        ApplyExplode(UAbilitySystemComponent* SourceAbiltySystemComponent, const FVector& HitLocation);
 
     void                                        ApplyDamageGameEffect(UAbilitySystemComponent* SourceAbiltySystemComponent, UAbilitySystemComponent* TargetAbiltySystemComponent, const float InterpImpactDamage);
-    void                                        ApplyKnockbackGameAbility(UAbilitySystemComponent* SourceAbiltySystemComponent, UAbilitySystemComponent* TargetAbiltySystemComponent, const float InterpKnockbackImpulse);
-    void                                        ExecuteGameplayCue(UAbilitySystemComponent* OwnerAbilitySystemComponent, const FGameplayTag& Tag, const FHitResult& Hit);
 
 protected:
 	UPROPERTY(EditAnywhere, Category = "Info|Default")

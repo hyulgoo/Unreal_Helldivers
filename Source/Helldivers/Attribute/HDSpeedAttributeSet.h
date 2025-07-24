@@ -19,7 +19,7 @@ class HELLDIVERS_API UHDSpeedAttributeSet : public UAttributeSet
 	GENERATED_BODY()
 
 public:
-	explicit UHDSpeedAttributeSet();
+	explicit                UHDSpeedAttributeSet();
 
 	ATTRIBUTE_ACCESSORS(UHDSpeedAttributeSet, CurrentSpeed);
 	ATTRIBUTE_ACCESSORS(UHDSpeedAttributeSet, CrawlingSpeed);
@@ -29,10 +29,10 @@ public:
 	ATTRIBUTE_ACCESSORS(UHDSpeedAttributeSet, CurrentStamina);
 	ATTRIBUTE_ACCESSORS(UHDSpeedAttributeSet, MaxStamina);
 
-	virtual void PreAttributeChange(const FGameplayAttribute& Attribute, float& NewValue) override;
-	//virtual void PostAttributeChange(const FGameplayAttribute& Attribute, float OldValue, float NewValue) override;
-	//virtual bool PreGameplayEffectExecute(struct FGameplayEffectModCallbackData& Data) override;
-	//virtual void PostGameplayEffectExecute(const struct FGameplayEffectModCallbackData& Data) override;
+	virtual void            PreAttributeChange(const FGameplayAttribute& Attribute, float& NewValue) override;
+    //virtual void            PostAttributeChange(const FGameplayAttribute& Attribute, float OldValue, float NewValue) override;
+    //virtual bool            PreGameplayEffectExecute(struct FGameplayEffectModCallbackData& Data) override;
+    //virtual void            PostGameplayEffectExecute(const struct FGameplayEffectModCallbackData& Data) override;
 	
 public:
 	UPROPERTY(BlueprintReadOnly, Category = "Speed")

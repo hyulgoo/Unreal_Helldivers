@@ -19,6 +19,9 @@ public:
 
     virtual UAbilitySystemComponent*    GetAbilitySystemComponent() const override final;
 
+    template < class T >
+    T*                                  GetAbilitySystemComponent() const { return Cast<T>(GetAbilitySystemComponent()); }
+
 protected:
     UPROPERTY(EditAnywhere, Category = GAS)
     TObjectPtr<UAbilitySystemComponent> AbilitySystemComponent;

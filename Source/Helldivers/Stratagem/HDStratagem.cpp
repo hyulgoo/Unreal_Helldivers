@@ -41,7 +41,7 @@ void AHDStratagem::SetStratagemInfo(const FName SelectedStratagemName, const flo
 
 void AHDStratagem::AddImpulseToStratagem(const FVector& NewThrowDirection)
 {
-    CONDITION_CHECK(NewThrowDirection.IsNormalized() == false);
+    CONDITION_CHECK(NewThrowDirection.IsNormalized());
 
     DetachFromActor(FDetachmentTransformRules::KeepRelativeTransform);
     SetOwner(nullptr);

@@ -1,6 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "HDCharacterNonPlayer.h"
+#include "Component/HDAbilitySystemComponent.h"
 
 AHDCharacterNonPlayer::AHDCharacterNonPlayer()
 {
@@ -11,7 +12,7 @@ void AHDCharacterNonPlayer::BeginPlay()
     Super::BeginPlay();
 
     UHDAbilitySystemComponent* ASC = CreateDefaultSubobject<UHDAbilitySystemComponent>("HDAbilitySystem");
-    SetAbilitySystemComponent(this, Cast<UAbilitySystemComponent>(ASC), EHDCharacterType::NPC);
+    SetAbilitySystemComponent(this, ASC, EHDCharacterType::NPC);
 }
 
 void AHDCharacterNonPlayer::SetDead()
@@ -20,10 +21,5 @@ void AHDCharacterNonPlayer::SetDead()
 
 	const float RandomDeadEventDelayTime = FMath::FRandRange(DeadEventDelayTime, DeadEventDelayTime * 1.5f);
     FTimerHandle DeadTimerHandle;
-	GetWorld()->GetTimerManager().SetTimer(DeadTimerHandle, FTimerDelegate::CreateLambda(
-		[&]()
-		{
-			Destroy();
-		}
-    ), RandomDeadEventDelayTime, false);
+	GetWorld()->GetTimerManager().SetTimer(DeadTimerHandle, FTimerDelegate::CreateLambda([this]() { Destroy(); } ), RandomDeadEventDelayTime, false);
 }

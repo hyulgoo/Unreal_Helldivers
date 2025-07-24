@@ -145,7 +145,7 @@ const bool UHDCombatComponent::IsUseRotateBone() const
 
 UAnimMontage* UHDCombatComponent::GetCombatMontage(const EHDCombatMontage MontageType)
 {
-    CONDITION_CHECK_WITH_RETURNTYPE(CombatMontage.Num() != static_cast<int32>(EHDCombatMontage::Count), nullptr);
+    CONDITION_CHECK_WITH_RETURNTYPE(CombatMontage.Num() == static_cast<int32>(EHDCombatMontage::Count), nullptr);
 
     return CombatMontage[MontageType];
 }
@@ -159,7 +159,7 @@ void UHDCombatComponent::TraceUnderCrosshairs()
     }
     else
     {
-        CONDITION_CHECK(true);
+        CONDITION_CHECK(false);
     }
 
     const FVector2D CrosshairLocation(ViewportSize.X / 2.f, ViewportSize.Y / 2.f);
@@ -447,7 +447,7 @@ const EHDCombatState UHDCombatComponent::GetCombatState() const
 
 void UHDCombatComponent::SetCombatState(const EHDCombatState State)
 {
-    CONDITION_CHECK(CombatState == EHDCombatState::Count);
+    CONDITION_CHECK(CombatState != EHDCombatState::Count);
 
     CombatState = State;
 }

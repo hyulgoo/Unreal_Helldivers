@@ -15,7 +15,7 @@ void UHDStratagemInfoUserWidget::InitializeStratagemInfoWidget(UTexture2D* IconT
     NULL_CHECK(TB_StratagemName);
     FString WidgetName = GetName();
 
-    CONDITION_CHECK(WidgetName.IsEmpty());
+    CONDITION_CHECK(WidgetName.IsEmpty() == false);
 
     TB_StratagemName->SetText(FText::FromString(WidgetName));
 
@@ -36,7 +36,7 @@ void UHDStratagemInfoUserWidget::InitializeStratagemInfoWidget(UTexture2D* IconT
 void UHDStratagemInfoUserWidget::ActiveCommandIconByNum(const int32 InputNum)
 {
     const int32 CommandIconWidgetListNum = CommandIconWidgetList.Num();
-    CONDITION_CHECK(InputNum > CommandIconWidgetListNum);
+    CONDITION_CHECK(InputNum <= CommandIconWidgetListNum);
 
     NULL_CHECK(Img_StratagemIcon);
     Img_StratagemIcon->SetRenderOpacity(1.f);

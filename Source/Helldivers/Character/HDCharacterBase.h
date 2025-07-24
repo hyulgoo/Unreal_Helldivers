@@ -27,7 +27,11 @@ public:
 
 protected:
     virtual UAbilitySystemComponent*        GetAbilitySystemComponent() const override final;
-    void                                    SetAbilitySystemComponent(AActor* OwnerActor, UAbilitySystemComponent* ASC, const EHDCharacterType CharacterType);
+    void                                    SetAbilitySystemComponent(AActor* OwnerActor, UHDAbilitySystemComponent* ASC, const EHDCharacterType CharacterType);
+
+    template < class T >
+    T*                                      GetAbilitySystemComponent() const { return Cast<T>(GetAbilitySystemComponent()); }
+
     virtual void                            SetDead() override;
 
     virtual void				            SetRagdoll(const bool bRagdoll, const FVector& Impulse = FVector::ZeroVector) override;

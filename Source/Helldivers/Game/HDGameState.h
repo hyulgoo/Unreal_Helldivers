@@ -16,8 +16,8 @@ class HELLDIVERS_API AHDGameState : public AGameStateBase
 public:
     explicit                    AHDGameState();
 
-    AHDBattleShip*              GetBattleShip() const { return BattleShip; }
-    void                        SetBattleShip(AHDBattleShip* NewBattleShip) { BattleShip = NewBattleShip; }
+    AHDBattleShip*              GetBattleShip() const;
+    void                        SetBattleShip(AHDBattleShip* NewBattleShip);
 
 protected:
     virtual void                BeginPlay() override;
@@ -29,4 +29,6 @@ private:
     UPROPERTY()
     TObjectPtr<AHDBattleShip>   BattleShip;
     
+    UPROPERTY()
+    float                       SpawnHeight;
 };

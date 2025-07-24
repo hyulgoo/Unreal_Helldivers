@@ -88,7 +88,7 @@ void UHDAbilitySystemComponent::SetAttributeSetStat(FHDCharacterStat* StatData, 
 
     FGameplayEffectContextHandle Context = MakeEffectContext();
     FGameplayEffectSpecHandle SpecHandle = MakeOutgoingSpec(InitAttributeStatEffect, 1.f, Context);
-    CONDITION_CHECK(SpecHandle.IsValid() == false);
+    CONDITION_CHECK(SpecHandle.IsValid());
 
     for(const TPair<FGameplayTag, float>& TaggedStat : StatData->Stats)
     {

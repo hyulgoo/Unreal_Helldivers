@@ -21,6 +21,7 @@ class HELLDIVERS_API IHDWeaponInterface
 
 public:
 	virtual AHDWeapon*				GetWeapon() const = 0;
+	virtual const float				GetWeaponFireDelay() const = 0;
 
 	virtual const FVector&			GetHitTarget() const = 0;
 	virtual const EHDCombatState	GetCombatState() const = 0;

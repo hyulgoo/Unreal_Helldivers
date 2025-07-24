@@ -7,7 +7,18 @@
 AHDGameState::AHDGameState()
 	: BattleShipClass(nullptr)
 	, BattleShip(nullptr)
+    , SpawnHeight(80000.f)
 {
+}
+
+AHDBattleShip* AHDGameState::GetBattleShip() const
+{
+    return BattleShip;
+}
+
+void AHDGameState::SetBattleShip(AHDBattleShip* NewBattleShip)
+{
+    BattleShip = NewBattleShip;
 }
 
 void AHDGameState::BeginPlay()
@@ -18,7 +29,7 @@ void AHDGameState::BeginPlay()
 	VALID_CHECK(World);
 	NULL_CHECK(BattleShipClass);
 
-	const FVector SpawnLocation(0.f, 0.f, 80000.f);
+	const FVector SpawnLocation(0.f, 0.f, SpawnHeight);
 	BattleShip = World->SpawnActor<AHDBattleShip>(BattleShipClass, SpawnLocation, FRotator::ZeroRotator);
 	NULL_CHECK(BattleShip);
 }

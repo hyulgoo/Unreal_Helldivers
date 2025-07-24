@@ -3,13 +3,13 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Abilities/GameplayAbility.h"
+#include "AbilitySystem/GameAbility/HDGA_Base.h"
 #include "HDGA_Knockback.generated.h"
 
 class IHDCharacterRagdollInterface;
 
 UCLASS()
-class HELLDIVERS_API UHDGA_Knockback : public UGameplayAbility
+class HELLDIVERS_API UHDGA_Knockback : public UHDGA_Base
 {
 	GENERATED_BODY()
 	

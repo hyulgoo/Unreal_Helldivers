@@ -106,7 +106,7 @@ void AHDEagleFighter::SetSplnePoints()
         break;
     }
 
-    CONDITION_CHECK(StratagemEffectData.EagleAirStrikeDirection == EHDEagleAirStrikeDirection::Count);
+    CONDITION_CHECK(StratagemEffectData.EagleAirStrikeDirection != EHDEagleAirStrikeDirection::Count);
 
     UE_LOG(LogTemp, Warning, TEXT("FlightDirection : %s"), *FlightDirection.ToString());
     const FVector Start = FlightStartLocation;
@@ -163,8 +163,8 @@ void AHDEagleFighter::DropBombWithDelayAndReturn(const int32 Index)
     const int32 NumberOfProjectileToBeSpawn = StratagemEffectData.ProjectileDropLocation.IsEmpty() 
                                         ? StratagemEffectData.SpecifyProjectileSpawnCount : StratagemEffectData.ProjectileDropLocation.Num();
 
-    CONDITION_CHECK(NumberOfProjectileToBeSpawn < 1);
-    CONDITION_CHECK(Index > NumberOfProjectileToBeSpawn);
+    CONDITION_CHECK(NumberOfProjectileToBeSpawn >= 1);
+    CONDITION_CHECK(Index <= NumberOfProjectileToBeSpawn);
 
     TSubclassOf<AHDProjectileBase> ProjectileClass = StratagemEffectData.StratagemProjectileType == EHDStratagemProjectile::Bullet 
                                                     ? ProjectileBulletClass : ProjectileBombClass;

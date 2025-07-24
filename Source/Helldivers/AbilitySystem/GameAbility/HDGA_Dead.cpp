@@ -2,11 +2,6 @@
 
 #include "AbilitySystem/GameAbility/HDGA_Dead.h"
 #include "Interface/HDDeadInterface.h"
-#include "Define/HDDefine.h"
-
-UHDGA_Dead::UHDGA_Dead()
-{
-}
 
 void UHDGA_Dead::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)
 {

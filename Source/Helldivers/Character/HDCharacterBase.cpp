@@ -50,9 +50,9 @@ UAbilitySystemComponent* AHDCharacterBase::GetAbilitySystemComponent() const
     return Cast<UAbilitySystemComponent>(AbilitySystemComponent);
 }
 
-void AHDCharacterBase::SetAbilitySystemComponent(AActor* OwnerActor, UAbilitySystemComponent* ASC, const EHDCharacterType CharacterType)
+void AHDCharacterBase::SetAbilitySystemComponent(AActor* OwnerActor, UHDAbilitySystemComponent* ASC, const EHDCharacterType CharacterType)
 {
-    AbilitySystemComponent = Cast<UHDAbilitySystemComponent>(ASC);
+    AbilitySystemComponent = ASC;
     NULL_CHECK(AbilitySystemComponent);
 
     for (const TSubclassOf<UGameplayAbility>& Ability : Abilities)
@@ -75,9 +75,6 @@ void AHDCharacterBase::SetDead()
 
 void AHDCharacterBase::SetRagdoll(const bool bRagdoll, const FVector& Impulse)
 {
-	// Ragdoll로 만들어야 하는데 AddImpulse가 없는 경우 Error
-	CONDITION_CHECK(bRagdoll && Impulse == FVector::ZeroVector);
-
 	USkeletalMeshComponent* CharacterMesh = GetMesh();
 	CharacterMesh->SetSimulatePhysics(bRagdoll);
 
@@ -88,7 +85,7 @@ void AHDCharacterBase::SetRagdoll(const bool bRagdoll, const FVector& Impulse)
 	}
 	else
 	{
-		GetCharacterMovement()->SetMovementMode(MOVE_Walking);
+		GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Walking);
 
 		const FVector& BonmeLocation = CharacterMesh->GetBoneLocation("pelvis");
 		const FRotator NewMeshRotation(0.f, CharacterMesh->GetComponentRotation().Yaw, 0.f);

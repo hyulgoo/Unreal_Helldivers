@@ -51,8 +51,8 @@ void AHDPlayerController::SetPossessAbilitySystemComponentBindEventCall(UAbility
 {
     NULL_CHECK(ASC);
 
-    ASC->GenericGameplayEventCallbacks.FindOrAdd(HDTAG_EVENT_PLAYERHUD_AMMO).AddUObject(this, &AHDPlayerController::OnPlayerHUDInfoChanged);
-    ASC->GenericGameplayEventCallbacks.FindOrAdd(HDTAG_EVENT_PLAYERHUD_CAPACITY).AddUObject(this, &AHDPlayerController::OnPlayerHUDInfoChanged);
+    ASC->GenericGameplayEventCallbacks.FindOrAdd(HDTAG_EVENT_PLAYERHUD_AMMOCHANGE).AddUObject(this, &AHDPlayerController::OnPlayerHUDInfoChanged);
+    ASC->GenericGameplayEventCallbacks.FindOrAdd(HDTAG_EVENT_PLAYERHUD_CAPACITYCHANGE).AddUObject(this, &AHDPlayerController::OnPlayerHUDInfoChanged);
     ASC->GenericGameplayEventCallbacks.FindOrAdd(HDTAG_EVENT_STRATAGEMHUD_ADDCOMMAND).AddUObject(this, &AHDPlayerController::OnStratagemHUDInfoChanged);
     ASC->GenericGameplayEventCallbacks.FindOrAdd(HDTAG_EVENT_STRATAGEMHUD_APPEAR).AddUObject(this, &AHDPlayerController::StratagemHUDAppear);
     ASC->GenericGameplayEventCallbacks.FindOrAdd(HDTAG_EVENT_STRATAGEMHUD_DISAPPEAR).AddUObject(this, &AHDPlayerController::StratagemHUDAppear);
@@ -60,12 +60,12 @@ void AHDPlayerController::SetPossessAbilitySystemComponentBindEventCall(UAbility
 
 void AHDPlayerController::OnPlayerHUDInfoChanged(const FGameplayEventData* Payload)
 {
-    if (Payload->EventTag == HDTAG_EVENT_PLAYERHUD_AMMO)
+    if (Payload->EventTag == HDTAG_EVENT_PLAYERHUD_AMMOCHANGE)
     {
         const int32 NewAmmoCount = static_cast<int32>(Payload->EventMagnitude);
         ChangeAmmoHUDInfo(NewAmmoCount);
     }
-    else if (Payload->EventTag == HDTAG_EVENT_PLAYERHUD_CAPACITY)
+    else if (Payload->EventTag == HDTAG_EVENT_PLAYERHUD_CAPACITYCHANGE)
     {
         const int32 NewCapacityCount = static_cast<int32>(Payload->EventMagnitude);
         ChangeCapacityHUDInfo(NewCapacityCount);

@@ -1,8 +1,6 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "HDGA_Knockback.h"
-#include "Define/HDDefine.h"
-#include "Define/HDGameplayTag.h"
 #include "AbilitySystemComponent.h"
 #include "Interface/HDCharacterRagdollInterface.h"
 
@@ -22,8 +20,7 @@ void UHDGA_Knockback::ActivateAbility(const FGameplayAbilitySpecHandle Handle, c
 
     if(TriggerEventData->EventTag == HDTAG_DATA_KNOCKBACK_HIT)
     {
-        // Character Hit
-        UE_LOG(LogTemp, Error, TEXT("Hit Tag Called!!"));
+        LOG(TEXT("Knockback GA called!"));
     }
     else if (TriggerEventData->EventTag == HDTAG_DATA_KNOCKBACK_RAGDOLL)
     {
@@ -38,11 +35,13 @@ void UHDGA_Knockback::ActivateAbility(const FGameplayAbilitySpecHandle Handle, c
 
         World = ActorInfo->AvatarActor->GetWorld();
         VALID_CHECK(World);
+
+        if(StateCheckTimerHandle.IsValid())
+        {
+            World->GetTimerManager().ClearTimer(StateCheckTimerHandle);
+        }
+
         World->GetTimerManager().SetTimer(StateCheckTimerHandle, this, &UHDGA_Knockback::CheckCharacterRagdollState, 0.1f, true);
-    }
-    else
-    {
-        UE_LOG(LogTemp, Warning, TEXT("EventTag in Knockback Ability is Invalid"));
     }
 }
 
@@ -52,7 +51,6 @@ void UHDGA_Knockback::CheckCharacterRagdollState()
     VALID_CHECK(World);
 
     const float Speed = RagdollInterface->GetRagdollPysicsLinearVelocity();
-
     if (Speed < 5.f && bRecoveryFromRagdoll == false)
     {
         bRecoveryFromRagdoll = true;

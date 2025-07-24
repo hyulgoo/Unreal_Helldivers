@@ -26,6 +26,11 @@ UHDStratagemComponent::UHDStratagemComponent()
     }
 }
 
+UDataTable* UHDStratagemComponent::GetAvaliableStratagemDataTable() const
+{
+    return AvaliableStratagemDataTable;
+}
+
 FORCEINLINE const TArray<FName>& UHDStratagemComponent::GetCommandMatchStratagemNameList() const
 {
     return CommandMatchStratagemNameList;

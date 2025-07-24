@@ -16,7 +16,7 @@ if (WITH_EDITOR && GIsEditor && GWorld && GWorld->IsPlayInEditor()) \
 } \
 
 #define CONDITION_CHECK(condition) \
-if(condition) \
+if(condition == false) \
 { \
     if (WITH_EDITOR && GIsEditor && GWorld && GWorld->IsPlayInEditor()) \
     { \
@@ -27,13 +27,25 @@ if(condition) \
 } \
 
 #define CONDITION_CHECK_WITH_RETURNTYPE(condition, ret) \
-if(condition) \
+if(condition == false) \
 { \
     if (WITH_EDITOR && GIsEditor && GWorld && GWorld->IsPlayInEditor()) \
     { \
         UE_LOG(LogTemp, Error, TEXT("[%s]!, At Function: %s (%s:%d)"), \
             TEXT(#condition), ANSI_TO_TCHAR(__FUNCTION__), ANSI_TO_TCHAR(SHORT_FILE_NAME), __LINE__); \
     } \
+    return ret; \
+} \
+
+#define CONDITION_CHECK_WITHOUT_LOG(condition) \
+if(condition == false) \
+{ \
+    return; \
+} \
+
+#define CONDITION_CHECK_WITH_RETURNTYPE_WITHOUT_LOG(condition, ret) \
+if(condition == false) \
+{ \
     return ret; \
 } \
 
@@ -56,6 +68,18 @@ if(ptr == nullptr) \
         UE_LOG(LogTemp, Error, TEXT("[%s] is null, At Function: %s (%s:%d)"), \
             TEXT(#ptr), ANSI_TO_TCHAR(__FUNCTION__), ANSI_TO_TCHAR(SHORT_FILE_NAME), __LINE__); \
     } \
+    return ret; \
+} \
+
+#define NULL_CHECK_WITHOUT_LOG(ptr) \
+if(ptr == nullptr) \
+{ \
+    return; \
+} \
+
+#define NULL_CHECK_WITH_RETURNTYPE_WITHOUT_LOG(ptr, ret) \
+if(ptr == nullptr) \
+{ \
     return ret; \
 } \
 
@@ -82,5 +106,17 @@ if(IsValid(ptr) == false) \
         UE_LOG(LogTemp, Error, TEXT("Invalid : [%s], Name: [%s], At Function: %s (%s:%d)"), \
         TEXT(#ptr), *ObjectName, ANSI_TO_TCHAR(__FUNCTION__), ANSI_TO_TCHAR(SHORT_FILE_NAME), __LINE__); \
     } \
+    return ret; \
+} \
+
+#define VALID_CHECK_WITHOUT_LOG(ptr) \
+if(IsValid(ptr) == false) \
+{ \
+    return; \
+} \
+
+#define VALID_CHECK_WITH_RETURNTYPE_WITHOUT_LOG(ptr, ret) \
+if(IsValid(ptr) == false) \
+{ \
     return ret; \
 } \

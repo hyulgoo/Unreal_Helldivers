@@ -1,14 +1,15 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "HDGA_MovementTrigger.h"
-#include "Define/HDGameplayTag.h"
-#include "Define/HDDefine.h"
-#include "Interface/HDCharacterMovementInterface.h"
 #include "Abilities/Tasks/AbilityTask_WaitAttributeChangeThreshold.h"
+#include "Interface/HDCharacterMovementInterface.h"
 #include "Attribute/HDSpeedAttributeSet.h"
+#include "AbilitySystem/GameplayAbilityHelper.h"
 #include "Character/CharacterTypes/HDCharacterStateTypes.h"
 
 UHDGA_MovementTrigger::UHDGA_MovementTrigger()
+    : MaxStamina(0.f)
+    , RegenStaminaHandle(FTimerHandle())
 { 
 	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
 
@@ -19,13 +20,10 @@ void UHDGA_MovementTrigger::ActivateAbility(const FGameplayAbilitySpecHandle Han
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 
-    if (Super::CommitAbility(Handle, ActorInfo, ActivationInfo) == false)
-    {
-        return;
-    }
+    CONDITION_CHECK(Super::CommitAbility(Handle, ActorInfo, ActivationInfo))
 
 	FGameplayTagContainer CurrentTagContainer = GetAssetTags();
-	CONDITION_CHECK(CurrentTagContainer.IsValid() == false);
+	CONDITION_CHECK(CurrentTagContainer.IsValid());
 
 	TScriptInterface<IHDCharacterMovementInterface> CharacterMovementInterface = ActorInfo->AvatarActor.Get();
 	NULL_CHECK(CharacterMovementInterface);
@@ -42,16 +40,21 @@ void UHDGA_MovementTrigger::ActivateAbility(const FGameplayAbilitySpecHandle Han
 	{
 		CharacterMovementInterface->SetMovementState(EHDCharacterMovementState::Sprint);
 
+        UAbilityTask_WaitAttributeChangeThreshold* ThresholdTask = UAbilityTask_WaitAttributeChangeThreshold::WaitForAttributeChangeThreshold(
+            this,
+            UHDSpeedAttributeSet::GetCurrentStaminaAttribute(),
+            EWaitAttributeChangeComparison::LessThanOrEqualTo,
+            0.f,
+            true
+        );
+        NULL_CHECK(ThresholdTask);
+
+        ThresholdTask->OnChange.AddDynamic(this, &UHDGA_MovementTrigger::OnCurrentStaminaChanged);
+        ThresholdTask->ReadyForActivation();
+
+        if(RegenStaminaHandle.IsValid())
         {
-            UAbilityTask_WaitAttributeChangeThreshold* ThresholdTask = UAbilityTask_WaitAttributeChangeThreshold::WaitForAttributeChangeThreshold(
-                this,
-                UHDSpeedAttributeSet::GetCurrentStaminaAttribute(),
-                EWaitAttributeChangeComparison::LessThanOrEqualTo,
-                0.f,
-                true
-            );
-            ThresholdTask->OnChange.AddDynamic(this, &UHDGA_MovementTrigger::OnCurrentStaminaChanged);
-            ThresholdTask->ReadyForActivation();
+            GetWorld()->GetTimerManager().ClearTimer(RegenStaminaHandle);
         }
 	}
 	else if (CurrentTagContainer.HasTagExact(HDTAG_INPUT_CROUCH))
@@ -81,13 +84,6 @@ void UHDGA_MovementTrigger::ActivateAbility(const FGameplayAbilitySpecHandle Han
     }
 }
 
-void UHDGA_MovementTrigger::InputReleased(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo)
-{
-	const bool bReplicatedEndAbility = true;
-	const bool bWasCancelled = true;
-	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, bReplicatedEndAbility, bWasCancelled);
-}
-
 void UHDGA_MovementTrigger::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled)
 {
 	Super::EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, bReplicateEndAbility, bWasCancelled);
@@ -96,7 +92,7 @@ void UHDGA_MovementTrigger::EndAbility(const FGameplayAbilitySpecHandle Handle, 
 	NULL_CHECK(CharacterMovementInterface);
 
 	FGameplayTagContainer CurrentTagContainer = GetAssetTags();
-	CONDITION_CHECK(CurrentTagContainer.IsValid() == false);
+	CONDITION_CHECK(CurrentTagContainer.IsValid());
 
 	if (CurrentTagContainer.HasTagExact(HDTAG_INPUT_AIMING))
 	{
@@ -113,26 +109,10 @@ void UHDGA_MovementTrigger::EndAbility(const FGameplayAbilitySpecHandle Handle, 
         UAbilitySystemComponent* ASC = GetAbilitySystemComponentFromActorInfo();
         NULL_CHECK(ASC);
 
-        FGameplayTagContainer GrantedTags(HDTAG_COST_STAMINA);
-        FGameplayEffectQuery Query = FGameplayEffectQuery::MakeQuery_MatchAnyOwningTags(GrantedTags);
+        FGameplayAbilityHelper::RemoveActiveEffectByGrantedTag(HDTAG_COST_STAMINA, ASC);
 
-        ASC->RemoveActiveEffects(Query);
-
-        FTimerDelegate RegenStaminaDelegate = FTimerDelegate::CreateLambda([this, ASC]() {
-
-            AActor* OwningActor = GetOwningActorFromActorInfo();
-            VALID_CHECK(OwningActor);
-
-            FGameplayEventData EventData;
-            EventData.EventTag = HDTAG_REGEN_STAMINA;
-            EventData.Target = OwningActor;
-
-            ASC->HandleGameplayEvent(EventData.EventTag, &EventData);
-            }
-        );
-
-        FTimerHandle RegenStaminaTimer;
-        GetWorld()->GetTimerManager().SetTimer(RegenStaminaTimer, RegenStaminaDelegate, 1.f, false);
+        GetWorld()->GetTimerManager().SetTimer(RegenStaminaHandle, FTimerDelegate::CreateLambda([this, ASC]() {
+            FGameplayAbilityHelper::SendGameplayEventToSelf(HDTAG_REGEN_STAMINA, ASC);}), 1.f, false);
 	}
 	else if (CurrentTagContainer.HasTagExact(HDTAG_INPUT_CROUCH) || CurrentTagContainer.HasTagExact(HDTAG_INPUT_PRONE))
 	{
@@ -143,20 +123,13 @@ void UHDGA_MovementTrigger::EndAbility(const FGameplayAbilitySpecHandle Handle, 
         UAbilitySystemComponent* ASC = GetAbilitySystemComponentFromActorInfo();
         NULL_CHECK(ASC);
 
-        FGameplayTagContainer GrantedTags(HDTAG_REGEN_STAMINA);
-        FGameplayEffectQuery Query = FGameplayEffectQuery::MakeQuery_MatchAnyOwningTags(GrantedTags);
-
-        ASC->RemoveActiveEffects(Query);
+        FGameplayAbilityHelper::RemoveActiveEffectByGrantedTag(HDTAG_REGEN_STAMINA, ASC);
     }
 }
 
 void UHDGA_MovementTrigger::OnCurrentStaminaChanged(bool bMatchesComparison, float CurrentValue)
 {
-    if (bMatchesComparison && CurrentValue <= 0.f)
-    {
-        EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, true);
-    }
-    else if (bMatchesComparison && CurrentValue >= MaxStamina)
+    if (bMatchesComparison)
     {
         EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, true);
     }

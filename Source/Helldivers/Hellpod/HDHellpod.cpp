@@ -24,10 +24,10 @@ AHDHellpod::AHDHellpod()
 	, InputMappingContext(nullptr)
     , MaxMoveSpeed(0.f)
     , FallSpeed(0.f)
-	, CurrentInput(FVector2D())
+	, CurrentInput(FVector2D::ZeroVector)
 	, MaxPitchAngle(0.f)
 	, MaxRollAngle(0.f)
-	, MeshDefaultRelativeRotation(FRotator())
+	, MeshDefaultRelativeRotation(FRotator::ZeroRotator)
 	, bIsLanded(false)
 	, CameraBoom(nullptr)
 	, FollowCamera(nullptr)
@@ -39,7 +39,7 @@ AHDHellpod::AHDHellpod()
 	, SpawnedCharacter(nullptr)
 	, SpawnCharacterTimeline(FTimeline())
 	, SpawnCurveFloat(nullptr)
-	, ImpactTag(FGameplayTag())
+	, ImpactTag(FGameplayTag::EmptyTag)
 {
 	PrimaryActorTick.bCanEverTick = true;
 
@@ -117,14 +117,11 @@ void AHDHellpod::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent
 
 void AHDHellpod::OnBoxHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
-	if (bIsLanded)
-	{
-		return;
-	}
+    CONDITION_CHECK_WITHOUT_LOG(bIsLanded == false);
 	
 	bIsLanded = true;
 
-	CONDITION_CHECK(ImpactTag.IsValid() == false);
+	CONDITION_CHECK(ImpactTag.IsValid());
 	NULL_CHECK(OtherActor);
 
 	CameraShakeSource->StopAllCameraShakes();
@@ -210,6 +207,7 @@ void AHDHellpod::SetSpawnTimeline()
 	FOnTimelineFloat SpawnCharacterTimelineProgress;
 	SpawnCharacterTimelineProgress.BindUFunction(this, FName("OnSpawnTimelineUpdate"));
 	SpawnCharacterTimeline.AddInterpFloat(SpawnCurveFloat, SpawnCharacterTimelineProgress);
+
 	FOnTimelineEventStatic SpawnCharacterTimelineEventStatic;
 	SpawnCharacterTimelineEventStatic.BindUObject(this, &AHDHellpod::SpawnCharacterEnd);
 	SpawnCharacterTimeline.SetTimelineFinishedFunc(SpawnCharacterTimelineEventStatic);
