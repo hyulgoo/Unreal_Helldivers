@@ -15,7 +15,8 @@ class UInputAction;
 class USpringArmComponent;
 class UCameraComponent;
 class UHDCombatComponent;
-class UHDInputActionComponent;
+class UHDInputComponent;
+class UHMovementStateComponent;
 class UHDStratagemComponent;
 class AHDWeapon;
 class UHDCharacterControlData;
@@ -145,9 +146,12 @@ private:
 			
 	UPROPERTY(EditDefaultsOnly)
 	TObjectPtr<UHDCombatComponent>			Combat;
+    
+	UPROPERTY(EditDefaultsOnly)
+	TObjectPtr<UHDInputComponent>			Input;
 
 	UPROPERTY(EditDefaultsOnly)
-	TObjectPtr<UHDInputActionComponent>		InputAction;
+	TObjectPtr<UHMovementStateComponent>	MovementState;
 
 	UPROPERTY(EditDefaultsOnly)
 	TObjectPtr<UHDStratagemComponent>		Stratagem;

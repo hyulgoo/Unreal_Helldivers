@@ -7,7 +7,8 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Component/HDCombatComponent.h"
-#include "Component/HDInputActionComponent.h"
+#include "Component/HDMovementStateComponent.h"
+#include "Component/HDInputComponent.h"
 #include "Component/HDStratagemComponent.h"
 #include "Component/HDAbilitySystemComponent.h"
 #include "Controller/HDPlayerController.h"
@@ -26,7 +27,7 @@ AHDCharacterPlayer::AHDCharacterPlayer()
     : SpringArm(nullptr)
 	, FollowCamera(nullptr)
 	, Combat(nullptr)
-    , InputAction(nullptr)
+    , MovementState(nullptr)
     , Stratagem(nullptr)
     , TaggedInputDataAsset(nullptr)
     , EventCallTags(FGameplayTagContainer())
@@ -44,14 +45,14 @@ AHDCharacterPlayer::AHDCharacterPlayer()
     FollowCamera->SetupAttachment(SpringArm, USpringArmComponent::SocketName);
     FollowCamera->bUsePawnControlRotation = false;
 
-    Combat      = CreateDefaultSubobject<UHDCombatComponent>(TEXT("Combat"));
-    InputAction = CreateDefaultSubobject<UHDInputActionComponent>(TEXT("InputAction"));
-    Stratagem   = CreateDefaultSubobject<UHDStratagemComponent>(TEXT("Stratagem"));
+    Combat          = CreateDefaultSubobject<UHDCombatComponent>(TEXT("Combat"));
+    MovementState   = CreateDefaultSubobject<UHMovementStateComponent>(TEXT("Movement"));
+    Stratagem       = CreateDefaultSubobject<UHDStratagemComponent>(TEXT("Stratagem"));
 }
 
 void AHDCharacterPlayer::ChangeCharacterControlType()
 {
-    EHDCharacterControlType NewControlType = InputAction->GetControlType() == EHDCharacterControlType::FirstPerson 
+    EHDCharacterControlType NewControlType = MovementState->GetControlType() == EHDCharacterControlType::FirstPerson 
         ? EHDCharacterControlType::ThirdPerson : EHDCharacterControlType::FirstPerson;
     SetCharacterControl(NewControlType);
 }
@@ -67,7 +68,7 @@ void AHDCharacterPlayer::PossessedBy(AController* NewController)
 
     Combat->SpawnDefaultWeapon();
     InitAbilitySystemComponent();
-    SetCharacterControl(InputAction->GetControlType());
+    SetCharacterControl(MovementState->GetControlType());
 }
 
 void AHDCharacterPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -85,10 +86,10 @@ void AHDCharacterPlayer::SetupAbilitySystemInputComponent(UEnhancedInputComponen
 {
     NULL_CHECK(EnhancedInputComponent);
 
-    UHDInputActionComponent* HDInput = Cast<UHDInputActionComponent>(EnhancedInputComponent);
+    UHDInputComponent* HDInput = Cast<UHDInputComponent>(EnhancedInputComponent);
     NULL_CHECK(HDInput);
 
-    TMap<EHDCharacterInputAction, TObjectPtr<UInputAction>> InputActionMap = InputAction->GetInputActionMap();
+    TMap<EHDCharacterInputAction, TObjectPtr<UInputAction>> InputActionMap = Input->GetInputActionMap();
 
     CONDITION_CHECK(InputActionMap.Num() == static_cast<uint8>(EHDCharacterInputAction::Count));
 
@@ -170,18 +171,18 @@ const float AHDCharacterPlayer::Reload()
 	Combat->Reload();
 
     const bool bIsShoulder = IsShouldering();
-    const EHDCharacterStanceState MovementState = InputAction->GetStanceState();
+    const EHDCharacterStanceState StanceState = MovementState->GetStanceState();
 
 	FName SectionName;
     switch (Combat->GetWeaponFireType())
 	{
 	case EHDFireType::HitScan:
 	case EHDFireType::Projectile:
-		SectionName = MovementState == EHDCharacterStanceState::Prone ? HDMONTAGE_SECTIONNAME_RIFLE_PRONE
+		SectionName = StanceState == EHDCharacterStanceState::Prone ? HDMONTAGE_SECTIONNAME_RIFLE_PRONE
 			: bIsShoulder ? HDMONTAGE_SECTIONNAME_RIFLE_AIM : HDMONTAGE_SECTIONNAME_RIFLE_HIP;
 		break;
 	case EHDFireType::Shotgun:
-		SectionName = MovementState == EHDCharacterStanceState::Prone ? HDMONTAGE_SECTIONNAME_SHOTGUN_PRONE
+		SectionName = StanceState == EHDCharacterStanceState::Prone ? HDMONTAGE_SECTIONNAME_SHOTGUN_PRONE
 			: bIsShoulder ? HDMONTAGE_SECTIONNAME_SHOTGUN_AIM : HDMONTAGE_SECTIONNAME_SHOTGUN_HIP;
 		break;
 	}
@@ -298,7 +299,7 @@ void AHDCharacterPlayer::SetCharacterControlData(UHDCharacterControlData* Charac
     SpringArm->bDoCollisionTest        = CharacterControlData->bDoCollisionTest;
 
     Combat->SetSpringArmTargetLength(CharacterControlData->TargetArmLength);
-    InputAction->SetSpringArmDefaultZOffset(CharacterControlData->TargetOffset.Z);
+    MovementState->SetSpringArmDefaultZOffset(CharacterControlData->TargetOffset.Z);
 }
 
 UHDStratagemComponent* AHDCharacterPlayer::GetStratagemComponent()
@@ -339,14 +340,14 @@ void AHDCharacterPlayer::InputStratagemCommand(const FInputActionValue& Value)
     if (ASC && ASC->HasMatchingGameplayTag(HDTAG_CHARACTER_STATE_STRATAGEMINPUTMODE))
     {
         EHDCommandInput NewCommand = EHDCommandInput::Count;
-        const FVector2D Input = Value.Get<FVector2D>();
-        if (FMath::Abs(Input.Y) > 0.5f)
+        const FVector2D NewInput = Value.Get<FVector2D>();
+        if (FMath::Abs(NewInput.Y) > 0.5f)
         {
-            NewCommand = Input.Y > 0.f ? EHDCommandInput::Up : EHDCommandInput::Down;
+            NewCommand = NewInput.Y > 0.f ? EHDCommandInput::Up : EHDCommandInput::Down;
         }
-        else if (FMath::Abs(Input.X) > 0.5f)
+        else if (FMath::Abs(NewInput.X) > 0.5f)
         {
-            NewCommand = Input.X > 0.f ? EHDCommandInput::Right : EHDCommandInput::Left;
+            NewCommand = NewInput.X > 0.f ? EHDCommandInput::Right : EHDCommandInput::Left;
         }
 
         if (NewCommand == EHDCommandInput::Count)
@@ -364,39 +365,39 @@ void AHDCharacterPlayer::InputStratagemCommand(const FInputActionValue& Value)
 
 const EHDCharacterMovementState AHDCharacterPlayer::GetMovementState() const
 {
-    return InputAction->GetMovementState();
+    return MovementState->GetMovementState();
 }
 
 void AHDCharacterPlayer::SetMovementState(const EHDCharacterMovementState NewState)
 {
-    InputAction->SetMovementState(NewState);
+    MovementState->SetMovementState(NewState);
     
-    const float NewSpeed = GetMoveSpeedByState(InputAction->GetStanceState(), NewState);
+    const float NewSpeed = GetMoveSpeedByState(MovementState->GetStanceState(), NewState);
     GetCharacterMovement()->MaxWalkSpeed = NewSpeed;
 }
 
 const EHDCharacterStanceState AHDCharacterPlayer::GetStanceState() const
 {
-    return InputAction->GetStanceState();
+    return MovementState->GetStanceState();
 }
 
 void AHDCharacterPlayer::SetCharacterStanceState(const EHDCharacterStanceState NewState, const bool bForced)
 {
-    InputAction->SetStanceState(NewState, bForced);
+    MovementState->SetStanceState(NewState, bForced);
 	if (bForced)
 	{
         SetCombatState(NewState == EHDCharacterStanceState::Prone ? EHDCombatState::Ragdoll : EHDCombatState::Unoccupied);
     }
 
-    const float NewSpeed = GetMoveSpeedByState(NewState, InputAction->GetMovementState());
+    const float NewSpeed = GetMoveSpeedByState(NewState, MovementState->GetMovementState());
     GetCharacterMovement()->MaxWalkSpeed = NewSpeed;
 }
 
 void AHDCharacterPlayer::RestoreStanceState()
 {
-    InputAction->RestoreStanceState();
+    MovementState->RestoreStanceState();
 
-    const float NewSpeed = GetMoveSpeedByState(InputAction->GetStanceState(), InputAction->GetMovementState());
+    const float NewSpeed = GetMoveSpeedByState(MovementState->GetStanceState(), MovementState->GetMovementState());
     GetCharacterMovement()->MaxWalkSpeed = NewSpeed;
 }
 
@@ -509,7 +510,7 @@ void AHDCharacterPlayer::FirstPersonMove(const FInputActionValue& Value)
 
 void AHDCharacterPlayer::SetCharacterControl(const EHDCharacterControlType NewCharacterControlType)
 {
-    UHDCharacterControlData* ControlData = InputAction->SetControlType(NewCharacterControlType);
+    UHDCharacterControlData* ControlData = MovementState->SetControlType(NewCharacterControlType);
 
     APlayerController* PlayerController = GetController<APlayerController>();
     NULL_CHECK(PlayerController);
@@ -584,5 +585,5 @@ void AHDCharacterPlayer::SetDead()
         DisableInput(PlayerController);
     }
 
-    InputAction->SetStanceState(EHDCharacterStanceState::Prone);
+    MovementState->SetStanceState(EHDCharacterStanceState::Prone);
 }

@@ -17,13 +17,7 @@ void FGameplayAbilityHelper::SendGameplayEventToTarget(const FGameplayTag EventT
     UAbilitySystemComponent* TargetASC = TargetActorInfo->AbilitySystemComponent.Get();
     VALID_CHECK(TargetASC);
 
-    FGameplayEventData EventData;
-    EventData.EventTag = EventTag;
-    EventData.Instigator = SourceActor;
-    EventData.Target = TargetActor;
-    EventData.EventMagnitude = Magnitude;
-
-    TargetASC->HandleGameplayEvent(EventData.EventTag, &EventData);
+    SendGameplayEventToTarget(EventTag, SourceActor, TargetActor, Magnitude);
 }
 
 void FGameplayAbilityHelper::SendGameplayEventToTarget(const FGameplayTag EventTag, AActor* Instigator, UAbilitySystemComponent* TargetASC, const float Magnitude /*= 0.f*/)
@@ -40,6 +34,11 @@ void FGameplayAbilityHelper::SendGameplayEventToTarget(const FGameplayTag EventT
     TargetASC->HandleGameplayEvent(EventData.EventTag, &EventData);
 }
 
+void FGameplayAbilityHelper::SendGameplayEventToTarget(const FGameplayTag EventTag, AActor* Instigator, AActor* TargetActor, const float Magnitude /*= 0.f*/)
+{
+    SendGameplayEventToTarget(EventTag, Instigator, GetAbilitySystemComponentFromActor(TargetActor), Magnitude);
+}
+
 void FGameplayAbilityHelper::SendGameplayEventToSelf(const FGameplayTag EventTag, const FGameplayAbilityActorInfo* SourceActorInfo, const float Magnitude /*= 0.f*/)
 {
     NULL_CHECK(SourceActorInfo->AvatarActor);
@@ -48,16 +47,7 @@ void FGameplayAbilityHelper::SendGameplayEventToSelf(const FGameplayTag EventTag
     AActor* OwningActor = SourceActorInfo->AvatarActor.Get();
     VALID_CHECK(OwningActor);
 
-    UAbilitySystemComponent* SourceASC = SourceActorInfo->AbilitySystemComponent.Get();
-    VALID_CHECK(SourceASC);
-
-    FGameplayEventData EventData;
-    EventData.EventTag = EventTag;
-    EventData.Instigator = OwningActor;
-    EventData.Target = OwningActor;
-    EventData.EventMagnitude = Magnitude;
-
-    SourceASC->HandleGameplayEvent(EventData.EventTag, &EventData);
+    SendGameplayEventToSelf(EventTag, OwningActor, Magnitude);
 }
 
 void FGameplayAbilityHelper::SendGameplayEventToSelf(const FGameplayTag EventTag, UAbilitySystemComponent* SourceASC, const float Magnitude /*= 0.f*/)
@@ -75,6 +65,11 @@ void FGameplayAbilityHelper::SendGameplayEventToSelf(const FGameplayTag EventTag
     EventData.EventMagnitude = Magnitude;
 
     SourceASC->HandleGameplayEvent(EventData.EventTag, &EventData);
+}
+
+void FGameplayAbilityHelper::SendGameplayEventToSelf(const FGameplayTag EventTag, AActor* SourceActor, const float Magnitude /*= 0.f*/)
+{
+    SendGameplayEventToSelf(EventTag, GetAbilitySystemComponentFromActor(SourceActor), Magnitude);
 }
 
 UAbilitySystemComponent* FGameplayAbilityHelper::GetAbilitySystemComponentFromActor(AActor* Actor)
@@ -116,6 +111,16 @@ void FGameplayAbilityHelper::ExcuteGameplayCue(const FGameplayTag Tag, const FGa
     Params.AggregatedSourceTags = TagContainer;
 
     ASC->ExecuteGameplayCue(Tag, Params);
+}
+
+void FGameplayAbilityHelper::ExcuteGameplayCue(const FGameplayTag Tag, const FVector& Location, const FVector Normal, UAbilitySystemComponent* ASC)
+{
+    ExcuteGameplayCue(Tag, FGameplayTagContainer::EmptyContainer, Location, Normal, ASC);
+}
+
+void FGameplayAbilityHelper::ExcuteGameplayCue(const FGameplayTag Tag, const FVector& Location, const FVector Normal, AActor* OwningActor)
+{
+    ExcuteGameplayCue(Tag, Location, Normal, GetAbilitySystemComponentFromActor(OwningActor));
 }
 
 void FGameplayAbilityHelper::RemoveActiveEffectByGrantedTag(const FGameplayTag Tag, UAbilitySystemComponent* ASC)

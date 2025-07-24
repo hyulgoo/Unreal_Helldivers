@@ -79,7 +79,7 @@ void AHDProjectileBase::OnBoxHit(UPrimitiveComponent* HitComp, AActor* OtherActo
 	if (ImpactType == EImpactType::Explode)
 	{
 		ApplyExplode(OwnerASC, Hit.ImpactPoint);
-        FGameplayAbilityHelper::ExcuteGameplayCue(ImpactHitCueTag, FGameplayTagContainer::EmptyContainer, Hit.ImpactPoint, Hit.ImpactNormal, OwnerASC);
+        FGameplayAbilityHelper::ExcuteGameplayCue(ImpactHitCueTag, Hit.ImpactPoint, Hit.ImpactNormal, OwnerASC);
 	}
 	else
 	{
@@ -89,7 +89,7 @@ void AHDProjectileBase::OnBoxHit(UPrimitiveComponent* HitComp, AActor* OtherActo
 			ApplyDamageGameEffect(OwnerASC, TargetASC, ImpactDamage);
 		}
 
-        FGameplayAbilityHelper::ExcuteGameplayCue(TargetASC ? ImpactHitCueTag : ImpactBlocklCueTag, FGameplayTagContainer::EmptyContainer, Hit.ImpactPoint, Hit.ImpactNormal, OwnerASC);
+        FGameplayAbilityHelper::ExcuteGameplayCue(TargetASC ? ImpactHitCueTag : ImpactBlocklCueTag, Hit.ImpactPoint, Hit.ImpactNormal, OwnerASC);
 	}
 
 	Destroy();

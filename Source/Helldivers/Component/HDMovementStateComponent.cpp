@@ -1,6 +1,6 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-#include "Component/HDInputActionComponent.h"
+#include "HDMovementStateComponent.h"
 #include "Character/CharacterTypes/HDCharacterStateTypes.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "GameData/HDCharacterControlData.h"
@@ -8,7 +8,7 @@
 
 #define CHARACTERMOVESTATEZOFFSET 40.f
 
-UHDInputActionComponent::UHDInputActionComponent()
+UHMovementStateComponent::UHMovementStateComponent()
 	: StanceState(EHDCharacterStanceState::Idle)
 	, PrevStanceState(EHDCharacterStanceState::Idle)
     , MovementState(EHDCharacterMovementState::Idle)
@@ -29,12 +29,12 @@ UHDInputActionComponent::UHDInputActionComponent()
     }
 }
 
-const EHDCharacterStanceState UHDInputActionComponent::GetStanceState() const
+const EHDCharacterStanceState UHMovementStateComponent::GetStanceState() const
 {
 	return StanceState;
 }
 
-void UHDInputActionComponent::SetStanceState(const EHDCharacterStanceState NewState, const bool bForced)
+void UHMovementStateComponent::SetStanceState(const EHDCharacterStanceState NewState, const bool bForced)
 {
 	CONDITION_CHECK(NewState != EHDCharacterStanceState::Count);
 
@@ -44,7 +44,7 @@ void UHDInputActionComponent::SetStanceState(const EHDCharacterStanceState NewSt
 	ChangeCameraZOffsetByCharacterMovementState(StanceState);
 }
 
-void UHDInputActionComponent::RestoreStanceState()
+void UHMovementStateComponent::RestoreStanceState()
 {
 	if (StanceState == EHDCharacterStanceState::Crouch)
 	{
@@ -62,24 +62,24 @@ void UHDInputActionComponent::RestoreStanceState()
 	ChangeCameraZOffsetByCharacterMovementState(StanceState);
 }
 
-const EHDCharacterMovementState UHDInputActionComponent::GetMovementState() const
+const EHDCharacterMovementState UHMovementStateComponent::GetMovementState() const
 {
     return MovementState;
 }
 
-void UHDInputActionComponent::SetMovementState(const EHDCharacterMovementState NewState)
+void UHMovementStateComponent::SetMovementState(const EHDCharacterMovementState NewState)
 {
     CONDITION_CHECK(NewState != EHDCharacterMovementState::Count);
 
     MovementState = NewState;
 }
 
-void UHDInputActionComponent::SetSpringArmDefaultZOffset(const float ZOffset)
+void UHMovementStateComponent::SetSpringArmDefaultZOffset(const float ZOffset)
 {
 	SpringArmZOffset = ZOffset;
 }
 
-void UHDInputActionComponent::ChangeCameraZOffsetByCharacterMovementState(const EHDCharacterStanceState State)
+void UHMovementStateComponent::ChangeCameraZOffsetByCharacterMovementState(const EHDCharacterStanceState State)
 {
 	USpringArmComponent* SpringArm = GetOwner()->GetComponentByClass<USpringArmComponent>();
 	switch (State)
@@ -99,7 +99,7 @@ void UHDInputActionComponent::ChangeCameraZOffsetByCharacterMovementState(const 
 	}
 }
 
-UHDCharacterControlData* UHDInputActionComponent::SetControlType(const EHDCharacterControlType Type)
+UHDCharacterControlData* UHMovementStateComponent::SetControlType(const EHDCharacterControlType Type)
 {
     CONDITION_CHECK_WITH_RETURNTYPE(CharacterControlDataMap.IsEmpty() == false, nullptr);
 
@@ -107,12 +107,7 @@ UHDCharacterControlData* UHDInputActionComponent::SetControlType(const EHDCharac
     return CharacterControlDataMap[CurrentCharacterControlType];
 }
 
-const EHDCharacterControlType UHDInputActionComponent::GetControlType() const
+const EHDCharacterControlType UHMovementStateComponent::GetControlType() const
 {
     return CurrentCharacterControlType;
-}
-
-const TMap<EHDCharacterInputAction, TObjectPtr<UInputAction>>& UHDInputActionComponent::GetInputActionMap() const
-{
-    return InputActionMap;
 }
