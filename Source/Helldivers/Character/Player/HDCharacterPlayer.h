@@ -8,57 +8,17 @@
 #include "Interface/HDCharacterMovementInterface.h"
 #include "Interface/HDCharacterCommandInterface.h"
 #include "Interface/HDWeaponInterface.h"
-#include "GameplayTagContainer.h"
 #include "HDCharacterPlayer.generated.h"
 
-class UInputAction;
 class USpringArmComponent;
 class UCameraComponent;
 class UHDCombatComponent;
-class UHDInputComponent;
 class UHMovementStateComponent;
 class UHDStratagemComponent;
-class AHDWeapon;
-class UHDCharacterControlData;
-class UHDInputDataAsset;
 enum class EHDCombatState : uint8;
 enum class EHDTurningInPlace : uint8;
 enum class EHDCharacterMovementState : uint8;
 enum class EHDCharacterStanceState : uint8;
-
-UENUM(BlueprintType)
-enum class EHDCharacterInputAction : uint8
-{
-	ThirdLook,
-	ThirdMove,
-	FirstLook,
-	FirstMove,
-	ChangeControl,
-	Count
-};
-
-USTRUCT(BlueprintType)
-struct FTagEventBindInfo
-{
-    GENERATED_BODY()
-
-public:
-	FTagEventBindInfo()
-		: BindFunctionName(FName())
-		, InputAction(nullptr)
-		, EventConditionTag(FGameplayTag())
-	{
-	};
-
-    UPROPERTY(EditDefaultsOnly)
-    FName						BindFunctionName;
-
-    UPROPERTY(EditDefaultsOnly)
-    TObjectPtr<UInputAction>	InputAction;
-
-    UPROPERTY(EditDefaultsOnly)
-    FGameplayTag				EventConditionTag;
-};
 
 UCLASS()
 class HELLDIVERS_API AHDCharacterPlayer : public AHDCharacterBase, public IHDCharacterMovementInterface, public IHDWeaponInterface, public IHDCharacterCommandInterface
@@ -68,20 +28,12 @@ class HELLDIVERS_API AHDCharacterPlayer : public AHDCharacterBase, public IHDCha
 public:
 	explicit								AHDCharacterPlayer();
 
-    void                                    ChangeCharacterControlType();
+    void									SetCharacterControlData(UHDCharacterControlData* CharacterControlData);
 
 protected:
 	virtual void							SetDead() override final;
     virtual void							Tick(float DeltaTime) override;
 	virtual void							PossessedBy(AController* NewController) override;
-
-    virtual void							SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override final;
-    void                                    SetupAbilitySystemInputComponent(UEnhancedInputComponent* EnhancedInputComponent);
-    void                                    SetupEventAbilitySystemInputComponent(UEnhancedInputComponent* EnhancedInputComponent);
-
-    void		                            AbilityInputTriggered(const FGameplayTag Tag);
-    void		                            AbilityInputReleased(const FGameplayTag Tag);
-    void		                            AbilityInputToggled(const FGameplayTag Tag);
 
 	// RagdollInterface
 	virtual void							SetRagdoll(const bool bRagdoll, const FVector& Impulse = FVector::ZeroVector) override final;
@@ -119,7 +71,6 @@ protected:
 	virtual void							TryHoldStratagem() override final;
 	void									CancleStratagem();
 
-	void									SetCharacterControlData(UHDCharacterControlData* CharacterControlData);
 
 	UHDStratagemComponent*					GetStratagemComponent();
     const float								GetMoveSpeedByState(const EHDCharacterStanceState StanceState, const EHDCharacterMovementState MoveState);
@@ -131,12 +82,6 @@ private:
     void                                    InitAbilitySystemComponent();
 	void									InterpFOV(float DeltaSeconds);
 
-    void									ThirdPersonLook(const FInputActionValue& Value);
-    void									ThirdPersonMove(const FInputActionValue& Value);
-    void									FirstPersonLook(const FInputActionValue& Value);
-    void									FirstPersonMove(const FInputActionValue& Value);
-    void									SetCharacterControl(const EHDCharacterControlType NewCharacterControlType);
-
 private:
 	UPROPERTY(EditDefaultsOnly)
 	TObjectPtr<USpringArmComponent>			SpringArm;
@@ -146,22 +91,10 @@ private:
 			
 	UPROPERTY(EditDefaultsOnly)
 	TObjectPtr<UHDCombatComponent>			Combat;
-    
-	UPROPERTY(EditDefaultsOnly)
-	TObjectPtr<UHDInputComponent>			Input;
 
 	UPROPERTY(EditDefaultsOnly)
 	TObjectPtr<UHMovementStateComponent>	MovementState;
 
 	UPROPERTY(EditDefaultsOnly)
-	TObjectPtr<UHDStratagemComponent>		Stratagem;
-    
-	UPROPERTY(EditAnywhere, Category = "Input")
-	TObjectPtr<UHDInputDataAsset>           TaggedInputDataAsset;
-	
-	UPROPERTY(EditAnywhere, Category = "Input")
-	FGameplayTagContainer					EventCallTags;
-
-	UPROPERTY(EditAnywhere, Category = "Input")
-	TArray<FTagEventBindInfo>				TagEventBindInfoList;
+	TObjectPtr<UHDStratagemComponent>		Stratagem;    
 };

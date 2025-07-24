@@ -31,17 +31,15 @@ public:
 private:
 	UPROPERTY(EditAnywhere, Category = "Stratagem")
 	TSubclassOf<AHDStratagem>			StratagemClass;
-
+        
 	UPROPERTY()
 	TObjectPtr<AHDStratagem>			Stratagem;
 	
-	UPROPERTY()
 	TArray<EHDCommandInput>				CurrentInputCommandList;
 
 	FName								SelectedStratagemName;
 	float								SelecteddStratagemActiveDelay;
 
-	UPROPERTY()
 	TArray<FName>						CommandMatchStratagemNameList;
 	
 	UPROPERTY(EditAnywhere, Category = "Stratagem")

@@ -74,7 +74,7 @@ void FGameplayAbilityHelper::SendGameplayEventToSelf(const FGameplayTag EventTag
 
 UAbilitySystemComponent* FGameplayAbilityHelper::GetAbilitySystemComponentFromActor(AActor* Actor)
 {
-    NULL_CHECK_WITH_RETURNTYPE(Actor, nullptr);
+    NULL_CHECK_WITH_RETURNTYPE_WITHOUT_LOG(Actor, nullptr);
 
     return UAbilitySystemGlobals::GetAbilitySystemComponentFromActor(Actor);
 }

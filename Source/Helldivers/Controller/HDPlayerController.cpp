@@ -1,89 +1,191 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "Controller/HDPlayerController.h"
+#include "EnhancedInputSubsystems.h"
 #include "Define/HDDefine.h"
 #include "Define/HDGameplayTag.h"
 #include "Component/HDStratagemComponent.h"
 #include "Component/HDCombatComponent.h"
+#include "Component/HDInputComponent.h"
+#include "Component/HDAbilitySystemComponent.h"
 #include "UI/HDGASPlayerUserWidget.h"
 #include "UI/HDStratagemHUDUserWidget.h"
-#include "AbilitySystemInterface.h"
-#include "AbilitySystemComponent.h"
+#include "AbilitySystem/GameplayAbilityHelper.h"
+#include "GameData/HDCharacterControlData.h"
+#include "Character/Player/HDCharacterPlayer.h"
 
 AHDPlayerController::AHDPlayerController()
-    : PossessPawnASC(nullptr)
+    : AbilitySystemComponent(nullptr)
     , PlayerHUDWidgetClass(nullptr)
     , PlayerHUDWidget(nullptr)
     , StratagemHUDWidgetClass(nullptr)
     , StratagemHUDWidget(nullptr)
+    , CurrentCharacterControlType(EHDCharacterControlType::ThirdPerson)
+    , InputActionMap{}
+    , CharacterControlDataMap{}
 {
+    static ConstructorHelpers::FObjectFinder<UHDCharacterControlData> ThirdPersonDataRef(TEXT("/Script/Helldivers.HDCharacterControlData'/Game/Helldivers/CharacterControl/HDC_ThirdPerson.HDC_ThirdPerson'"));
+    if (ThirdPersonDataRef.Succeeded())
+    {
+        CharacterControlDataMap.Add(EHDCharacterControlType::ThirdPerson, ThirdPersonDataRef.Object);
+    }
+
+    static ConstructorHelpers::FObjectFinder<UHDCharacterControlData> FirstPersonDataRef(TEXT("/Script/Helldivers.HDCharacterControlData'/Game/Helldivers/CharacterControl/HDC_FirstPerson.HDC_FirstPerson'"));
+    if (FirstPersonDataRef.Succeeded())
+    {
+        CharacterControlDataMap.Add(EHDCharacterControlType::FirstPerson, FirstPersonDataRef.Object);
+    }
+}
+
+UHDAbilitySystemComponent* AHDPlayerController::GetAbilitySystemComponent()
+{
+    if(AbilitySystemComponent == nullptr)
+    {
+        AbilitySystemComponent = Cast<UHDAbilitySystemComponent>(FGameplayAbilityHelper::GetAbilitySystemComponentFromActor(GetPawn()));
+        NULL_CHECK_WITH_RETURNTYPE(AbilitySystemComponent, nullptr);
+        SetPossessAbilitySystemComponentBindEventCall(AbilitySystemComponent);
+    }
+
+    return AbilitySystemComponent;
 }
 
 void AHDPlayerController::BeginPlay()
 {
     Super::BeginPlay();
-
-	FInputModeGameOnly GameOnlyInputMode;
-	SetInputMode(GameOnlyInputMode);
 }
 
 void AHDPlayerController::OnPossess(APawn* aPawn)
 {
     Super::OnPossess(aPawn);
 
-    TScriptInterface<IAbilitySystemInterface> AbilityInterface = aPawn;
-    if (AbilityInterface)
-    {
-        PossessPawnASC = AbilityInterface->GetAbilitySystemComponent();
-        SetPossessAbilitySystemComponentBindEventCall(PossessPawnASC);
-
-        CreateHUDWidget(aPawn);
-	}
-	else
-	{
-		PossessPawnASC = nullptr;
-	}
+    CreateHUDWidget(aPawn);
 
     ConsoleCommand(TEXT("showdebug abilitysystem"));
 }
 
-void AHDPlayerController::SetPossessAbilitySystemComponentBindEventCall(UAbilitySystemComponent* ASC)
+void AHDPlayerController::OnUnPossess()
+{
+    Super::OnUnPossess();
+
+    AbilitySystemComponent = nullptr;
+}
+
+void AHDPlayerController::SetupInputComponent()
+{
+    Super::SetupInputComponent();
+
+    UHDInputComponent* HDInput = Cast<UHDInputComponent>(InputComponent);
+    NULL_CHECK(HDInput);
+
+    HDInput->BindAction(InputActionMap[EHDCharacterInputAction::ThirdMove], ETriggerEvent::Triggered, this, &AHDPlayerController::Move);
+    HDInput->BindAction(InputActionMap[EHDCharacterInputAction::ThirdLook], ETriggerEvent::Triggered, this, &AHDPlayerController::Look);
+    HDInput->BindAction(InputActionMap[EHDCharacterInputAction::ChangeControl], ETriggerEvent::Triggered, this, &AHDPlayerController::ChangeCharacterControlType);
+    HDInput->SetTaggedInputActionDataAsset(AbilityInputData, this, &AHDPlayerController::AbilityInputTriggered, &AHDPlayerController::AbilityInputReleased, &AHDPlayerController::AbilityInputToggled);
+}
+
+void AHDPlayerController::SetPossessAbilitySystemComponentBindEventCall(UHDAbilitySystemComponent* ASC)
 {
     NULL_CHECK(ASC);
 
-    ASC->GenericGameplayEventCallbacks.FindOrAdd(HDTAG_EVENT_PLAYERHUD_AMMOCHANGE).AddUObject(this, &AHDPlayerController::OnPlayerHUDInfoChanged);
-    ASC->GenericGameplayEventCallbacks.FindOrAdd(HDTAG_EVENT_PLAYERHUD_CAPACITYCHANGE).AddUObject(this, &AHDPlayerController::OnPlayerHUDInfoChanged);
-    ASC->GenericGameplayEventCallbacks.FindOrAdd(HDTAG_EVENT_STRATAGEMHUD_ADDCOMMAND).AddUObject(this, &AHDPlayerController::OnStratagemHUDInfoChanged);
-    ASC->GenericGameplayEventCallbacks.FindOrAdd(HDTAG_EVENT_STRATAGEMHUD_APPEAR).AddUObject(this, &AHDPlayerController::StratagemHUDAppear);
-    ASC->GenericGameplayEventCallbacks.FindOrAdd(HDTAG_EVENT_STRATAGEMHUD_DISAPPEAR).AddUObject(this, &AHDPlayerController::StratagemHUDAppear);
+    ASC->GenericGameplayEventCallbacks.FindOrAdd(HDTAG_EVENT_PLAYERHUD_AMMOCHANGE).AddUObject(this, &AHDPlayerController::OnPlayerHUDChanged);
+    ASC->GenericGameplayEventCallbacks.FindOrAdd(HDTAG_EVENT_PLAYERHUD_CAPACITYCHANGE).AddUObject(this, &AHDPlayerController::OnPlayerHUDChanged);
+    ASC->GenericGameplayEventCallbacks.FindOrAdd(HDTAG_EVENT_STRATAGEMHUD_ADDCOMMAND).AddUObject(this, &AHDPlayerController::OnStratagemHUDChanged);
+    ASC->GenericGameplayEventCallbacks.FindOrAdd(HDTAG_EVENT_STRATAGEMHUD_APPEAR).AddUObject(this, &AHDPlayerController::OnStratagemHUDChanged);
+    ASC->GenericGameplayEventCallbacks.FindOrAdd(HDTAG_EVENT_STRATAGEMHUD_DISAPPEAR).AddUObject(this, &AHDPlayerController::OnStratagemHUDChanged);
 }
 
-void AHDPlayerController::OnPlayerHUDInfoChanged(const FGameplayEventData* Payload)
+void AHDPlayerController::OnPlayerHUDChanged(const FGameplayEventData* Payload)
 {
     if (Payload->EventTag == HDTAG_EVENT_PLAYERHUD_AMMOCHANGE)
     {
+        VALID_CHECK(PlayerHUDWidget);
         const int32 NewAmmoCount = static_cast<int32>(Payload->EventMagnitude);
-        ChangeAmmoHUDInfo(NewAmmoCount);
+        PlayerHUDWidget->OnAmmoCountChanged(NewAmmoCount);
     }
     else if (Payload->EventTag == HDTAG_EVENT_PLAYERHUD_CAPACITYCHANGE)
     {
+        VALID_CHECK(PlayerHUDWidget);
         const int32 NewCapacityCount = static_cast<int32>(Payload->EventMagnitude);
-        ChangeCapacityHUDInfo(NewCapacityCount);
+        PlayerHUDWidget->OnCapacityCountChanged(NewCapacityCount);
     }
 }
 
-void AHDPlayerController::OnStratagemHUDInfoChanged(const FGameplayEventData* Payload)
+void AHDPlayerController::OnStratagemHUDChanged(const FGameplayEventData* Payload)
 {
+    VALID_CHECK(StratagemHUDWidget);
+
     if (Payload->EventTag == HDTAG_EVENT_STRATAGEMHUD_ADDCOMMAND)
     {
         UHDStratagemComponent* StratagemComponent = Payload->Instigator->GetComponentByClass<UHDStratagemComponent>();
         NULL_CHECK(StratagemComponent);
-        
-        const TArray<FName> CommandMatchStratagemNameList = StratagemComponent->GetCommandMatchStratagemNameList();
+
+        const TArray<FName>& CommandMatchStratagemNameList = StratagemComponent->GetCommandMatchStratagemNameList();
         const int32 CurrentInputNum = StratagemComponent->GetCurrentInputNum();
-        
-        SetHUDActiveByCurrentInputMatchList(CommandMatchStratagemNameList, CurrentInputNum);
+
+        StratagemHUDWidget->SetHUDActiveByCurrentInputMatchList(CommandMatchStratagemNameList, CurrentInputNum);
     }
+    else if (Payload->EventTag == HDTAG_EVENT_STRATAGEMHUD_APPEAR)
+    {
+        StratagemHUDWidget->WidgetAppear(true);
+    }
+    else if (Payload->EventTag == HDTAG_EVENT_STRATAGEMHUD_DISAPPEAR)
+    {
+        StratagemHUDWidget->WidgetAppear(false);
+    }
+}
+
+void AHDPlayerController::AbilityInputTriggered(const FGameplayTag Tag)
+{
+    UHDAbilitySystemComponent* ASC = GetAbilitySystemComponent();
+    NULL_CHECK(ASC);
+
+    ASC->AbilityInputTagTriggered(Tag);
+}
+
+void AHDPlayerController::AbilityInputReleased(const FGameplayTag Tag)
+{
+    UHDAbilitySystemComponent* ASC = GetAbilitySystemComponent();
+    NULL_CHECK(ASC);
+
+    ASC->AbilityInputTagReleased(Tag);
+}
+
+void AHDPlayerController::AbilityInputToggled(const FGameplayTag Tag)
+{
+    UHDAbilitySystemComponent* ASC = GetAbilitySystemComponent();
+    NULL_CHECK(ASC);
+
+    ASC->AbilityInputTagToggled(Tag);
+}
+
+void AHDPlayerController::ChangeCharacterControlType()
+{
+    CurrentCharacterControlType = CurrentCharacterControlType == EHDCharacterControlType::FirstPerson 
+        ? EHDCharacterControlType::ThirdPerson : EHDCharacterControlType::FirstPerson;
+
+    SetCharacterControl(CurrentCharacterControlType);
+}
+
+void AHDPlayerController::SetCharacterControl(const EHDCharacterControlType NewCharacterControlType)
+{
+    CONDITION_CHECK(CharacterControlDataMap.Contains(NewCharacterControlType));
+    
+    CurrentCharacterControlType = NewCharacterControlType;
+
+    UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(GetLocalPlayer());
+    NULL_CHECK(Subsystem);
+
+    Subsystem->ClearAllMappings();
+
+    UInputMappingContext* NewMappingContext = CharacterControlDataMap[CurrentCharacterControlType]->InputMappingContext;
+    NULL_CHECK(NewMappingContext);
+
+    Subsystem->AddMappingContext(NewMappingContext, 0);
+
+    AHDCharacterPlayer* HDPlayer = GetPawn<AHDCharacterPlayer>();
+    NULL_CHECK(HDPlayer);
+
+    HDPlayer->SetCharacterControlData(CharacterControlDataMap[CurrentCharacterControlType]);
 }
 
 void AHDPlayerController::CreateHUDWidget(APawn* aPawn)
@@ -109,7 +211,7 @@ void AHDPlayerController::CreateHUDWidget(APawn* aPawn)
 
         PlayerHUDWidget->SetChangedWeaponAmmoCountInfo(Combat->GetWeaponAmmoCount(), Combat->GetWeaponMaxAmmoCount());
         PlayerHUDWidget->SetChangedWeaponCapacityCountInfo(Combat->GetWeaponCapacityCount(), Combat->GetWeaponMaxCapacityCount());
-        PlayerHUDWidget->SetAbilitySystemComponent(PossessPawnASC);
+        PlayerHUDWidget->SetAbilitySystemComponent(AbilitySystemComponent);
         PlayerHUDWidget->AddToViewport();
     }
     else
@@ -134,33 +236,28 @@ void AHDPlayerController::CreateHUDWidget(APawn* aPawn)
     }
 }
 
-void AHDPlayerController::ChangeAmmoHUDInfo(const int32 NewAmmoCount)
+void AHDPlayerController::Look(const FInputActionValue& Value)
 {
-    VALID_CHECK(PlayerHUDWidget);
-    PlayerHUDWidget->OnAmmoCountChanged(NewAmmoCount);
+    const FVector2D& LookAxisVector = Value.Get<FVector2D>();
+
+    AddYawInput(LookAxisVector.X);
+    AddPitchInput(LookAxisVector.Y);
 }
 
-void AHDPlayerController::ChangeCapacityHUDInfo(const int32 NewCapacityCount)
+void AHDPlayerController::Move(const FInputActionValue& Value)
 {
-    VALID_CHECK(PlayerHUDWidget);
-    PlayerHUDWidget->OnCapacityCountChanged(NewCapacityCount);
-}
+    const FVector2D& MovementVector = Value.Get<FVector2D>();
+    const FRotator& Rotation = GetControlRotation();
 
-void AHDPlayerController::SetHUDActiveByCurrentInputMatchList(const TArray<FName>& MatchStratagemList, const int32 CurrentInputNum)
-{
-    VALID_CHECK(StratagemHUDWidget);
-    StratagemHUDWidget->SetHUDActiveByCurrentInputMatchList(MatchStratagemList, CurrentInputNum);
-}
+    const FRotator YawRotation(0, Rotation.Yaw, 0);
 
-void AHDPlayerController::StratagemHUDAppear(const FGameplayEventData* Payload)
-{
-    VALID_CHECK(StratagemHUDWidget);
-    if (Payload->EventTag == HDTAG_EVENT_STRATAGEMHUD_APPEAR)
+    const FVector& ForwardDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
+    const FVector& RightDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
+
+    APawn* ControlledPawn = GetPawn<APawn>();
+    if (ControlledPawn)
     {
-        StratagemHUDWidget->WidgetAppear(true);
-    }
-    else if(Payload->EventTag == HDTAG_EVENT_STRATAGEMHUD_DISAPPEAR)
-    {
-        StratagemHUDWidget->WidgetAppear(false);
+        ControlledPawn->AddMovementInput(ForwardDirection, MovementVector.Y);
+        ControlledPawn->AddMovementInput(RightDirection, MovementVector.X);
     }
 }

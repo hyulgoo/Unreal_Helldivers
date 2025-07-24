@@ -42,7 +42,7 @@ private:
 	UPROPERTY(EditAnywhere)
 	TObjectPtr<UNiagaraSystem>			PointLaserNiagara;
 	
-	UPROPERTY(EditAnywhere)
+	UPROPERTY()
 	TObjectPtr<UNiagaraComponent>		NiagaraComponent;
 	
 	UPROPERTY(EditAnywhere)

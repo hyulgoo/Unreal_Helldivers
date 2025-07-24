@@ -3,14 +3,14 @@
 #include "CoreMinimal.h"
 #include "Engine/DataTable.h"
 #include "GameplayTagContainer.h"
-#include "HDCharacterStat.generated.h"
+#include "HDCharacterAttributeData.generated.h"
 
 USTRUCT(BlueprintType)
-struct FHDCharacterStat : public FTableRowBase
+struct FHDCharacterAttributeData : public FTableRowBase
 {
 	GENERATED_BODY()
 
 public:    
     UPROPERTY(EditAnywhere)
-	TMap<FGameplayTag, float>  Stats;
+	TMap<FGameplayTag, float>  Data;
 };

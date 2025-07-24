@@ -15,7 +15,7 @@ class USkeletalMeshComponent;
 class UHDAbilitySystemComponent;
 class UGameplayAbility;
 class UGameplayEffect;
-struct FHDCharacterStat;
+struct FHDCharacterAttributeData;
 
 UCLASS()
 class HELLDIVERS_API AHDCharacterBase : public ACharacter, public IAbilitySystemInterface, public IHDCharacterRagdollInterface, public IHDDeadInterface
@@ -38,7 +38,7 @@ protected:
     virtual const float			            GetRagdollPysicsLinearVelocity() const override;
 
 private:
-    FHDCharacterStat*                       GetAttributeStatDataByArmorType(const EHDArmorType NewArmorType);
+    FHDCharacterAttributeData*              GetAttributeStatDataByArmorType(const EHDArmorType NewArmorType);
     void                                    LoadDefaultMontage();
 
 protected:
@@ -48,6 +48,7 @@ protected:
     float                                   DeadEventDelayTime;
 
 private:
+	UPROPERTY()
 	TObjectPtr<UHDAbilitySystemComponent>	AbilitySystemComponent;
 
 	UPROPERTY(EditAnywhere)

@@ -19,7 +19,7 @@ UHDStratagemComponent::UHDStratagemComponent()
 {
 	PrimaryComponentTick.bCanEverTick = true;
 
-    static ConstructorHelpers::FObjectFinder<UDataTable> StratagemDataListRef(TEXT("/Script/Engine.DataTable'/Game/Helldivers/GameData/DT_StratagenData.DT_StratagenData'"));
+    static ConstructorHelpers::FObjectFinder<UDataTable> StratagemDataListRef(TEXT("/Script/Engine.DataTable'/Game/Helldivers/GameData/DT_StratagemData.DT_StratagenData'"));
     if (StratagemDataListRef.Succeeded())
     {
         AvaliableStratagemDataTable = StratagemDataListRef.Object;

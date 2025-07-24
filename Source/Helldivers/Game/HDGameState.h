@@ -29,6 +29,6 @@ private:
     UPROPERTY()
     TObjectPtr<AHDBattleShip>   BattleShip;
     
-    UPROPERTY()
+    UPROPERTY(EditDefaultsOnly)
     float                       SpawnHeight;
 };

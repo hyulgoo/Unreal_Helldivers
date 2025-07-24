@@ -1,14 +1,11 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-
 #include "UI/HDGASPlayerUserWidget.h"
 #include "Attribute/HDHealthAttributeSet.h"
 #include "Components/ProgressBar.h"
 #include "Components/TextBlock.h"
 #include "Components/Image.h"
 #include "Define/HDDefine.h"
-#include "Weapon/HDWeapon.h"
-#include "GameFramework/Character.h"
 
 void UHDGASPlayerUserWidget::SetAbilitySystemComponent(UAbilitySystemComponent* NewAbilitySystemComponent)
 {
@@ -16,8 +13,10 @@ void UHDGASPlayerUserWidget::SetAbilitySystemComponent(UAbilitySystemComponent* 
 
     NULL_CHECK(AbilitySystemComponent);
     
-    AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(UHDHealthAttributeSet::GetCurrentHealthAttribute()).AddUObject(this, &UHDGASPlayerUserWidget::OnHealthChangeds);
-    AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(UHDHealthAttributeSet::GetMaxHealthAttribute()).AddUObject(this, &UHDGASPlayerUserWidget::OnMaxHealthChangeds);
+    AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(UHDHealthAttributeSet::GetCurrentHealthAttribute())
+        .AddUObject(this, &UHDGASPlayerUserWidget::OnHealthChangeds);
+    AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(UHDHealthAttributeSet::GetMaxHealthAttribute())
+        .AddUObject(this, &UHDGASPlayerUserWidget::OnMaxHealthChangeds);
     
     const UHDHealthAttributeSet* AttributeSet = AbilitySystemComponent->GetSet<UHDHealthAttributeSet>();
     NULL_CHECK(AttributeSet);

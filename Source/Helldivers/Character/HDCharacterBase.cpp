@@ -2,12 +2,12 @@
 #include "HDCharacterBase.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Animation/AnimMontage.h"
 #include "CharacterTypes/HDCharacterStateTypes.h"
 #include "Component/HDAbilitySystemComponent.h"
-#include "Animation/AnimMontage.h"
+#include "GameData/HDCharacterAttributeData.h"
 #include "Collision/HDCollision.h"
 #include "Define/HDDefine.h"
-#include "GameData/HDCharacterStat.h"
 
 AHDCharacterBase::AHDCharacterBase()
     : DeadMontage(nullptr)
@@ -104,11 +104,11 @@ const float AHDCharacterBase::GetRagdollPysicsLinearVelocity() const
 	return GetMesh()->GetPhysicsLinearVelocity().Size();
 }
 
-FHDCharacterStat* AHDCharacterBase::GetAttributeStatDataByArmorType(const EHDArmorType NewArmorType)
+FHDCharacterAttributeData* AHDCharacterBase::GetAttributeStatDataByArmorType(const EHDArmorType NewArmorType)
 {
     static const UEnum* EnumPtr = StaticEnum<EHDArmorType>();
     FString ArmorTypetoString = EnumPtr->GetNameStringByValue(static_cast<int64>(NewArmorType));
-    FHDCharacterStat* ArmorStatus = ArmorTypeStatusDataTable->FindRow<FHDCharacterStat>(FName(ArmorTypetoString), TEXT("ArmorStatus"));
+    FHDCharacterAttributeData* ArmorStatus = ArmorTypeStatusDataTable->FindRow<FHDCharacterAttributeData>(FName(ArmorTypetoString), TEXT("ArmorStatus"));
 
     return ArmorStatus;
 }

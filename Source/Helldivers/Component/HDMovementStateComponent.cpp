@@ -13,20 +13,7 @@ UHMovementStateComponent::UHMovementStateComponent()
 	, PrevStanceState(EHDCharacterStanceState::Idle)
     , MovementState(EHDCharacterMovementState::Idle)
 	, SpringArmZOffset(0.f)
-    , CurrentCharacterControlType(EHDCharacterControlType::ThirdPerson)
-    , CharacterControlDataMap{}
 {
-    static ConstructorHelpers::FObjectFinder<UHDCharacterControlData> ThirdPersonDataRef(TEXT("/Script/Helldivers.HDCharacterControlData'/Game/Helldivers/CharacterControl/HDC_ThirdPerson.HDC_ThirdPerson'"));
-    if (ThirdPersonDataRef.Succeeded())
-    {
-        CharacterControlDataMap.Add(EHDCharacterControlType::ThirdPerson, ThirdPersonDataRef.Object);
-    }
-
-    static ConstructorHelpers::FObjectFinder<UHDCharacterControlData> FirstPersonDataRef(TEXT("/Script/Helldivers.HDCharacterControlData'/Game/Helldivers/CharacterControl/HDC_FirstPerson.HDC_FirstPerson'"));
-    if (FirstPersonDataRef.Succeeded())
-    {
-        CharacterControlDataMap.Add(EHDCharacterControlType::FirstPerson, FirstPersonDataRef.Object);
-    }
 }
 
 const EHDCharacterStanceState UHMovementStateComponent::GetStanceState() const
@@ -97,17 +84,4 @@ void UHMovementStateComponent::ChangeCameraZOffsetByCharacterMovementState(const
 		LOG(TEXT("EHDCharacterMovementState is Invalid!!"));
 		break;
 	}
-}
-
-UHDCharacterControlData* UHMovementStateComponent::SetControlType(const EHDCharacterControlType Type)
-{
-    CONDITION_CHECK_WITH_RETURNTYPE(CharacterControlDataMap.IsEmpty() == false, nullptr);
-
-    CurrentCharacterControlType = Type;
-    return CharacterControlDataMap[CurrentCharacterControlType];
-}
-
-const EHDCharacterControlType UHMovementStateComponent::GetControlType() const
-{
-    return CurrentCharacterControlType;
 }

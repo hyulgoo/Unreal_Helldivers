@@ -8,17 +8,13 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "Component/HDCombatComponent.h"
 #include "Component/HDMovementStateComponent.h"
-#include "Component/HDInputComponent.h"
 #include "Component/HDStratagemComponent.h"
 #include "Component/HDAbilitySystemComponent.h"
-#include "Controller/HDPlayerController.h"
 #include "Animation/HDAnimInstance.h"
 #include "GameData/HDCharacterControlData.h"
 #include "AbilitySystemComponent.h"
 #include "AbilitySystem/GameplayAbilityHelper.h"
 #include "Attribute/HDSpeedAttributeSet.h"
-#include "EnhancedInputComponent.h"
-#include "EnhancedInputSubsystems.h"
 #include "Weapon/WeaponTypes.h"
 #include "Player/HDGASPlayerState.h"
 #include "Character/CharacterTypes/HDCharacterStateTypes.h"
@@ -29,9 +25,6 @@ AHDCharacterPlayer::AHDCharacterPlayer()
 	, Combat(nullptr)
     , MovementState(nullptr)
     , Stratagem(nullptr)
-    , TaggedInputDataAsset(nullptr)
-    , EventCallTags(FGameplayTagContainer())
-    , TagEventBindInfoList{}
 {
     GetCharacterMovement()->bOrientRotationToMovement = true;
 
@@ -50,13 +43,6 @@ AHDCharacterPlayer::AHDCharacterPlayer()
     Stratagem       = CreateDefaultSubobject<UHDStratagemComponent>(TEXT("Stratagem"));
 }
 
-void AHDCharacterPlayer::ChangeCharacterControlType()
-{
-    EHDCharacterControlType NewControlType = MovementState->GetControlType() == EHDCharacterControlType::FirstPerson 
-        ? EHDCharacterControlType::ThirdPerson : EHDCharacterControlType::FirstPerson;
-    SetCharacterControl(NewControlType);
-}
-
 void AHDCharacterPlayer::Tick(float DeltaTime)
 {
     Super::Tick(DeltaTime);
@@ -68,74 +54,6 @@ void AHDCharacterPlayer::PossessedBy(AController* NewController)
 
     Combat->SpawnDefaultWeapon();
     InitAbilitySystemComponent();
-    SetCharacterControl(MovementState->GetControlType());
-}
-
-void AHDCharacterPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
-{
-    Super::SetupPlayerInputComponent(PlayerInputComponent);
-
-    UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(InputComponent);
-    NULL_CHECK(EnhancedInputComponent);
-
-    SetupAbilitySystemInputComponent(EnhancedInputComponent);
-    SetupEventAbilitySystemInputComponent(EnhancedInputComponent);
-}
-
-void AHDCharacterPlayer::SetupAbilitySystemInputComponent(UEnhancedInputComponent* EnhancedInputComponent)
-{
-    NULL_CHECK(EnhancedInputComponent);
-
-    UHDInputComponent* HDInput = Cast<UHDInputComponent>(EnhancedInputComponent);
-    NULL_CHECK(HDInput);
-
-    TMap<EHDCharacterInputAction, TObjectPtr<UInputAction>> InputActionMap = Input->GetInputActionMap();
-
-    CONDITION_CHECK(InputActionMap.Num() == static_cast<uint8>(EHDCharacterInputAction::Count));
-
-    HDInput->BindAction(InputActionMap[EHDCharacterInputAction::ThirdLook], ETriggerEvent::Triggered, this, &AHDCharacterPlayer::ThirdPersonLook);
-    HDInput->BindAction(InputActionMap[EHDCharacterInputAction::ThirdMove], ETriggerEvent::Triggered, this, &AHDCharacterPlayer::ThirdPersonMove);
-    HDInput->BindAction(InputActionMap[EHDCharacterInputAction::FirstLook], ETriggerEvent::Triggered, this, &AHDCharacterPlayer::FirstPersonLook);
-    HDInput->BindAction(InputActionMap[EHDCharacterInputAction::FirstMove], ETriggerEvent::Triggered, this, &AHDCharacterPlayer::FirstPersonMove);
-    HDInput->BindAction(InputActionMap[EHDCharacterInputAction::ChangeControl], ETriggerEvent::Triggered, this, &AHDCharacterPlayer::ChangeCharacterControlType);
-    HDInput->SetTaggedInputActionDataAsset(TaggedInputDataAsset, this, &AHDCharacterPlayer::AbilityInputTriggered, &AHDCharacterPlayer::AbilityInputReleased, &AHDCharacterPlayer::AbilityInputToggled);
-}
-
-void AHDCharacterPlayer::SetupEventAbilitySystemInputComponent(UEnhancedInputComponent* EnhancedInputComponent)
-{
-    NULL_CHECK(EnhancedInputComponent);
-
-    for (const FTagEventBindInfo& TagEventBindInfo : TagEventBindInfoList)
-    {
-        if (TagEventBindInfo.BindFunctionName.IsValid() && TagEventBindInfo.InputAction)
-        {
-            EnhancedInputComponent->BindAction(TagEventBindInfo.InputAction, ETriggerEvent::Triggered, this, TagEventBindInfo.BindFunctionName);
-        }
-    }
-}
-
-void AHDCharacterPlayer::AbilityInputTriggered(const FGameplayTag Tag)
-{
-    UHDAbilitySystemComponent* HDASC = GetAbilitySystemComponent<UHDAbilitySystemComponent>();
-    NULL_CHECK(HDASC);
-
-    HDASC->AbilityInputTagTriggered(Tag);
-}
-
-void AHDCharacterPlayer::AbilityInputReleased(const FGameplayTag Tag)
-{
-    UHDAbilitySystemComponent* HDASC = GetAbilitySystemComponent<UHDAbilitySystemComponent>();
-    NULL_CHECK(HDASC);
-
-    HDASC->AbilityInputTagReleased(Tag);
-}
-
-void AHDCharacterPlayer::AbilityInputToggled(const FGameplayTag Tag)
-{
-    UHDAbilitySystemComponent* HDASC = GetAbilitySystemComponent<UHDAbilitySystemComponent>();
-    NULL_CHECK(HDASC);
-
-    HDASC->AbilityInputTagToggled(Tag);
 }
 
 void AHDCharacterPlayer::SetRagdoll(const bool bRagdoll, const FVector& Impulse)
@@ -198,10 +116,7 @@ void AHDCharacterPlayer::ReloadFinished()
 {
     Combat->ReloadFinished();
 
-    AHDPlayerController* PlayerController = GetController<AHDPlayerController>();
-    NULL_CHECK(PlayerController);
-
-    PlayerController->ChangeCapacityHUDInfo(Combat->GetWeaponCapacityCount());
+    FGameplayAbilityHelper::SendGameplayEventToSelf(HDTAG_EVENT_PLAYERHUD_CAPACITYCHANGE, GetAbilitySystemComponent());
 }
 
 const float AHDCharacterPlayer::GetAimOffset_Yaw() const
@@ -456,76 +371,6 @@ void AHDCharacterPlayer::InterpFOV(float DeltaSeconds)
     FollowCamera->SetFieldOfView(Combat->GetCurrentFOV());
 }
 
-void AHDCharacterPlayer::ThirdPersonLook(const FInputActionValue& Value)
-{
-    const FVector2D& LookAxisVector = Value.Get<FVector2D>();
-    AddControllerYawInput(LookAxisVector.X);
-    AddControllerPitchInput(LookAxisVector.Y);
-}
-
-void AHDCharacterPlayer::ThirdPersonMove(const FInputActionValue& Value)
-{
-    if (GetCharacterMovement()->IsFalling())
-    {
-        return;
-    }
-
-    const FVector2D& MovementVector = Value.Get<FVector2D>();
-    const FRotator& Rotation = Controller->GetControlRotation();
-
-    const FRotator YawRotation(0, Rotation.Yaw, 0);
-
-    const FVector& ForwardDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
-    const FVector& RightDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
-
-    AddMovementInput(ForwardDirection, MovementVector.X);
-    AddMovementInput(RightDirection, MovementVector.Y);
-}
-
-void AHDCharacterPlayer::FirstPersonLook(const FInputActionValue& Value)
-{
-    const FVector2D& LookAxisVector = Value.Get<FVector2D>();
-    AddControllerYawInput(-LookAxisVector.X);
-    AddControllerPitchInput(LookAxisVector.Y);
-}
-
-void AHDCharacterPlayer::FirstPersonMove(const FInputActionValue& Value)
-{
-    if (GetCharacterMovement()->IsFalling())
-    {
-        return;
-    }
-
-    const FVector2D& MovementVector = Value.Get<FVector2D>();
-
-    const FRotator& Rotation = Controller->GetControlRotation();
-    const FRotator YawRotation(0, Rotation.Yaw, 0);
-
-    const FVector& ForwardDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
-    const FVector& RightDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
-
-    AddMovementInput(ForwardDirection, MovementVector.X);
-    AddMovementInput(RightDirection, MovementVector.Y);
-}
-
-void AHDCharacterPlayer::SetCharacterControl(const EHDCharacterControlType NewCharacterControlType)
-{
-    UHDCharacterControlData* ControlData = MovementState->SetControlType(NewCharacterControlType);
-
-    APlayerController* PlayerController = GetController<APlayerController>();
-    NULL_CHECK(PlayerController);
-
-    UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer());
-    NULL_CHECK(Subsystem);
-
-    Subsystem->ClearAllMappings();
-    UInputMappingContext* NewMappingContext = ControlData->InputMappingContext;
-    NULL_CHECK(NewMappingContext);
-
-    Subsystem->AddMappingContext(NewMappingContext, 0);
-    SetCharacterControlData(ControlData);
-}
-
 const float AHDCharacterPlayer::Fire(const bool IsPressed)
 {
     if(Combat->Fire(IsPressed) == false)
@@ -565,10 +410,7 @@ const float AHDCharacterPlayer::Fire(const bool IsPressed)
 
 const bool AHDCharacterPlayer::FireFinished()
 {
-    AHDPlayerController* PlayerController = GetController<AHDPlayerController>();
-    NULL_CHECK_WITH_RETURNTYPE(PlayerController, false);
-
-    PlayerController->ChangeAmmoHUDInfo(Combat->GetWeaponAmmoCount());
+    FGameplayAbilityHelper::SendGameplayEventToSelf(HDTAG_EVENT_PLAYERHUD_AMMOCHANGE, GetAbilitySystemComponent());
 
     return Combat->FireFinished();
 }

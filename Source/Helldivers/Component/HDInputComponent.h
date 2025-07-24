@@ -5,7 +5,7 @@
 #include "CoreMinimal.h"
 #include "EnhancedInputComponent.h"
 #include "Define/HDDefine.h"
-#include "GameData/HDTaggedInputAction.h"
+#include "GameData/HDInputActionData.h"
 #include "HDInputComponent.generated.h"
 
 enum class EHDCharacterInputAction : uint8;
@@ -16,22 +16,16 @@ class HELLDIVERS_API UHDInputComponent : public UEnhancedInputComponent
 	GENERATED_BODY()
 
 public:
-    const TMap<EHDCharacterInputAction, TObjectPtr<UInputAction>>& GetInputActionMap() const;
-
     template<class UserClass, typename TriggeredFuncType, typename ReleasedFuncType, typename ToggledFuncType>
-    void                                                    SetTaggedInputActionDataAsset(UHDInputDataAsset* DataAsset, UserClass* Object, TriggeredFuncType TriggeredFunc, ReleasedFuncType ReleasedFunc, ToggledFuncType ToggledFunc);
-
-private:
-	UPROPERTY(EditAnywhere)
-	TMap<EHDCharacterInputAction, TObjectPtr<UInputAction>> InputActionMap;
+    void SetTaggedInputActionDataAsset(UHDInputData* DataAsset, UserClass* Object, TriggeredFuncType TriggeredFunc, ReleasedFuncType ReleasedFunc, ToggledFuncType ToggledFunc);
 };
 
 template<class UserClass, typename TriggeredFuncType, typename ReleasedFuncType, typename ToggledFuncType>
-void UHDInputComponent::SetTaggedInputActionDataAsset(UHDInputDataAsset* DataAsset, UserClass* Object, TriggeredFuncType TriggeredFunc, ReleasedFuncType ReleasedFunc, ToggledFuncType ToggledFunc)
+void UHDInputComponent::SetTaggedInputActionDataAsset(UHDInputData* DataAsset, UserClass* Object, TriggeredFuncType TriggeredFunc, ReleasedFuncType ReleasedFunc, ToggledFuncType ToggledFunc)
 {
     NULL_CHECK(DataAsset);
 
-    for (const FHDTaggedInputAction& InputAction : DataAsset->AbilityInputActions)
+    for (const FHDInputAction& InputAction : DataAsset->AbilityInputActions)
     {
         if (InputAction.TriggerType == EHDTriggerType::Hold)
         {

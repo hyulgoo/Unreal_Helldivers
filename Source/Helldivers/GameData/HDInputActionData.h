@@ -3,7 +3,7 @@
 #include "CoreMinimal.h"
 #include "Engine/DataAsset.h"
 #include "GameplayTagContainer.h"
-#include "HDTaggedInputAction.generated.h"
+#include "HDInputActionData.generated.h"
 
 class UInputAction;
 
@@ -17,16 +17,12 @@ enum class EHDTriggerType : uint8
 };
 
 USTRUCT(BlueprintType)
-struct FHDTaggedInputAction
+struct FHDInputAction
 {
     GENERATED_BODY()
 
 public:
-    FHDTaggedInputAction()
-        : InputAction(nullptr)
-        , InputTag(FGameplayTag())
-        , TriggerType(EHDTriggerType::None)
-    { }
+    FHDInputAction();
 
     UPROPERTY(EditDefaultsOnly)
     TObjectPtr<UInputAction>    InputAction;
@@ -35,15 +31,24 @@ public:
     FGameplayTag                InputTag;    
     
 	UPROPERTY(EditDefaultsOnly)
+	FGameplayTag				AbilityTriggerTag;
+    
+	UPROPERTY(EditDefaultsOnly)
 	EHDTriggerType				TriggerType;
 };
 
 UCLASS()
-class HELLDIVERS_API UHDInputDataAsset : public UDataAsset
+class HELLDIVERS_API UHDInputData : public UDataAsset
 {
 	GENERATED_BODY()
-	
-public :
+
+public:
+    explicit UHDInputData();
+
+    const FGameplayTag GetInputTagByTriggerTag(const FGameplayTag& TriggerTag);
+    const FGameplayTag GetTriggerTagByInputTag(const FGameplayTag& InputTag);
+
+public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	TArray<FHDTaggedInputAction> AbilityInputActions;
+	TArray<FHDInputAction> AbilityInputActions;
 };

@@ -23,6 +23,6 @@ public:
     T*                                  GetAbilitySystemComponent() const { return Cast<T>(GetAbilitySystemComponent()); }
 
 protected:
-    UPROPERTY(EditAnywhere, Category = GAS)
+    UPROPERTY()
     TObjectPtr<UAbilitySystemComponent> AbilitySystemComponent;
 };

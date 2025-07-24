@@ -6,7 +6,7 @@
 #include "AbilitySystemComponent.h"
 #include "HDAbilitySystemComponent.generated.h"
 
-struct FHDCharacterStat;
+struct FHDCharacterAttributeData;
 enum class EHDCharacterType : uint8;
 
 UCLASS()
@@ -22,5 +22,5 @@ public:
     void	    AbilityInputTagToggled(const FGameplayTag Tag);
 
     void	    InitAttributeSet();
-    void        SetAttributeSetStat(FHDCharacterStat* StatData, TSubclassOf<UGameplayEffect> InitAttributeStatEffect);
+    void        SetAttributeSetStat(FHDCharacterAttributeData* StatData, TSubclassOf<UGameplayEffect> InitAttributeStatEffect);
 };

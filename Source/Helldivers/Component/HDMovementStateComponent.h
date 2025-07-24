@@ -6,10 +6,8 @@
 #include "Components/ActorComponent.h"
 #include "HDMovementStateComponent.generated.h"
 
-class UHDCharacterControlData;
 enum class EHDCharacterStanceState : uint8;
 enum class EHDCharacterMovementState : uint8;
-enum class EHDCharacterControlType : uint8;
 
 UCLASS()
 class HELLDIVERS_API UHMovementStateComponent : public UActorComponent
@@ -17,30 +15,22 @@ class HELLDIVERS_API UHMovementStateComponent : public UActorComponent
 	GENERATED_BODY()
 
 public:	
-	explicit						                        UHMovementStateComponent();
+	explicit						UHMovementStateComponent();
 
-	const EHDCharacterStanceState	                        GetStanceState() const;
-	void							                        SetStanceState(const EHDCharacterStanceState NewState, const bool bForced = false);
-	void							                        RestoreStanceState();
+	const EHDCharacterStanceState	GetStanceState() const;
+	void							SetStanceState(const EHDCharacterStanceState NewState, const bool bForced = false);
+	void							RestoreStanceState();
 
-    const EHDCharacterMovementState                         GetMovementState() const;
-    void                                                    SetMovementState(const EHDCharacterMovementState NewState);
+    const EHDCharacterMovementState GetMovementState() const;
+    void                            SetMovementState(const EHDCharacterMovementState NewState);
 
-	void							                        SetSpringArmDefaultZOffset(const float ZOffset);
-	void							                        ChangeCameraZOffsetByCharacterMovementState(const EHDCharacterStanceState State);
-
-    UHDCharacterControlData*                                SetControlType(const EHDCharacterControlType Type);
-    const EHDCharacterControlType                           GetControlType() const;
+	void							SetSpringArmDefaultZOffset(const float ZOffset);
+	void							ChangeCameraZOffsetByCharacterMovementState(const EHDCharacterStanceState State);
 
 private:
-	EHDCharacterStanceState		                            StanceState;
-	EHDCharacterStanceState		                            PrevStanceState;
-	EHDCharacterMovementState                               MovementState;
+	EHDCharacterStanceState		    StanceState;
+	EHDCharacterStanceState		    PrevStanceState;
+	EHDCharacterMovementState       MovementState;
 	
-	float					                                SpringArmZOffset;
-    
-	EHDCharacterControlType			                        CurrentCharacterControlType;
-	
-    UPROPERTY(EditAnywhere)
-    TMap<EHDCharacterControlType, TObjectPtr<UHDCharacterControlData>> CharacterControlDataMap;	
+	float					        SpringArmZOffset;	
 };

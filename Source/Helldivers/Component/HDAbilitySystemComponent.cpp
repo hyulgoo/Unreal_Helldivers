@@ -3,9 +3,8 @@
 #include "HDAbilitySystemComponent.h"
 #include "Attribute/HDHealthAttributeSet.h"
 #include "Attribute/HDSpeedAttributeSet.h"
-#include "GameData/HDCharacterStat.h"
+#include "GameData/HDCharacterAttributeData.h"
 #include "Define/HDDefine.h"
-#include "Define/HDGameplayTag.h"
 
 UHDAbilitySystemComponent::UHDAbilitySystemComponent()
 {
@@ -81,7 +80,7 @@ void UHDAbilitySystemComponent::InitAttributeSet()
 	AddAttributeSetSubobject(ApeedAttributeSet);
 }
 
-void UHDAbilitySystemComponent::SetAttributeSetStat(FHDCharacterStat* StatData, TSubclassOf<UGameplayEffect> InitAttributeStatEffect)
+void UHDAbilitySystemComponent::SetAttributeSetStat(FHDCharacterAttributeData* StatData, TSubclassOf<UGameplayEffect> InitAttributeStatEffect)
 {
     NULL_CHECK(StatData);
     NULL_CHECK(InitAttributeStatEffect);
@@ -90,7 +89,7 @@ void UHDAbilitySystemComponent::SetAttributeSetStat(FHDCharacterStat* StatData, 
     FGameplayEffectSpecHandle SpecHandle = MakeOutgoingSpec(InitAttributeStatEffect, 1.f, Context);
     CONDITION_CHECK(SpecHandle.IsValid());
 
-    for(const TPair<FGameplayTag, float>& TaggedStat : StatData->Stats)
+    for(const TPair<FGameplayTag, float>& TaggedStat : StatData->Data)
     {
         SpecHandle.Data->SetSetByCallerMagnitude(TaggedStat.Key, TaggedStat.Value);
     }

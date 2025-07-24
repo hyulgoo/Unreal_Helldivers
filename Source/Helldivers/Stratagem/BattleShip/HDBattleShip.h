@@ -39,12 +39,13 @@ protected:
     UPROPERTY(EditDefaultsOnly, Category = "BattleShip")
 	TObjectPtr<USphereComponent>		CollisionSphere;
 
-    UPROPERTY(VisibleAnywhere, Category = "GAS")
+    UPROPERTY()
     TObjectPtr<UAbilitySystemComponent> AbilitySystemComponent;
 
 	UPROPERTY(EditAnywhere, Category = "Stratagem|Eagle")
     TSubclassOf<AHDEagleFighter>		EagleFighterClass;
-
+    
+	UPROPERTY()
     TObjectPtr<AHDEagleFighter>			EagleFighter;
 
     UPROPERTY(EditAnywhere, Category = "Stratagem|Projectile")
