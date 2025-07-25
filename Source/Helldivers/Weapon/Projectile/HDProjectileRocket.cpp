@@ -3,9 +3,6 @@
 #include "Weapon/Projectile/HDProjectileRocket.h"
 #include "Components/BoxComponent.h"
 #include "Components/AudioComponent.h"
-#include "Sound/SoundCue.h"
-#include "NiagaraComponent.h"
-#include "NiagaraSystemInstanceController.h"
 #include "Kismet/GameplayStatics.h"
 #include "MovementComponent/HDRocketMovementComponent.h"
 

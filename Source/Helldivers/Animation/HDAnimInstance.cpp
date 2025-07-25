@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "Animation/HDAnimInstance.h"
+#include "HDAnimInstance.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Interface/HDCharacterMovementInterface.h"
@@ -30,19 +30,19 @@ UHDAnimInstance::UHDAnimInstance()
 	, bIsLookingViewport(false)
 	, CombatState(EHDCombatState::Count)
 	, TurningInPlace(EHDTurningInPlace::NotTurning)
-	, LeftHandTransform(FTransform())
-	, RightHandRotation(FRotator())
+	, LeftHandTransform(FTransform::Identity)
+	, RightHandRotation(FRotator::ZeroRotator)
 	, bIsShouldering(false)
 	, bUseAimOffset(false)
 	, bUseFABRIK(false)
 	, bTransformRightHand(false)
 	, AimOffset_Yaw(0.f)
 	, AimOffset_Pitch(0.f)
-	, HitTarget(FVector())
+	, HitTarget(FVector::ZeroVector)
 	, bIsUpperSlotValid(false)
-	, CharacterRotationLastFrame(FRotator())
-	, CharacterRotation(FRotator())
-	, DeltaRotation(FRotator())
+	, CharacterRotationLastFrame(FRotator::ZeroRotator)
+	, CharacterRotation(FRotator::ZeroRotator)
+	, DeltaRotation(FRotator::ZeroRotator)
 {
 	MovingThreshould = 3.0f;
 	JumpingThreshould = 100.0f;

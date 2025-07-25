@@ -4,10 +4,12 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "AbilitySystemInterface.h"
 #include "Interface/HDCharacterRagdollInterface.h"
 #include "Interface/HDDeadInterface.h"
 #include "Character/CharacterTypes/HDCharacterStateTypes.h"
-#include "AbilitySystemInterface.h"
+#include "Define/HDDefine.h"
+#include "Define/HDGameplayTag.h"
 #include "HDCharacterBase.generated.h"
 
 class UHDCharacterControlData;

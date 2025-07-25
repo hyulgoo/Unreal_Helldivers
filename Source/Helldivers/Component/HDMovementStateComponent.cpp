@@ -3,7 +3,6 @@
 #include "HDMovementStateComponent.h"
 #include "Character/CharacterTypes/HDCharacterStateTypes.h"
 #include "GameFramework/SpringArmComponent.h"
-#include "GameData/HDCharacterControlData.h"
 #include "Define/HDDefine.h"
 
 #define CHARACTERMOVESTATEZOFFSET 40.f

@@ -8,6 +8,7 @@
 #include "HDPlayerController.generated.h"
 
 class ACharacter;
+class UInputAction;
 class UHDInputData;
 class UHDAbilitySystemComponent;
 class UHDGASPlayerUserWidget;
@@ -53,7 +54,7 @@ private:
 
 
     void									CreateHUDWidget(APawn* aPawn);
-	void									SetPossessAbilitySystemComponentBindEventCall(UHDAbilitySystemComponent* ASC);
+	void									SetAbilitySystemComponentBindEventCall(UHDAbilitySystemComponent* ASC);
     void                                    OnPlayerHUDChanged(const FGameplayEventData* Payload);
     void                                    OnStratagemHUDChanged(const FGameplayEventData* Payload);
 

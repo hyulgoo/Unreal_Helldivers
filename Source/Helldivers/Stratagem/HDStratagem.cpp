@@ -16,7 +16,7 @@ AHDStratagem::AHDStratagem()
     , PointLaserNiagara(nullptr)
     , NiagaraComponent(nullptr)
     , StratagemActiveDelay(0.f)
-    , ThrowDirection(FVector())
+    , ThrowDirection(FVector::ZeroVector)
     , ThrowImpulse(3000.f)
     , StratagemName(FName())
 {

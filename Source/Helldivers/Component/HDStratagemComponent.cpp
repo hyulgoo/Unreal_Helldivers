@@ -1,6 +1,6 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-#include "Component/HDStratagemComponent.h"
+#include "HDStratagemComponent.h"
 #include "Define/HDDefine.h"
 #include "Define/HDSocketNames.h"
 #include "GameData/HDStratagemData.h"
@@ -11,9 +11,9 @@
 UHDStratagemComponent::UHDStratagemComponent()
     : StratagemClass(nullptr)
     , Stratagem(nullptr)
-    , CurrentInputCommandList{}
     , SelectedStratagemName(FName())
     , SelecteddStratagemActiveDelay(0.f)
+    , CurrentInputCommandList{}
     , CommandMatchStratagemNameList{}
     , AvaliableStratagemDataTable(nullptr)
 {
@@ -88,11 +88,7 @@ const bool UHDStratagemComponent::IsSelectedStratagemExist() const
 void UHDStratagemComponent::HoldStratagem(USkeletalMeshComponent* MeshComponent, const FVector& ThrowDirection)
 {
     NULL_CHECK(StratagemClass);
-
-    if (IsSelectedStratagemExist() == false)
-    {
-        return;
-    }
+    CONDITION_CHECK_WITHOUT_LOG(IsSelectedStratagemExist());
 
     UWorld* World = GetWorld();
     VALID_CHECK(World);
@@ -127,11 +123,10 @@ void UHDStratagemComponent::ThrowFinished()
 
 void UHDStratagemComponent::CancelStratagem()
 {
-    if (Stratagem)
-    {
-        Stratagem->Destroy();
-        Stratagem = nullptr;
-    }
+    NULL_CHECK_WITHOUT_LOG(Stratagem);
+
+    Stratagem->Destroy();
+    Stratagem = nullptr;
 }
 
 void UHDStratagemComponent::ClearCommand()

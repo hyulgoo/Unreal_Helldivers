@@ -1,6 +1,6 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-#include "Game/HDGameInstance.h"
+#include "HDGameInstance.h"
 
 void UHDGameInstance::Init()
 {

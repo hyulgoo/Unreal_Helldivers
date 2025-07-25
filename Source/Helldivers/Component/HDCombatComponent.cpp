@@ -1,5 +1,5 @@
 
-#include "Component/HDCombatComponent.h"
+#include "HDCombatComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Engine/SkeletalMeshSocket.h"
@@ -14,7 +14,7 @@
 #define AIMOFFSET_PITCH_OFFSET 20.f
 
 UHDCombatComponent::UHDCombatComponent()
-    : StartingAimRotation(FRotator())
+    : StartingAimRotation(FRotator::ZeroRotator)
     , AimOffset_Yaw(0.f)
     , AimOffset_Pitch(0.f)
     , InterpAimOffset_Yaw(0.f)
@@ -25,7 +25,7 @@ UHDCombatComponent::UHDCombatComponent()
     , bIsShoulder(false)
     , bIsFireButtonPressed(false)
     , CombatState(EHDCombatState::Unoccupied)
-    , HitTarget(FVector())
+    , HitTarget(FVector::ZeroVector)
     , DefaultFOV(50.f)
 	, CurrentFOV(0.f)
     , ZoomedFOV(0.f)

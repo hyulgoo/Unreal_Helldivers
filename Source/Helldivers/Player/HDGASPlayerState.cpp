@@ -4,6 +4,7 @@
 #include "Component/HDAbilitySystemComponent.h"
 
 AHDGASPlayerState::AHDGASPlayerState()
+    : AbilitySystemComponent(nullptr)
 {
     AbilitySystemComponent  = CreateDefaultSubobject<UHDAbilitySystemComponent>(TEXT("AbilitySystemComponent"));
 }

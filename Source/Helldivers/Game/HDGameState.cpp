@@ -1,6 +1,6 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-#include "Game/HDGameState.h"
+#include "HDGameState.h"
 #include "Define/HDDefine.h"
 #include "Stratagem/BattleShip/HDBattleShip.h"
 

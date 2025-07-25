@@ -34,12 +34,11 @@ private:
         
 	UPROPERTY()
 	TObjectPtr<AHDStratagem>			Stratagem;
-	
+
+    FName								SelectedStratagemName;
+    float								SelecteddStratagemActiveDelay;
+
 	TArray<EHDCommandInput>				CurrentInputCommandList;
-
-	FName								SelectedStratagemName;
-	float								SelecteddStratagemActiveDelay;
-
 	TArray<FName>						CommandMatchStratagemNameList;
 	
 	UPROPERTY(EditAnywhere, Category = "Stratagem")

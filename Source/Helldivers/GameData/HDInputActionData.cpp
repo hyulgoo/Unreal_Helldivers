@@ -4,10 +4,9 @@
 
 FHDInputAction::FHDInputAction()
     : InputAction(nullptr)
-    , InputTag(FGameplayTag())
+    , InputTag(FGameplayTag::EmptyTag)
     , TriggerType(EHDTriggerType::None)
 {
-
 }
 
 UHDInputData::UHDInputData()

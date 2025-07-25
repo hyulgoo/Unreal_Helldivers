@@ -1,6 +1,6 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-#include "Controller/HDPlayerController.h"
+#include "HDPlayerController.h"
 #include "EnhancedInputSubsystems.h"
 #include "Define/HDDefine.h"
 #include "Define/HDGameplayTag.h"
@@ -43,7 +43,7 @@ UHDAbilitySystemComponent* AHDPlayerController::GetAbilitySystemComponent()
     {
         AbilitySystemComponent = Cast<UHDAbilitySystemComponent>(FGameplayAbilityHelper::GetAbilitySystemComponentFromActor(GetPawn()));
         NULL_CHECK_WITH_RETURNTYPE(AbilitySystemComponent, nullptr);
-        SetPossessAbilitySystemComponentBindEventCall(AbilitySystemComponent);
+        SetAbilitySystemComponentBindEventCall(AbilitySystemComponent);
     }
 
     return AbilitySystemComponent;
@@ -83,7 +83,7 @@ void AHDPlayerController::SetupInputComponent()
     HDInput->SetTaggedInputActionDataAsset(AbilityInputData, this, &AHDPlayerController::AbilityInputTriggered, &AHDPlayerController::AbilityInputReleased, &AHDPlayerController::AbilityInputToggled);
 }
 
-void AHDPlayerController::SetPossessAbilitySystemComponentBindEventCall(UHDAbilitySystemComponent* ASC)
+void AHDPlayerController::SetAbilitySystemComponentBindEventCall(UHDAbilitySystemComponent* ASC)
 {
     NULL_CHECK(ASC);
 
@@ -96,6 +96,8 @@ void AHDPlayerController::SetPossessAbilitySystemComponentBindEventCall(UHDAbili
 
 void AHDPlayerController::OnPlayerHUDChanged(const FGameplayEventData* Payload)
 {
+    NULL_CHECK(Payload);
+
     if (Payload->EventTag == HDTAG_EVENT_PLAYERHUD_AMMOCHANGE)
     {
         VALID_CHECK(PlayerHUDWidget);
@@ -112,6 +114,7 @@ void AHDPlayerController::OnPlayerHUDChanged(const FGameplayEventData* Payload)
 
 void AHDPlayerController::OnStratagemHUDChanged(const FGameplayEventData* Payload)
 {
+    NULL_CHECK(Payload);
     VALID_CHECK(StratagemHUDWidget);
 
     if (Payload->EventTag == HDTAG_EVENT_STRATAGEMHUD_ADDCOMMAND)
