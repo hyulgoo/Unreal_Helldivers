@@ -58,7 +58,11 @@ void AHDPlayerController::OnPossess(APawn* aPawn)
 {
     Super::OnPossess(aPawn);
 
-    CreateHUDWidget(aPawn);
+    if(GetPawn<AHDCharacterPlayer>())
+    {
+        CreateHUDWidget(aPawn);
+        SetCharacterControl(EHDCharacterControlType::ThirdPerson);
+    }
 
     ConsoleCommand(TEXT("showdebug abilitysystem"));
 }
@@ -77,9 +81,10 @@ void AHDPlayerController::SetupInputComponent()
     UHDInputComponent* HDInput = Cast<UHDInputComponent>(InputComponent);
     NULL_CHECK(HDInput);
 
+    CONDITION_CHECK(InputActionMap.Num() == static_cast<int32>(EHDCharacterInputAction::Count));
+
     HDInput->BindAction(InputActionMap[EHDCharacterInputAction::ThirdMove], ETriggerEvent::Triggered, this, &AHDPlayerController::Move);
     HDInput->BindAction(InputActionMap[EHDCharacterInputAction::ThirdLook], ETriggerEvent::Triggered, this, &AHDPlayerController::Look);
-    HDInput->BindAction(InputActionMap[EHDCharacterInputAction::ChangeControl], ETriggerEvent::Triggered, this, &AHDPlayerController::ChangeCharacterControlType);
     HDInput->SetTaggedInputActionDataAsset(AbilityInputData, this, &AHDPlayerController::AbilityInputTriggered, &AHDPlayerController::AbilityInputReleased, &AHDPlayerController::AbilityInputToggled);
 }
 
@@ -137,28 +142,31 @@ void AHDPlayerController::OnStratagemHUDChanged(const FGameplayEventData* Payloa
     }
 }
 
-void AHDPlayerController::AbilityInputTriggered(const FGameplayTag Tag)
+void AHDPlayerController::AbilityInputTriggered(const FGameplayTag InputTag)
 {
     UHDAbilitySystemComponent* ASC = GetAbilitySystemComponent();
     NULL_CHECK(ASC);
 
-    ASC->AbilityInputTagTriggered(Tag);
+    const FGameplayTag& AssetTag = AbilityInputData->GetTriggerTagByInputTag(InputTag);
+    ASC->AbilityInputTagTriggered(AssetTag);
 }
 
-void AHDPlayerController::AbilityInputReleased(const FGameplayTag Tag)
+void AHDPlayerController::AbilityInputReleased(const FGameplayTag InputTag)
 {
     UHDAbilitySystemComponent* ASC = GetAbilitySystemComponent();
     NULL_CHECK(ASC);
 
-    ASC->AbilityInputTagReleased(Tag);
+    const FGameplayTag& AssetTag = AbilityInputData->GetTriggerTagByInputTag(InputTag);
+    ASC->AbilityInputTagReleased(AssetTag);
 }
 
-void AHDPlayerController::AbilityInputToggled(const FGameplayTag Tag)
+void AHDPlayerController::AbilityInputToggled(const FGameplayTag InputTag)
 {
     UHDAbilitySystemComponent* ASC = GetAbilitySystemComponent();
     NULL_CHECK(ASC);
 
-    ASC->AbilityInputTagToggled(Tag);
+    const FGameplayTag& AssetTag = AbilityInputData->GetTriggerTagByInputTag(InputTag);
+    ASC->AbilityInputTagToggled(AssetTag);
 }
 
 void AHDPlayerController::ChangeCharacterControlType()
@@ -214,7 +222,7 @@ void AHDPlayerController::CreateHUDWidget(APawn* aPawn)
 
         PlayerHUDWidget->SetChangedWeaponAmmoCountInfo(Combat->GetWeaponAmmoCount(), Combat->GetWeaponMaxAmmoCount());
         PlayerHUDWidget->SetChangedWeaponCapacityCountInfo(Combat->GetWeaponCapacityCount(), Combat->GetWeaponMaxCapacityCount());
-        PlayerHUDWidget->SetAbilitySystemComponent(AbilitySystemComponent);
+        PlayerHUDWidget->SetAbilitySystemComponent(GetAbilitySystemComponent());
         PlayerHUDWidget->AddToViewport();
     }
     else
@@ -260,7 +268,7 @@ void AHDPlayerController::Move(const FInputActionValue& Value)
     APawn* ControlledPawn = GetPawn<APawn>();
     if (ControlledPawn)
     {
-        ControlledPawn->AddMovementInput(ForwardDirection, MovementVector.Y);
-        ControlledPawn->AddMovementInput(RightDirection, MovementVector.X);
+        ControlledPawn->AddMovementInput(ForwardDirection, MovementVector.X);
+        ControlledPawn->AddMovementInput(RightDirection, MovementVector.Y);
     }
 }

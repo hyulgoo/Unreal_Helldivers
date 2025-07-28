@@ -15,7 +15,7 @@
 UHDAnimInstance::UHDAnimInstance()
 	: Owner(nullptr)
 	, Movement(nullptr)
-	, Velocity(FVector())
+	, Velocity(FVector::ZeroVector)
 	, GroundSpeed(0.f)
 	, MovingThreshould(0.f)
 	, CharacterStanceState(EHDCharacterStanceState::Idle)

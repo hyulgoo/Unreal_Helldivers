@@ -26,9 +26,6 @@ private:
 	UPROPERTY()
 	TScriptInterface<IHDCharacterRagdollInterface>	RagdollInterface;
 	
-	UPROPERTY()
-	TObjectPtr<UWorld>								World;
-
 	bool											bRecoveryFromRagdoll;
 	FTimerHandle									StateCheckTimerHandle;
 	FTimerHandle									RecoveryFromRagdollTimerHandle;

@@ -27,7 +27,7 @@ public:
         , ProjectileAttackRange(0.f)
         , ProjectileDamage(0.f)
     {
-    };
+    }
 
 public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Eagle")

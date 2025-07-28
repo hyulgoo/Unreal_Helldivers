@@ -23,6 +23,7 @@ struct FHDInputAction
 
 public:
     FHDInputAction();
+    FHDInputAction(UInputAction* NewInputAction, const FGameplayTag& NewInputTag, const FGameplayTag& NewAbilityTriggerTag, const EHDTriggerType  NewTriggerType);
 
     UPROPERTY(EditDefaultsOnly)
     TObjectPtr<UInputAction>    InputAction;

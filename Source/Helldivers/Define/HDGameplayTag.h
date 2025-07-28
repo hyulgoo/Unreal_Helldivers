@@ -12,14 +12,17 @@
 #define HDTAG_CHARACTER_STATE_ISSPRINT				FGameplayTag::RequestGameplayTag(FName("Character.State.IsSprint"))
 #define HDTAG_CHARACTER_STATE_ISDEAD				FGameplayTag::RequestGameplayTag(FName("Character.State.IsDead"))
 
-#define HDTAG_INPUT_AIMING							FGameplayTag::RequestGameplayTag(FName("Input.Aiming"))
-#define HDTAG_INPUT_SHOULDER						FGameplayTag::RequestGameplayTag(FName("Input.Shoulder"))
-#define HDTAG_INPUT_SPRINT							FGameplayTag::RequestGameplayTag(FName("Input.Sprint"))
-#define HDTAG_INPUT_CROUCH							FGameplayTag::RequestGameplayTag(FName("Input.Crouch"))
-#define HDTAG_INPUT_PRONE							FGameplayTag::RequestGameplayTag(FName("Input.Prone"))
-#define HDTAG_INPUT_FIRE							FGameplayTag::RequestGameplayTag(FName("Input.Fire"))
-#define HDTAG_INPUT_RELOAD							FGameplayTag::RequestGameplayTag(FName("Input.Reload"))
-#define HDTAG_INPUT_STRATAGEMINPUTMODE				FGameplayTag::RequestGameplayTag(FName("Input.StratagemInputMode"))
+#define HDTAG_INPUT							        FGameplayTag::RequestGameplayTag(FName("Input"))
+
+#define HDTAG_TRIGGER_AIMING						FGameplayTag::RequestGameplayTag(FName("Trigger.Aiming"))
+#define HDTAG_TRIGGER_SHOULDER						FGameplayTag::RequestGameplayTag(FName("Trigger.Shoulder"))
+#define HDTAG_TRIGGER_SPRINT						FGameplayTag::RequestGameplayTag(FName("Trigger.Sprint"))
+#define HDTAG_TRIGGER_CROUCH						FGameplayTag::RequestGameplayTag(FName("Trigger.Crouch"))
+#define HDTAG_TRIGGER_PRONE							FGameplayTag::RequestGameplayTag(FName("Trigger.Prone"))
+#define HDTAG_TRIGGER_ATTACK						FGameplayTag::RequestGameplayTag(FName("Trigger.Attack"))
+#define HDTAG_TRIGGER_RELOAD						FGameplayTag::RequestGameplayTag(FName("Trigger.Reload"))
+#define HDTAG_TRIGGER_REGENSTAMINA                  FGameplayTag::RequestGameplayTag(FName("Trigger.RegenStamina"))
+#define HDTAG_TRIGGER_STRATAGEMINPUTMODE			FGameplayTag::RequestGameplayTag(FName("Trigger.StratagemInputMode"))
 
 #define HDTAG_EVENT_STRATAGEMHUD_APPEAR             FGameplayTag::RequestGameplayTag(FName("Event.StratagemHUD.Active"))
 #define HDTAG_EVENT_STRATAGEMHUD_DISAPPEAR          FGameplayTag::RequestGameplayTag(FName("Event.StratagemHUD.Deactive"))
@@ -32,6 +35,7 @@
 #define HDTAG_DATA_DOTDAMAGE_TICKDAMAGE             FGameplayTag::RequestGameplayTag(FName("Data.DotDamage.TickDamage"))
 #define HDTAG_DATA_DOTDAMAGE_DURATION               FGameplayTag::RequestGameplayTag(FName("Data.Projectile.StatusEffectDuration"))
 
+#define HDTAG_DATA_ATTRIBUTE                        FGameplayTag::RequestGameplayTag(FName("Data.Attribute"))
 #define HDTAG_DATA_ATTRIBUTE_CURRENTHEALTH          FGameplayTag::RequestGameplayTag(FName("Data.Attribute.CurrentHealth"))
 #define HDTAG_DATA_ATTRIBUTE_MAXHEALTH              FGameplayTag::RequestGameplayTag(FName("Data.Attribute.MaxHealth"))
 #define HDTAG_DATA_ATTRIBUTE_WALKSPEED              FGameplayTag::RequestGameplayTag(FName("Data.Attribute.WalkSpeed"))
@@ -45,4 +49,4 @@
 #define HDTAG_DATA_KNOCKBACK_RAGDOLL                FGameplayTag::RequestGameplayTag(FName("Data.Knockback.Ragdoll"))
 
 #define HDTAG_COST_STAMINA                          FGameplayTag::RequestGameplayTag(FName("Cost.Stamina"))
-#define HDTAG_REGEN_STAMINA                         FGameplayTag::RequestGameplayTag(FName("Regen.Stamina"))
+#define HDTAG_REGEN_STAMINA                          FGameplayTag::RequestGameplayTag(FName("Regen.Stamina"))

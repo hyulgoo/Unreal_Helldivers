@@ -6,7 +6,6 @@
 
 UHDGA_Knockback::UHDGA_Knockback()
     : RagdollInterface(nullptr)
-    , World(nullptr)
     , bRecoveryFromRagdoll(false)
     , StateCheckTimerHandle(FTimerHandle())
 	, RecoveryFromRagdollTimerHandle(FTimerHandle())
@@ -33,33 +32,29 @@ void UHDGA_Knockback::ActivateAbility(const FGameplayAbilitySpecHandle Handle, c
 
         RagdollInterface->SetRagdoll(true, Impulse);
 
-        World = ActorInfo->AvatarActor->GetWorld();
-        VALID_CHECK(World);
-
         if(StateCheckTimerHandle.IsValid())
         {
-            World->GetTimerManager().ClearTimer(StateCheckTimerHandle);
+            GetWorld()->GetTimerManager().ClearTimer(StateCheckTimerHandle);
         }
 
-        World->GetTimerManager().SetTimer(StateCheckTimerHandle, this, &UHDGA_Knockback::CheckCharacterRagdollState, 0.1f, true);
+        GetWorld()->GetTimerManager().SetTimer(StateCheckTimerHandle, this, &UHDGA_Knockback::CheckCharacterRagdollState, 0.1f, true);
     }
 }
 
 void UHDGA_Knockback::CheckCharacterRagdollState()
 {
     NULL_CHECK(RagdollInterface);
-    VALID_CHECK(World);
 
     const float Speed = RagdollInterface->GetRagdollPysicsLinearVelocity();
     if (Speed < 5.f && bRecoveryFromRagdoll == false)
     {
         bRecoveryFromRagdoll = true;
 
-        World->GetTimerManager().ClearTimer(StateCheckTimerHandle);
+        GetWorld()->GetTimerManager().ClearTimer(StateCheckTimerHandle);
         const bool bIsDead = GetAbilitySystemComponentFromActorInfo()->HasMatchingGameplayTag(HDTAG_CHARACTER_STATE_ISDEAD);
         if (bIsDead == false)
         {
-            World->GetTimerManager().SetTimer(RecoveryFromRagdollTimerHandle, this, &UHDGA_Knockback::RecoveryFromRagdoll, 0.5f, false);
+            GetWorld()->GetTimerManager().SetTimer(RecoveryFromRagdollTimerHandle, this, &UHDGA_Knockback::RecoveryFromRagdoll, 0.5f, false);
         }
     }
 }
@@ -67,10 +62,9 @@ void UHDGA_Knockback::CheckCharacterRagdollState()
 void UHDGA_Knockback::RecoveryFromRagdoll()
 {
     NULL_CHECK(RagdollInterface);
-    VALID_CHECK(World);
 
     RagdollInterface->SetRagdoll(false);
-    World->GetTimerManager().ClearTimer(RecoveryFromRagdollTimerHandle);
+    GetWorld()->GetTimerManager().ClearTimer(RecoveryFromRagdollTimerHandle);
 
     bRecoveryFromRagdoll = false;
 

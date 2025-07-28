@@ -28,15 +28,15 @@ void UHDGA_MovementTrigger::ActivateAbility(const FGameplayAbilitySpecHandle Han
 	TScriptInterface<IHDCharacterMovementInterface> CharacterMovementInterface = ActorInfo->AvatarActor.Get();
 	NULL_CHECK(CharacterMovementInterface);
 
-	if (CurrentTagContainer.HasTagExact(HDTAG_INPUT_AIMING))
+	if (CurrentTagContainer.HasTagExact(HDTAG_TRIGGER_AIMING))
 	{
 	   //CharacterMovementInterface->ChangeCharacterControlType();
 	}
-	else if (CurrentTagContainer.HasTagExact(HDTAG_INPUT_SHOULDER))
+	else if (CurrentTagContainer.HasTagExact(HDTAG_TRIGGER_SHOULDER))
 	{
 		CharacterMovementInterface->SetShouldering(true);
 	}
-	else if (CurrentTagContainer.HasTagExact(HDTAG_INPUT_SPRINT))
+	else if (CurrentTagContainer.HasTagExact(HDTAG_TRIGGER_SPRINT))
 	{
 		CharacterMovementInterface->SetMovementState(EHDCharacterMovementState::Sprint);
 
@@ -57,15 +57,15 @@ void UHDGA_MovementTrigger::ActivateAbility(const FGameplayAbilitySpecHandle Han
             GetWorld()->GetTimerManager().ClearTimer(RegenStaminaHandle);
         }
 	}
-	else if (CurrentTagContainer.HasTagExact(HDTAG_INPUT_CROUCH))
+	else if (CurrentTagContainer.HasTagExact(HDTAG_TRIGGER_CROUCH))
 	{
 		CharacterMovementInterface->SetCharacterStanceState(EHDCharacterStanceState::Crouch);
 	}
-	else if (CurrentTagContainer.HasTagExact(HDTAG_INPUT_PRONE))
+	else if (CurrentTagContainer.HasTagExact(HDTAG_TRIGGER_PRONE))
 	{
 		CharacterMovementInterface->SetCharacterStanceState(EHDCharacterStanceState::Prone);
 	}
-    else if(CurrentTagContainer.HasTagExact(HDTAG_REGEN_STAMINA))
+    else if(CurrentTagContainer.HasTagExact(HDTAG_TRIGGER_REGENSTAMINA))
     {
         UAbilitySystemComponent* ASC = GetAbilitySystemComponentFromActorInfo();
         NULL_CHECK(ASC);
@@ -94,15 +94,11 @@ void UHDGA_MovementTrigger::EndAbility(const FGameplayAbilitySpecHandle Handle, 
 	FGameplayTagContainer CurrentTagContainer = GetAssetTags();
 	CONDITION_CHECK(CurrentTagContainer.IsValid());
 
-	if (CurrentTagContainer.HasTagExact(HDTAG_INPUT_AIMING))
-	{
-		//CharacterMovementInterface->ChangeCharacterControlType();
-	}
-	else if (CurrentTagContainer.HasTagExact(HDTAG_INPUT_SHOULDER))
+	if (CurrentTagContainer.HasTagExact(HDTAG_TRIGGER_SHOULDER))
 	{
 		CharacterMovementInterface->SetShouldering(false);
 	}
-	else if (CurrentTagContainer.HasTagExact(HDTAG_INPUT_SPRINT))
+	else if (CurrentTagContainer.HasTagExact(HDTAG_TRIGGER_SPRINT))
 	{
 		CharacterMovementInterface->SetMovementState(EHDCharacterMovementState::Walk);
 
@@ -112,13 +108,13 @@ void UHDGA_MovementTrigger::EndAbility(const FGameplayAbilitySpecHandle Handle, 
         FGameplayAbilityHelper::RemoveActiveEffectByGrantedTag(HDTAG_COST_STAMINA, ASC);
 
         GetWorld()->GetTimerManager().SetTimer(RegenStaminaHandle, FTimerDelegate::CreateLambda([this, ASC]() {
-            FGameplayAbilityHelper::SendGameplayEventToSelf(HDTAG_REGEN_STAMINA, ASC);}), 1.f, false);
+            FGameplayAbilityHelper::SendGameplayEventToSelf(HDTAG_TRIGGER_REGENSTAMINA, ASC);}), 1.f, false);
 	}
-	else if (CurrentTagContainer.HasTagExact(HDTAG_INPUT_CROUCH) || CurrentTagContainer.HasTagExact(HDTAG_INPUT_PRONE))
+	else if (CurrentTagContainer.HasTagExact(HDTAG_TRIGGER_CROUCH) || CurrentTagContainer.HasTagExact(HDTAG_TRIGGER_PRONE))
 	{
 		CharacterMovementInterface->RestoreStanceState();
 	}
-    else if(CurrentTagContainer.HasTagExact(HDTAG_REGEN_STAMINA))
+    else if(CurrentTagContainer.HasTagExact(HDTAG_TRIGGER_REGENSTAMINA))
     {
         UAbilitySystemComponent* ASC = GetAbilitySystemComponentFromActorInfo();
         NULL_CHECK(ASC);

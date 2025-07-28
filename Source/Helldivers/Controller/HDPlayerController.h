@@ -24,7 +24,6 @@ enum class EHDCharacterInputAction : uint8
 	ThirdMove,
 	FirstLook,
 	FirstMove,
-	ChangeControl,
 	Count
 };
 

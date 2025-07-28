@@ -3,6 +3,7 @@
 #include "Define/HDDefine.h"
 #include "AbilitySystemComponent.h"
 #include "AbilitySystemGlobals.h"
+#include "GameplayTagsManager.h"
 
 void FGameplayAbilityHelper::SendGameplayEventToTarget(const FGameplayTag EventTag, const FGameplayAbilityActorInfo* SourceActorInfo, const FGameplayAbilityActorInfo* TargetActorInfo, const float Magnitude)
 {
@@ -42,7 +43,6 @@ void FGameplayAbilityHelper::SendGameplayEventToTarget(const FGameplayTag EventT
 void FGameplayAbilityHelper::SendGameplayEventToSelf(const FGameplayTag EventTag, const FGameplayAbilityActorInfo* SourceActorInfo, const float Magnitude /*= 0.f*/)
 {
     NULL_CHECK(SourceActorInfo->AvatarActor);
-    CONDITION_CHECK(EventTag.IsValid());
 
     AActor* OwningActor = SourceActorInfo->AvatarActor.Get();
     VALID_CHECK(OwningActor);
@@ -52,19 +52,10 @@ void FGameplayAbilityHelper::SendGameplayEventToSelf(const FGameplayTag EventTag
 
 void FGameplayAbilityHelper::SendGameplayEventToSelf(const FGameplayTag EventTag, UAbilitySystemComponent* SourceASC, const float Magnitude /*= 0.f*/)
 {
-    VALID_CHECK(SourceASC);
-    CONDITION_CHECK(EventTag.IsValid());
-
     AActor* OwningActor = SourceASC->GetOwnerActor();
     VALID_CHECK(OwningActor);
 
-    FGameplayEventData EventData;
-	EventData.EventTag = EventTag;
-	EventData.Instigator = OwningActor;
-	EventData.Target = OwningActor;
-    EventData.EventMagnitude = Magnitude;
-
-    SourceASC->HandleGameplayEvent(EventData.EventTag, &EventData);
+    SendGameplayEventToTarget(EventTag, OwningActor, SourceASC, Magnitude);
 }
 
 void FGameplayAbilityHelper::SendGameplayEventToSelf(const FGameplayTag EventTag, AActor* SourceActor, const float Magnitude /*= 0.f*/)
@@ -97,7 +88,7 @@ void FGameplayAbilityHelper::AddTagToTarget(UAbilitySystemComponent* TargetASC, 
 
 void FGameplayAbilityHelper::ExcuteGameplayCue(const FGameplayTag Tag, const FGameplayTagContainer TagContainer, const FVector& Location, const FVector Normal, UAbilitySystemComponent* ASC)
 {
-    NULL_CHECK(ASC);
+    VALID_CHECK(ASC);
     CONDITION_CHECK(Tag.IsValid());
 
     AActor* OwningActor = ASC->GetOwnerActor();
@@ -132,4 +123,9 @@ void FGameplayAbilityHelper::RemoveActiveEffectByGrantedTag(const FGameplayTag T
     FGameplayEffectQuery Query = FGameplayEffectQuery::MakeQuery_MatchAnyOwningTags(GrantedTags);
 
     ASC->RemoveActiveEffects(Query);
+}
+
+const FGameplayTagContainer FGameplayAbilityHelper::GetAllChildTag(const FGameplayTag ParentTag)
+{
+    return UGameplayTagsManager::Get().RequestGameplayTagChildren(ParentTag);
 }

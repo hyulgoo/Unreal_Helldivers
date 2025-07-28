@@ -21,13 +21,13 @@ void UHDGA_WeaponTrigger::ActivateAbility(const FGameplayAbilitySpecHandle Handl
 	WeaponInterface = ActorInfo->AvatarActor.Get();
 	NULL_CHECK(WeaponInterface);
 
-	if (CurrentTagContainer.HasTagExact(HDTAG_INPUT_FIRE))
+	if (CurrentTagContainer.HasTagExact(HDTAG_TRIGGER_ATTACK))
 	{
 		WeaponInterface->Attack(true);
         SavedDelay = WeaponInterface->GetWeaponFireDelay();
 		SetAbilityTimer();
 	}
-	else if (CurrentTagContainer.HasTagExact(HDTAG_INPUT_RELOAD))
+	else if (CurrentTagContainer.HasTagExact(HDTAG_TRIGGER_RELOAD))
 	{
         SavedDelay = WeaponInterface->Reload();
 		SetAbilityTimer();
@@ -43,11 +43,11 @@ void UHDGA_WeaponTrigger::EndAbility(const FGameplayAbilitySpecHandle Handle, co
 
 	NULL_CHECK(WeaponInterface);
 
-	if (CurrentTagContainer.HasTagExact(HDTAG_INPUT_FIRE))
+	if (CurrentTagContainer.HasTagExact(HDTAG_TRIGGER_ATTACK))
 	{
 		WeaponInterface->Attack(false);
 	}
-	else if (CurrentTagContainer.HasTagExact(HDTAG_INPUT_RELOAD))
+	else if (CurrentTagContainer.HasTagExact(HDTAG_TRIGGER_RELOAD))
 	{
 		WeaponInterface->ReloadFinished();
 	}
@@ -62,14 +62,14 @@ void UHDGA_WeaponTrigger::OnDelayCompleted()
 
 	NULL_CHECK(WeaponInterface);
 
-	if (CurrentTagContainer.HasTagExact(HDTAG_INPUT_FIRE))
+	if (CurrentTagContainer.HasTagExact(HDTAG_TRIGGER_ATTACK))
 	{
 		if (WeaponInterface->FireFinished())
 		{
 			SetAbilityTimer();
 		}
 	}
-	else if (CurrentTagContainer.HasTagExact(HDTAG_INPUT_RELOAD))
+	else if (CurrentTagContainer.HasTagExact(HDTAG_TRIGGER_RELOAD))
 	{
 		const bool bReplicatedEndAbility = true;
 		const bool bWasCancelled = true;

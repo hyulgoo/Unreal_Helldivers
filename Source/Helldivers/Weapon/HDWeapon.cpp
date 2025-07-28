@@ -214,7 +214,7 @@ const float AHDWeapon::GetZoomInterpSpeed() const
 
 void AHDWeapon::Reload(const bool bIsShoulder)
 {
-	CONDITION_CHECK(WeaponAnimationMap.Num() != static_cast<int32>(EHDWeaponAnimationType::Count));
+	CONDITION_CHECK(WeaponAnimationMap.Num() == static_cast<int32>(EHDWeaponAnimationType::Count));
 
 	UAnimationAsset* ReloadAnim = bIsShoulder ? WeaponAnimationMap[EHDWeaponAnimationType::Reload_Aim] : WeaponAnimationMap[EHDWeaponAnimationType::Reload_Hip];
 	NULL_CHECK(ReloadAnim);

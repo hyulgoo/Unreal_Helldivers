@@ -1,17 +1,33 @@
 #pragma once
 
 #include "HDInputActionData.h"
+#include "Define/HDGameplayTag.h"
+#include "AbilitySystem/GameplayAbilityHelper.h"
 
 FHDInputAction::FHDInputAction()
     : InputAction(nullptr)
     , InputTag(FGameplayTag::EmptyTag)
+    , AbilityTriggerTag(FGameplayTag::EmptyTag)
     , TriggerType(EHDTriggerType::None)
+{
+}
+
+FHDInputAction::FHDInputAction(UInputAction* NewInputAction, const FGameplayTag& NewInputTag, const FGameplayTag& NewAbilityTriggerTag, const EHDTriggerType  NewTriggerType)
+    : InputAction(NewInputAction)
+    , InputTag(NewInputTag)
+    , AbilityTriggerTag(NewAbilityTriggerTag)
+    , TriggerType(NewTriggerType)
 {
 }
 
 UHDInputData::UHDInputData()
     : AbilityInputActions{}
 {
+    const FGameplayTagContainer ChildTags = FGameplayAbilityHelper::GetAllChildTag(HDTAG_INPUT);
+    for (const FGameplayTag& ChildTag : ChildTags)
+    {
+        AbilityInputActions.Add(FHDInputAction(nullptr, ChildTag, FGameplayTag::EmptyTag, EHDTriggerType::None));
+    }
 }
 
 const FGameplayTag UHDInputData::GetInputTagByTriggerTag(const FGameplayTag& TriggerTag)

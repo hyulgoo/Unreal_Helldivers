@@ -2,7 +2,6 @@
 
 #include "HDGC_Base.h"
 #include "Kismet/GameplayStatics.h"
-#include "Particles/ParticleSystem.h"
 #include "NiagaraFunctionLibrary.h"
 #include "Define/HDDefine.h"
 
@@ -36,8 +35,8 @@ bool UHDGC_Base::OnExecute_Implementation(AActor* Target, const FGameplayCuePara
 
 void UHDGC_Base::PlayNiagaraSystem(AActor* Target, const FGameplayCueParameters& Parameters) const
 {
-    NULL_CHECK(Target);
-    CONDITION_CHECK(NiagaraSystems.IsEmpty());
+    VALID_CHECK(Target);
+    CONDITION_CHECK_WITHOUT_LOG(NiagaraSystems.IsEmpty() == false);
 
     const int32 Index = FMath::RandRange(0, NiagaraSystems.Num() - 1);
     UNiagaraFunctionLibrary::SpawnSystemAtLocation(Target, NiagaraSystems[Index], Parameters.Location, Parameters.Normal.Rotation(), FVector(ParticleScale));
@@ -45,8 +44,8 @@ void UHDGC_Base::PlayNiagaraSystem(AActor* Target, const FGameplayCueParameters&
 
 void UHDGC_Base::PlayParticleSystem(AActor* Target, const FGameplayCueParameters& Parameters) const
 {
-    NULL_CHECK(Target);
-    CONDITION_CHECK(ParticleSystems.IsEmpty());
+    VALID_CHECK(Target);
+    CONDITION_CHECK_WITHOUT_LOG(ParticleSystems.IsEmpty() == false);
 
     const int32 Index = FMath::RandRange(0, ParticleSystems.Num() - 1);
     UGameplayStatics::SpawnEmitterAtLocation(Target, ParticleSystems[Index], Parameters.Location, Parameters.Normal.Rotation(), FVector(ParticleScale));
@@ -54,8 +53,8 @@ void UHDGC_Base::PlayParticleSystem(AActor* Target, const FGameplayCueParameters
 
 void UHDGC_Base::PlaySound(AActor* Target, const FGameplayCueParameters& Parameters) const
 {
-    NULL_CHECK(Target);
-    CONDITION_CHECK(EffectSounds.IsEmpty());
+    VALID_CHECK(Target);
+    CONDITION_CHECK_WITHOUT_LOG(EffectSounds.IsEmpty() == false);
 
     const int32 Index = FMath::RandRange(0, EffectSounds.Num() - 1);
     UGameplayStatics::PlaySoundAtLocation(Target, EffectSounds[Index], Parameters.Location, SoundVolume);
