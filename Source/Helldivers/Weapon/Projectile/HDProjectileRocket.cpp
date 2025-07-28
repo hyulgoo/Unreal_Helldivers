@@ -23,11 +23,11 @@ void AHDProjectileRocket::BeginPlay()
 
 	CollisionBox->OnComponentHit.AddDynamic(this, &AHDProjectileRocket::OnBoxHit);
 
-	if (ProjectileLoop && LoopingSoundAttenuation)
-	{
-		ProjectileLoopComponent = UGameplayStatics::SpawnSoundAttached(ProjectileLoop, GetRootComponent(), FName(), GetActorLocation(),
-			EAttachLocation::KeepWorldPosition, false, 1.f, 1.f, 0.f, LoopingSoundAttenuation, nullptr, false);
-	}
+	//if (ProjectileLoop && LoopingSoundAttenuation)
+	//{
+	//	ProjectileLoopComponent = UGameplayStatics::SpawnSoundAttached(ProjectileLoop, GetRootComponent(), FName(), GetActorLocation(),
+	//		EAttachLocation::KeepWorldPosition, false, 1.f, 1.f, 0.f, LoopingSoundAttenuation, nullptr, false);
+	//}
 }
 
 void AHDProjectileRocket::OnBoxHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent, FVector NormalImpulse, const FHitResult& Hit)

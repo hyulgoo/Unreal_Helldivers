@@ -1,3 +1,3 @@
 
-#include "Interface/HDWeaponInterface.h"
+#include "HDWeaponInterface.h"
 

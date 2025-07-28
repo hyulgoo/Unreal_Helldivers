@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "Weapon/WeaponTypes.h"
+#include "GameplayTagContainer.h"
 #include "HDWeapon.generated.h"
 
 UENUM()
@@ -31,7 +32,6 @@ enum class EHDWeaponAnimationType: uint8
 class USphereComponent;
 class UHDWeaponAttributeSet;
 class UTexture2D;
-class USoundCue;
 class UAnimationAsset;
 class AHDCasing;
 class AHDProjectileBase;
@@ -113,8 +113,8 @@ protected:
     TMap<EHDWeaponAnimationType,TObjectPtr<UAnimationAsset>> WeaponAnimationMap;
     
     UPROPERTY(EditAnywhere, Category = "Weapon|Default")
-    TObjectPtr<USoundCue>               EquipSound;
-
+    FGameplayTag                        EquipSoundTag;
+    
     UPROPERTY(EditAnywhere, Category = "Weapon|Default")
     TSubclassOf<AHDCasing>				CasingClass;
 

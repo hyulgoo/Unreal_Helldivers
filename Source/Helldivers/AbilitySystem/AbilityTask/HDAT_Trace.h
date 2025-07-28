@@ -16,27 +16,27 @@ class HELLDIVERS_API UHDAT_Trace : public UAbilityTask
 	GENERATED_BODY()
 	
 public:
-	explicit UHDAT_Trace() = default;
+	explicit            UHDAT_Trace() = default;
 
 	UFUNCTION(BlueprintCallable, Category = "Ability|Tasks", meta = (DisplayName = "WaitForTrace", HidePin = "OwningAbility", DefaultToSelf = "OwningAbility", BlueprintInternalUseOnly = "TRUE"))
-	static UHDAT_Trace* CreateTask(UGameplayAbility* OwningAbility, TSubclassOf<AHDTA_Trace> TargetActor);
-	virtual void Activate() override;
-	virtual void OnDestroy(bool AbilityEnded) override;
+	static UHDAT_Trace*         CreateTask(UGameplayAbility* OwningAbility, TSubclassOf<AHDTA_Trace> TargetActor);
+	virtual void                Activate() override;
+	virtual void                OnDestroy(bool AbilityEnded) override;
 
-	void SpawnAndInitializeTargetActor();
-	void FinalizeTargetActor();
+	void                        SpawnAndInitializeTargetActor();
+	void                        FinalizeTargetActor();
 
 protected:
-	void OnTargetDataReadyCallback(const FGameplayAbilityTargetDataHandle& DataHandle);
+	void                        OnTargetDataReadyCallback(const FGameplayAbilityTargetDataHandle& DataHandle);
 
 public:
 	UPROPERTY(BlueprintAssignable)
-	FTraceResultDelegate OnComplete;
+	FTraceResultDelegate        OnComplete;
 
 protected:
 	UPROPERTY()
-	TSubclassOf<AHDTA_Trace> TargetActorClass;
+	TSubclassOf<AHDTA_Trace>    TargetActorClass;
 
 	UPROPERTY()
-	TObjectPtr<AHDTA_Trace> SpawnedTargetActor;
+	TObjectPtr<AHDTA_Trace>     SpawnedTargetActor;
 };

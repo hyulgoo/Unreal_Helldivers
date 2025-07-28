@@ -4,9 +4,10 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "GameplayTagContainer.h"
 #include "HDCasing.generated.h"
 
-class USoundCue;
+struct FGameplayTag;
 
 UCLASS()
 class HELLDIVERS_API AHDCasing : public AActor
@@ -27,8 +28,8 @@ private:
 	TObjectPtr<UStaticMeshComponent>	CasingMesh;
     
 	UPROPERTY(EditDefaultsOnly)
-	TObjectPtr<USoundCue>				ShellSound;
-
+    FGameplayTag				        ShellSoundTag;
+    
 	UPROPERTY(EditDefaultsOnly)
 	float								ShellEjectionImpulse;
 };

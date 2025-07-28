@@ -18,7 +18,7 @@ AHDWeapon::AHDWeapon()
     , WeaponMesh(nullptr)
     , AreaSphere(nullptr)
 	, WeaponAnimationMap{}
-    , EquipSound(nullptr)
+    , EquipSoundTag(FGameplayTag::EmptyTag)
     , CasingClass(nullptr)
     , WeaponIconImage(nullptr)
     , FireDelay(0.f)

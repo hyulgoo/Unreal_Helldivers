@@ -32,12 +32,3 @@ void UHDHealthAttributeSet::PostAttributeChange(const FGameplayAttribute& Attrib
 		}
 	}
 }
-
-bool UHDHealthAttributeSet::PreGameplayEffectExecute(FGameplayEffectModCallbackData& Data)
-{
-	return true;
-}
-
-void UHDHealthAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallbackData& Data)
-{	
-}

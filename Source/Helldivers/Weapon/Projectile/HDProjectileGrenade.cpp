@@ -2,12 +2,11 @@
 
 #include "Weapon/Projectile/HDProjectileGrenade.h"
 #include "GameFramework/ProjectileMovementComponent.h"
-#include "Sound/SoundCue.h"
-#include "Kismet/GameplayStatics.h"
 #include "Define/HDDefine.h"
+#include "AbilitySystem/GameplayAbilityHelper.h"
 
 AHDProjectileGrenade::AHDProjectileGrenade()
-    : BounceSound(nullptr)
+    : BounceSoundTag(FGameplayTag::EmptyTag)
 {
     ProjectileMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Grenade Mesh"));
     ProjectileMesh->SetupAttachment(RootComponent);
@@ -31,7 +30,7 @@ void AHDProjectileGrenade::BeginPlay()
 
 void AHDProjectileGrenade::OnBounce(const FHitResult& ImpactResult, const FVector& ImpactVelocity)
 {
-    NULL_CHECK(BounceSound);
+    CONDITION_CHECK(BounceSoundTag.IsValid());
 
-    UGameplayStatics::PlaySoundAtLocation(this, BounceSound, GetActorLocation());
+    FGameplayAbilityHelper::ExcuteGameplayCue(BounceSoundTag, GetActorLocation(), FVector::ZeroVector, GetOwner());
 }

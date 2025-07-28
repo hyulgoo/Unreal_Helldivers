@@ -8,14 +8,14 @@
 #include "Components/BoxComponent.h"
 #include "Camera/CameraComponent.h"
 #include "Camera/CameraShakeSourceComponent.h"
-#include "AbilitySystemComponent.h"
 #include "Kismet/GameplayStatics.h"
+#include "GameFramework/SpringArmComponent.h"
 #include "Define/HDDefine.h"
 #include "Player/HDGASPlayerState.h"
 #include "Character/Player/HDCharacterPlayer.h"
 #include "Collision/HDCollision.h"
 #include "Controller/HDPlayerController.h"
-#include "GameFramework/SpringArmComponent.h"
+#include "AbilitySystem/GameplayAbilityHelper.h"
 
 AHDHellpod::AHDHellpod()
 	: HellpodMesh(nullptr)
@@ -130,19 +130,12 @@ void AHDHellpod::OnBoxHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPri
 	CollisionBox->SetSimulatePhysics(false);
 	CollisionBox->SetEnableGravity(false);
 
-	AHDGASPlayerState* GASPlayerState = GetPlayerState<AHDGASPlayerState>();
-	NULL_CHECK(GASPlayerState);
-
-	UAbilitySystemComponent* PlayerStateASC = GASPlayerState->GetAbilitySystemComponent();
-	NULL_CHECK(PlayerStateASC);
-
 	SpawnCharacter();
 
-	FGameplayCueParameters Params;
-	Params.Location = Hit.ImpactPoint;
-	Params.Normal = Hit.Normal;
-	Params.SourceObject = this;
-	PlayerStateASC->ExecuteGameplayCue(ImpactTag, Params);
+    UAbilitySystemComponent* PlayerStateASC = FGameplayAbilityHelper::GetAbilitySystemComponentFromActor(GetPlayerState<AHDGASPlayerState>());
+    NULL_CHECK(PlayerStateASC);
+
+    FGameplayAbilityHelper::ExcuteGameplayCue(ImpactTag, Hit.ImpactPoint, Hit.Normal, PlayerStateASC);
 }
 
 void AHDHellpod::SpawnCharacter()

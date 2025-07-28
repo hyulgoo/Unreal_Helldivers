@@ -12,6 +12,6 @@ class HELLDIVERS_API UHDRocketMovementComponent : public UProjectileMovementComp
 	GENERATED_BODY()
 	
 public:
-	virtual EHandleBlockingHitResult HandleBlockingHit(const FHitResult& Hit, float TimeTick, const FVector& MoveDelta, float& SubTickTimeRemaining) override final;
-	virtual void HandleImpact(const FHitResult& Hit, float TimeSlice = 0.f, const FVector& MoveDelta = FVector::ZeroVector) override final;
+	virtual EHandleBlockingHitResult    HandleBlockingHit(const FHitResult& Hit, float TimeTick, const FVector& MoveDelta, float& SubTickTimeRemaining) override final;
+	virtual void                        HandleImpact(const FHitResult& Hit, float TimeSlice = 0.f, const FVector& MoveDelta = FVector::ZeroVector) override final;
 };

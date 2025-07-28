@@ -6,7 +6,6 @@
 #include "UObject/Interface.h"
 #include "HDCharacterRagdollInterface.generated.h"
 
-// This class does not need to be modified.
 UINTERFACE(MinimalAPI)
 class UHDCharacterRagdollInterface : public UInterface
 {
@@ -18,6 +17,6 @@ class HELLDIVERS_API IHDCharacterRagdollInterface
 	GENERATED_BODY()
 
 public:
-	virtual void							SetRagdoll(const bool bIsRagdell, const FVector& Impulse = FVector::ZeroVector) = 0;
-	virtual const float						GetRagdollPysicsLinearVelocity() const = 0;
+	virtual void		SetRagdoll(const bool bIsRagdell, const FVector& Impulse = FVector::ZeroVector) = 0;
+	virtual const float	GetRagdollPysicsLinearVelocity() const = 0;
 };

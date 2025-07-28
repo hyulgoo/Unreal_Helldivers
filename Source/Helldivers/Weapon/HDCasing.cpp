@@ -1,12 +1,11 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-#include "Weapon/HDCasing.h"
-#include "Kismet/GameplayStatics.h"
-#include "Sound/SoundCue.h"
+#include "HDCasing.h"
+#include "AbilitySystem/GameplayAbilityHelper.h"
 
 AHDCasing::AHDCasing()
 	: CasingMesh(nullptr)
-    , ShellSound(nullptr)
+    , ShellSoundTag(FGameplayTag::EmptyTag)
 	, ShellEjectionImpulse(10.f)
 {
 	PrimaryActorTick.bCanEverTick = true;
@@ -30,9 +29,9 @@ void AHDCasing::BeginPlay()
 
 void AHDCasing::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
-	if (ShellSound)
+	if (ShellSoundTag.IsValid())
 	{
-		UGameplayStatics::PlaySoundAtLocation(this, ShellSound, GetActorLocation());
+        FGameplayAbilityHelper::ExcuteGameplayCue(ShellSoundTag, GetActorLocation(), FVector::ZeroVector, OtherActor);
 	}
 
 	Destroy();
