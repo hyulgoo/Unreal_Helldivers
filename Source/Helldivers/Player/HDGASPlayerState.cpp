@@ -6,7 +6,7 @@
 AHDGASPlayerState::AHDGASPlayerState()
     : AbilitySystemComponent(nullptr)
 {
-    AbilitySystemComponent  = CreateDefaultSubobject<UHDAbilitySystemComponent>(TEXT("AbilitySystemComponent"));
+    AbilitySystemComponent = CreateDefaultSubobject<UHDAbilitySystemComponent>(TEXT("AbilitySystemComponent"));
 }
 
 UAbilitySystemComponent* AHDGASPlayerState::GetAbilitySystemComponent() const

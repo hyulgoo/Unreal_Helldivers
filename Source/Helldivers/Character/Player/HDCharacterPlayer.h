@@ -13,9 +13,8 @@
 class USpringArmComponent;
 class UCameraComponent;
 class UHDCombatComponent;
-class UHMovementStateComponent;
+class UHDMovementStateComponent;
 class UHDStratagemComponent;
-enum class EHDCombatState : uint8;
 enum class EHDTurningInPlace : uint8;
 enum class EHDCharacterMovementState : uint8;
 enum class EHDCharacterStanceState : uint8;
@@ -39,30 +38,19 @@ protected:
 	virtual void							SetRagdoll(const bool bRagdoll, const FVector& Impulse = FVector::ZeroVector) override final;
 
 	// WeaponInterface
-	virtual AHDWeapon*						GetWeapon() const override final;
+    virtual void                            EquipWeapon(AHDWeapon* NewWeapon) override final;
 	virtual const float                     GetWeaponFireDelay() const override final;
-	virtual const FVector&					GetHitTarget() const override final;
-	virtual const EHDCombatState			GetCombatState() const override final;
 	virtual void							Attack(const bool bActive) override final;
 	virtual const bool						FireFinished() override final;
     virtual void							SetWeaponActive(const bool bActive) override final;
 	virtual const float						Reload() override final;
 	virtual void							ReloadFinished() override;
 
-	void									SetCombatState(const EHDCombatState State);
 	const float 							Fire(const bool IsPressed);
 
 	// CharacterMovementInterface
-	virtual const float						GetAimOffset_Yaw() const override final;
-	virtual const float						GetAimOffset_Pitch() const override final;
-    virtual const bool						IsShouldering() const override final;
 	virtual void							SetShouldering(const bool bSetAiming) override final;
-	virtual const bool						IsCharacterLookingViewport() const override final;
-	virtual const EHDTurningInPlace			GetTurningInPlace() const override final;
-	virtual const bool						IsUseRotateBone() const override final;
-	virtual const EHDCharacterMovementState	GetMovementState() const override final;
 	virtual void							SetMovementState(const EHDCharacterMovementState NewState) override;
-	virtual const EHDCharacterStanceState	GetStanceState() const override;
 	virtual void							SetCharacterStanceState(const EHDCharacterStanceState NewState, const bool bForced = false);
 	virtual void							RestoreStanceState() override;
 
@@ -93,7 +81,7 @@ private:
 	TObjectPtr<UHDCombatComponent>			Combat;
 
 	UPROPERTY(EditDefaultsOnly)
-	TObjectPtr<UHMovementStateComponent>	MovementState;
+	TObjectPtr<UHDMovementStateComponent>	MovementState;
 
 	UPROPERTY(EditDefaultsOnly)
 	TObjectPtr<UHDStratagemComponent>		Stratagem;    

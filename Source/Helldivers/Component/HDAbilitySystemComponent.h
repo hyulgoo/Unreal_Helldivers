@@ -17,9 +17,9 @@ class HELLDIVERS_API UHDAbilitySystemComponent : public UAbilitySystemComponent
 public:
     explicit    UHDAbilitySystemComponent();
 
-    void	    AbilityInputTagTriggered(const FGameplayTag Tag);
-    void	    AbilityInputTagReleased(const FGameplayTag Tag);
-    void	    AbilityInputTagToggled(const FGameplayTag Tag);
+    void	    AbilityInputTagTriggered(const FGameplayTag AssetTag);
+    void	    AbilityInputTagReleased(const FGameplayTag AssetTag);
+    void	    AbilityInputTagToggled(const FGameplayTag AssetTag);
 
     void	    InitAttributeSet();
     void        SetAttributeSetStat(FHDCharacterAttributeData* StatData, TSubclassOf<UGameplayEffect> InitAttributeStatEffect);

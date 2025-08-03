@@ -28,7 +28,7 @@ public:
     void                                    SpawnDefaultWeapon();
     void                                    EquipWeapon(AHDWeapon* NewWeapon);
 
-    AHDWeapon*                              GetWeapon() const;
+    USkeletalMeshComponent*                 GetWeaponMesh() const;
     void                                    SetWeaponActive(const bool bActive);
     const EHDFireType                       GetWeaponFireType() const;
     const float                             GetWeaponFireDelay() const;

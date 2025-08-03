@@ -131,8 +131,10 @@ void AHDHellpod::OnBoxHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPri
 	CollisionBox->SetEnableGravity(false);
 
 	SpawnCharacter();
+    AHDGASPlayerState* GASPlayerState = GetPlayerState<AHDGASPlayerState>();
+    NULL_CHECK(GASPlayerState);
 
-    UAbilitySystemComponent* PlayerStateASC = FGameplayAbilityHelper::GetAbilitySystemComponentFromActor(GetPlayerState<AHDGASPlayerState>());
+    UAbilitySystemComponent* PlayerStateASC = GASPlayerState->GetAbilitySystemComponent();
     NULL_CHECK(PlayerStateASC);
 
     FGameplayAbilityHelper::ExcuteGameplayCue(ImpactTag, Hit.ImpactPoint, Hit.Normal, PlayerStateASC);

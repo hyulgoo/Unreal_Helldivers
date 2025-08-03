@@ -9,6 +9,8 @@
 
 class ACharacter;
 class UCharacterMovementComponent;
+class UHDCombatComponent;
+class UHDMovementStateComponent;
 enum class EHDCombatState : uint8;
 
 UCLASS()
@@ -28,7 +30,13 @@ protected:
     TObjectPtr<ACharacter>					Owner;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Movement")
-	TObjectPtr<UCharacterMovementComponent> Movement;
+	TObjectPtr<UCharacterMovementComponent> CharacterMovement;
+    
+	UPROPERTY(BlueprintReadOnly, Category = "MovementState")
+	TObjectPtr<UHDMovementStateComponent>   MovementState;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Combat")
+	TObjectPtr<UHDCombatComponent>          Combat;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Movement")
 	FVector									Velocity;

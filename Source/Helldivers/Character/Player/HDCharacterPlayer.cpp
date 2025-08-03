@@ -37,7 +37,7 @@ AHDCharacterPlayer::AHDCharacterPlayer()
     FollowCamera->bUsePawnControlRotation = false;
 
     Combat          = CreateDefaultSubobject<UHDCombatComponent>(TEXT("Combat"));
-    MovementState   = CreateDefaultSubobject<UHMovementStateComponent>(TEXT("Movement"));
+    MovementState   = CreateDefaultSubobject<UHDMovementStateComponent>(TEXT("Movement"));
     Stratagem       = CreateDefaultSubobject<UHDStratagemComponent>(TEXT("Stratagem"));
 }
 
@@ -63,10 +63,15 @@ void AHDCharacterPlayer::SetRagdoll(const bool bRagdoll, const FVector& Impulse)
         SetCharacterStanceState(EHDCharacterStanceState::Prone, true);
 
         GetWorldTimerManager().SetTimerForNextTick(FTimerDelegate::CreateLambda([this]() {
-            SetCombatState(EHDCombatState::Unoccupied);
+            Combat->SetCombatState(EHDCombatState::Unoccupied);
             }
         ));
     }
+}
+
+void AHDCharacterPlayer::EquipWeapon(AHDWeapon* NewWeapon)
+{
+    Combat->EquipWeapon(NewWeapon);
 }
 
 void AHDCharacterPlayer::SetWeaponActive(const bool bActive)
@@ -117,44 +122,9 @@ void AHDCharacterPlayer::ReloadFinished()
     FGameplayAbilityHelper::SendGameplayEventToSelf(HDTAG_EVENT_PLAYERHUD_CAPACITYCHANGE, GetAbilitySystemComponent());
 }
 
-const float AHDCharacterPlayer::GetAimOffset_Yaw() const
-{
-    return Combat->GetAimOffset_Yaw();
-}
-
-const float AHDCharacterPlayer::GetAimOffset_Pitch() const
-{
-    return Combat->GetAimOffset_Pitch();
-}
-
-const bool AHDCharacterPlayer::IsShouldering() const
-{
-	return Combat->IsShoulder();
-}
-
 void AHDCharacterPlayer::SetShouldering(const bool bShoulder)
 {
     Combat->SetShoulder(bShoulder);   
-}
-
-const bool AHDCharacterPlayer::IsCharacterLookingViewport() const
-{
-    return Combat->IsCharacterLookingViewport();
-}
-
-const EHDTurningInPlace AHDCharacterPlayer::GetTurningInPlace() const
-{
-    return Combat->GetTurnInPlace();
-}
-
-const bool AHDCharacterPlayer::IsUseRotateBone() const
-{
-    return Combat->IsUseRotateBone();
-}
-
-AHDWeapon* AHDCharacterPlayer::GetWeapon() const
-{
-    return Combat->GetWeapon();
 }
 
 const float AHDCharacterPlayer::GetWeaponFireDelay() const
@@ -162,24 +132,9 @@ const float AHDCharacterPlayer::GetWeaponFireDelay() const
     return Combat->GetWeaponFireDelay();
 }
 
-const FVector& AHDCharacterPlayer::GetHitTarget() const
-{
-    return Combat->GetHitTarget();
-}
-
-const EHDCombatState AHDCharacterPlayer::GetCombatState() const
-{
-    return Combat->GetCombatState();
-}
-
-void AHDCharacterPlayer::SetCombatState(const EHDCombatState State)
-{
-    Combat->SetCombatState(State);
-}
-
 void AHDCharacterPlayer::Attack(const bool bActive)
 {
-    const EHDCombatState CombatState = GetCombatState();
+    const EHDCombatState CombatState = Combat->GetCombatState();
     if (CombatState == EHDCombatState::Unoccupied || CombatState == EHDCombatState::Fire)
     {
         Fire(bActive);
@@ -189,7 +144,7 @@ void AHDCharacterPlayer::Attack(const bool bActive)
         // TODO(25/03/27)  추후 Crouch 등 다른 자세 생기면 해당 섹션으로 점프하기
         // 실제 AddImpulse는 AnimNotify에서 DetachTiming에 함
         PlayAnimMontage(Combat->GetCombatMontage(EHDCombatMontage::Throw));
-        SetCombatState(EHDCombatState::Throwing);
+        Combat->SetCombatState(EHDCombatState::Throwing);
     }
 }
 
@@ -276,11 +231,6 @@ void AHDCharacterPlayer::InputStratagemCommand(const FInputActionValue& Value)
     }
 }
 
-const EHDCharacterMovementState AHDCharacterPlayer::GetMovementState() const
-{
-    return MovementState->GetMovementState();
-}
-
 void AHDCharacterPlayer::SetMovementState(const EHDCharacterMovementState NewState)
 {
     MovementState->SetMovementState(NewState);
@@ -289,17 +239,12 @@ void AHDCharacterPlayer::SetMovementState(const EHDCharacterMovementState NewSta
     GetCharacterMovement()->MaxWalkSpeed = NewSpeed;
 }
 
-const EHDCharacterStanceState AHDCharacterPlayer::GetStanceState() const
-{
-    return MovementState->GetStanceState();
-}
-
 void AHDCharacterPlayer::SetCharacterStanceState(const EHDCharacterStanceState NewState, const bool bForced)
 {
     MovementState->SetStanceState(NewState, bForced);
 	if (bForced)
 	{
-        SetCombatState(NewState == EHDCharacterStanceState::Prone ? EHDCombatState::Ragdoll : EHDCombatState::Unoccupied);
+        Combat->SetCombatState(NewState == EHDCharacterStanceState::Prone ? EHDCombatState::Ragdoll : EHDCombatState::Unoccupied);
     }
 
     const float NewSpeed = GetMoveSpeedByState(NewState, MovementState->GetMovementState());
@@ -317,19 +262,19 @@ void AHDCharacterPlayer::RestoreStanceState()
 void AHDCharacterPlayer::DetachStratagemWhileThrow()
 {
     Stratagem->ThrowFinished();
-    SetCombatState(EHDCombatState::Unoccupied);
+    Combat->SetCombatState(EHDCombatState::Unoccupied);
     SetWeaponActive(true);
 }
 
 void AHDCharacterPlayer::TryHoldStratagem()
 {   
-    const bool CanHoldStrategem = Stratagem->IsSelectedStratagemExist() && GetCombatState() != EHDCombatState::HoldStratagem;
+    const bool CanHoldStrategem = Stratagem->IsSelectedStratagemExist() && Combat->GetCombatState() != EHDCombatState::HoldStratagem;
     if (CanHoldStrategem)
     {
-        Stratagem->HoldStratagem(GetMesh(), GetHitTarget());
+        Stratagem->HoldStratagem(GetMesh(), Combat->GetHitTarget());
         SetWeaponActive(false);
 
-        SetCombatState(EHDCombatState::HoldStratagem);
+        Combat->SetCombatState(EHDCombatState::HoldStratagem);
     }
     else
     {
@@ -341,13 +286,10 @@ void AHDCharacterPlayer::TryHoldStratagem()
 
 void AHDCharacterPlayer::CancleStratagem()
 {
-    if (Combat->GetCombatState() != EHDCombatState::HoldStratagem)
-    {
-        return;
-    }
+    CONDITION_CHECK_WITHOUT_LOG(Combat->GetCombatState() != EHDCombatState::HoldStratagem);
 
     Stratagem->CancelStratagem();
-    SetCombatState(EHDCombatState::Unoccupied);
+    Combat->SetCombatState(EHDCombatState::Unoccupied);
 }
 
 void AHDCharacterPlayer::InitAbilitySystemComponent()
@@ -360,7 +302,7 @@ void AHDCharacterPlayer::InitAbilitySystemComponent()
 
 void AHDCharacterPlayer::InterpFOV(float DeltaSeconds)
 {
-    const bool bIsShoulder = IsShouldering();
+    const bool bIsShoulder = Combat->IsShoulder();
     const float TargetFOV = bIsShoulder ? Combat->GetWeaponZoomedFOV() : Combat->GetDefaultFOV();
     const float InterpSpeed = bIsShoulder ? Combat->GetWeaponZoomInterpSpeed() : Combat->GetZoomInterpSpeed();
     const float NewInterpFOV = FMath::FInterpTo(Combat->GetCurrentFOV(), TargetFOV, DeltaSeconds, InterpSpeed);
@@ -381,14 +323,12 @@ const float AHDCharacterPlayer::Fire(const bool IsPressed)
         return 0.f;
     }
 
-    Combat->SetCombatState(EHDCombatState::Fire);
-
     switch (Combat->GetWeaponFireType())
     {
     case EHDFireType::HitScan:
     case EHDFireType::Projectile:
     {
-        const FName SectionName = IsShouldering() ? HDMONTAGE_SECTIONNAME_RIFLE_AIM : HDMONTAGE_SECTIONNAME_RIFLE_HIP;
+        const FName SectionName = Combat->IsShoulder() ? HDMONTAGE_SECTIONNAME_RIFLE_AIM : HDMONTAGE_SECTIONNAME_RIFLE_HIP;
         PlayAnimMontage(Combat->GetCombatMontage(EHDCombatMontage::Fire), 1.f, SectionName);
     }
     break;

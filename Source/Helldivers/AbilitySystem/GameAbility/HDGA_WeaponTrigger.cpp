@@ -3,6 +3,7 @@
 #include "HDGA_WeaponTrigger.h"
 #include "Abilities/Tasks/AbilityTask_WaitDelay.h"
 #include "Interface/HDWeaponInterface.h"
+#include "AbilitySystem/AbilityTask/HDAT_PlayMontageAndWaitForEvent.h"
 
 UHDGA_WeaponTrigger::UHDGA_WeaponTrigger()
 	: WeaponInterface(nullptr)

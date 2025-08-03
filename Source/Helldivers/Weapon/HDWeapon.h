@@ -6,18 +6,8 @@
 #include "GameFramework/Actor.h"
 #include "Weapon/WeaponTypes.h"
 #include "GameplayTagContainer.h"
+#include "GameData/HDWeaponData.h"
 #include "HDWeapon.generated.h"
-
-UENUM()
-enum class ECrosshair : uint8
-{
-    Center,
-    Left,
-    Right,
-    Top,
-    Bottom,
-    Count
-};
 
 UENUM(BlueprintType)
 enum class EHDWeaponAnimationType: uint8
@@ -31,7 +21,6 @@ enum class EHDWeaponAnimationType: uint8
 
 class USphereComponent;
 class UHDWeaponAttributeSet;
-class UTexture2D;
 class UAnimationAsset;
 class AHDCasing;
 class AHDProjectileBase;
@@ -88,15 +77,6 @@ private:
 protected:
     EHDFireType                         FireType;
 
-    UPROPERTY(EditAnywhere, Category = "Weapon|Crosshair")
-    TMap<ECrosshair, TObjectPtr<UTexture2D>>  CrosshaiTextureList;
-
-    UPROPERTY(EditAnywhere, Category = "Weapon|Zoom")
-    float                               ZoomedFOV;     
-    
-    UPROPERTY(EditAnywhere, Category = "Weapon|Zoom")
-    float                               ZoomInterpSpeed;
-
     UPROPERTY(EditAnywhere, Category = "Weapon|Default")
     TSubclassOf<AHDProjectileBase>      ProjectileClass;
 
@@ -117,33 +97,24 @@ protected:
     
     UPROPERTY(EditAnywhere, Category = "Weapon|Default")
     TSubclassOf<AHDCasing>				CasingClass;
-
-    UPROPERTY(EditAnywhere, Category = "Weapon|Default")
-    TObjectPtr<UTexture2D>				WeaponIconImage;
         
     UPROPERTY(EditAnywhere, Category = "Weapon|Default")
     float                               FireDelay;
-    
-    UPROPERTY(EditAnywhere, Category = "Weapon|Default")
-    float                               ErgonomicFactor;
-
-    UPROPERTY(EditAnywhere, Category = "Weapon|Current")
-    int32                               Ammo;
-    
-    UPROPERTY(EditAnywhere, Category = "Weapon|Default")
-    int32                               MaxAmmo;
-    
-    UPROPERTY(EditAnywhere, Category = "Weapon|Current")
-    int32                               Capacity;
-
-    UPROPERTY(EditAnywhere, Category = "Weapon|Default")
-    int32                               MaxCapacity;
-    
+        
     UPROPERTY(EditAnywhere, Category = "Weapon|Current")
     uint8                               bUseScatter : 1;
     
     UPROPERTY(EditAnywhere, Category = "Weapon|Default")
     uint8                               bIsAutoFire : 1;
+    
+    UPROPERTY(EditAnywhere, Category = "Weapon|Default")
+    FHDWeaponAmmoData                   AmmoData;
+    
+    UPROPERTY(EditAnywhere, Category = "Weapon|Default")
+    FHDWeaponErgoData                   ErgoData;
+
+    UPROPERTY(EditAnywhere, Category = "Weapon|Default")
+    FHDWeaponUIData                     UIData;
 
     EWeaponState                        WeaponState;
     FTimerHandle                        ReloadTimer;

@@ -4,17 +4,18 @@
 #include "HDAnimInstance.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
-#include "Interface/HDCharacterMovementInterface.h"
-#include "Interface/HDWeaponInterface.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "Component/HDCombatComponent.h"
+#include "Component/HDMovementStateComponent.h"
 #include "Character/CharacterTypes/HDCharacterStateTypes.h"
-#include "Weapon/HDWeapon.h"
 #include "Define/HDDefine.h"
 #include "Define/HDSocketNames.h"
 
 UHDAnimInstance::UHDAnimInstance()
 	: Owner(nullptr)
-	, Movement(nullptr)
+	, CharacterMovement(nullptr)
+    , MovementState(nullptr)
+    , Combat(nullptr)
 	, Velocity(FVector::ZeroVector)
 	, GroundSpeed(0.f)
 	, MovingThreshould(0.f)
@@ -55,21 +56,27 @@ void UHDAnimInstance::NativeInitializeAnimation()
 	Owner = Cast<ACharacter>(GetOwningActor());
 	NULL_CHECK(Owner);
 
-	Movement = Owner->GetCharacterMovement();
-	NULL_CHECK(Movement);
+	CharacterMovement = Owner->GetCharacterMovement();
+	NULL_CHECK(CharacterMovement);
+
+    Combat = Owner->GetComponentByClass<UHDCombatComponent>();
+    NULL_CHECK(Combat);
+
+    MovementState = Owner->GetComponentByClass<UHDMovementStateComponent>();
+    NULL_CHECK(MovementState);
 }
 
 void UHDAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 {
 	Super::NativeUpdateAnimation(DeltaSeconds);
 
-	NULL_CHECK(Movement);
+	NULL_CHECK(CharacterMovement);
 
 	// Character Input State
-	Velocity = Movement->Velocity;
+	Velocity = CharacterMovement->Velocity;
 	GroundSpeed = Velocity.Size2D();
 	bIsIdle = GroundSpeed < MovingThreshould;
-	bIsFalling = Movement->IsFalling();
+	bIsFalling = CharacterMovement->IsFalling();
 	bIsJumping = bIsFalling & (Velocity.Z > JumpingThreshould);
 
 	// Character Yaw for strafing
@@ -85,42 +92,39 @@ void UHDAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 	const float Interp = FMath::FInterpTo(Lean, Target, DeltaSeconds, 6.f);
 	Lean = FMath::Clamp(Interp, -90.f, 90.f);
 
-	// MovementInterface
-	TScriptInterface<IHDCharacterMovementInterface> CharacterMovementInterface = Owner;
-	if (CharacterMovementInterface)
-	{
-        CharacterMovementState  = CharacterMovementInterface->GetMovementState();
-        CharacterStanceState    = CharacterMovementInterface->GetStanceState();
-		bIsShouldering		    = CharacterMovementInterface->IsShouldering();
-		AimOffset_Yaw		    = bIsShouldering ? 0.f : CharacterMovementInterface->GetAimOffset_Yaw();
-		AimOffset_Pitch		    = CharacterMovementInterface->GetAimOffset_Pitch();
-		bIsRotateRootBone	    = CharacterMovementInterface->IsUseRotateBone();
-		TurningInPlace		    = CharacterMovementInterface->GetTurningInPlace();
-		bIsLookingViewport	    = CharacterMovementInterface->IsCharacterLookingViewport();
-		YawOffset			    = bIsLookingViewport ? DeltaRotation.Yaw : 0.f;
-	}
-
-	// WeaponInterface
-	USkeletalMeshComponent* CharacterMesh = Owner->GetMesh();
-	TScriptInterface<IHDWeaponInterface> WeaponInterface = Owner;
-	VALID_CHECK(CharacterMesh);
-	NULL_CHECK(WeaponInterface);
-
-	CombatState = WeaponInterface->GetCombatState();
-	AHDWeapon* Weapon = WeaponInterface->GetWeapon();
-    if (Weapon)
+	// MovementState
+    if (MovementState)
     {
+        CharacterMovementState = MovementState->GetMovementState();
+        CharacterStanceState = MovementState->GetStanceState();
+        YawOffset = bIsLookingViewport ? DeltaRotation.Yaw : 0.f;
+    }
+
+    // Combat
+    if (Combat)
+    {
+        USkeletalMeshComponent* CharacterMesh = Owner->GetMesh();
+        VALID_CHECK(CharacterMesh);
+
+        bIsShouldering      = Combat->IsShoulder();
+        bIsRotateRootBone   = Combat->IsUseRotateBone();
+        bIsLookingViewport  = Combat->IsCharacterLookingViewport();
+        TurningInPlace      = Combat->GetTurnInPlace();
+        AimOffset_Yaw       = bIsShouldering ? 0.f : Combat->GetAimOffset_Yaw();
+        AimOffset_Pitch     = Combat->GetAimOffset_Pitch();
+        CombatState         = Combat->GetCombatState();
+
         if (CombatState != EHDCombatState::Unoccupied && CombatState != EHDCombatState::Fire && CombatState != EHDCombatState::Reloading)
         {
-            HitTarget = WeaponInterface->GetHitTarget();
+            HitTarget = Combat->GetHitTarget();
         }
         else
         {
-            USkeletalMeshComponent* WeaponMesh = Weapon->GetWeaponMesh();
+            USkeletalMeshComponent* WeaponMesh = Combat->GetWeaponMesh();
             NULL_CHECK(WeaponMesh);
 
             LeftHandTransform = WeaponMesh->GetSocketTransform(HDSOCKETNAME_LEFTHAND, ERelativeTransformSpace::RTS_World);
-            HitTarget = WeaponInterface->GetHitTarget();
+            HitTarget = Combat->GetHitTarget();
             FVector OutPosition;
             FRotator OutRotation;
             CharacterMesh->TransformToBoneSpace(HDBONENAME_RIGHTHAND, LeftHandTransform.GetLocation(), FRotator::ZeroRotator, OutPosition, OutRotation);
@@ -131,13 +135,8 @@ void UHDAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
             //const FRotator LookAtRotation = UKismetMathLibrary::FindLookAtRotation(MuzzleFlashSocketTransform.GetLocation(), HitTarget);
             //RightHandRotation = LookAtRotation;
         }
-        bUseFABRIK = (CombatState == EHDCombatState::Unoccupied || CombatState == EHDCombatState::Fire);
-    }
-    else
-    {
-        bUseFABRIK = false;
-    }
 
-    //bTransformRightHand = CombatState == EHDCombatState::ThrowingGrenade;
-    bIsUpperSlotValid = (CombatState == EHDCombatState::Fire || CombatState == EHDCombatState::Throwing);
+        bUseFABRIK = (CombatState == EHDCombatState::Unoccupied || CombatState == EHDCombatState::Fire);
+        bIsUpperSlotValid = (CombatState == EHDCombatState::Fire || CombatState == EHDCombatState::Throwing);
+    }
 }

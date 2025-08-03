@@ -7,7 +7,7 @@
 
 #define CHARACTERMOVESTATEZOFFSET 40.f
 
-UHMovementStateComponent::UHMovementStateComponent()
+UHDMovementStateComponent::UHDMovementStateComponent()
 	: StanceState(EHDCharacterStanceState::Idle)
 	, PrevStanceState(EHDCharacterStanceState::Idle)
     , MovementState(EHDCharacterMovementState::Idle)
@@ -15,12 +15,12 @@ UHMovementStateComponent::UHMovementStateComponent()
 {
 }
 
-const EHDCharacterStanceState UHMovementStateComponent::GetStanceState() const
+const EHDCharacterStanceState UHDMovementStateComponent::GetStanceState() const
 {
 	return StanceState;
 }
 
-void UHMovementStateComponent::SetStanceState(const EHDCharacterStanceState NewState, const bool bForced)
+void UHDMovementStateComponent::SetStanceState(const EHDCharacterStanceState NewState, const bool bForced)
 {
 	CONDITION_CHECK(NewState != EHDCharacterStanceState::Count);
 
@@ -30,7 +30,7 @@ void UHMovementStateComponent::SetStanceState(const EHDCharacterStanceState NewS
 	ChangeCameraZOffsetByCharacterMovementState(StanceState);
 }
 
-void UHMovementStateComponent::RestoreStanceState()
+void UHDMovementStateComponent::RestoreStanceState()
 {
 	if (StanceState == EHDCharacterStanceState::Crouch)
 	{
@@ -48,24 +48,24 @@ void UHMovementStateComponent::RestoreStanceState()
 	ChangeCameraZOffsetByCharacterMovementState(StanceState);
 }
 
-const EHDCharacterMovementState UHMovementStateComponent::GetMovementState() const
+const EHDCharacterMovementState UHDMovementStateComponent::GetMovementState() const
 {
     return MovementState;
 }
 
-void UHMovementStateComponent::SetMovementState(const EHDCharacterMovementState NewState)
+void UHDMovementStateComponent::SetMovementState(const EHDCharacterMovementState NewState)
 {
     CONDITION_CHECK(NewState != EHDCharacterMovementState::Count);
 
     MovementState = NewState;
 }
 
-void UHMovementStateComponent::SetSpringArmDefaultZOffset(const float ZOffset)
+void UHDMovementStateComponent::SetSpringArmDefaultZOffset(const float ZOffset)
 {
 	SpringArmZOffset = ZOffset;
 }
 
-void UHMovementStateComponent::ChangeCameraZOffsetByCharacterMovementState(const EHDCharacterStanceState State)
+void UHDMovementStateComponent::ChangeCameraZOffsetByCharacterMovementState(const EHDCharacterStanceState State)
 {
 	USpringArmComponent* SpringArm = GetOwner()->GetComponentByClass<USpringArmComponent>();
 	switch (State)

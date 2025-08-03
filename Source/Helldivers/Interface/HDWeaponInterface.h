@@ -20,17 +20,14 @@ class HELLDIVERS_API IHDWeaponInterface
 	GENERATED_BODY()
 
 public:
-	virtual AHDWeapon*				GetWeapon() const = 0;
-	virtual const float				GetWeaponFireDelay() const = 0;
+    virtual void        EquipWeapon(AHDWeapon* NewWeapon) = 0;
+	virtual const float	GetWeaponFireDelay() const = 0;
 
-	virtual const FVector&			GetHitTarget() const = 0;
-	virtual const EHDCombatState	GetCombatState() const = 0;
+	virtual void		Attack(const bool bActive) = 0;
+	virtual const bool	FireFinished() = 0;
 
-	virtual void					Attack(const bool bActive) = 0;
-	virtual const bool				FireFinished() = 0;
+	virtual void		SetWeaponActive(const bool bActive) = 0;
 
-	virtual void					SetWeaponActive(const bool bActive) = 0;
-
-	virtual const float				Reload() = 0;
-	virtual void					ReloadFinished() = 0;
+	virtual const float	Reload() = 0;
+	virtual void		ReloadFinished() = 0;
 };

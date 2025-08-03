@@ -10,13 +10,13 @@ UHDAbilitySystemComponent::UHDAbilitySystemComponent()
 {
 }
 
-void UHDAbilitySystemComponent::AbilityInputTagTriggered(const FGameplayTag Tag)
+void UHDAbilitySystemComponent::AbilityInputTagTriggered(const FGameplayTag AssetTag)
 {
     TArray<FGameplayAbilitySpec>& ActivatebleAbilities = GetActivatableAbilities();
     for (FGameplayAbilitySpec& Spec : ActivatebleAbilities)
     {
         const FGameplayTagContainer& TagContainer = Spec.Ability->GetAssetTags();
-        if (TagContainer.IsValid() == false || TagContainer.HasTagExact(Tag) == false)
+        if (TagContainer.IsValid() == false || TagContainer.HasTagExact(AssetTag) == false)
         {
             continue;
         }
@@ -32,13 +32,13 @@ void UHDAbilitySystemComponent::AbilityInputTagTriggered(const FGameplayTag Tag)
     }
 }
 
-void UHDAbilitySystemComponent::AbilityInputTagReleased(const FGameplayTag Tag)
+void UHDAbilitySystemComponent::AbilityInputTagReleased(const FGameplayTag AssetTag)
 {
     TArray<FGameplayAbilitySpec>& ActivatebleAbilities = GetActivatableAbilities();
     for (FGameplayAbilitySpec& Spec : ActivatebleAbilities)
     {
         const FGameplayTagContainer& TagContainer = Spec.Ability->GetAssetTags();
-        if (TagContainer.IsValid() == false || TagContainer.HasTagExact(Tag) == false)
+        if (TagContainer.IsValid() == false || TagContainer.HasTagExact(AssetTag) == false)
         {
             continue;
         }
@@ -50,13 +50,13 @@ void UHDAbilitySystemComponent::AbilityInputTagReleased(const FGameplayTag Tag)
     }
 }
 
-void UHDAbilitySystemComponent::AbilityInputTagToggled(const FGameplayTag Tag)
+void UHDAbilitySystemComponent::AbilityInputTagToggled(const FGameplayTag AssetTag)
 {
     TArray<FGameplayAbilitySpec>& ActivatebleAbilities = GetActivatableAbilities();
     for (FGameplayAbilitySpec& Spec : ActivatebleAbilities)
     {
         const FGameplayTagContainer& TagContainer = Spec.Ability->GetAssetTags();
-        if (TagContainer.IsValid() == false || TagContainer.HasTagExact(Tag) == false)
+        if (TagContainer.IsValid() == false || TagContainer.HasTagExact(AssetTag) == false)
         {
             continue;
         }
@@ -74,10 +74,8 @@ void UHDAbilitySystemComponent::AbilityInputTagToggled(const FGameplayTag Tag)
 
 void UHDAbilitySystemComponent::InitAttributeSet()
 {
-	UHDHealthAttributeSet* HealthAttributeSet = NewObject<UHDHealthAttributeSet>(GetOwnerActor());
-	UHDSpeedAttributeSet* ApeedAttributeSet = NewObject<UHDSpeedAttributeSet>(GetOwnerActor());
-	AddAttributeSetSubobject(HealthAttributeSet);
-	AddAttributeSetSubobject(ApeedAttributeSet);
+    AddSet<UHDHealthAttributeSet>();
+    AddSet<UHDSpeedAttributeSet>();
 }
 
 void UHDAbilitySystemComponent::SetAttributeSetStat(FHDCharacterAttributeData* StatData, TSubclassOf<UGameplayEffect> InitAttributeStatEffect)

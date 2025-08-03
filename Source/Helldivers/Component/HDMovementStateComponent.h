@@ -10,12 +10,12 @@ enum class EHDCharacterStanceState : uint8;
 enum class EHDCharacterMovementState : uint8;
 
 UCLASS()
-class HELLDIVERS_API UHMovementStateComponent : public UActorComponent
+class HELLDIVERS_API UHDMovementStateComponent : public UActorComponent
 {
 	GENERATED_BODY()
 
 public:	
-	explicit						UHMovementStateComponent();
+	explicit						UHDMovementStateComponent();
 
 	const EHDCharacterStanceState	GetStanceState() const;
 	void							SetStanceState(const EHDCharacterStanceState NewState, const bool bForced = false);

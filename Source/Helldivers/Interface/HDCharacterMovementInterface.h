@@ -23,23 +23,8 @@ class HELLDIVERS_API IHDCharacterMovementInterface
 	GENERATED_BODY()
 
 public:
-	// Aiming
-	virtual const float						GetAimOffset_Yaw() const = 0;
-	virtual const float						GetAimOffset_Pitch() const = 0;
-
-	// Shouldering
-	virtual const bool						IsShouldering() const = 0;
-	virtual void							SetShouldering(const bool bSetAiming) = 0;
-	virtual const bool						IsCharacterLookingViewport() const = 0;
-
-	// Turn In Place
-	virtual const EHDTurningInPlace			GetTurningInPlace() const = 0;
-	virtual const bool						IsUseRotateBone() const = 0;
-
-	virtual const EHDCharacterMovementState	GetMovementState() const = 0;
-	virtual void							SetMovementState(const EHDCharacterMovementState NewState) = 0;
-
-	virtual const EHDCharacterStanceState   GetStanceState() const = 0;
-	virtual void							SetCharacterStanceState(const EHDCharacterStanceState NewState, const bool bForced = false) = 0;
-	virtual void							RestoreStanceState() = 0;
+	virtual void SetShouldering(const bool bSetAiming) = 0;
+	virtual void SetMovementState(const EHDCharacterMovementState NewState) = 0;
+	virtual void SetCharacterStanceState(const EHDCharacterStanceState NewState, const bool bForced = false) = 0;
+	virtual void RestoreStanceState() = 0;
 };
