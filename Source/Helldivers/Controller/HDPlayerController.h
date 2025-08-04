@@ -11,7 +11,6 @@ class ACharacter;
 class UInputAction;
 class UHDInputData;
 class UHDAbilitySystemComponent;
-class UHDGASPlayerUserWidget;
 class UHDStratagemHUDUserWidget;
 class UHDCharacterControlData;
 struct FInputActionValue;
@@ -51,10 +50,8 @@ private:
     void                                    ChangeCharacterControlType();
     void                                    SetCharacterControl(const EHDCharacterControlType NewCharacterControlType);
 
-
-    void									CreateHUDWidget(APawn* aPawn);
+    void									CreatePlayerWidget(APawn* aPawn);
 	void									SetAbilitySystemComponentBindEventCall(UHDAbilitySystemComponent* ASC);
-    void                                    OnPlayerHUDChanged(const FGameplayEventData* Payload);
     void                                    OnStratagemHUDChanged(const FGameplayEventData* Payload);
 
     void									Look(const FInputActionValue& Value);
@@ -66,16 +63,10 @@ private:
 
 	// Widget Section
 	UPROPERTY(EditDefaultsOnly, Category = "UI")
-	TSubclassOf<UHDGASPlayerUserWidget>		PlayerHUDWidgetClass;
+	TSubclassOf<UHDStratagemHUDUserWidget>	StratagemWidgetClass;
 	
 	UPROPERTY()
-	TObjectPtr<UHDGASPlayerUserWidget>		PlayerHUDWidget;
-	
-	UPROPERTY(EditDefaultsOnly, Category = "UI")
-	TSubclassOf<UHDStratagemHUDUserWidget>	StratagemHUDWidgetClass;
-	
-	UPROPERTY()
-	TObjectPtr<UHDStratagemHUDUserWidget>	StratagemHUDWidget;
+	TObjectPtr<UHDStratagemHUDUserWidget>	StratagemWidget;
 
     //Input
 	UPROPERTY(EditDefaultsOnly)

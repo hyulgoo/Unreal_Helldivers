@@ -10,7 +10,8 @@
 			"LoadingPhase": "PostDefault",
 			"AdditionalDependencies": [
 				"GameplayAbilities",
-				"EnhancedInput"
+				"EnhancedInput",
+				"Engine"
 			]
 		}
 	],

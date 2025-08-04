@@ -12,8 +12,6 @@
 #include "Define/HDGameplayTag.h"
 #include "HDCharacterBase.generated.h"
 
-class UHDCharacterControlData;
-class USkeletalMeshComponent;
 class UHDAbilitySystemComponent;
 class UGameplayAbility;
 class UGameplayEffect;
@@ -29,7 +27,7 @@ public:
 
 protected:
     virtual UAbilitySystemComponent*        GetAbilitySystemComponent() const override final;
-    void                                    SetAbilitySystemComponent(AActor* OwnerActor, UHDAbilitySystemComponent* ASC, const EHDCharacterType CharacterType);
+    void                                    SetAbilitySystemComponent(AActor* OwnerActor, UAbilitySystemComponent* ASC);
 
     template < class T >
     T*                                      GetAbilitySystemComponent() const { return Cast<T>(GetAbilitySystemComponent()); }

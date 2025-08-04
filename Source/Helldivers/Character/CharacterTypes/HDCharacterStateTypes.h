@@ -74,10 +74,3 @@ enum class EHDCombatMontage : uint8
     Throw,
 	Count,
 };
-
-UENUM(BlueprintType)
-enum class EHDCharacterType: uint8
-{
-	Player,
-    NPC,
-};

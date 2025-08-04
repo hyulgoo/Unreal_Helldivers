@@ -6,6 +6,7 @@
 #include "Components/TextBlock.h"
 #include "Components/Image.h"
 #include "Define/HDDefine.h"
+#include "Define//HDGameplayTag.h"
 
 void UHDGASPlayerUserWidget::SetAbilitySystemComponent(UAbilitySystemComponent* NewAbilitySystemComponent)
 {
@@ -14,40 +15,42 @@ void UHDGASPlayerUserWidget::SetAbilitySystemComponent(UAbilitySystemComponent* 
     NULL_CHECK(AbilitySystemComponent);
     
     AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(UHDHealthAttributeSet::GetCurrentHealthAttribute())
-        .AddUObject(this, &UHDGASPlayerUserWidget::OnHealthChangeds);
+        .AddUObject(this, &UHDGASPlayerUserWidget::OnHealthAttributeChangeds);
     AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(UHDHealthAttributeSet::GetMaxHealthAttribute())
-        .AddUObject(this, &UHDGASPlayerUserWidget::OnMaxHealthChangeds);
-    
+        .AddUObject(this, &UHDGASPlayerUserWidget::OnHealthAttributeChangeds);
+
+    AbilitySystemComponent->GenericGameplayEventCallbacks.FindOrAdd(HDTAG_EVENT_PLAYERHUD_AMMOCHANGE).AddUObject(this, &UHDGASPlayerUserWidget::OnAmmoCountChanged);
+    AbilitySystemComponent->GenericGameplayEventCallbacks.FindOrAdd(HDTAG_EVENT_PLAYERHUD_CAPACITYCHANGE).AddUObject(this, &UHDGASPlayerUserWidget::OnAmmoCountChanged);
+
     const UHDHealthAttributeSet* AttributeSet = AbilitySystemComponent->GetSet<UHDHealthAttributeSet>();
     NULL_CHECK(AttributeSet);
     
     CurrentHealth = AttributeSet->GetCurrentHealth();
     CurrentMaxHealth = AttributeSet->GetMaxHealth();
-    if (CurrentMaxHealth <= 0.f)
+    CONDITION_CHECK(CurrentMaxHealth > 0.f);
+
+    UpdateProgressbar(Pb_HPbar, CurrentHealth / CurrentMaxHealth);
+}
+
+void UHDGASPlayerUserWidget::OnHealthAttributeChangeds(const FOnAttributeChangeData& ChangeData)
+{
+    if(ChangeData.Attribute == UHDHealthAttributeSet::GetCurrentHealthAttribute())
     {
-        LOG(TEXT("MaxHealth is Invalid"));
-        return;
+        CurrentHealth = ChangeData.NewValue;
+    }
+    else if(ChangeData.Attribute == UHDHealthAttributeSet::GetMaxHealthAttribute())
+    {
+        CurrentMaxHealth = ChangeData.NewValue;
     }
 
     UpdateProgressbar(Pb_HPbar, CurrentHealth / CurrentMaxHealth);
 }
 
-void UHDGASPlayerUserWidget::OnHealthChangeds(const FOnAttributeChangeData& ChangeData)
-{
-    CurrentHealth = ChangeData.NewValue;
-    UpdateProgressbar(Pb_HPbar, CurrentHealth / CurrentMaxHealth);
-}
-
-void UHDGASPlayerUserWidget::OnMaxHealthChangeds(const FOnAttributeChangeData& ChangeData)
-{
-    CurrentMaxHealth = ChangeData.NewValue;
-    UpdateProgressbar(Pb_HPbar, CurrentHealth / CurrentMaxHealth);
-}
-
 void UHDGASPlayerUserWidget::SetChangedWeaponAmmoCountInfo(const int32 NewAmmoCount, const int32 NewMaxAmmoCount)
 {
-    MaxAmmoCount = NewMaxAmmoCount; 
-    OnAmmoCountChanged(NewAmmoCount);
+    MaxAmmoCount = NewMaxAmmoCount;
+    const float Ratio = static_cast<float>(NewAmmoCount) / static_cast<float>(MaxAmmoCount);
+    UpdateProgressbar(Pb_Ammo, Ratio);
 }
 
 void UHDGASPlayerUserWidget::SetChangedWeaponCapacityCountInfo(const int32 NewCapacityCount, const int32 NewMaxCapacityCount)
@@ -62,10 +65,18 @@ void UHDGASPlayerUserWidget::SetGrenadeCountInfo(const int32 NewGrenadeCount, co
     OnGrenadeCountChanged(NewGrenadeCount);
 }
 
-void UHDGASPlayerUserWidget::OnAmmoCountChanged(const int32 NewAmmoCount)
+void UHDGASPlayerUserWidget::OnAmmoCountChanged(const FGameplayEventData* PayLoad)
 {
-    const float Ratio = static_cast<float>(NewAmmoCount) / static_cast<float>(MaxAmmoCount);
-    UpdateProgressbar(Pb_Ammo, Ratio);
+    if (PayLoad->EventTag == HDTAG_EVENT_PLAYERHUD_AMMOCHANGE)
+    {
+        const float CurrentAmmoCount = PayLoad->EventMagnitude;
+        const float Ratio = CurrentAmmoCount / static_cast<float>(MaxAmmoCount);
+        UpdateProgressbar(Pb_Ammo, Ratio);
+    }
+    else if(PayLoad->EventTag == HDTAG_EVENT_PLAYERHUD_CAPACITYCHANGE)
+    {
+        OnCapacityCountChanged(static_cast<int32>(PayLoad->EventMagnitude));
+    }
 }
 
 void UHDGASPlayerUserWidget::OnCapacityCountChanged(const int32 NewCapacityCount)
@@ -85,12 +96,7 @@ void UHDGASPlayerUserWidget::OnGrenadeCountChanged(const int32 NewGrenadeCount)
 void UHDGASPlayerUserWidget::UpdateProgressbar(UProgressBar* Progressbar, const float Value)
 {
     NULL_CHECK(Progressbar);
-
-    if (Value < 0.f || Value > 1.f)
-    {
-        LOG(TEXT("Progressbar Value is Invalid"));
-        return;
-    }
+    CONDITION_CHECK(Value >= 0.f && Value <= 1.f);
 
     Progressbar->SetPercent(Value);
 }

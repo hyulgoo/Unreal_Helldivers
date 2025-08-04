@@ -33,7 +33,7 @@ void UHDAT_Trace::OnDestroy(bool AbilityEnded)
 
 void UHDAT_Trace::SpawnAndInitializeTargetActor()
 {
-	SpawnedTargetActor = Cast<AHDTA_Trace>(Ability->GetWorld()->SpawnActorDeferred<AGameplayAbilityTargetActor>(TargetActorClass, FTransform::Identity, nullptr, nullptr, ESpawnActorCollisionHandlingMethod::AlwaysSpawn));
+	SpawnedTargetActor = GetWorld()->SpawnActorDeferred<AHDTA_Trace>(TargetActorClass, FTransform::Identity, nullptr, nullptr, ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
 	if (SpawnedTargetActor)
 	{
 		SpawnedTargetActor->SetShowDebug(true);

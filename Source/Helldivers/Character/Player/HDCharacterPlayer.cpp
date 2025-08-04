@@ -8,8 +8,6 @@
 #include "Component/HDCombatComponent.h"
 #include "Component/HDMovementStateComponent.h"
 #include "Component/HDStratagemComponent.h"
-#include "Component/HDAbilitySystemComponent.h"
-#include "Animation/HDAnimInstance.h"
 #include "AbilitySystem/GameplayAbilityHelper.h"
 #include "Attribute/HDSpeedAttributeSet.h"
 #include "Weapon/WeaponTypes.h"
@@ -37,7 +35,7 @@ AHDCharacterPlayer::AHDCharacterPlayer()
     FollowCamera->bUsePawnControlRotation = false;
 
     Combat          = CreateDefaultSubobject<UHDCombatComponent>(TEXT("Combat"));
-    MovementState   = CreateDefaultSubobject<UHDMovementStateComponent>(TEXT("Movement"));
+    MovementState   = CreateDefaultSubobject<UHDMovementStateComponent>(TEXT("MovementState"));
     Stratagem       = CreateDefaultSubobject<UHDStratagemComponent>(TEXT("Stratagem"));
 }
 
@@ -77,9 +75,6 @@ void AHDCharacterPlayer::EquipWeapon(AHDWeapon* NewWeapon)
 void AHDCharacterPlayer::SetWeaponActive(const bool bActive)
 {
     Combat->SetWeaponActive(bActive);
-
-    UHDAnimInstance* HDCharacterInstance = Cast<UHDAnimInstance>(GetMesh()->GetAnimInstance());
-    NULL_CHECK(HDCharacterInstance);
 }
 
 const float AHDCharacterPlayer::Reload()
@@ -91,7 +86,7 @@ const float AHDCharacterPlayer::Reload()
 
 	Combat->Reload();
 
-    const bool bIsShoulder = IsShouldering();
+    const bool bIsShoulder = Combat->IsShoulder();
     const EHDCharacterStanceState StanceState = MovementState->GetStanceState();
 
 	FName SectionName;
@@ -297,7 +292,7 @@ void AHDCharacterPlayer::InitAbilitySystemComponent()
     AHDGASPlayerState* GASPlayerState = GetPlayerState<AHDGASPlayerState>();
     NULL_CHECK(GASPlayerState);
 
-    SetAbilitySystemComponent(GASPlayerState, GASPlayerState->GetAbilitySystemComponent<UHDAbilitySystemComponent>(), EHDCharacterType::Player);
+    SetAbilitySystemComponent(GASPlayerState, GASPlayerState->GetAbilitySystemComponent());
 }
 
 void AHDCharacterPlayer::InterpFOV(float DeltaSeconds)

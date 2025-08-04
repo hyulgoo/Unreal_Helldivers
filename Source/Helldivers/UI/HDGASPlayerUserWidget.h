@@ -10,6 +10,7 @@
 class UProgressBar;
 class UImage;
 class UTextBlock;
+struct FGameplayEventData;
 
 UCLASS()
 class HELLDIVERS_API UHDGASPlayerUserWidget : public UHDGASUserWidget
@@ -18,15 +19,16 @@ class HELLDIVERS_API UHDGASPlayerUserWidget : public UHDGASUserWidget
 
 public:
     virtual void                SetAbilitySystemComponent(UAbilitySystemComponent* NewAbilitySystemComponent) override final;
-    virtual void                OnHealthChangeds(const FOnAttributeChangeData& ChangeData);
-    virtual void                OnMaxHealthChangeds(const FOnAttributeChangeData& ChangeData);
+    void                        OnHealthAttributeChangeds(const FOnAttributeChangeData& ChangeData);
 
     void                        SetChangedWeaponAmmoCountInfo(const int32 NewAmmoCount, const int32 NewMaxAmmoCount);
     void                        SetChangedWeaponCapacityCountInfo(const int32 NewCapacityCount, const int32 NewMaxCapacityCount);
     void                        SetGrenadeCountInfo(const int32 NewGrenadeCount, const int32 NewMaxGrenadeCount);
-    void                        OnAmmoCountChanged(const int32 NewAmmoCount);
+    void                        OnAmmoCountChanged(const FGameplayEventData* PayLoad);
     void                        OnCapacityCountChanged(const int32 NewCapacityCount);
     void                        OnGrenadeCountChanged(const int32 NewGrenadeCount);
+
+protected:
 	
 private:
     void                        UpdateProgressbar(UProgressBar* Progressbar, const float Value);

@@ -152,15 +152,10 @@ UAnimMontage* UHDCombatComponent::GetCombatMontage(const EHDCombatMontage Montag
 
 void UHDCombatComponent::TraceUnderCrosshairs()
 {
+    CONDITION_CHECK(GEngine && GEngine->GameViewport);
+
     FVector2D ViewportSize;
-    if (GEngine && GEngine->GameViewport)
-    {
-        GEngine->GameViewport->GetViewportSize(ViewportSize);
-    }
-    else
-    {
-        CONDITION_CHECK(false);
-    }
+    GEngine->GameViewport->GetViewportSize(ViewportSize);
 
     const FVector2D CrosshairLocation(ViewportSize.X / 2.f, ViewportSize.Y / 2.f);
     FVector CrosshairWorldPosition;
@@ -195,11 +190,7 @@ void UHDCombatComponent::TraceUnderCrosshairs()
 void UHDCombatComponent::AimOffset(const float DeltaTime)
 {
     NULL_CHECK(CharacterMovement);
-
-    if (IsValid(Weapon) == false)
-    {
-        return;
-    }
+    VALID_CHECK_WITHOUT_LOG(Weapon);
 
 	APawn* Owner = GetOwner<APawn>();
     NULL_CHECK(Owner);
@@ -339,9 +330,11 @@ void UHDCombatComponent::EquipWeapon(AHDWeapon* NewWeapon)
     RightHandSocket->AttachActor(NewWeapon, SkeletalMesh);
 }
 
-AHDWeapon* UHDCombatComponent::GetWeapon() const
+USkeletalMeshComponent* UHDCombatComponent::GetWeaponMesh() const
 {
-    return Weapon;
+    VALID_CHECK_WITH_RETURNTYPE_WITHOUT_LOG(Weapon, nullptr);
+
+    return Weapon->GetComponentByClass<USkeletalMeshComponent>();;
 }
 
 void UHDCombatComponent::SetWeaponActive(const bool bActive)

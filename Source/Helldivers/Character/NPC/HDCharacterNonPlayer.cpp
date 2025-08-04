@@ -12,7 +12,7 @@ void AHDCharacterNonPlayer::BeginPlay()
     Super::BeginPlay();
 
     UHDAbilitySystemComponent* ASC = CreateDefaultSubobject<UHDAbilitySystemComponent>("HDAbilitySystem");
-    SetAbilitySystemComponent(this, ASC, EHDCharacterType::NPC);
+    SetAbilitySystemComponent(this, ASC);
 }
 
 void AHDCharacterNonPlayer::SetDead()

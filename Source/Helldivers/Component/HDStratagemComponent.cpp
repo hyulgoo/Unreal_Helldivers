@@ -102,7 +102,7 @@ void UHDStratagemComponent::HoldStratagem(USkeletalMeshComponent* MeshComponent,
 
 	FActorSpawnParameters SpawnParams;
 	SpawnParams.Owner = GetOwner();
-	SpawnParams.Instigator = Cast<APawn>(this);
+	SpawnParams.Instigator = Cast<APawn>(GetOwner());
 
 	Stratagem = World->SpawnActor<AHDStratagem>(StratagemClass, SocketTransform.GetLocation(), TargetRotation, SpawnParams);
 	NULL_CHECK(Stratagem);

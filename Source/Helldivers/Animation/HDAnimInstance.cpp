@@ -118,11 +118,8 @@ void UHDAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
         {
             HitTarget = Combat->GetHitTarget();
         }
-        else
+        else if (USkeletalMeshComponent* WeaponMesh = Combat->GetWeaponMesh())
         {
-            USkeletalMeshComponent* WeaponMesh = Combat->GetWeaponMesh();
-            NULL_CHECK(WeaponMesh);
-
             LeftHandTransform = WeaponMesh->GetSocketTransform(HDSOCKETNAME_LEFTHAND, ERelativeTransformSpace::RTS_World);
             HitTarget = Combat->GetHitTarget();
             FVector OutPosition;

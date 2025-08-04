@@ -145,7 +145,6 @@ void AHDHellpod::SpawnCharacter()
 	NULL_CHECK(CharacterClass);
 
 	UWorld* World = GetWorld();
-	VALID_CHECK(World);
 
 	const FTransform& CurrentHellpodTransform = GetActorTransform();
 	SpawnedCharacter = World->SpawnActorDeferred<AHDCharacterPlayer>(

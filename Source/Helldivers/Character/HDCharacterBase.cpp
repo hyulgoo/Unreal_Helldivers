@@ -50,9 +50,11 @@ UAbilitySystemComponent* AHDCharacterBase::GetAbilitySystemComponent() const
     return Cast<UAbilitySystemComponent>(AbilitySystemComponent);
 }
 
-void AHDCharacterBase::SetAbilitySystemComponent(AActor* OwnerActor, UHDAbilitySystemComponent* ASC, const EHDCharacterType CharacterType)
+void AHDCharacterBase::SetAbilitySystemComponent(AActor* OwnerActor, UAbilitySystemComponent* ASC)
 {
-    AbilitySystemComponent = ASC;
+    NULL_CHECK(ASC);
+
+    AbilitySystemComponent = Cast<UHDAbilitySystemComponent>(ASC);
     NULL_CHECK(AbilitySystemComponent);
 
     for (const TSubclassOf<UGameplayAbility>& Ability : Abilities)

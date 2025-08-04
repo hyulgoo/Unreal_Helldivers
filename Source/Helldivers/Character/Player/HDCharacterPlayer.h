@@ -15,6 +15,7 @@ class UCameraComponent;
 class UHDCombatComponent;
 class UHDMovementStateComponent;
 class UHDStratagemComponent;
+class UHDCharacterControlData;
 enum class EHDTurningInPlace : uint8;
 enum class EHDCharacterMovementState : uint8;
 enum class EHDCharacterStanceState : uint8;

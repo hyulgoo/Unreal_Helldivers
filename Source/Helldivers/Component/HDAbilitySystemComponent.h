@@ -7,7 +7,6 @@
 #include "HDAbilitySystemComponent.generated.h"
 
 struct FHDCharacterAttributeData;
-enum class EHDCharacterType : uint8;
 
 UCLASS()
 class HELLDIVERS_API UHDAbilitySystemComponent : public UAbilitySystemComponent
