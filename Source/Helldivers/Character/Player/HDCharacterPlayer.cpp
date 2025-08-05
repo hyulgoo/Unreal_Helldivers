@@ -15,12 +15,8 @@
 #include "Character/CharacterTypes/HDCharacterStateTypes.h"
 #include "GameData/HDCharacterControlData.h"
 
-AHDCharacterPlayer::AHDCharacterPlayer()
-    : SpringArm(nullptr)
-	, FollowCamera(nullptr)
-	, Combat(nullptr)
-    , MovementState(nullptr)
-    , Stratagem(nullptr)
+AHDCharacterPlayer::AHDCharacterPlayer(const FObjectInitializer& ObjectInitializer)
+    : Super(ObjectInitializer)
 {
     GetCharacterMovement()->bOrientRotationToMovement = true;
 
@@ -34,9 +30,9 @@ AHDCharacterPlayer::AHDCharacterPlayer()
     FollowCamera->SetupAttachment(SpringArm, USpringArmComponent::SocketName);
     FollowCamera->bUsePawnControlRotation = false;
 
-    Combat          = CreateDefaultSubobject<UHDCombatComponent>(TEXT("Combat"));
-    MovementState   = CreateDefaultSubobject<UHDMovementStateComponent>(TEXT("MovementState"));
-    Stratagem       = CreateDefaultSubobject<UHDStratagemComponent>(TEXT("Stratagem"));
+    Combat              = CreateDefaultSubobject<UHDCombatComponent>(TEXT("Combat"));
+    MovementStateComp   = CreateDefaultSubobject<UHDMovementStateComponent>(TEXT("MovementState"));
+    Stratagem           = CreateDefaultSubobject<UHDStratagemComponent>(TEXT("Stratagem"));
 }
 
 void AHDCharacterPlayer::Tick(float DeltaTime)
@@ -87,7 +83,7 @@ const float AHDCharacterPlayer::Reload()
 	Combat->Reload();
 
     const bool bIsShoulder = Combat->IsShoulder();
-    const EHDCharacterStanceState StanceState = MovementState->GetStanceState();
+    const EHDCharacterStanceState StanceState = MovementStateComp->GetStanceState();
 
 	FName SectionName;
     switch (Combat->GetWeaponFireType())
@@ -162,7 +158,7 @@ void AHDCharacterPlayer::SetCharacterControlData(UHDCharacterControlData* Charac
     SpringArm->bDoCollisionTest        = CharacterControlData->bDoCollisionTest;
 
     Combat->SetSpringArmTargetLength(CharacterControlData->TargetArmLength);
-    MovementState->SetSpringArmDefaultZOffset(CharacterControlData->TargetOffset.Z);
+    MovementStateComp->SetSpringArmDefaultZOffset(CharacterControlData->TargetOffset.Z);
 }
 
 UHDStratagemComponent* AHDCharacterPlayer::GetStratagemComponent()
@@ -228,29 +224,29 @@ void AHDCharacterPlayer::InputStratagemCommand(const FInputActionValue& Value)
 
 void AHDCharacterPlayer::SetMovementState(const EHDCharacterMovementState NewState)
 {
-    MovementState->SetMovementState(NewState);
+    MovementStateComp->SetMovementState(NewState);
     
-    const float NewSpeed = GetMoveSpeedByState(MovementState->GetStanceState(), NewState);
+    const float NewSpeed = GetMoveSpeedByState(MovementStateComp->GetStanceState(), NewState);
     GetCharacterMovement()->MaxWalkSpeed = NewSpeed;
 }
 
 void AHDCharacterPlayer::SetCharacterStanceState(const EHDCharacterStanceState NewState, const bool bForced)
 {
-    MovementState->SetStanceState(NewState, bForced);
+    MovementStateComp->SetStanceState(NewState, bForced);
 	if (bForced)
 	{
         Combat->SetCombatState(NewState == EHDCharacterStanceState::Prone ? EHDCombatState::Ragdoll : EHDCombatState::Unoccupied);
     }
 
-    const float NewSpeed = GetMoveSpeedByState(NewState, MovementState->GetMovementState());
+    const float NewSpeed = GetMoveSpeedByState(NewState, MovementStateComp->GetMovementState());
     GetCharacterMovement()->MaxWalkSpeed = NewSpeed;
 }
 
 void AHDCharacterPlayer::RestoreStanceState()
 {
-    MovementState->RestoreStanceState();
+    MovementStateComp->RestoreStanceState();
 
-    const float NewSpeed = GetMoveSpeedByState(MovementState->GetStanceState(), MovementState->GetMovementState());
+    const float NewSpeed = GetMoveSpeedByState(MovementStateComp->GetStanceState(), MovementStateComp->GetMovementState());
     GetCharacterMovement()->MaxWalkSpeed = NewSpeed;
 }
 
@@ -360,5 +356,5 @@ void AHDCharacterPlayer::SetDead()
         DisableInput(PlayerController);
     }
 
-    MovementState->SetStanceState(EHDCharacterStanceState::Prone);
+    MovementStateComp->SetStanceState(EHDCharacterStanceState::Prone);
 }

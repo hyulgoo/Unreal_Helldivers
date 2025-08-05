@@ -20,7 +20,7 @@ class HELLDIVERS_API AHDEagleFighter : public AActor
     friend class AHDBattleShip;
 
 public:
-    explicit                            AHDEagleFighter();
+    AHDEagleFighter(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
 
 protected:
     virtual void                        BeginPlay() override final;
@@ -57,10 +57,10 @@ private:
     FOnTimelineFloat                    InterpFunction;
     FOnTimelineEvent                    TimelineFinished;
 
-    FVector                             FlightStartLocation;
-    FVector                             FlightDirection;
-    uint8                               bIsAirStrikeDone : 1;
-    float                               SplineLength;
+    FVector                             FlightStartLocation         = FVector::ZeroVector;
+    FVector                             FlightDirection             = FVector::ZeroVector;;
+    uint8                               bIsAirStrikeDone : 1        = false;
+    float                               SplineLength                = 0.f;
 
     // Projectile
     UPROPERTY()
@@ -69,7 +69,7 @@ private:
     UPROPERTY()
     TSubclassOf<AHDProjectileBase>	    ProjectileBulletClass;
 
-    FHDStratagemEffectData              StratagemEffectData;
-    FVector                             ProjectileTargetLocation;
-    float                               ProjectileDurationofFlight;
+    FHDStratagemEffectData              StratagemEffectData         = FHDStratagemEffectData();
+    FVector                             ProjectileTargetLocation    = FVector::ZeroVector;
+    float                               ProjectileDurationofFlight  = 0.f;
 };

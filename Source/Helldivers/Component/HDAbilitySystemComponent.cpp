@@ -6,10 +6,6 @@
 #include "GameData/HDCharacterAttributeData.h"
 #include "Define/HDDefine.h"
 
-UHDAbilitySystemComponent::UHDAbilitySystemComponent()
-{
-}
-
 void UHDAbilitySystemComponent::AbilityInputTagTriggered(const FGameplayTag AssetTag)
 {
     TArray<FGameplayAbilitySpec>& ActivatebleAbilities = GetActivatableAbilities();

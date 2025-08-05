@@ -3,8 +3,8 @@
 #include "Player/HDGASPlayerState.h"
 #include "Component/HDAbilitySystemComponent.h"
 
-AHDGASPlayerState::AHDGASPlayerState()
-    : AbilitySystemComponent(nullptr)
+AHDGASPlayerState::AHDGASPlayerState(const FObjectInitializer& ObjectInitializer)
+    : Super(ObjectInitializer)
 {
     AbilitySystemComponent = CreateDefaultSubobject<UHDAbilitySystemComponent>(TEXT("AbilitySystemComponent"));
 }

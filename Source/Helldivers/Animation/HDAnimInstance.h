@@ -18,9 +18,6 @@ class HELLDIVERS_API UHDAnimInstance : public UAnimInstance
 {
 	GENERATED_BODY()
 	
-public:
-    explicit								UHDAnimInstance();
-
 protected:
     virtual void							NativeInitializeAnimation() override final;
     virtual void							NativeUpdateAnimation(float DeltaSeconds) override final;
@@ -45,7 +42,7 @@ protected:
 	float									GroundSpeed;
 	
 	UPROPERTY(BlueprintReadOnly, Category = "Movement")
-	float									MovingThreshould;
+	float									MovingThreshould = 3.f;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Movement")
 	EHDCharacterStanceState				    CharacterStanceState;
@@ -63,7 +60,7 @@ protected:
 	uint8									bIsJumping : 1;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Movement")
-	float									JumpingThreshould;
+	float									JumpingThreshould = 10.f;
 	
 	UPROPERTY(BlueprintReadOnly, Category = "Movement")
 	uint8									bIsRotateRootBone : 1;
@@ -113,7 +110,7 @@ protected:
 	UPROPERTY(BlueprintReadOnly, Category = "Throw")
 	uint8									bIsUpperSlotValid : 1;
 	
-	FRotator								CharacterRotationLastFrame;
-	FRotator								CharacterRotation;
-	FRotator								DeltaRotation;
+	FRotator								CharacterRotationLastFrame = FRotator::ZeroRotator;
+	FRotator								CharacterRotation = FRotator::ZeroRotator;
+	FRotator								DeltaRotation = FRotator::ZeroRotator;
 };

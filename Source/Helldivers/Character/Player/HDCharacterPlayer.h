@@ -26,7 +26,7 @@ class HELLDIVERS_API AHDCharacterPlayer : public AHDCharacterBase, public IHDCha
 	GENERATED_BODY()
 
 public:
-	explicit								AHDCharacterPlayer();
+    AHDCharacterPlayer(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
 
     void									SetCharacterControlData(UHDCharacterControlData* CharacterControlData);
 
@@ -60,7 +60,6 @@ protected:
 	virtual void							TryHoldStratagem() override final;
 	void									CancleStratagem();
 
-
 	UHDStratagemComponent*					GetStratagemComponent();
     const float								GetMoveSpeedByState(const EHDCharacterStanceState StanceState, const EHDCharacterMovementState MoveState);
         
@@ -82,7 +81,7 @@ private:
 	TObjectPtr<UHDCombatComponent>			Combat;
 
 	UPROPERTY(EditDefaultsOnly)
-	TObjectPtr<UHDMovementStateComponent>	MovementState;
+	TObjectPtr<UHDMovementStateComponent>	MovementStateComp;
 
 	UPROPERTY(EditDefaultsOnly)
 	TObjectPtr<UHDStratagemComponent>		Stratagem;    

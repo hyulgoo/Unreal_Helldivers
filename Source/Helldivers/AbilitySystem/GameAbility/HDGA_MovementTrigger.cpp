@@ -4,16 +4,13 @@
 #include "Abilities/Tasks/AbilityTask_WaitAttributeChangeThreshold.h"
 #include "Interface/HDCharacterMovementInterface.h"
 #include "Attribute/HDSpeedAttributeSet.h"
-#include "AbilitySystem/GameplayAbilityHelper.h"
 #include "Character/CharacterTypes/HDCharacterStateTypes.h"
+#include "AbilitySystem/GameplayAbilityHelper.h"
 
-UHDGA_MovementTrigger::UHDGA_MovementTrigger()
-    : MaxStamina(0.f)
-    , RegenStaminaHandle(FTimerHandle())
-{ 
-	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
-
-	ActivationBlockedTags.AddTag(HDTAG_CHARACTER_STATE_ISDEAD);
+UHDGA_MovementTrigger::UHDGA_MovementTrigger(const FObjectInitializer& ObjectInitializer)
+    : Super(ObjectInitializer)
+{
+    InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
 }
 
 void UHDGA_MovementTrigger::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)

@@ -19,8 +19,6 @@ class HELLDIVERS_API UHDSpeedAttributeSet : public UAttributeSet
 	GENERATED_BODY()
 
 public:
-	explicit                UHDSpeedAttributeSet();
-
 	ATTRIBUTE_ACCESSORS(UHDSpeedAttributeSet, CurrentSpeed);
 	ATTRIBUTE_ACCESSORS(UHDSpeedAttributeSet, CrawlingSpeed);
 	ATTRIBUTE_ACCESSORS(UHDSpeedAttributeSet, CrouchSpeed);

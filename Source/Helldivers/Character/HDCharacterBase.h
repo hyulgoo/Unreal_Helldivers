@@ -23,7 +23,7 @@ class HELLDIVERS_API AHDCharacterBase : public ACharacter, public IAbilitySystem
     GENERATED_BODY()
 
 public:
-    explicit                                AHDCharacterBase();
+    AHDCharacterBase(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
 
 protected:
     virtual UAbilitySystemComponent*        GetAbilitySystemComponent() const override final;
@@ -45,7 +45,7 @@ protected:
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Montage")
     TObjectPtr<UAnimMontage>                DeadMontage;
     
-    float                                   DeadEventDelayTime;
+    float                                   DeadEventDelayTime = 10.f;
 
 private:
 	UPROPERTY()
@@ -55,7 +55,7 @@ private:
 	TArray<TSubclassOf<UGameplayAbility>>	Abilities;
     
     UPROPERTY(EditAnywhere)
-    EHDArmorType                            ArmorType;
+    EHDArmorType                            ArmorType = EHDArmorType::Medium;
 
 	UPROPERTY(EditAnywhere)
     TObjectPtr<UDataTable>					ArmorTypeStatusDataTable;

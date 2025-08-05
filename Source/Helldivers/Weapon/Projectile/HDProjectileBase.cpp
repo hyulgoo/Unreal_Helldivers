@@ -11,31 +11,8 @@
 #include "Collision/HDCollision.h"
 #include "Weapon/WeaponTypes.h"
 
-AHDProjectileBase::AHDProjectileBase()
-	: ProjectileMesh(nullptr)
-	, ProjectileMovement(nullptr)
-	, CollisionBox(nullptr)
-	, ProjectileTag(FGameplayTag::EmptyTag)
-	, InitSpeed(0.f)
-	, ImpactType(EImpactType::Hit)
-	, DamageGameEffect(nullptr)
-	, ImpactDamage(0.f)
-	, ImpactBlocklCueTag(FGameplayTag::EmptyTag)
-	, ImpactHitCueTag(FGameplayTag::EmptyTag)
-	, StatusEffect(EStatusEffect::None)
-	, StatusGameEffect(nullptr)
-	, DotDamage(0.f)
-	, StatusDuration(0.f)
-	, ExplodeDamageRange(0.f)
-	, ExplodeKnockBackRange(0.f)
-	, KnockbackTag(FGameplayTag::EmptyTag)
-	, KnockbackImpulse(0.f)
-	, Tracer(nullptr)
-	, TracerComponent(nullptr)
-	, TrailSystem(nullptr)
-	, TrailSystemComponent(nullptr)
-	, DestroyTime (10.f)
-	, DestroyTimer(FTimerHandle())
+AHDProjectileBase::AHDProjectileBase(const FObjectInitializer& ObjectInitializer)
+	: Super(ObjectInitializer) 
 {
 	PrimaryActorTick.bCanEverTick = true;
 

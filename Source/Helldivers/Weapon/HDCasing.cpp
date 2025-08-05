@@ -3,10 +3,8 @@
 #include "HDCasing.h"
 #include "AbilitySystem/GameplayAbilityHelper.h"
 
-AHDCasing::AHDCasing()
-	: CasingMesh(nullptr)
-    , ShellSoundTag(FGameplayTag::EmptyTag)
-	, ShellEjectionImpulse(10.f)
+AHDCasing::AHDCasing(const FObjectInitializer& ObjectInitializer)
+	: Super(ObjectInitializer)
 {
 	PrimaryActorTick.bCanEverTick = true;
 

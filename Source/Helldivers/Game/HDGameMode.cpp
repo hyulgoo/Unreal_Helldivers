@@ -2,13 +2,14 @@
 
 #include "HDGameMode.h"
 
-AHDGameMode::AHDGameMode()
+AHDGameMode::AHDGameMode(const FObjectInitializer& ObjectInitializer)
+    : Super(ObjectInitializer)
 {
-	static ConstructorHelpers::FClassFinder<APlayerController> PlayerControllerClassRef(TEXT("/Script/Helldivers.HDPlayerController"));
-	if (PlayerControllerClassRef.Class)
-	{
-		PlayerControllerClass = PlayerControllerClassRef.Class;
-	}
+    static ConstructorHelpers::FClassFinder<APlayerController> PlayerControllerClassRef(TEXT("/Script/Helldivers.HDPlayerController"));
+    if (PlayerControllerClassRef.Class)
+    {
+        PlayerControllerClass = PlayerControllerClassRef.Class;
+    }
 }
 
 void AHDGameMode::StartPlay()

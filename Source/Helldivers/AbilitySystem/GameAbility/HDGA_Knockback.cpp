@@ -4,11 +4,8 @@
 #include "AbilitySystemComponent.h"
 #include "Interface/HDCharacterRagdollInterface.h"
 
-UHDGA_Knockback::UHDGA_Knockback()
-    : RagdollInterface(nullptr)
-    , bRecoveryFromRagdoll(false)
-    , StateCheckTimerHandle(FTimerHandle())
-	, RecoveryFromRagdollTimerHandle(FTimerHandle())
+UHDGA_Knockback::UHDGA_Knockback(const FObjectInitializer& ObjectInitializer)
+    : Super(ObjectInitializer)
 {
     InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
 }

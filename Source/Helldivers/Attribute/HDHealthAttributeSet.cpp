@@ -5,12 +5,6 @@
 #include "Define/HDDefine.h"
 #include "AbilitySystem/GameplayAbilityHelper.h"
 
-UHDHealthAttributeSet::UHDHealthAttributeSet()
-	: CurrentHealth(FGameplayAttributeData())
-	, MaxHealth(FGameplayAttributeData())
-{
-}
-
 void UHDHealthAttributeSet::PreAttributeChange(const FGameplayAttribute& Attribute, float& NewValue)
 {
     if(Attribute == GetCurrentHealthAttribute()) 

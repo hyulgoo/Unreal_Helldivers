@@ -12,7 +12,7 @@ class HELLDIVERS_API AHDGameMode : public AGameModeBase
 	GENERATED_BODY()
 	
 public:
-	explicit		AHDGameMode();
+    AHDGameMode(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
 
 	virtual void	StartPlay() override final;
 };

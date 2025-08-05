@@ -15,8 +15,6 @@ class HELLDIVERS_API UHDGC_Base : public UGameplayCueNotify_Static
 	GENERATED_BODY()
 	
 public:
-	explicit							UHDGC_Base();
-
 	virtual bool						OnExecute_Implementation(AActor* Target, const FGameplayCueParameters& Parameters) const override final;
 
 private:

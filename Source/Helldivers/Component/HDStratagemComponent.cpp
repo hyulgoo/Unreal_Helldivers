@@ -8,17 +8,9 @@
 #include "Engine/SkeletalMeshSocket.h"
 #include "Stratagem/HDStratagem.h"
 
-UHDStratagemComponent::UHDStratagemComponent()
-    : StratagemClass(nullptr)
-    , Stratagem(nullptr)
-    , SelectedStratagemName(FName())
-    , SelecteddStratagemActiveDelay(0.f)
-    , CurrentInputCommandList{}
-    , CommandMatchStratagemNameList{}
-    , AvaliableStratagemDataTable(nullptr)
+UHDStratagemComponent::UHDStratagemComponent(const FObjectInitializer& ObjectInitializer)
+    : Super(ObjectInitializer)
 {
-	PrimaryComponentTick.bCanEverTick = true;
-
     static ConstructorHelpers::FObjectFinder<UDataTable> StratagemDataListRef(TEXT("/Script/Engine.DataTable'/Game/Helldivers/GameData/DT_StratagemData.DT_StratagenData'"));
     if (StratagemDataListRef.Succeeded())
     {

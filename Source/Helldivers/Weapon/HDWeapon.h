@@ -31,7 +31,7 @@ class HELLDIVERS_API AHDWeapon : public AActor
     GENERATED_BODY()
 
 public:
-    explicit                            AHDWeapon();
+    AHDWeapon(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
 
     void                                SetAutoFire(const bool bAutoFire);
     void                                SetWeaponState(const EWeaponState NewState);
@@ -75,7 +75,7 @@ private:
     void                                ReloadFinished();
 
 protected:
-    EHDFireType                         FireType;
+    EHDFireType                         FireType = EHDFireType::Count;
 
     UPROPERTY(EditAnywhere, Category = "Weapon|Default")
     TSubclassOf<AHDProjectileBase>      ProjectileClass;
@@ -116,6 +116,6 @@ protected:
     UPROPERTY(EditAnywhere, Category = "Weapon|Default")
     FHDWeaponUIData                     UIData;
 
-    EWeaponState                        WeaponState;
-    FTimerHandle                        ReloadTimer;
+    EWeaponState                        WeaponState = EWeaponState::Drop;
+    FTimerHandle                        ReloadTimer = FTimerHandle();
 };

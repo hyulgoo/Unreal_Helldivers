@@ -12,23 +12,8 @@
 
 #define EagleFighterAttackTimingRatio 0.45f
 
-AHDEagleFighter::AHDEagleFighter()
-    : EagleFighterMesh(nullptr)
-	, CollisionSphere(nullptr)
-	, SplineComponent(nullptr)
-    , TimelineComponent(nullptr)
-    , DescentCurve(nullptr)
-    , InterpFunction(FOnTimelineFloat())
-    , TimelineFinished(FOnTimelineFloat())
-    , FlightStartLocation(FVector::ZeroVector)
-    , FlightDirection(FVector::ZeroVector)
-    , bIsAirStrikeDone(false)
-    , SplineLength(0.f)
-    , ProjectileBombClass(nullptr)
-    , ProjectileBulletClass(nullptr)
-    , StratagemEffectData(FHDStratagemEffectData())
-    , ProjectileTargetLocation(FVector::ZeroVector)
-    , ProjectileDurationofFlight(0.f)
+AHDEagleFighter::AHDEagleFighter(const FObjectInitializer& ObjectInitializer)
+    : Super(ObjectInitializer)
 {
     PrimaryActorTick.bCanEverTick = true;
 

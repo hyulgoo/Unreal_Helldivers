@@ -7,7 +7,8 @@
 #include "Define/HDDefine.h"
 #include "Define/HDSocketNames.h"
 
-AHDProjectileWeapon::AHDProjectileWeapon()
+AHDProjectileWeapon::AHDProjectileWeapon(const FObjectInitializer& ObjectInitializer)
+    : Super(ObjectInitializer)
 {
     FireType = EHDFireType::Projectile;
 }

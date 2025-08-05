@@ -14,19 +14,19 @@ class HELLDIVERS_API UHDGA_Knockback : public UHDGA_Base
 	GENERATED_BODY()
 	
 public:
-	explicit UHDGA_Knockback();
+	UHDGA_Knockback(const FObjectInitializer& ObjectInitializer);
 	
-	virtual void ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData) override final;
+	virtual void                                    ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData) override final;
 
 private:
-	void		 CheckCharacterRagdollState();
-	void		 RecoveryFromRagdoll();
+	void		                                    CheckCharacterRagdollState();
+	void		                                    RecoveryFromRagdoll();
 
 private:
 	UPROPERTY()
 	TScriptInterface<IHDCharacterRagdollInterface>	RagdollInterface;
 	
-	bool											bRecoveryFromRagdoll;
-	FTimerHandle									StateCheckTimerHandle;
-	FTimerHandle									RecoveryFromRagdollTimerHandle;
+	bool											bRecoveryFromRagdoll = false;
+	FTimerHandle									StateCheckTimerHandle = FTimerHandle();
+	FTimerHandle									RecoveryFromRagdollTimerHandle = FTimerHandle();
 };

@@ -14,7 +14,6 @@ class UHDAbilitySystemComponent;
 class UHDStratagemHUDUserWidget;
 class UHDCharacterControlData;
 struct FInputActionValue;
-enum class EHDCharacterControlType : uint8;
 
 UENUM(BlueprintType)
 enum class EHDCharacterInputAction : uint8
@@ -32,7 +31,7 @@ class HELLDIVERS_API AHDPlayerController : public APlayerController
 	GENERATED_BODY()
 
 public:
-	explicit								AHDPlayerController();
+    AHDPlayerController(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
 		
     UHDAbilitySystemComponent*              GetAbilitySystemComponent();
 
@@ -72,7 +71,7 @@ private:
 	UPROPERTY(EditDefaultsOnly)
 	TObjectPtr<UHDInputData>			    AbilityInputData;
     
-    EHDCharacterControlType			        CurrentCharacterControlType;
+    EHDCharacterControlType			        CurrentCharacterControlType = EHDCharacterControlType::ThirdPerson;
 
 	UPROPERTY(EditDefaultsOnly)
 	TMap<EHDCharacterInputAction, TObjectPtr<UInputAction>> InputActionMap;

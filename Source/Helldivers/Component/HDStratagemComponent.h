@@ -15,7 +15,7 @@ class HELLDIVERS_API UHDStratagemComponent : public UActorComponent
 	GENERATED_BODY()
 
 public:	
-	explicit UHDStratagemComponent();
+	UHDStratagemComponent(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
 
 	UDataTable*							GetAvaliableStratagemDataTable() const;
 	FORCEINLINE const TArray<FName>&	GetCommandMatchStratagemNameList() const;
@@ -35,8 +35,8 @@ private:
 	UPROPERTY()
 	TObjectPtr<AHDStratagem>			Stratagem;
 
-    FName								SelectedStratagemName;
-    float								SelecteddStratagemActiveDelay;
+    FName								SelectedStratagemName           = FName();
+    float								SelecteddStratagemActiveDelay   = 0.f;
 
 	TArray<EHDCommandInput>				CurrentInputCommandList;
 	TArray<FName>						CommandMatchStratagemNameList;

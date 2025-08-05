@@ -10,15 +10,8 @@
 #include "Define/HDDefine.h"
 #include "Collision/HDCollision.h"
 
-AHDStratagem::AHDStratagem()
-    : StratagemMesh(nullptr)
-    , CollisionSphere(nullptr)
-    , PointLaserNiagara(nullptr)
-    , NiagaraComponent(nullptr)
-    , StratagemActiveDelay(0.f)
-    , ThrowDirection(FVector::ZeroVector)
-    , ThrowImpulse(3000.f)
-    , StratagemName(FName())
+AHDStratagem::AHDStratagem(const FObjectInitializer& ObjectInitializer)
+    : Super(ObjectInitializer)
 {
     PrimaryActorTick.bCanEverTick = true;
 
@@ -65,7 +58,6 @@ void AHDStratagem::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrim
     }
 
     UWorld* World = GetWorld();
-    VALID_CHECK(World);
 
     AHDGameState* GameState = Cast<AHDGameState>(UGameplayStatics::GetGameState(World));
     NULL_CHECK(GameState);
@@ -89,7 +81,6 @@ void AHDStratagem::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrim
 void AHDStratagem::SpawnPointLaser()
 {
     UWorld* World = GetWorld();
-    VALID_CHECK(World);
 
     NULL_CHECK(PointLaserNiagara);
 

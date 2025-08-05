@@ -6,13 +6,6 @@
 #include "AbilitySystemInterface.h"
 #include "AbilitySystem/GameplayAbilityHelper.h"
 
-UAnimNotify_FootStepSoundCue::UAnimNotify_FootStepSoundCue()
-    : FootSocketName(FName())
-    , TraceDistance(0.f)
-    , PhysicsCueTagMap{}
-{
-}
-
 FString UAnimNotify_FootStepSoundCue::GetNotifyName_Implementation() const
 {
     return TEXT("FootStep");

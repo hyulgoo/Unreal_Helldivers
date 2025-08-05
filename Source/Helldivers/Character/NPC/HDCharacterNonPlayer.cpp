@@ -3,10 +3,6 @@
 #include "HDCharacterNonPlayer.h"
 #include "Component/HDAbilitySystemComponent.h"
 
-AHDCharacterNonPlayer::AHDCharacterNonPlayer()
-{
-}
-
 void AHDCharacterNonPlayer::BeginPlay()
 {
     Super::BeginPlay();

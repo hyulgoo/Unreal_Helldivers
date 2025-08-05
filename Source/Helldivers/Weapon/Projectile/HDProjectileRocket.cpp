@@ -6,11 +6,8 @@
 #include "Kismet/GameplayStatics.h"
 #include "MovementComponent/HDRocketMovementComponent.h"
 
-AHDProjectileRocket::AHDProjectileRocket()
-	: ProjectileLoop(nullptr)
-	, ProjectileLoopComponent(nullptr)
-	, LoopingSoundAttenuation(nullptr)
-	, RocketMovementComponent(nullptr)
+AHDProjectileRocket::AHDProjectileRocket(const FObjectInitializer& ObjectInitializer)
+	: Super(ObjectInitializer)
 {
 	ProjectileMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Rocket Mesh"));
 	ProjectileMesh->SetupAttachment(RootComponent);

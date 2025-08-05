@@ -16,8 +16,6 @@ class HELLDIVERS_API UHDAT_Trace : public UAbilityTask
 	GENERATED_BODY()
 	
 public:
-	explicit            UHDAT_Trace() = default;
-
 	UFUNCTION(BlueprintCallable, Category = "Ability|Tasks", meta = (DisplayName = "WaitForTrace", HidePin = "OwningAbility", DefaultToSelf = "OwningAbility", BlueprintInternalUseOnly = "TRUE"))
 	static UHDAT_Trace*         CreateTask(UGameplayAbility* OwningAbility, TSubclassOf<AHDTA_Trace> TargetActor);
 	virtual void                Activate() override;

@@ -17,56 +17,35 @@
 #include "Controller/HDPlayerController.h"
 #include "AbilitySystem/GameplayAbilityHelper.h"
 
-AHDHellpod::AHDHellpod()
-	: HellpodMesh(nullptr)
-	, CollisionBox(nullptr)
-	, MoveAction(nullptr)
-	, InputMappingContext(nullptr)
-    , MaxMoveSpeed(0.f)
-    , FallSpeed(0.f)
-	, CurrentInput(FVector2D::ZeroVector)
-	, MaxPitchAngle(0.f)
-	, MaxRollAngle(0.f)
-	, MeshDefaultRelativeRotation(FRotator::ZeroRotator)
-	, bIsLanded(false)
-	, CameraBoom(nullptr)
-	, FollowCamera(nullptr)
-	, CameraShakeSource(nullptr)
-	, FallCameraShakeClass(nullptr)
-	, CameraShakeScaleWhenFalling(0.f)
-    , CharacterClass(nullptr)
-	, SpawnTime(1.5f)
-	, SpawnedCharacter(nullptr)
-	, SpawnCharacterTimeline(FTimeline())
-	, SpawnCurveFloat(nullptr)
-	, ImpactTag(FGameplayTag::EmptyTag)
+AHDHellpod::AHDHellpod(const FObjectInitializer& ObjectInitializer)
+    : Super(ObjectInitializer)
 {
-	PrimaryActorTick.bCanEverTick = true;
+    PrimaryActorTick.bCanEverTick = true;
 
-	CollisionBox = CreateDefaultSubobject<UBoxComponent>(TEXT("CollisionBox"));
-	SetRootComponent(CollisionBox);
-	CollisionBox->SetNotifyRigidBodyCollision(true);
-	CollisionBox->SetEnableGravity(true);
-	CollisionBox->SetCollisionProfileName(HDCOLLISION_PROFILE_HELLPOD);
-	CollisionBox->BodyInstance.bUseCCD = true;
-	CollisionBox->OnComponentHit.AddDynamic(this, &AHDHellpod::OnBoxHit);
+    CollisionBox = CreateDefaultSubobject<UBoxComponent>(TEXT("CollisionBox"));
+    SetRootComponent(CollisionBox);
+    CollisionBox->SetNotifyRigidBodyCollision(true);
+    CollisionBox->SetEnableGravity(true);
+    CollisionBox->SetCollisionProfileName(HDCOLLISION_PROFILE_HELLPOD);
+    CollisionBox->BodyInstance.bUseCCD = true;
+    CollisionBox->OnComponentHit.AddDynamic(this, &AHDHellpod::OnBoxHit);
 
-	HellpodMesh = CreateDefaultSubobject<UStaticMeshComponent>("HellpodMesh");
-	HellpodMesh->SetupAttachment(RootComponent);
-	HellpodMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+    HellpodMesh = CreateDefaultSubobject<UStaticMeshComponent>("HellpodMesh");
+    HellpodMesh->SetupAttachment(RootComponent);
+    HellpodMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
-	// Camera
-	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
-	CameraBoom->SetupAttachment(RootComponent);
-	CameraBoom->bUsePawnControlRotation = true;
+    // Camera
+    CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
+    CameraBoom->SetupAttachment(RootComponent);
+    CameraBoom->bUsePawnControlRotation = true;
 
-	FollowCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("FollowCamera"));
-	FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName);
-	FollowCamera->bUsePawnControlRotation = false;
+    FollowCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("FollowCamera"));
+    FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName);
+    FollowCamera->bUsePawnControlRotation = false;
 
-	CameraShakeSource = CreateDefaultSubobject<UCameraShakeSourceComponent>(TEXT("CameraShakeSource"));
-	CameraShakeSource->SetupAttachment(RootComponent);
-	CameraShakeSource->bAutoStart = false;
+    CameraShakeSource = CreateDefaultSubobject<UCameraShakeSourceComponent>(TEXT("CameraShakeSource"));
+    CameraShakeSource->SetupAttachment(RootComponent);
+    CameraShakeSource->bAutoStart = false;
 }
 
 void AHDHellpod::BeginPlay()

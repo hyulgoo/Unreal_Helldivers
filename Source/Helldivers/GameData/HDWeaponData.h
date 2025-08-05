@@ -23,14 +23,6 @@ enum class EHDCrosshair : uint8
      GENERATED_BODY()
  
  public:
-     FHDWeaponErgoData()
-         : ZoomedFOV(0.f)
-         , ZoomInterpSpeed(0.f)
-         , ErgonomicFactor(0.f)
-     {
-     }
- 
- public:
      UPROPERTY(EditDefaultsOnly)
      float ZoomedFOV;     
      
@@ -45,15 +37,6 @@ enum class EHDCrosshair : uint8
  struct FHDWeaponAmmoData : public FTableRowBase
  {
      GENERATED_BODY()
- 
- public:
-     FHDWeaponAmmoData()
-         : Ammo(0)
-         , MaxAmmo(0)
-         , Capacity(0)
-         , MaxCapacity(0)
-     {
-     }
  
  public:
      UPROPERTY(EditDefaultsOnly)
@@ -73,19 +56,13 @@ enum class EHDCrosshair : uint8
 struct FHDWeaponCrosshairPair
 {
     GENERATED_BODY()
-public:
-    FHDWeaponCrosshairPair()
-        : Type(EHDCrosshair::Count)
-        , Texture(nullptr)
-    {
-    }
 
 public:
     UPROPERTY(EditDefaultsOnly)
-    EHDCrosshair Type;
+    EHDCrosshair            Type;
 
     UPROPERTY(EditDefaultsOnly)
-    TObjectPtr<UTexture2D> Texture;
+    TObjectPtr<UTexture2D>  Texture;
 };
 
  USTRUCT(BlueprintType)
@@ -94,14 +71,8 @@ public:
      GENERATED_BODY()
  
  public:
-     FHDWeaponUIData()
-         : WeaponIconImage(nullptr)
-     {
-     }
- 
- public:
      UPROPERTY(EditDefaultsOnly)
-     TObjectPtr<UTexture2D>		        WeaponIconImage;
+     TObjectPtr<UTexture2D>		       WeaponIconImage;
  
      UPROPERTY(EditDefaultsOnly)
      TArray<FHDWeaponCrosshairPair>    CrosshairTextureList;

@@ -23,7 +23,7 @@ class HELLDIVERS_API AHDHellpod : public APawn
 	GENERATED_BODY()
 
 public:
-	explicit							AHDHellpod();
+    AHDHellpod(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
 
 protected:
 	virtual void						BeginPlay() override;
@@ -67,7 +67,7 @@ private:
     UPROPERTY(EditDefaultsOnly, Category = "Hellpod|Input")
     float								FallSpeed;
 
-	FVector2D							CurrentInput;
+	FVector2D							CurrentInput                = FVector2D::ZeroVector;
 	
 	UPROPERTY(EditDefaultsOnly, Category = "Hellpod|Input")
 	float								MaxPitchAngle;
@@ -75,8 +75,8 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Hellpod|Input")
 	float								MaxRollAngle;
 
-	FRotator							MeshDefaultRelativeRotation;
-	uint8								bIsLanded : 1;
+	FRotator							MeshDefaultRelativeRotation = FRotator::ZeroRotator;
+	uint8								bIsLanded : 1               = false;
 
 	// Camera
     UPROPERTY(EditDefaultsOnly, Category = "Hellpod|Camera")
@@ -98,14 +98,14 @@ private:
     UPROPERTY(EditDefaultsOnly, Category = "Hellpod|Spawn")
     TSubclassOf<AHDCharacterPlayer>		CharacterClass;
 	
-	
     UPROPERTY(EditDefaultsOnly, Category = "Hellpod|Spawn")
 	float								SpawnTime;
 	
 	UPROPERTY();
 	TObjectPtr<AHDCharacterPlayer>		SpawnedCharacter;
 
-	FTimeline							SpawnCharacterTimeline;
+	FTimeline							SpawnCharacterTimeline      = FTimeline();
+
     UPROPERTY(EditDefaultsOnly, Category = "Hellpod|Spawn")
 	TObjectPtr<UCurveFloat>				SpawnCurveFloat;
 

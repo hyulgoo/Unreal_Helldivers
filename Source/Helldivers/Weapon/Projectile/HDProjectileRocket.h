@@ -15,7 +15,7 @@ class HELLDIVERS_API AHDProjectileRocket : public AHDProjectileBase
 	GENERATED_BODY()
 	
 public:
-	explicit								AHDProjectileRocket();
+    AHDProjectileRocket(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
 
 protected:
     virtual void							BeginPlay() override final;

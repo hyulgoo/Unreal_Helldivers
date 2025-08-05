@@ -16,8 +16,6 @@ class HELLDIVERS_API UHDAT_PlayMontageAndWaitForEvent : public UAbilityTask
 	GENERATED_BODY()
 	
 public:
-    UHDAT_PlayMontageAndWaitForEvent(const FObjectInitializer& ObjectInitializer);
-
 	UFUNCTION()
     static UHDAT_PlayMontageAndWaitForEvent*    PlayMontageAndWaitEvent(UGameplayAbility* OwningAbility, UAnimMontage* MontageToPlay, const FGameplayTagContainer EventTagContainer, float Rate = 1.f, FName StartSection = NAME_None, const bool OnlyTriggerOnce = false, bool OnlyMatchExact = true);
 
@@ -86,8 +84,8 @@ protected:
 	UPROPERTY()
 	uint8                                       bAllowInterruptAfterBlendOut : 1;
 
-    uint8                                       bOnlyTriggerOnce : 1;
-    uint8                                       bOnlyMatchExact : 1;
+    uint8                                       bOnlyTriggerOnce : 1 = false;
+    uint8                                       bOnlyMatchExact : 1 = false;
 
-    FGameplayTagContainer                       EventTags;
+    FGameplayTagContainer                       EventTags = FGameplayTagContainer();
 };

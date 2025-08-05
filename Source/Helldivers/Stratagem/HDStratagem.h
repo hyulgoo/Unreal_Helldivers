@@ -18,7 +18,7 @@ class HELLDIVERS_API AHDStratagem : public AActor
 	friend class AHDCharacterPlayer;
 
 public:	
-	explicit							AHDStratagem();
+    AHDStratagem(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
 
 	void								SetStratagemInfo(const FName StratagemName, const float StratagemActiveDelay);
 	void								AddImpulseToStratagem(const FVector& ThrowDirection);
@@ -48,8 +48,8 @@ private:
 	UPROPERTY(EditAnywhere)
 	float								StratagemActiveDelay;
 
-	FVector								ThrowDirection;
-	float								ThrowImpulse;
-	FName								StratagemName;
+	FVector								ThrowDirection  = FVector::ZeroVector;
+	float								ThrowImpulse    = 3000.f;
+	FName								StratagemName   = FName();
 
 };

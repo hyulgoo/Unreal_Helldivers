@@ -15,13 +15,8 @@
 #include "GameData/HDCharacterControlData.h"
 #include "Character/Player/HDCharacterPlayer.h"
 
-AHDPlayerController::AHDPlayerController()
-    : AbilitySystemComponent(nullptr)
-    , StratagemWidgetClass(nullptr)
-    , StratagemWidget(nullptr)
-    , CurrentCharacterControlType(EHDCharacterControlType::ThirdPerson)
-    , InputActionMap{}
-    , CharacterControlDataMap{}
+AHDPlayerController::AHDPlayerController(const FObjectInitializer& ObjectInitializer)
+    : Super(ObjectInitializer)
 {
     static ConstructorHelpers::FObjectFinder<UHDCharacterControlData> ThirdPersonDataRef(TEXT("/Script/Helldivers.HDCharacterControlData'/Game/Helldivers/CharacterControl/HDC_ThirdPerson.HDC_ThirdPerson'"));
     if (ThirdPersonDataRef.Succeeded())

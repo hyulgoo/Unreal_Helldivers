@@ -5,16 +5,6 @@
 #include "NiagaraFunctionLibrary.h"
 #include "Define/HDDefine.h"
 
-UHDGC_Base::UHDGC_Base()
-    : bUseNiagara(false)
-    , ParticleSystems{}
-    , NiagaraSystems{}
-    , ParticleScale(1.f)
-    , SoundVolume(1.f)
-    , EffectSounds{}
-{
-}
-
 bool UHDGC_Base::OnExecute_Implementation(AActor* Target, const FGameplayCueParameters& Parameters) const
 {
     NULL_CHECK_WITH_RETURNTYPE(Target, false);

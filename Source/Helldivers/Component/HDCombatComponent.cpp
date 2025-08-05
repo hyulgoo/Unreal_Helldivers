@@ -13,30 +13,8 @@
 
 #define AIMOFFSET_PITCH_OFFSET 20.f
 
-UHDCombatComponent::UHDCombatComponent()
-    : StartingAimRotation(FRotator::ZeroRotator)
-    , AimOffset_Yaw(0.f)
-    , AimOffset_Pitch(0.f)
-    , InterpAimOffset_Yaw(0.f)
-    , bIsCharacterLookingViewport(false)
-    , bUseRotateRootBone(false)
-    , TurnThreshold(0.f)
-    , TurningInPlace(EHDTurningInPlace::NotTurning)
-    , bIsShoulder(false)
-    , bIsFireButtonPressed(false)
-    , CombatState(EHDCombatState::Unoccupied)
-    , HitTarget(FVector::ZeroVector)
-    , DefaultFOV(50.f)
-	, CurrentFOV(0.f)
-    , ZoomedFOV(0.f)
-	, ZoomInterpSpeed(0.f)
-    , ErgonomicFactor(0.f)
-	, Weapon(nullptr)
-    , DefaultCurve(nullptr)
-    , SpringArmArmLengthTimeline(FTimeline())
-    , SpringArmTargetArmLength(0.f)
-    , DefaultWeaponClass(nullptr)
-    , CombatMontage{}
+UHDCombatComponent::UHDCombatComponent(const FObjectInitializer& ObjectInitializer)
+    : Super(ObjectInitializer)
 {
     PrimaryComponentTick.bCanEverTick = true;
 }

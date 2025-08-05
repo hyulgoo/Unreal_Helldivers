@@ -8,23 +8,8 @@
 #include "Components/SphereComponent.h"
 #include "Engine/SkeletalMeshSocket.h"
 
-AHDWeapon::AHDWeapon()
-	: FireType(EHDFireType::Count)
-    , ProjectileClass(nullptr)
-    , WeaponType(EWeaponType::Count)
-    , WeaponMesh(nullptr)
-    , AreaSphere(nullptr)
-	, WeaponAnimationMap{}
-    , EquipSoundTag(FGameplayTag::EmptyTag)
-    , CasingClass(nullptr)
-    , FireDelay(0.f)
-    , bUseScatter(false)
-    , bIsAutoFire(false)
-    , AmmoData(FHDWeaponAmmoData())
-    , ErgoData(FHDWeaponErgoData())
-    , UIData(FHDWeaponUIData())
-    , WeaponState(EWeaponState::Drop)
-	, ReloadTimer(FTimerHandle())
+AHDWeapon::AHDWeapon(const FObjectInitializer& ObjectInitializer)
+	: Super(ObjectInitializer)
 {
 	WeaponMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("WeaponMesh"));
 	SetRootComponent(WeaponMesh);

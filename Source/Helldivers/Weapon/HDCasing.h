@@ -15,7 +15,7 @@ class HELLDIVERS_API AHDCasing : public AActor
 	GENERATED_BODY()
 	
 public:	
-	explicit							AHDCasing();
+    AHDCasing(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
 
 protected:
     virtual void						BeginPlay() override;
@@ -31,5 +31,5 @@ private:
     FGameplayTag				        ShellSoundTag;
     
 	UPROPERTY(EditDefaultsOnly)
-	float								ShellEjectionImpulse;
+	float								ShellEjectionImpulse = 10.f;
 };

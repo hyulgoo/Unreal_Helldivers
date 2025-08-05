@@ -4,11 +4,10 @@
 #include "Interface/HDCharacterCommandInterface.h"
 #include "AbilitySystem/GameplayAbilityHelper.h"
 
-UHDGA_StratagemInputMode::UHDGA_StratagemInputMode()
+UHDGA_StratagemInputMode::UHDGA_StratagemInputMode(const FObjectInitializer& ObjectInitializer)
+    : Super(ObjectInitializer)
 {
     InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
-
-    TargetBlockedTags.AddTag(HDTAG_CHARACTER_STATE_ISDEAD);
 }
 
 void UHDGA_StratagemInputMode::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)

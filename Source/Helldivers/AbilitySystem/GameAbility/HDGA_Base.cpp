@@ -2,6 +2,12 @@
 
 #include "HDGA_Base.h"
 
+UHDGA_Base::UHDGA_Base(const FObjectInitializer& ObjectInitializer)
+    : Super(ObjectInitializer)
+{
+    TargetBlockedTags.AddTag(HDTAG_CHARACTER_STATE_ISDEAD);
+}
+
 bool UHDGA_Base::CanActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayTagContainer* SourceTags /*= nullptr*/, const FGameplayTagContainer* TargetTags /*= nullptr*/, OUT FGameplayTagContainer* OptionalRelevantTags /*= nullptr*/) const
 {
     CONDITION_CHECK_WITH_RETURNTYPE_WITHOUT_LOG(Super::CanActivateAbility(Handle, ActorInfo, SourceTags, TargetTags, OptionalRelevantTags), false);

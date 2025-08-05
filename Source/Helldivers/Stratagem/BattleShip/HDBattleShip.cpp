@@ -11,19 +11,8 @@
 #include "Weapon/Projectile/HDProjectileBase.h"
 #include "Define/HDDefine.h"
 
-AHDBattleShip::AHDBattleShip()
-    : BattleShipMesh(nullptr)
-	, CollisionSphere(nullptr)
-    , AbilitySystemComponent(nullptr)
-    , EagleFighterClass(nullptr)
-    , EagleFighter(nullptr)
-    , ProjectileBombClass(nullptr)
-    , ProjectileBulletClass(nullptr)
-    , StratagemEffectDataTable(nullptr)
-    , StratagemTransform(FTransform::Identity)
-    , ActiveStratagemTimerHandle(FTimerHandle())
-    , CurrentStratagemIndex(0)
-    , bCanUseStratagem(false)
+AHDBattleShip::AHDBattleShip(const FObjectInitializer& ObjectInitializer)
+    : Super(ObjectInitializer)
 {
     CollisionSphere = CreateDefaultSubobject<USphereComponent>(TEXT("CollisionSphere"));
     SetRootComponent(CollisionSphere);

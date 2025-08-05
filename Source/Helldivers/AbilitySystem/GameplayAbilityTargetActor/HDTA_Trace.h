@@ -12,8 +12,6 @@ class HELLDIVERS_API AHDTA_Trace : public AGameplayAbilityTargetActor
 	GENERATED_BODY()
 
 public:
-	explicit		AHDTA_Trace();
-
 	virtual void	StartTargeting(UGameplayAbility* Ability) override final;
 	virtual void	ConfirmTargetingAndContinue() override final;
     void			SetShowDebug(const bool InShowDebug);
@@ -22,5 +20,5 @@ protected:
 	virtual FGameplayAbilityTargetDataHandle MakeTargetData() const;
 
 private:
-	uint8			bShowDebug : 1;
+	uint8			bShowDebug : 1 = false;
 };

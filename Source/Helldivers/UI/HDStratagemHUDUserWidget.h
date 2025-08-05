@@ -53,7 +53,7 @@ protected:
 	
 	int8											MaxCommandCount;
 
-	float											WidgetAppearDistance;
-	EHDStratagemWidgetMoveState						MoveState;
+	float											WidgetAppearDistance    = 0.f;
+	EHDStratagemWidgetMoveState						MoveState               = EHDStratagemWidgetMoveState::NONE;
 
 };

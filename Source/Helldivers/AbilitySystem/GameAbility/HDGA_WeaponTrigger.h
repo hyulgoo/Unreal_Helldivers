@@ -14,7 +14,7 @@ class HELLDIVERS_API UHDGA_WeaponTrigger : public UHDGA_Base
 	GENERATED_BODY()
 
 public:
-	explicit UHDGA_WeaponTrigger();
+	 UHDGA_WeaponTrigger(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
 
 	virtual void							ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData) override final;
 	virtual void							EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled) override final;
@@ -27,5 +27,5 @@ private:
 
 protected:
 	TScriptInterface<IHDWeaponInterface>	WeaponInterface;
-	float									SavedDelay;
+    float									SavedDelay = 0.f;
 };

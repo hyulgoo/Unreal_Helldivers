@@ -11,9 +11,6 @@ class HELLDIVERS_API AHDCharacterNonPlayer : public AHDCharacterBase
 {
 	GENERATED_BODY()
 	
-public:
-    explicit        AHDCharacterNonPlayer();
-
 protected:
     virtual void    BeginPlay() override final;
     virtual void    SetDead() override final;

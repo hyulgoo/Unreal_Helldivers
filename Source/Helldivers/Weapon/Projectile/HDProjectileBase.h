@@ -23,7 +23,7 @@ class HELLDIVERS_API AHDProjectileBase : public AActor
 	GENERATED_BODY()
 
 public:	
-	explicit                                    AHDProjectileBase();
+    AHDProjectileBase(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
 
 protected:
 	virtual void	                            BeginPlay() override;
@@ -110,5 +110,5 @@ private:
 	UPROPERTY(EditAnywhere, Category = "Info|Default")
 	float										DestroyTime = 10.f;
 
-	FTimerHandle								DestroyTimer;
+	FTimerHandle								DestroyTimer = FTimerHandle();
 };

@@ -6,11 +6,6 @@
 #include "AbilitySystemGlobals.h"
 #include "Define/HDDefine.h"
 
-UHDAT_PlayMontageAndWaitForEvent::UHDAT_PlayMontageAndWaitForEvent(const FObjectInitializer& ObjectInitializer)
-    : Super(ObjectInitializer)
-{
-}
-
 UHDAT_PlayMontageAndWaitForEvent* UHDAT_PlayMontageAndWaitForEvent::PlayMontageAndWaitEvent(UGameplayAbility* OwningAbility, UAnimMontage* MontageToPlay, const FGameplayTagContainer EventTagContainer, float Rate, FName StartSection, const bool OnlyTriggerOnce, bool OnlyMatchExact)
 {
     UAbilitySystemGlobals::NonShipping_ApplyGlobalAbilityScaler_Rate(Rate);

@@ -14,7 +14,7 @@ class HELLDIVERS_API UHDGA_Base : public UGameplayAbility
 	GENERATED_BODY()
 
 public:
-    explicit        UHDGA_Base() = default;
+    UHDGA_Base(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
 
     virtual bool    CanActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayTagContainer* SourceTags = nullptr, const FGameplayTagContainer* TargetTags = nullptr, OUT FGameplayTagContainer* OptionalRelevantTags = nullptr) const override;
     virtual void    InputReleased(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo) override;

@@ -18,7 +18,7 @@ class HELLDIVERS_API AHDBattleShip : public AActor, public IAbilitySystemInterfa
 	GENERATED_BODY()
 	
 public:	
-	explicit                            AHDBattleShip();
+    AHDBattleShip(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
 
     virtual UAbilitySystemComponent*    GetAbilitySystemComponent() const override;
 	void							    ActivateStratagem(const FName StratagemName, const FTransform& Transform, const float StratagemActiveDelay);
@@ -58,8 +58,8 @@ protected:
     UPROPERTY(EditAnywhere, Category = "Stratagem|Data")
     TObjectPtr<UDataTable>				StratagemEffectDataTable;
 
-    FTransform 							StratagemTransform;
-    FTimerHandle						ActiveStratagemTimerHandle;
-    uint8								CurrentStratagemIndex;
-    uint8								bCanUseStratagem : 1;
+    FTransform 							StratagemTransform          = FTransform::Identity;
+    FTimerHandle						ActiveStratagemTimerHandle  = FTimerHandle();
+    uint8								CurrentStratagemIndex       = 0;
+    uint8								bCanUseStratagem : 1        = false;
 };

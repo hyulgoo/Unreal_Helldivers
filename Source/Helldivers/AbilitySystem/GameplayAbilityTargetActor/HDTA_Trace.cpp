@@ -2,11 +2,6 @@
 
 #include "HDTA_Trace.h"
 
-AHDTA_Trace::AHDTA_Trace()
-    : bShowDebug(false)
-{
-}
-
 void AHDTA_Trace::StartTargeting(UGameplayAbility* Ability)
 {
 }

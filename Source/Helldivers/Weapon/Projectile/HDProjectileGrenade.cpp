@@ -5,8 +5,8 @@
 #include "Define/HDDefine.h"
 #include "AbilitySystem/GameplayAbilityHelper.h"
 
-AHDProjectileGrenade::AHDProjectileGrenade()
-    : BounceSoundTag(FGameplayTag::EmptyTag)
+AHDProjectileGrenade::AHDProjectileGrenade(const FObjectInitializer& ObjectInitializer)
+    : Super(ObjectInitializer)
 {
     ProjectileMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Grenade Mesh"));
     ProjectileMesh->SetupAttachment(RootComponent);
@@ -14,11 +14,6 @@ AHDProjectileGrenade::AHDProjectileGrenade()
 
     ProjectileMovement->SetIsReplicated(true);
     ProjectileMovement->bShouldBounce = true;
-}
-
-void AHDProjectileGrenade::Destroyed()
-{
-    Super::Destroyed();
 }
 
 void AHDProjectileGrenade::BeginPlay()

@@ -14,8 +14,6 @@ class HELLDIVERS_API UHDAT_JumpAndWaitForLanding : public UAbilityTask
     GENERATED_BODY()
 
 public:
-    explicit                        UHDAT_JumpAndWaitForLanding() = default;
-
     UFUNCTION(BlueprintCallable, Category = "Ability|Tasks", meta = (DisplayName = "JumpAndWaitForLanding", HidePin = "OwningAbility", DefaultToSelf = "OwningAbility", BlueprintInternalUseOnly = "TRUE"))
     static                          UHDAT_JumpAndWaitForLanding* CreateTask(UGameplayAbility* OwningAbility);
 

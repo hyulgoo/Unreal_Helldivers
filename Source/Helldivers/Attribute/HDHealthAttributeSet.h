@@ -19,8 +19,6 @@ class HELLDIVERS_API UHDHealthAttributeSet : public UAttributeSet
 	GENERATED_BODY()
 	
 public:
-	explicit				UHDHealthAttributeSet();
-
 	ATTRIBUTE_ACCESSORS(UHDHealthAttributeSet, CurrentHealth);
 	ATTRIBUTE_ACCESSORS(UHDHealthAttributeSet, MaxHealth);
 

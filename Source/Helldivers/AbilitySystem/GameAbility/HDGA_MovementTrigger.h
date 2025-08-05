@@ -14,7 +14,7 @@ class HELLDIVERS_API UHDGA_MovementTrigger : public UHDGA_Base
 	GENERATED_BODY()
 
 public:
-	explicit        UHDGA_MovementTrigger();
+    UHDGA_MovementTrigger(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
 
 	virtual void    ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData) override final;
 	virtual void    EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled) override final;
@@ -24,6 +24,6 @@ private:
 	void		    OnCurrentStaminaChanged(bool bMatchesComparison, float CurrentValue);
 
 private:
-    float           MaxStamina;
-    FTimerHandle    RegenStaminaHandle;
+    float           MaxStamina = 0.f;
+    FTimerHandle    RegenStaminaHandle = FTimerHandle();
 };

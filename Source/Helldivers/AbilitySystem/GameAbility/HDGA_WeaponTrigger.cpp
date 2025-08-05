@@ -3,13 +3,11 @@
 #include "HDGA_WeaponTrigger.h"
 #include "Abilities/Tasks/AbilityTask_WaitDelay.h"
 #include "Interface/HDWeaponInterface.h"
-#include "AbilitySystem/AbilityTask/HDAT_PlayMontageAndWaitForEvent.h"
 
-UHDGA_WeaponTrigger::UHDGA_WeaponTrigger()
-	: WeaponInterface(nullptr)
-	, SavedDelay(0.f)
+UHDGA_WeaponTrigger::UHDGA_WeaponTrigger(const FObjectInitializer& ObjectInitializer /*= FObjectInitializer::Get()*/)
+    : Super(ObjectInitializer)
 {
-	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
+    InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
 }
 
 void UHDGA_WeaponTrigger::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)

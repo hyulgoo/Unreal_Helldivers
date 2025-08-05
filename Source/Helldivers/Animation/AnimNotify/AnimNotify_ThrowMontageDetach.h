@@ -11,9 +11,6 @@ class HELLDIVERS_API UAnimNotify_ThrowMontageDetach : public UAnimNotify
 {
 	GENERATED_BODY()
 	
-public:
-	explicit        UAnimNotify_ThrowMontageDetach() = default;
-
 protected:
     virtual FString GetNotifyName_Implementation() const override final;
     virtual void    Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, const FAnimNotifyEventReference& EventReference) override;

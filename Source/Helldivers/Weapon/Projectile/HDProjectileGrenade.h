@@ -15,9 +15,7 @@ class HELLDIVERS_API AHDProjectileGrenade : public AHDProjectileBase
 	GENERATED_BODY()
 	
 public:
-	explicit		        AHDProjectileGrenade();
-
-	virtual void	        Destroyed() override final;
+    AHDProjectileGrenade(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
 
 protected:
 	virtual void	        BeginPlay() override final;

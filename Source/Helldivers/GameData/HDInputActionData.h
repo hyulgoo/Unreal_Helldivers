@@ -22,7 +22,7 @@ struct FHDInputAction
     GENERATED_BODY()
 
 public:
-    FHDInputAction();
+    FHDInputAction() = default;
     FHDInputAction(UInputAction* NewInputAction, const FGameplayTag& NewInputTag, const FGameplayTag& NewAbilityTriggerTag, const EHDTriggerType  NewTriggerType);
 
     UPROPERTY(EditDefaultsOnly)
@@ -44,7 +44,7 @@ class HELLDIVERS_API UHDInputData : public UDataAsset
 	GENERATED_BODY()
 
 public:
-    explicit UHDInputData();
+     UHDInputData(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
 
     const FGameplayTag GetInputTagByTriggerTag(const FGameplayTag& TriggerTag);
     const FGameplayTag GetTriggerTagByInputTag(const FGameplayTag& InputTag);

@@ -1,19 +1,10 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "HDMovementStateComponent.h"
-#include "Character/CharacterTypes/HDCharacterStateTypes.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Define/HDDefine.h"
 
 #define CHARACTERMOVESTATEZOFFSET 40.f
-
-UHDMovementStateComponent::UHDMovementStateComponent()
-	: StanceState(EHDCharacterStanceState::Idle)
-	, PrevStanceState(EHDCharacterStanceState::Idle)
-    , MovementState(EHDCharacterMovementState::Idle)
-	, SpringArmZOffset(0.f)
-{
-}
 
 const EHDCharacterStanceState UHDMovementStateComponent::GetStanceState() const
 {

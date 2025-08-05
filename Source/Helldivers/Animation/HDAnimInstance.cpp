@@ -11,44 +11,6 @@
 #include "Define/HDDefine.h"
 #include "Define/HDSocketNames.h"
 
-UHDAnimInstance::UHDAnimInstance()
-	: Owner(nullptr)
-	, CharacterMovement(nullptr)
-    , MovementState(nullptr)
-    , Combat(nullptr)
-	, Velocity(FVector::ZeroVector)
-	, GroundSpeed(0.f)
-	, MovingThreshould(0.f)
-	, CharacterStanceState(EHDCharacterStanceState::Idle)
-	, CharacterMovementState(EHDCharacterMovementState::Idle)
-	, bIsIdle(false)
-	, bIsFalling(false)
-	, bIsJumping(false)
-	, JumpingThreshould(0.f)
-	, bIsRotateRootBone(false)
-	, YawOffset(0.f)
-	, Lean(0.f)
-	, bIsLookingViewport(false)
-	, CombatState(EHDCombatState::Count)
-	, TurningInPlace(EHDTurningInPlace::NotTurning)
-	, LeftHandTransform(FTransform::Identity)
-	, RightHandRotation(FRotator::ZeroRotator)
-	, bIsShouldering(false)
-	, bUseAimOffset(false)
-	, bUseFABRIK(false)
-	, bTransformRightHand(false)
-	, AimOffset_Yaw(0.f)
-	, AimOffset_Pitch(0.f)
-	, HitTarget(FVector::ZeroVector)
-	, bIsUpperSlotValid(false)
-	, CharacterRotationLastFrame(FRotator::ZeroRotator)
-	, CharacterRotation(FRotator::ZeroRotator)
-	, DeltaRotation(FRotator::ZeroRotator)
-{
-	MovingThreshould = 3.0f;
-	JumpingThreshould = 100.0f;
-}
-
 void UHDAnimInstance::NativeInitializeAnimation()
 {
 	Super::NativeInitializeAnimation();

@@ -14,9 +14,6 @@ class HELLDIVERS_API UHDCharacterControlData : public UPrimaryDataAsset
 	GENERATED_BODY()
 
 public:
-	explicit	UHDCharacterControlData();
-
-public:
 	UPROPERTY(EditAnywhere, Category = "CharacterMovement")
 	uint32		bUseControllerRotationYaw	: 1;
 
@@ -33,7 +30,7 @@ public:
 	TObjectPtr<UInputMappingContext> InputMappingContext;
 
 	UPROPERTY(EditAnywhere, Category = "SpringArm")
-	float		TargetArmLength;
+	float		TargetArmLength = 400.f;
 	
 	UPROPERTY(EditAnywhere, Category = "SpringArm")
 	FVector		TargetOffset;
