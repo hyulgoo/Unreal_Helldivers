@@ -8,6 +8,7 @@
 #include "Interface/HDCharacterMovementInterface.h"
 #include "Interface/HDCharacterCommandInterface.h"
 #include "Interface/HDWeaponInterface.h"
+#include "GameplayTagContainer.h"
 #include "HDCharacterPlayer.generated.h"
 
 class USpringArmComponent;
@@ -41,13 +42,14 @@ protected:
 	// WeaponInterface
     virtual void                            EquipWeapon(AHDWeapon* NewWeapon) override final;
 	virtual const float                     GetWeaponFireDelay() const override final;
-	virtual void							Attack(const bool bActive) override final;
-	virtual const bool						FireFinished() override final;
+	virtual void							Attack(const bool bAttack) override final;
+	virtual const bool						ContinueFire() override final;
     virtual void							SetWeaponActive(const bool bActive) override final;
 	virtual const float						Reload() override final;
 	virtual void							ReloadFinished() override;
 
-	const float 							Fire(const bool IsPressed);
+    void                                    SpawnDefaultWeapon(const FGameplayEventData* Payload);
+	void         							Fire();
 
 	// CharacterMovementInterface
 	virtual void							SetShouldering(const bool bSetAiming) override final;
@@ -60,7 +62,6 @@ protected:
 	virtual void							TryHoldStratagem() override final;
 	void									CancleStratagem();
 
-	UHDStratagemComponent*					GetStratagemComponent();
     const float								GetMoveSpeedByState(const EHDCharacterStanceState StanceState, const EHDCharacterMovementState MoveState);
         
 	UFUNCTION()

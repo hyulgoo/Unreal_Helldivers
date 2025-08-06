@@ -22,10 +22,10 @@ class HELLDIVERS_API UHDCombatComponent : public UActorComponent
 public:	
     UHDCombatComponent(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
 
-    const bool				                Fire(const bool IsPressed);
+    const bool				                Fire();
     const bool 				                CanFire() const;
 
-    void                                    SpawnDefaultWeapon();
+    AHDWeapon*                              SpawnDefaultWeapon();
     void                                    EquipWeapon(AHDWeapon* NewWeapon);
 
     USkeletalMeshComponent*                 GetWeaponMesh() const;
@@ -51,7 +51,7 @@ public:
     const bool                              IsShoulder() const;
     void                                    SetShoulder(const bool bShoudler);
 
-	const bool                              FireFinished();
+	const bool                              ContinueFire();
 	void                                    ReloadFinished();
 
     const float                             GetAimOffset_Yaw() const;
@@ -94,26 +94,25 @@ private:
     UPROPERTY()
     TObjectPtr<USpringArmComponent>         SpringArm;
     
-    FRotator				                StartingAimRotation         = FRotator::ZeroRotator;
-    float					                AimOffset_Yaw               = 0.f;
-    float					                AimOffset_Pitch             = 0.f;
-    float					                InterpAimOffset_Yaw         = 0.f;
+    FRotator				                StartingAimRotation             = FRotator::ZeroRotator;
+    float					                AimOffset_Yaw                   = 0.f;
+    float					                AimOffset_Pitch                 = 0.f;
+    float					                InterpAimOffset_Yaw             = 0.f;
 
     uint8					                bIsCharacterLookingViewport : 1 = false;
-    uint8					                bUseRotateRootBone : 1      = false;
+    uint8					                bUseRotateRootBone : 1          = false;
     
 	UPROPERTY(EditAnywhere)
 	float					                TurnThreshold;
 
-	EHDTurningInPlace		                TurningInPlace              = EHDTurningInPlace::NotTurning;
+	EHDTurningInPlace		                TurningInPlace                  = EHDTurningInPlace::NotTurning;
 
-    uint8					                bIsShoulder : 1             = false;
-    uint8					                bIsFireButtonPressed : 1    = false;
+    uint8					                bIsShoulder : 1                 = false;
 
-    EHDCombatState			                CombatState                 = EHDCombatState::Unoccupied;
-    FVector					                HitTarget                   = FVector::ZeroVector;
-    float                                   DefaultFOV                  = 50.f;
-    float					                CurrentFOV                  = 0.f;
+    EHDCombatState			                CombatState                     = EHDCombatState::Unoccupied;
+    FVector					                HitTarget                       = FVector::ZeroVector;
+    float                                   DefaultFOV                      = 50.f;
+    float					                CurrentFOV                      = 0.f;
 
     UPROPERTY(EditAnywhere)
 	float					                ZoomedFOV;
@@ -121,7 +120,7 @@ private:
     UPROPERTY(EditAnywhere)
 	float					                ZoomInterpSpeed;
 
-    float					                ErgonomicFactor             = 0.f;
+    float					                ErgonomicFactor                 = 0.f;
     
     UPROPERTY()
 	TObjectPtr<AHDWeapon>	                Weapon;
@@ -129,8 +128,8 @@ private:
     UPROPERTY(EditAnywhere)
 	TObjectPtr<UCurveFloat>	                DefaultCurve;
 
-	FTimeline				                SpringArmArmLengthTimeline  = FTimeline();
-	float					                SpringArmTargetArmLength    = 0.f;
+	FTimeline				                SpringArmArmLengthTimeline;
+	float					                SpringArmTargetArmLength        = 0.f;
     
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<AHDWeapon>					DefaultWeaponClass;

@@ -44,15 +44,15 @@ void UHDCombatComponent::TickComponent(float DeltaTime, ELevelTick TickType, FAc
     SpringArmArmLengthTimeline.TickTimeline(DeltaTime);
 }
 
-const bool UHDCombatComponent::FireFinished()
+const bool UHDCombatComponent::ContinueFire()
 {
     VALID_CHECK_WITH_RETURNTYPE(Weapon, false);
 
-    if (bIsFireButtonPressed && Weapon->IsAutoFire())
+    if (Weapon->IsAutoFire())
     {
-        Fire(true);
-        return true;
+        return Fire();
     }
+
     return false;
 }
 
@@ -276,14 +276,9 @@ void UHDCombatComponent::OnSpringArmLengthUpdate(const float Value)
     SpringArm->TargetArmLength = Interpolated;
 }
 
-const bool UHDCombatComponent::Fire(const bool IsPressed)
+const bool UHDCombatComponent::Fire()
 {
-    bIsFireButtonPressed = IsPressed;
-
-    if (bIsFireButtonPressed == false || CanFire() == false)
-    {
-        return false;
-    }
+    CONDITION_CHECK_WITH_RETURNTYPE_WITHOUT_LOG(CanFire(), false);
 
     CombatState = EHDCombatState::Fire;
     Weapon->Fire(HitTarget, bIsShoulder);
@@ -399,16 +394,10 @@ const bool UHDCombatComponent::CanFire() const
     return (CombatState == EHDCombatState::Unoccupied || CombatState == EHDCombatState::Fire);
 }
 
-void UHDCombatComponent::SpawnDefaultWeapon()
+AHDWeapon* UHDCombatComponent::SpawnDefaultWeapon()
 {
-    NULL_CHECK(DefaultWeaponClass);
-
-    UWorld* World = GetWorld();
-    VALID_CHECK(World);
-
-    AHDWeapon* SpawnWeapon = World->SpawnActor<AHDWeapon>(DefaultWeaponClass);
-    NULL_CHECK(SpawnWeapon);
-    EquipWeapon(SpawnWeapon);
+    NULL_CHECK_WITH_RETURNTYPE(DefaultWeaponClass, nullptr);
+    return GetWorld()->SpawnActor<AHDWeapon>(DefaultWeaponClass);
 }
 
 const EHDCombatState UHDCombatComponent::GetCombatState() const

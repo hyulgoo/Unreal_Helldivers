@@ -12,17 +12,20 @@ void UHDGASPlayerUserWidget::SetAbilitySystemComponent(UAbilitySystemComponent* 
 {
     Super::SetAbilitySystemComponent(NewAbilitySystemComponent);
 
-    NULL_CHECK(AbilitySystemComponent);
+    UAbilitySystemComponent* ASC = GetAbilitySystemComponent();
+    NULL_CHECK(ASC);
     
-    AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(UHDHealthAttributeSet::GetCurrentHealthAttribute())
-        .AddUObject(this, &UHDGASPlayerUserWidget::OnHealthAttributeChangeds);
-    AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(UHDHealthAttributeSet::GetMaxHealthAttribute())
-        .AddUObject(this, &UHDGASPlayerUserWidget::OnHealthAttributeChangeds);
+    ASC->GetGameplayAttributeValueChangeDelegate(UHDHealthAttributeSet::GetCurrentHealthAttribute())
+        .AddUObject(this, &ThisClass::OnHealthAttributeChangeds);
+    ASC->GetGameplayAttributeValueChangeDelegate(UHDHealthAttributeSet::GetMaxHealthAttribute())
+        .AddUObject(this, &ThisClass::OnHealthAttributeChangeds);
 
-    AbilitySystemComponent->GenericGameplayEventCallbacks.FindOrAdd(HDTAG_EVENT_PLAYERHUD_AMMOCHANGE).AddUObject(this, &UHDGASPlayerUserWidget::OnAmmoCountChanged);
-    AbilitySystemComponent->GenericGameplayEventCallbacks.FindOrAdd(HDTAG_EVENT_PLAYERHUD_CAPACITYCHANGE).AddUObject(this, &UHDGASPlayerUserWidget::OnAmmoCountChanged);
+    ASC->GenericGameplayEventCallbacks.FindOrAdd(HDTAG_EVENT_PLAYERHUD_CURRENTAMMOCHANGE).AddUObject(this, &ThisClass::OnWeaponInfoChanged);
+    ASC->GenericGameplayEventCallbacks.FindOrAdd(HDTAG_EVENT_PLAYERHUD_MAXAMMOCHANGE).AddUObject(this, &ThisClass::OnWeaponInfoChanged);
+    ASC->GenericGameplayEventCallbacks.FindOrAdd(HDTAG_EVENT_PLAYERHUD_CURRENTCAPACITYCHANGE).AddUObject(this, &ThisClass::OnWeaponInfoChanged);
+    ASC->GenericGameplayEventCallbacks.FindOrAdd(HDTAG_EVENT_PLAYERHUD_MAXCAPACITYCHANGE).AddUObject(this, &ThisClass::OnWeaponInfoChanged);
 
-    const UHDHealthAttributeSet* AttributeSet = AbilitySystemComponent->GetSet<UHDHealthAttributeSet>();
+    const UHDHealthAttributeSet* AttributeSet = ASC->GetSet<UHDHealthAttributeSet>();
     NULL_CHECK(AttributeSet);
     
     CurrentHealth = AttributeSet->GetCurrentHealth();
@@ -65,17 +68,27 @@ void UHDGASPlayerUserWidget::SetGrenadeCountInfo(const int32 NewGrenadeCount, co
     OnGrenadeCountChanged(NewGrenadeCount);
 }
 
-void UHDGASPlayerUserWidget::OnAmmoCountChanged(const FGameplayEventData* PayLoad)
+void UHDGASPlayerUserWidget::OnWeaponInfoChanged(const FGameplayEventData* PayLoad)
 {
-    if (PayLoad->EventTag == HDTAG_EVENT_PLAYERHUD_AMMOCHANGE)
+    if (PayLoad->EventTag == HDTAG_EVENT_PLAYERHUD_CURRENTAMMOCHANGE)
     {
         const float CurrentAmmoCount = PayLoad->EventMagnitude;
         const float Ratio = CurrentAmmoCount / static_cast<float>(MaxAmmoCount);
         UpdateProgressbar(Pb_Ammo, Ratio);
     }
-    else if(PayLoad->EventTag == HDTAG_EVENT_PLAYERHUD_CAPACITYCHANGE)
+    else if(PayLoad->EventTag == HDTAG_EVENT_PLAYERHUD_CURRENTCAPACITYCHANGE)
     {
         OnCapacityCountChanged(static_cast<int32>(PayLoad->EventMagnitude));
+    }
+    else if (PayLoad->EventTag == HDTAG_EVENT_PLAYERHUD_MAXAMMOCHANGE)
+    {
+        MaxAmmoCount = static_cast<int32>(PayLoad->EventMagnitude);
+        UpdateProgressbar(Pb_Ammo, 1.f);
+    }
+    else if (PayLoad->EventTag == HDTAG_EVENT_PLAYERHUD_MAXCAPACITYCHANGE)
+    {
+        MaxCapacityCount = static_cast<int32>(PayLoad->EventMagnitude);
+        OnCapacityCountChanged(MaxCapacityCount);
     }
 }
 
@@ -96,7 +109,7 @@ void UHDGASPlayerUserWidget::OnGrenadeCountChanged(const int32 NewGrenadeCount)
 void UHDGASPlayerUserWidget::UpdateProgressbar(UProgressBar* Progressbar, const float Value)
 {
     NULL_CHECK(Progressbar);
-    CONDITION_CHECK(Value >= 0.f && Value <= 1.f);
+    CONDITION_CHECK(Value <= 0.f && Value <= 1.f);
 
     Progressbar->SetPercent(Value);
 }

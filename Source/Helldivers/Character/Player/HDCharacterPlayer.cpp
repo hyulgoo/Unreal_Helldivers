@@ -44,8 +44,11 @@ void AHDCharacterPlayer::PossessedBy(AController* NewController)
 {
     Super::PossessedBy(NewController);
 
-    Combat->SpawnDefaultWeapon();
     InitAbilitySystemComponent();
+
+    UAbilitySystemComponent* ASC = GetAbilitySystemComponent();
+    NULL_CHECK(ASC);
+    ASC->GenericGameplayEventCallbacks.FindOrAdd(HDTAG_EVENT_PLAYERHUD_INITIALIZE).AddUObject(this, &AHDCharacterPlayer::SpawnDefaultWeapon);
 }
 
 void AHDCharacterPlayer::SetRagdoll(const bool bRagdoll, const FVector& Impulse)
@@ -66,6 +69,14 @@ void AHDCharacterPlayer::SetRagdoll(const bool bRagdoll, const FVector& Impulse)
 void AHDCharacterPlayer::EquipWeapon(AHDWeapon* NewWeapon)
 {
     Combat->EquipWeapon(NewWeapon);
+
+    UAbilitySystemComponent* ASC = GetAbilitySystemComponent();
+    NULL_CHECK(ASC);
+
+    FGameplayAbilityHelper::SendGameplayEventToSelf(HDTAG_EVENT_PLAYERHUD_MAXCAPACITYCHANGE, ASC, Combat->GetWeaponMaxCapacityCount());
+    FGameplayAbilityHelper::SendGameplayEventToSelf(HDTAG_EVENT_PLAYERHUD_MAXAMMOCHANGE, ASC, Combat->GetWeaponMaxAmmoCount());
+    FGameplayAbilityHelper::SendGameplayEventToSelf(HDTAG_EVENT_PLAYERHUD_CURRENTCAPACITYCHANGE, ASC, Combat->GetWeaponCapacityCount());
+    FGameplayAbilityHelper::SendGameplayEventToSelf(HDTAG_EVENT_PLAYERHUD_CURRENTAMMOCHANGE, ASC, Combat->GetWeaponAmmoCount());
 }
 
 void AHDCharacterPlayer::SetWeaponActive(const bool bActive)
@@ -75,10 +86,7 @@ void AHDCharacterPlayer::SetWeaponActive(const bool bActive)
 
 const float AHDCharacterPlayer::Reload()
 {
-    if (Combat->CanReload() == false)
-    {
-        return 0.f;
-    }
+    CONDITION_CHECK_WITH_RETURNTYPE(Combat->CanReload(), 0.f);
 
 	Combat->Reload();
 
@@ -110,7 +118,19 @@ void AHDCharacterPlayer::ReloadFinished()
 {
     Combat->ReloadFinished();
 
-    FGameplayAbilityHelper::SendGameplayEventToSelf(HDTAG_EVENT_PLAYERHUD_CAPACITYCHANGE, GetAbilitySystemComponent());
+    FGameplayAbilityHelper::SendGameplayEventToSelf(HDTAG_EVENT_PLAYERHUD_CURRENTCAPACITYCHANGE, GetAbilitySystemComponent(), Combat->GetWeaponCapacityCount());
+    FGameplayAbilityHelper::SendGameplayEventToSelf(HDTAG_EVENT_PLAYERHUD_CURRENTAMMOCHANGE, GetAbilitySystemComponent(), Combat->GetWeaponAmmoCount());
+}
+
+void AHDCharacterPlayer::SpawnDefaultWeapon(const FGameplayEventData* Payload)
+{
+    AHDWeapon* Weapon = Combat->SpawnDefaultWeapon();
+    NULL_CHECK(Weapon);
+    EquipWeapon(Weapon);
+
+    UAbilitySystemComponent* ASC = GetAbilitySystemComponent();
+    NULL_CHECK(ASC);
+    ASC->GenericGameplayEventCallbacks.Remove(HDTAG_EVENT_PLAYERHUD_INITIALIZE);
 }
 
 void AHDCharacterPlayer::SetShouldering(const bool bShoulder)
@@ -123,12 +143,18 @@ const float AHDCharacterPlayer::GetWeaponFireDelay() const
     return Combat->GetWeaponFireDelay();
 }
 
-void AHDCharacterPlayer::Attack(const bool bActive)
+void AHDCharacterPlayer::Attack(const bool bAttack)
 {
+    if(bAttack == false)
+    {
+        Combat->SetCombatState(EHDCombatState::Unoccupied);
+        return;
+    }
+
     const EHDCombatState CombatState = Combat->GetCombatState();
     if (CombatState == EHDCombatState::Unoccupied || CombatState == EHDCombatState::Fire)
     {
-        Fire(bActive);
+        Fire();
     }
     else if (CombatState == EHDCombatState::HoldStratagem)
     {
@@ -159,11 +185,6 @@ void AHDCharacterPlayer::SetCharacterControlData(UHDCharacterControlData* Charac
 
     Combat->SetSpringArmTargetLength(CharacterControlData->TargetArmLength);
     MovementStateComp->SetSpringArmDefaultZOffset(CharacterControlData->TargetOffset.Z);
-}
-
-UHDStratagemComponent* AHDCharacterPlayer::GetStratagemComponent()
-{
-    return Stratagem;
 }
 
 const float AHDCharacterPlayer::GetMoveSpeedByState(const EHDCharacterStanceState StanceState, const EHDCharacterMovementState MoveState)
@@ -209,13 +230,9 @@ void AHDCharacterPlayer::InputStratagemCommand(const FInputActionValue& Value)
             NewCommand = NewInput.X > 0.f ? EHDCommandInput::Right : EHDCommandInput::Left;
         }
 
-        if (NewCommand == EHDCommandInput::Count)
-        {
-            LOG(TEXT("CommandInput is Invalid!!"));
-            return;
-        }
+        CONDITION_CHECK(NewCommand != EHDCommandInput::Count);
 
-        GetStratagemComponent()->AddStratagemCommand(NewCommand);
+        Stratagem->AddStratagemCommand(NewCommand);
 
         // HUD ¿¬µ¿¿ë GAS Event
         FGameplayAbilityHelper::SendGameplayEventToTarget(HDTAG_EVENT_STRATAGEMHUD_ADDCOMMAND, this, ASC);
@@ -302,16 +319,20 @@ void AHDCharacterPlayer::InterpFOV(float DeltaSeconds)
     FollowCamera->SetFieldOfView(Combat->GetCurrentFOV());
 }
 
-const float AHDCharacterPlayer::Fire(const bool IsPressed)
+void AHDCharacterPlayer::Fire()
 {
-    if(Combat->Fire(IsPressed) == false)
+    if(Combat->Fire() == false)
     {
         if (Combat->NeedReload())
         {
             Reload();
         }
+        else
+        {
+            Combat->SetCombatState(EHDCombatState::Unoccupied);
+        }
 
-        return 0.f;
+        return;
     }
 
     switch (Combat->GetWeaponFireType())
@@ -334,14 +355,20 @@ const float AHDCharacterPlayer::Fire(const bool IsPressed)
     break;
     }
 
-    return Combat->GetWeaponFireDelay();
+    FGameplayAbilityHelper::SendGameplayEventToSelf(HDTAG_EVENT_PLAYERHUD_CURRENTAMMOCHANGE, GetAbilitySystemComponent(), Combat->GetWeaponAmmoCount());
 }
 
-const bool AHDCharacterPlayer::FireFinished()
+const bool AHDCharacterPlayer::ContinueFire()
 {
-    FGameplayAbilityHelper::SendGameplayEventToSelf(HDTAG_EVENT_PLAYERHUD_AMMOCHANGE, GetAbilitySystemComponent());
-
-    return Combat->FireFinished();
+    if(Combat->ContinueFire())
+    {
+        FGameplayAbilityHelper::SendGameplayEventToSelf(HDTAG_EVENT_PLAYERHUD_CURRENTAMMOCHANGE, GetAbilitySystemComponent(), Combat->GetWeaponAmmoCount());
+        return true;
+    }
+    else
+    {
+        return false;
+    }
 }
 
 void AHDCharacterPlayer::SetDead()

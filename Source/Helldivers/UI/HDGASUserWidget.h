@@ -18,7 +18,7 @@ public:
     virtual void                        SetAbilitySystemComponent(UAbilitySystemComponent* NewAbilitySystemComponent);
     virtual UAbilitySystemComponent*    GetAbilitySystemComponent() const override final;
 
-protected:
+private:
     UPROPERTY()
     TObjectPtr<UAbilitySystemComponent> AbilitySystemComponent;
 };

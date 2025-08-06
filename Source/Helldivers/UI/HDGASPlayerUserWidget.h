@@ -19,18 +19,17 @@ class HELLDIVERS_API UHDGASPlayerUserWidget : public UHDGASUserWidget
 
 public:
     virtual void                SetAbilitySystemComponent(UAbilitySystemComponent* NewAbilitySystemComponent) override final;
+
+private:
     void                        OnHealthAttributeChangeds(const FOnAttributeChangeData& ChangeData);
 
     void                        SetChangedWeaponAmmoCountInfo(const int32 NewAmmoCount, const int32 NewMaxAmmoCount);
     void                        SetChangedWeaponCapacityCountInfo(const int32 NewCapacityCount, const int32 NewMaxCapacityCount);
     void                        SetGrenadeCountInfo(const int32 NewGrenadeCount, const int32 NewMaxGrenadeCount);
-    void                        OnAmmoCountChanged(const FGameplayEventData* PayLoad);
+    void                        OnWeaponInfoChanged(const FGameplayEventData* PayLoad);
     void                        OnCapacityCountChanged(const int32 NewCapacityCount);
     void                        OnGrenadeCountChanged(const int32 NewGrenadeCount);
 
-protected:
-	
-private:
     void                        UpdateProgressbar(UProgressBar* Progressbar, const float Value);
     void                        UpdateTextblock(UTextBlock* TextBlock, const FText& Text);
     void                        UpdateImage(UImage* ImageWidget, UTexture2D* Texture);
@@ -49,8 +48,8 @@ protected:
     UPROPERTY(meta = (BindWidget))
     TObjectPtr<UTextBlock>      Text_SteamCount;
 
-    float                       CurrentHealth;
-    float                       CurrentMaxHealth;
+    float                       CurrentHealth = 0.f;
+    float                       CurrentMaxHealth = 0.f;
 
     // Equip Section
     UPROPERTY(meta = (BindWidget))
@@ -77,7 +76,7 @@ protected:
     UPROPERTY(meta = (BindWidget))
     TObjectPtr<UImage>          Img_Weapon;
 
-    int32                       MaxAmmoCount;
-    int32                       MaxCapacityCount;
-    int32                       MaxGrenadeCount;
+    int32                       MaxAmmoCount = 1;
+    int32                       MaxCapacityCount = 1;
+    int32                       MaxGrenadeCount = 1;
 };

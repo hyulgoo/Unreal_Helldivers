@@ -63,7 +63,7 @@ void UHDGA_WeaponTrigger::OnDelayCompleted()
 
 	if (CurrentTagContainer.HasTagExact(HDTAG_TRIGGER_ATTACK))
 	{
-		if (WeaponInterface->FireFinished())
+		if (WeaponInterface->ContinueFire())
 		{
 			SetAbilityTimer();
 		}

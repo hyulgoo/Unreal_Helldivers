@@ -27,8 +27,11 @@
 #define HDTAG_EVENT_STRATAGEMHUD_APPEAR             FGameplayTag::RequestGameplayTag(FName("Event.StratagemHUD.Active"))
 #define HDTAG_EVENT_STRATAGEMHUD_DISAPPEAR          FGameplayTag::RequestGameplayTag(FName("Event.StratagemHUD.Deactive"))
 #define HDTAG_EVENT_STRATAGEMHUD_ADDCOMMAND         FGameplayTag::RequestGameplayTag(FName("Event.StratagemHUD.AddCommand"))
-#define HDTAG_EVENT_PLAYERHUD_AMMOCHANGE			FGameplayTag::RequestGameplayTag(FName("Event.PlayerHUD.AmmoChange"))
-#define HDTAG_EVENT_PLAYERHUD_CAPACITYCHANGE		FGameplayTag::RequestGameplayTag(FName("Event.PlayerHUD.CapacityChange"))
+#define HDTAG_EVENT_PLAYERHUD_CURRENTAMMOCHANGE		FGameplayTag::RequestGameplayTag(FName("Event.PlayerHUD.CurrentAmmoChange"))
+#define HDTAG_EVENT_PLAYERHUD_MAXAMMOCHANGE			FGameplayTag::RequestGameplayTag(FName("Event.PlayerHUD.MaxAmmoChange"))
+#define HDTAG_EVENT_PLAYERHUD_CURRENTCAPACITYCHANGE	FGameplayTag::RequestGameplayTag(FName("Event.PlayerHUD.CurrentCapacityChange"))
+#define HDTAG_EVENT_PLAYERHUD_MAXCAPACITYCHANGE		FGameplayTag::RequestGameplayTag(FName("Event.PlayerHUD.MaxCapacityChange"))
+#define HDTAG_EVENT_PLAYERHUD_INITIALIZE		    FGameplayTag::RequestGameplayTag(FName("Event.PlayerHUD.Initialize"))
 #define HDTAG_EVENT_PLAYERHUD_HEALTHCHANGE			FGameplayTag::RequestGameplayTag(FName("Event.PlayerHUD.HealthChange"))
 
 #define HDTAG_DATA_DAMAGE_PROJECTILE                FGameplayTag::RequestGameplayTag(FName("Data.Damage.Projectile"))

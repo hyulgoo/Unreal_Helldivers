@@ -23,8 +23,8 @@ public:
     virtual void        EquipWeapon(AHDWeapon* NewWeapon) = 0;
 	virtual const float	GetWeaponFireDelay() const = 0;
 
-	virtual void		Attack(const bool bActive) = 0;
-	virtual const bool	FireFinished() = 0;
+	virtual void		Attack(const bool bAttack) = 0;
+	virtual const bool	ContinueFire() = 0;
 
 	virtual void		SetWeaponActive(const bool bActive) = 0;
 

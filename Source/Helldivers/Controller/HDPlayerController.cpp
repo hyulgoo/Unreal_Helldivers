@@ -52,7 +52,7 @@ void AHDPlayerController::OnPossess(APawn* aPawn)
 {
     Super::OnPossess(aPawn);
 
-    if(GetPawn<AHDCharacterPlayer>())
+    if(Cast<AHDCharacterPlayer>(aPawn))
     {
         CreatePlayerWidget(aPawn);
         SetCharacterControl(EHDCharacterControlType::ThirdPerson);
@@ -61,39 +61,52 @@ void AHDPlayerController::OnPossess(APawn* aPawn)
         NULL_CHECK(HUD);
 
         HUD->CreateDefaultWidget(GetAbilitySystemComponent());
-    }
 
-    ConsoleCommand(TEXT("showdebug abilitysystem"));
+        ConsoleCommand(TEXT("showdebug abilitysystem"));
+
+        FGameplayAbilityHelper::SendGameplayEventToSelf(HDTAG_EVENT_PLAYERHUD_INITIALIZE, GetAbilitySystemComponent());
+    }
 }
 
 void AHDPlayerController::OnUnPossess()
 {
     Super::OnUnPossess();
 
-    AbilitySystemComponent = nullptr;
+    if(AbilitySystemComponent)
+    {
+        AbilitySystemComponent->GenericGameplayEventCallbacks.Remove(HDTAG_EVENT_STRATAGEMHUD_ADDCOMMAND);
+        AbilitySystemComponent->GenericGameplayEventCallbacks.Remove(HDTAG_EVENT_STRATAGEMHUD_APPEAR);
+        AbilitySystemComponent->GenericGameplayEventCallbacks.Remove(HDTAG_EVENT_STRATAGEMHUD_DISAPPEAR);
+
+        AbilitySystemComponent = nullptr;
+    }
 }
 
 void AHDPlayerController::SetupInputComponent()
 {
     Super::SetupInputComponent();
 
-    UHDInputComponent* HDInput = Cast<UHDInputComponent>(InputComponent);
-    NULL_CHECK(HDInput);
+    UEnhancedInputComponent* EnhancedInput = Cast<UEnhancedInputComponent>(InputComponent);
+    NULL_CHECK(EnhancedInput);
 
     CONDITION_CHECK(InputActionMap.Num() == static_cast<int32>(EHDCharacterInputAction::Count));
 
-    HDInput->BindAction(InputActionMap[EHDCharacterInputAction::ThirdMove], ETriggerEvent::Triggered, this, &AHDPlayerController::Move);
-    HDInput->BindAction(InputActionMap[EHDCharacterInputAction::ThirdLook], ETriggerEvent::Triggered, this, &AHDPlayerController::Look);
-    HDInput->SetTaggedInputActionDataAsset(AbilityInputData, this, &AHDPlayerController::AbilityInputTriggered, &AHDPlayerController::AbilityInputReleased, &AHDPlayerController::AbilityInputToggled);
+    EnhancedInput->BindAction(InputActionMap[EHDCharacterInputAction::ThirdMove], ETriggerEvent::Triggered, this, &ThisClass::Move);
+    EnhancedInput->BindAction(InputActionMap[EHDCharacterInputAction::ThirdLook], ETriggerEvent::Triggered, this, &ThisClass::Look);
 }
 
 void AHDPlayerController::SetAbilitySystemComponentBindEventCall(UHDAbilitySystemComponent* ASC)
 {
     NULL_CHECK(ASC);
 
-    ASC->GenericGameplayEventCallbacks.FindOrAdd(HDTAG_EVENT_STRATAGEMHUD_ADDCOMMAND).AddUObject(this, &AHDPlayerController::OnStratagemHUDChanged);
-    ASC->GenericGameplayEventCallbacks.FindOrAdd(HDTAG_EVENT_STRATAGEMHUD_APPEAR).AddUObject(this, &AHDPlayerController::OnStratagemHUDChanged);
-    ASC->GenericGameplayEventCallbacks.FindOrAdd(HDTAG_EVENT_STRATAGEMHUD_DISAPPEAR).AddUObject(this, &AHDPlayerController::OnStratagemHUDChanged);
+    UHDInputComponent* HDInput = Cast<UHDInputComponent>(InputComponent);
+    NULL_CHECK(HDInput);
+
+    HDInput->SetTaggedInputActionDataAsset(AbilityInputData, this, &ThisClass::AbilityInputTriggered, &ThisClass::AbilityInputReleased, &ThisClass::AbilityInputToggled);
+
+    ASC->GenericGameplayEventCallbacks.FindOrAdd(HDTAG_EVENT_STRATAGEMHUD_ADDCOMMAND).AddUObject(this, &ThisClass::OnStratagemHUDChanged);
+    ASC->GenericGameplayEventCallbacks.FindOrAdd(HDTAG_EVENT_STRATAGEMHUD_APPEAR).AddUObject(this, &ThisClass::OnStratagemHUDChanged);
+    ASC->GenericGameplayEventCallbacks.FindOrAdd(HDTAG_EVENT_STRATAGEMHUD_DISAPPEAR).AddUObject(this, &ThisClass::OnStratagemHUDChanged);
 }
 
 void AHDPlayerController::OnStratagemHUDChanged(const FGameplayEventData* Payload)
