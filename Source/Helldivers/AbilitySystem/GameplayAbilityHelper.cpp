@@ -40,6 +40,14 @@ void FGameplayAbilityHelper::SendGameplayEventToTarget(const FGameplayTag EventT
     SendGameplayEventToTarget(EventTag, Instigator, GetAbilitySystemComponentFromActor(TargetActor), Magnitude);
 }
 
+void FGameplayAbilityHelper::SendGameplayEventToTarget(const FGameplayTag EventTag, AActor* Instigator, AActor* TargetActor, const FGameplayEventData& Payload)
+{
+    UAbilitySystemComponent* TargetASC = GetAbilitySystemComponentFromActor(TargetActor);
+    NULL_CHECK(TargetASC);
+
+    TargetASC->HandleGameplayEvent(EventTag, &Payload);
+}
+
 void FGameplayAbilityHelper::SendGameplayEventToSelf(const FGameplayTag EventTag, const FGameplayAbilityActorInfo* SourceActorInfo, const float Magnitude /*= 0.f*/)
 {
     NULL_CHECK(SourceActorInfo->AvatarActor);
@@ -61,6 +69,14 @@ void FGameplayAbilityHelper::SendGameplayEventToSelf(const FGameplayTag EventTag
 void FGameplayAbilityHelper::SendGameplayEventToSelf(const FGameplayTag EventTag, AActor* SourceActor, const float Magnitude /*= 0.f*/)
 {
     SendGameplayEventToSelf(EventTag, GetAbilitySystemComponentFromActor(SourceActor), Magnitude);
+}
+
+void FGameplayAbilityHelper::SendGameplayEventToSelf(const FGameplayTag EventTag, AActor* SourceActor, const FGameplayEventData& Payload)
+{
+    UAbilitySystemComponent* SourceASC = GetAbilitySystemComponentFromActor(SourceActor);
+    NULL_CHECK(SourceASC);
+
+    SourceASC->HandleGameplayEvent(EventTag, &Payload);
 }
 
 UAbilitySystemComponent* FGameplayAbilityHelper::GetAbilitySystemComponentFromActor(AActor* Actor)

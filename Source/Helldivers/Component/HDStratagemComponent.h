@@ -7,6 +7,7 @@
 #include "HDStratagemComponent.generated.h"
 
 class AHDStratagem;
+class UInputAction;
 enum class EHDCommandInput : uint8;
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
@@ -17,30 +18,34 @@ class HELLDIVERS_API UHDStratagemComponent : public UActorComponent
 public:	
 	UHDStratagemComponent(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
 
-	UDataTable*							GetAvaliableStratagemDataTable() const;
-	FORCEINLINE const TArray<FName>&	GetCommandMatchStratagemNameList() const;
-	FORCEINLINE const int32				GetCurrentInputNum() const;
-	void								AddStratagemCommand(const EHDCommandInput NewInput);
+	UDataTable*					GetAvaliableStratagemDataTable() const;
+	const TArray<FName>&	    GetCommandMatchStratagemNameList() const;
+	const int32				    GetCurrentInputNum() const;
+	void						AddStratagemCommand(const EHDCommandInput NewInput);
+    UInputAction*               GetCommandInputAction() const;    
 
-	const bool							IsSelectedStratagemExist() const;
-	void								HoldStratagem(USkeletalMeshComponent* MeshComponent, const FVector& ThrowDirection);
-	void								ThrowFinished();
-	void								CancelStratagem();
-	void								ClearCommand();
+	const bool					IsSelectedStratagemExist() const;
+	void						HoldStratagem(USkeletalMeshComponent* MeshComponent, const FVector& ThrowDirection);
+	void						ThrowFinished();
+	void						CancelStratagem();
+	void						ClearCommand();
 
 private:
-	UPROPERTY(EditAnywhere, Category = "Stratagem")
-	TSubclassOf<AHDStratagem>			StratagemClass;
-        
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<AHDStratagem>	StratagemClass;
+    
 	UPROPERTY()
-	TObjectPtr<AHDStratagem>			Stratagem;
+	TObjectPtr<AHDStratagem>	Stratagem;
+    
+	UPROPERTY(EditDefaultsOnly)
+    TObjectPtr<UInputAction>	CommandInputAction;
 
-    FName								SelectedStratagemName           = FName();
-    float								SelecteddStratagemActiveDelay   = 0.f;
+    FName						SelectedStratagemName           = FName();
+    float						SelecteddStratagemActiveDelay   = 0.f;
 
-	TArray<EHDCommandInput>				CurrentInputCommandList;
-	TArray<FName>						CommandMatchStratagemNameList;
+	TArray<EHDCommandInput>		CurrentInputCommandList;
+	TArray<FName>				CommandMatchStratagemNameList;
 	
-	UPROPERTY(EditAnywhere, Category = "Stratagem")
-	TObjectPtr<UDataTable>				AvaliableStratagemDataTable;
+	UPROPERTY(EditAnywhere)
+	TObjectPtr<UDataTable>		AvaliableStratagemDataTable;
 };

@@ -42,6 +42,11 @@ void UHDCombatComponent::TickComponent(float DeltaTime, ELevelTick TickType, FAc
     TraceUnderCrosshairs();
     AimOffset(DeltaTime);
     SpringArmArmLengthTimeline.TickTimeline(DeltaTime);
+
+    if(Weapon && OnSpreadChanged.IsBound())
+    {
+        OnSpreadChanged.Broadcast(CurrentSpread);
+    }
 }
 
 const bool UHDCombatComponent::ContinueFire()
@@ -286,13 +291,12 @@ const bool UHDCombatComponent::Fire()
     return true;
 }
 
-void UHDCombatComponent::EquipWeapon(AHDWeapon* NewWeapon)
+void UHDCombatComponent::EquipWeapon(AHDWeapon* NewWeapon, UAbilitySystemComponent* ASC)
 {
     VALID_CHECK(NewWeapon);
 
     Weapon = NewWeapon;
-    Weapon->SetOwner(GetOwner());
-    Weapon->SetWeaponState(EWeaponState::Equip);
+    Weapon->EquipWeapon(GetOwner(), ASC);
     ErgonomicFactor = Weapon->GetErgonomicFactor();
 
     USkeletalMeshComponent* SkeletalMesh = GetOwner()->GetComponentByClass<USkeletalMeshComponent>();
@@ -447,6 +451,11 @@ void UHDCombatComponent::Reload()
 
     CombatState = EHDCombatState::Reloading;
     Weapon->Reload(bIsShoulder);
+}
+
+AHDWeapon* UHDCombatComponent::GetWeapon() const
+{
+    return Weapon;
 }
 
 const float UHDCombatComponent::GetWeaponReloadDelay(const bool bShoulder) const

@@ -2,28 +2,87 @@
 
 #include "HDHUD.h"
 #include "UI/HDGASPlayerUserWidget.h"
+#include "AbilitySystemComponent.h"
+#include "Attribute/HDHealthAttributeSet.h"
 #include "UI/HDReticleWidget.h"
+#include "Weapon/HDWeapon.h"
 #include "Define/HDDefine.h"
+#include "Define//HDGameplayTag.h"
+#include "Interface/HDWeaponInterface.h"
+#include "AbilitySystem/GameplayAbilityHelper.h"
+#include "Component\HDStratagemComponent.h"
+#include "HDStratagemHUDUserWidget.h"
 
-void AHDHUD::CreateDefaultWidget(UAbilitySystemComponent* ASC)
+void AHDHUD::SetAbilitySystemComponent(UAbilitySystemComponent* ASC)
 {
     NULL_CHECK(ASC);
+    AbilitySystemComponent = ASC;
+}
 
-    if (PlayerHUDWidgetClass)
+void AHDHUD::CreateDefaultWidget()
+{
+    NULL_CHECK_WITHOUT_LOG(AbilitySystemComponent);
+
+    if(PlayerHUDWidgetClass)
     {
         PlayerHUDWidget = CreateWidget<UHDGASPlayerUserWidget>(GetWorld(), PlayerHUDWidgetClass);
         NULL_CHECK(PlayerHUDWidget);
 
+        AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(UHDHealthAttributeSet::GetCurrentHealthAttribute()).AddUObject(PlayerHUDWidget, &UHDGASPlayerUserWidget::OnHealthAttributeChangeds);
+        AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(UHDHealthAttributeSet::GetMaxHealthAttribute()).AddUObject(PlayerHUDWidget, &UHDGASPlayerUserWidget::OnHealthAttributeChangeds);
+
+        const FGameplayTagContainer& PlayerHudTags = FGameplayAbilityHelper::GetAllChildTag(HDTAG_EVENT_PLAYERHUD);
+        for (const FGameplayTag& PlayerHudTag : PlayerHudTags)
+        {
+            AbilitySystemComponent->GenericGameplayEventCallbacks.FindOrAdd(PlayerHudTag).AddUObject(PlayerHUDWidget, &UHDGASPlayerUserWidget::OnWeaponInfoChanged);
+        }
+
         PlayerHUDWidget->AddToViewport();
-        PlayerHUDWidget->SetAbilitySystemComponent(ASC);
     }
 
-    if (ReticleWidgetClass)
+    if (StratagemWidgetClass)
+    {
+        StratagemWidget = CreateWidget<UHDStratagemHUDUserWidget>(GetWorld(), StratagemWidgetClass, FName("StratagemHUDWidget"));
+        NULL_CHECK(StratagemWidget);
+
+        const FGameplayTagContainer& StratagemEventTags = FGameplayAbilityHelper::GetAllChildTag(HDTAG_EVENT_STRATAGEMHUD);
+        for (const FGameplayTag& StratagemEventTag : StratagemEventTags)
+        {
+            AbilitySystemComponent->GenericGameplayEventCallbacks.FindOrAdd(StratagemEventTag).AddUObject(StratagemWidget, &UHDStratagemHUDUserWidget::OnStratagemEventReceived);
+        }
+
+        UHDStratagemComponent* StratagemComponent = PlayerOwner->GetPawn()->GetComponentByClass<UHDStratagemComponent>();
+        NULL_CHECK(StratagemComponent);
+
+        StratagemWidget->InitializeStratagemHUD(StratagemComponent);
+        StratagemWidget->AddToViewport();
+    }
+}
+
+void AHDHUD::OnEquipWeaponUIEventRecieved(const FGameplayEventData* Payload)
+{
+    NULL_CHECK_WITHOUT_LOG(AbilitySystemComponent);
+    NULL_CHECK(ReticleWidgetClass);
+
+    if (ReticleWidget)
+    {
+        NULL_CHECK(CurrentWeapon);
+        CurrentWeapon->OnSpreadChanged.Remove(SpreadChangedHandle);
+    }
+    else
     {
         ReticleWidget = CreateWidget<UHDReticleWidget>(GetWorld(), ReticleWidgetClass);
         NULL_CHECK(ReticleWidget);
 
         ReticleWidget->AddToViewport();
-        ReticleWidget->SetAbilitySystemComponent(ASC);
+    }
+
+    TScriptInterface<IHDWeaponInterface> WeaponInterfae = PlayerOwner->GetPawn();
+    NULL_CHECK(WeaponInterfae);
+
+    CurrentWeapon = WeaponInterfae->GetWeapon();
+    if (CurrentWeapon)
+    {
+        SpreadChangedHandle = CurrentWeapon->OnSpreadChanged.AddUObject(ReticleWidget, &UHDReticleWidget::UpdateCrosshair);
     }
 }

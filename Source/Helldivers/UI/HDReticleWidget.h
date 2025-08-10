@@ -3,19 +3,21 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "UI/HDGASUserWidget.h"
+#include "Blueprint/UserWidget.h"
 #include "HDReticleWidget.generated.h"
 
 class UImage;
+struct FHDWeaponCrosshairPair;
 
 UCLASS()
-class HELLDIVERS_API UHDReticleWidget : public UHDGASUserWidget
+class HELLDIVERS_API UHDReticleWidget : public UUserWidget
 {
 	GENERATED_BODY()
 
-protected:
-    virtual void        NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override final;
-
+public:
+    void SetReticlaImage(const TArray<FHDWeaponCrosshairPair>& Images);
+    void UpdateCrosshair(const float Spread);
+    
 public:
     UPROPERTY(meta = (BindWidget))
     TObjectPtr<UImage>  Img_Center;

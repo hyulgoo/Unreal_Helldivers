@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "UI/HDGASUserWidget.h"
+#include "Blueprint/UserWidget.h"
 #include "GameplayEffectTypes.h"
 #include "HDGASPlayerUserWidget.generated.h"
 
@@ -13,20 +13,18 @@ class UTextBlock;
 struct FGameplayEventData;
 
 UCLASS()
-class HELLDIVERS_API UHDGASPlayerUserWidget : public UHDGASUserWidget
+class HELLDIVERS_API UHDGASPlayerUserWidget : public UUserWidget
 {
 	GENERATED_BODY()
 
 public:
-    virtual void                SetAbilitySystemComponent(UAbilitySystemComponent* NewAbilitySystemComponent) override final;
-
-private:
     void                        OnHealthAttributeChangeds(const FOnAttributeChangeData& ChangeData);
+    void                        OnWeaponInfoChanged(const FGameplayEventData* Payload);
+private:
 
     void                        SetChangedWeaponAmmoCountInfo(const int32 NewAmmoCount, const int32 NewMaxAmmoCount);
     void                        SetChangedWeaponCapacityCountInfo(const int32 NewCapacityCount, const int32 NewMaxCapacityCount);
     void                        SetGrenadeCountInfo(const int32 NewGrenadeCount, const int32 NewMaxGrenadeCount);
-    void                        OnWeaponInfoChanged(const FGameplayEventData* PayLoad);
     void                        OnCapacityCountChanged(const int32 NewCapacityCount);
     void                        OnGrenadeCountChanged(const int32 NewGrenadeCount);
 

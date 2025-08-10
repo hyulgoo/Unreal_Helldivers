@@ -9,6 +9,8 @@
 class UImage;
 class UVerticalBox;
 class UHDStratagemInfoUserWidget;
+class UHDStratagemComponent;
+struct FGameplayEventData;
 enum class EHDCommandInput : uint8;
 
 enum class EHDStratagemWidgetMoveState
@@ -24,15 +26,20 @@ class HELLDIVERS_API UHDStratagemHUDUserWidget : public UUserWidget
 	GENERATED_BODY()
 	
 public:
-	void											SetStratagemListHUD(UDataTable* StratagemDataTable);
+    void                                            InitializeStratagemHUD(UHDStratagemComponent* InStratagemComponent);
 	void											SetHUDActiveByCurrentInputMatchList(const TArray<FName>& MatchStratagemList, const int32 CurrentInputNum);
 	void											SetAllWidgetOpacity(const float Opacity);
 	void											WidgetAppear(const bool bAppear);
+    void                                            OnStratagemEventReceived(const FGameplayEventData* Payload);
 
 protected:
 	virtual void									NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override final;
-	
+    void											SetStratagemListHUD(UDataTable* StratagemDataTable);
+
 protected:	
+    UPROPERTY()
+    TObjectPtr<UHDStratagemComponent>				StratagemComponent;
+
     UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UVerticalBox>						VB_StratagemList;
 	

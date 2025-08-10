@@ -13,20 +13,17 @@ AHDProjectileWeapon::AHDProjectileWeapon(const FObjectInitializer& ObjectInitial
     FireType = EHDFireType::Projectile;
 }
 
-void AHDProjectileWeapon::Fire(const FVector& HitTarget, const bool bIsShoulder)
+void AHDProjectileWeapon::SpawnProjectile(const FGameplayEventData* Payload)
 {
-    Super::Fire(HitTarget, bIsShoulder);
-
     NULL_CHECK(ProjectileClass);
 
     const USkeletalMeshSocket* MuzzleFlashSocket = WeaponMesh->GetSocketByName(HDSOCKETNAME_MUZZLEFLASH);
     NULL_CHECK(MuzzleFlashSocket);
 
     UWorld* World = GetWorld();
-    VALID_CHECK(World);
 
-    const FTransform SocketTransform = MuzzleFlashSocket->GetSocketTransform(WeaponMesh);
-    const FVector ToTarget = HitTarget - SocketTransform.GetLocation();
+    const FTransform& SocketTransform = MuzzleFlashSocket->GetSocketTransform(WeaponMesh);
+    const FVector ToTarget = CachedHitTarget - SocketTransform.GetLocation();
     const FTransform SpawnTransform(ToTarget.Rotation(), SocketTransform.GetLocation());
 
     AActor* WeaponOwner = GetOwner();
@@ -39,4 +36,6 @@ void AHDProjectileWeapon::Fire(const FVector& HitTarget, const bool bIsShoulder)
         Cast<APawn>(WeaponOwner));
     NULL_CHECK(SpawnedProjectile);
     UGameplayStatics::FinishSpawningActor(SpawnedProjectile, SpawnTransform);
+
+    SpendRound();
 }

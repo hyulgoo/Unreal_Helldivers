@@ -72,6 +72,11 @@ void UHDStratagemComponent::AddStratagemCommand(const EHDCommandInput NewInput)
     }
 }
 
+UInputAction* UHDStratagemComponent::GetCommandInputAction() const
+{
+    return CommandInputAction;
+}
+
 const bool UHDStratagemComponent::IsSelectedStratagemExist() const
 {
     return (SelectedStratagemName.IsNone() == false);

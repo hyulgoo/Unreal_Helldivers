@@ -5,6 +5,8 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "AbilitySystemComponent.h"
+#include "EnhancedInputSubsystems.h"
+#include "EnhancedInputComponent.h"
 #include "Component/HDCombatComponent.h"
 #include "Component/HDMovementStateComponent.h"
 #include "Component/HDStratagemComponent.h"
@@ -48,7 +50,21 @@ void AHDCharacterPlayer::PossessedBy(AController* NewController)
 
     UAbilitySystemComponent* ASC = GetAbilitySystemComponent();
     NULL_CHECK(ASC);
+
     ASC->GenericGameplayEventCallbacks.FindOrAdd(HDTAG_EVENT_PLAYERHUD_INITIALIZE).AddUObject(this, &AHDCharacterPlayer::SpawnDefaultWeapon);
+}
+
+void AHDCharacterPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
+{
+    Super::SetupPlayerInputComponent(PlayerInputComponent);
+
+    UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(PlayerInputComponent);
+    NULL_CHECK(EnhancedInputComponent);
+
+    UInputAction* CommandInput = Stratagem->GetCommandInputAction();
+    NULL_CHECK(CommandInput);
+
+    EnhancedInputComponent->BindAction(CommandInput, ETriggerEvent::Triggered, this, &AHDCharacterPlayer::InputStratagemCommand);
 }
 
 void AHDCharacterPlayer::SetRagdoll(const bool bRagdoll, const FVector& Impulse)
@@ -68,15 +84,23 @@ void AHDCharacterPlayer::SetRagdoll(const bool bRagdoll, const FVector& Impulse)
 
 void AHDCharacterPlayer::EquipWeapon(AHDWeapon* NewWeapon)
 {
-    Combat->EquipWeapon(NewWeapon);
+    NULL_CHECK(NewWeapon);
 
     UAbilitySystemComponent* ASC = GetAbilitySystemComponent();
     NULL_CHECK(ASC);
 
-    FGameplayAbilityHelper::SendGameplayEventToSelf(HDTAG_EVENT_PLAYERHUD_MAXCAPACITYCHANGE, ASC, Combat->GetWeaponMaxCapacityCount());
-    FGameplayAbilityHelper::SendGameplayEventToSelf(HDTAG_EVENT_PLAYERHUD_MAXAMMOCHANGE, ASC, Combat->GetWeaponMaxAmmoCount());
+    Combat->EquipWeapon(NewWeapon, ASC);
+
+    FGameplayAbilityHelper::SendGameplayEventToSelf(HDTAG_EVENT_PLAYERHUD_EQUIPWEAPON,          ASC, Combat->GetWeaponMaxCapacityCount());
+    FGameplayAbilityHelper::SendGameplayEventToSelf(HDTAG_EVENT_PLAYERHUD_MAXCAPACITYCHANGE,    ASC, Combat->GetWeaponMaxCapacityCount());
+    FGameplayAbilityHelper::SendGameplayEventToSelf(HDTAG_EVENT_PLAYERHUD_MAXAMMOCHANGE,        ASC, Combat->GetWeaponMaxAmmoCount());
     FGameplayAbilityHelper::SendGameplayEventToSelf(HDTAG_EVENT_PLAYERHUD_CURRENTCAPACITYCHANGE, ASC, Combat->GetWeaponCapacityCount());
-    FGameplayAbilityHelper::SendGameplayEventToSelf(HDTAG_EVENT_PLAYERHUD_CURRENTAMMOCHANGE, ASC, Combat->GetWeaponAmmoCount());
+    FGameplayAbilityHelper::SendGameplayEventToSelf(HDTAG_EVENT_PLAYERHUD_CURRENTAMMOCHANGE,    ASC, Combat->GetWeaponAmmoCount());
+}
+
+AHDWeapon* AHDCharacterPlayer::GetWeapon() const
+{
+    return Combat->GetWeapon();
 }
 
 void AHDCharacterPlayer::SetWeaponActive(const bool bActive)
@@ -365,10 +389,8 @@ const bool AHDCharacterPlayer::ContinueFire()
         FGameplayAbilityHelper::SendGameplayEventToSelf(HDTAG_EVENT_PLAYERHUD_CURRENTAMMOCHANGE, GetAbilitySystemComponent(), Combat->GetWeaponAmmoCount());
         return true;
     }
-    else
-    {
-        return false;
-    }
+
+    return false;
 }
 
 void AHDCharacterPlayer::SetDead()

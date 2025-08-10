@@ -8,8 +8,6 @@
 #include "Component/HDCombatComponent.h"
 #include "Component/HDInputComponent.h"
 #include "Component/HDAbilitySystemComponent.h"
-#include "UI/HDGASPlayerUserWidget.h"
-#include "UI/HDStratagemHUDUserWidget.h"
 #include "UI/HDHUD.h"
 #include "AbilitySystem/GameplayAbilityHelper.h"
 #include "GameData/HDCharacterControlData.h"
@@ -37,7 +35,6 @@ UHDAbilitySystemComponent* AHDPlayerController::GetAbilitySystemComponent()
     {
         AbilitySystemComponent = Cast<UHDAbilitySystemComponent>(FGameplayAbilityHelper::GetAbilitySystemComponentFromActor(GetPawn()));
         NULL_CHECK_WITH_RETURNTYPE(AbilitySystemComponent, nullptr);
-        SetAbilitySystemComponentBindEventCall(AbilitySystemComponent);
     }
 
     return AbilitySystemComponent;
@@ -54,17 +51,22 @@ void AHDPlayerController::OnPossess(APawn* aPawn)
 
     if(Cast<AHDCharacterPlayer>(aPawn))
     {
-        CreatePlayerWidget(aPawn);
         SetCharacterControl(EHDCharacterControlType::ThirdPerson);
+
+        UAbilitySystemComponent* ASC = GetAbilitySystemComponent();
+        NULL_CHECK(ASC);
 
         AHDHUD* HUD = GetHUD<AHDHUD>();
         NULL_CHECK(HUD);
 
-        HUD->CreateDefaultWidget(GetAbilitySystemComponent());
+        HUD->SetAbilitySystemComponent(ASC);
+        HUD->CreateDefaultWidget();
 
-        ConsoleCommand(TEXT("showdebug abilitysystem"));
+        ASC->GenericGameplayEventCallbacks.FindOrAdd(HDTAG_EVENT_PLAYERHUD_EQUIPWEAPON).AddUObject(HUD, &AHDHUD::OnEquipWeaponUIEventRecieved);
 
         FGameplayAbilityHelper::SendGameplayEventToSelf(HDTAG_EVENT_PLAYERHUD_INITIALIZE, GetAbilitySystemComponent());
+
+        ConsoleCommand(TEXT("showdebug abilitysystem"));
     }
 }
 
@@ -72,66 +74,21 @@ void AHDPlayerController::OnUnPossess()
 {
     Super::OnUnPossess();
 
-    if(AbilitySystemComponent)
-    {
-        AbilitySystemComponent->GenericGameplayEventCallbacks.Remove(HDTAG_EVENT_STRATAGEMHUD_ADDCOMMAND);
-        AbilitySystemComponent->GenericGameplayEventCallbacks.Remove(HDTAG_EVENT_STRATAGEMHUD_APPEAR);
-        AbilitySystemComponent->GenericGameplayEventCallbacks.Remove(HDTAG_EVENT_STRATAGEMHUD_DISAPPEAR);
-
-        AbilitySystemComponent = nullptr;
-    }
+    AbilitySystemComponent = nullptr;
 }
 
 void AHDPlayerController::SetupInputComponent()
 {
     Super::SetupInputComponent();
 
-    UEnhancedInputComponent* EnhancedInput = Cast<UEnhancedInputComponent>(InputComponent);
-    NULL_CHECK(EnhancedInput);
-
-    CONDITION_CHECK(InputActionMap.Num() == static_cast<int32>(EHDCharacterInputAction::Count));
-
-    EnhancedInput->BindAction(InputActionMap[EHDCharacterInputAction::ThirdMove], ETriggerEvent::Triggered, this, &ThisClass::Move);
-    EnhancedInput->BindAction(InputActionMap[EHDCharacterInputAction::ThirdLook], ETriggerEvent::Triggered, this, &ThisClass::Look);
-}
-
-void AHDPlayerController::SetAbilitySystemComponentBindEventCall(UHDAbilitySystemComponent* ASC)
-{
-    NULL_CHECK(ASC);
-
     UHDInputComponent* HDInput = Cast<UHDInputComponent>(InputComponent);
     NULL_CHECK(HDInput);
 
+    CONDITION_CHECK(InputActionMap.Num() == static_cast<int32>(EHDCharacterInputAction::Count));
+
     HDInput->SetTaggedInputActionDataAsset(AbilityInputData, this, &ThisClass::AbilityInputTriggered, &ThisClass::AbilityInputReleased, &ThisClass::AbilityInputToggled);
-
-    ASC->GenericGameplayEventCallbacks.FindOrAdd(HDTAG_EVENT_STRATAGEMHUD_ADDCOMMAND).AddUObject(this, &ThisClass::OnStratagemHUDChanged);
-    ASC->GenericGameplayEventCallbacks.FindOrAdd(HDTAG_EVENT_STRATAGEMHUD_APPEAR).AddUObject(this, &ThisClass::OnStratagemHUDChanged);
-    ASC->GenericGameplayEventCallbacks.FindOrAdd(HDTAG_EVENT_STRATAGEMHUD_DISAPPEAR).AddUObject(this, &ThisClass::OnStratagemHUDChanged);
-}
-
-void AHDPlayerController::OnStratagemHUDChanged(const FGameplayEventData* Payload)
-{
-    NULL_CHECK(Payload);
-    VALID_CHECK(StratagemWidget);
-
-    if (Payload->EventTag == HDTAG_EVENT_STRATAGEMHUD_ADDCOMMAND)
-    {
-        UHDStratagemComponent* StratagemComponent = Payload->Instigator->GetComponentByClass<UHDStratagemComponent>();
-        NULL_CHECK(StratagemComponent);
-
-        const TArray<FName>& CommandMatchStratagemNameList = StratagemComponent->GetCommandMatchStratagemNameList();
-        const int32 CurrentInputNum = StratagemComponent->GetCurrentInputNum();
-
-        StratagemWidget->SetHUDActiveByCurrentInputMatchList(CommandMatchStratagemNameList, CurrentInputNum);
-    }
-    else if (Payload->EventTag == HDTAG_EVENT_STRATAGEMHUD_APPEAR)
-    {
-        StratagemWidget->WidgetAppear(true);
-    }
-    else if (Payload->EventTag == HDTAG_EVENT_STRATAGEMHUD_DISAPPEAR)
-    {
-        StratagemWidget->WidgetAppear(false);
-    }
+    HDInput->BindAction(InputActionMap[EHDCharacterInputAction::ThirdMove], ETriggerEvent::Triggered, this, &ThisClass::Move);
+    HDInput->BindAction(InputActionMap[EHDCharacterInputAction::ThirdLook], ETriggerEvent::Triggered, this, &ThisClass::Look);
 }
 
 void AHDPlayerController::AbilityInputTriggered(const FGameplayTag InputTag)
@@ -189,27 +146,6 @@ void AHDPlayerController::SetCharacterControl(const EHDCharacterControlType NewC
     NULL_CHECK(HDPlayer);
 
     HDPlayer->SetCharacterControlData(CharacterControlDataMap[CurrentCharacterControlType]);
-}
-
-void AHDPlayerController::CreatePlayerWidget(APawn* aPawn)
-{
-    NULL_CHECK(aPawn);
-
-    if(StratagemWidgetClass)
-    {
-        StratagemWidget = CreateWidget<UHDStratagemHUDUserWidget>(GetWorld(), StratagemWidgetClass, FName("StratagemHUDWidget"));
-        NULL_CHECK(StratagemWidget);
-
-        UHDStratagemComponent* StratagemComponent = aPawn->GetComponentByClass<UHDStratagemComponent>();
-        NULL_CHECK(StratagemComponent);
-
-        StratagemWidget->SetStratagemListHUD(StratagemComponent->GetAvaliableStratagemDataTable());
-        StratagemWidget->AddToViewport();
-    }
-    else
-    {
-        LOG(TEXT("StratagemHUDWidgetClass is nullptr!"));
-    }
 }
 
 void AHDPlayerController::Look(const FInputActionValue& Value)

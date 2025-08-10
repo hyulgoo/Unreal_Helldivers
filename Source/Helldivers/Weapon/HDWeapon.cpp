@@ -1,12 +1,14 @@
 
 #include "Weapon/HDWeapon.h"
+#include "Components/SphereComponent.h"
+#include "Engine/SkeletalMeshSocket.h"
+#include "AbilitySystemComponent.h"
 #include "HDCasing.h"
 #include "Define/HDDefine.h"
 #include "Define/HDSocketNames.h"
+#include "Define/HDGameplayTag.h"
 #include "Collision/HDCollision.h"
-#include "Component/HDCombatComponent.h"
-#include "Components/SphereComponent.h"
-#include "Engine/SkeletalMeshSocket.h"
+#include "Interface/HDWeaponInterface.h"
 
 AHDWeapon::AHDWeapon(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
@@ -50,6 +52,16 @@ USphereComponent* AHDWeapon::GetAreaSphere() const
 	return AreaSphere;
 }
 
+void AHDWeapon::EquipWeapon(AActor* OwnerActor, UAbilitySystemComponent* ASC)
+{
+    NULL_CHECK(OwnerActor);
+    NULL_CHECK(ASC);
+
+    SetOwner(OwnerActor);
+    SetWeaponState(EWeaponState::Equip);
+    ASC->GenericGameplayEventCallbacks.FindOrAdd(HDTAG_EVENT_SPAWN_PROJECTILE).AddUObject(this, &AHDWeapon::SpawnProjectile);
+}
+
 void AHDWeapon::Fire(const FVector& HitTarget, const bool bIsShoulder)
 {
 	CONDITION_CHECK(WeaponAnimationMap.Num() == static_cast<int32>(EHDWeaponAnimationType::Count));
@@ -57,6 +69,7 @@ void AHDWeapon::Fire(const FVector& HitTarget, const bool bIsShoulder)
 
 	UAnimationAsset* FireAnim = bIsShoulder ? WeaponAnimationMap[EHDWeaponAnimationType::Fire_Aim] : WeaponAnimationMap[EHDWeaponAnimationType::Fire_Hip];
 	NULL_CHECK(FireAnim);
+
 	WeaponMesh->PlayAnimation(FireAnim, false);
 
 	const USkeletalMeshSocket* AmmoEjectSocket = WeaponMesh->GetSocketByName(HDSOCKETNAME_AMMOEJECT);
@@ -67,7 +80,7 @@ void AHDWeapon::Fire(const FVector& HitTarget, const bool bIsShoulder)
 
     GetWorld()->SpawnActor<AHDCasing>(CasingClass, SocketTransform);
 
-	SpendRound();
+    CachedHitTarget = HitTarget;
 }
 
 const void AHDWeapon::TraceEndWithScatter(const FVector& HitTarget)
@@ -87,12 +100,12 @@ const void AHDWeapon::TraceEndWithScatter(const FVector& HitTarget)
 
 const EWeaponType AHDWeapon::GetWeaponType() const
 {
-	return WeaponType;
+    return WeaponType;
 }
 
 const EHDFireType AHDWeapon::GetFireType() const
 {
-	return FireType;
+    return FireType;
 }
 
 const bool AHDWeapon::IsAmmoEmpty() const
@@ -205,10 +218,10 @@ void AHDWeapon::AddCapacity(const int32 NewCapacityCount)
 
 void AHDWeapon::OnSphereOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, const int32 OtherBodyIndex, const bool bFromSweep, const FHitResult& SweepResult)
 {
-	UHDCombatComponent* Combat = OtherActor->GetComponentByClass<UHDCombatComponent>();
-	if(Combat)
+    TScriptInterface<IHDWeaponInterface> WeaponInterface = OtherActor;
+	if(WeaponInterface)
 	{
-		Combat->EquipWeapon(this);
+        WeaponInterface->EquipWeapon(this);
 	}
 }
 

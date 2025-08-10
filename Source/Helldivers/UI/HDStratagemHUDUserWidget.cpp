@@ -2,16 +2,20 @@
 
 #include "UI/HDStratagemHUDUserWidget.h"
 #include "Define/HDDefine.h"
+#include "Define/HDGameplayTag.h"
 #include "GameData/HDStratagemData.h"
-#include "Components/TextBlock.h"
-#include "Components/Image.h"
-#include "Components/GridPanel.h"
-#include "Components/GridSlot.h"
 #include "Components/VerticalBox.h"
-#include "Components/VerticalBoxSlot.h"
-#include "Components/HorizontalBox.h"
-#include "Components/ScaleBox.h"
+#include "Component/HDStratagemComponent.h"
 #include "UI/HDStratagemInfoUserWidget.h"
+#include "Abilities/GameplayAbilityTypes.h"
+
+void UHDStratagemHUDUserWidget::InitializeStratagemHUD(UHDStratagemComponent* InStratagemComponent)
+{
+    NULL_CHECK(InStratagemComponent);
+    StratagemComponent = InStratagemComponent;
+
+    SetStratagemListHUD(StratagemComponent->GetAvaliableStratagemDataTable());
+}
 
 void UHDStratagemHUDUserWidget::SetStratagemListHUD(UDataTable* StratagemDataTable)
 {
@@ -23,12 +27,7 @@ void UHDStratagemHUDUserWidget::SetStratagemListHUD(UDataTable* StratagemDataTab
 
     WidgetAppearDistance = (ViewportSize.X / 2.f);
 
-    if (StratagemIconList.IsEmpty() || RemainImageList.IsEmpty() || CommandIconList.IsEmpty())
-    {
-        UE_LOG(LogTemp, Warning, TEXT("StratagemIconList or RemainImageList or CommandIconList is Empty!"));
-        return;
-    }
-
+    CONDITION_CHECK(StratagemIconList.IsEmpty() == false && RemainImageList.IsEmpty() == false && CommandIconList.IsEmpty() == false)
     NULL_CHECK(StratagemDataTable);
 
     const TArray<FName>& StratagemDataNameList = StratagemDataTable->GetRowNames();
@@ -86,6 +85,30 @@ void UHDStratagemHUDUserWidget::WidgetAppear(const bool bAppear)
     MoveState = bAppear ? EHDStratagemWidgetMoveState::APPEAR : EHDStratagemWidgetMoveState::DISAPPEAR;
 
     SetAllWidgetOpacity(bAppear ? 1.f : 0.5f);
+}
+
+void UHDStratagemHUDUserWidget::OnStratagemEventReceived(const FGameplayEventData* Payload)
+{
+    NULL_CHECK(Payload);
+
+    if (Payload->EventTag == HDTAG_EVENT_STRATAGEMHUD_APPEAR)
+    {
+        WidgetAppear(true);
+    }
+    else if (Payload->EventTag == HDTAG_EVENT_STRATAGEMHUD_DISAPPEAR)
+    {
+        WidgetAppear(false);
+    }
+    else if (Payload->EventTag == HDTAG_EVENT_STRATAGEMHUD_ADDCOMMAND)
+    {
+        NULL_CHECK(StratagemComponent);
+
+        const TArray<FName>& MatchStratagemList = StratagemComponent->GetCommandMatchStratagemNameList();
+        const int32 CurrentInputNum = StratagemComponent->GetCurrentInputNum();
+        CONDITION_CHECK(MatchStratagemList.IsEmpty() == false);
+
+        SetHUDActiveByCurrentInputMatchList(MatchStratagemList, CurrentInputNum);
+    }
 }
 
 void UHDStratagemHUDUserWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)

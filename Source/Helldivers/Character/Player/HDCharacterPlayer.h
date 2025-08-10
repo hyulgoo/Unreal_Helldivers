@@ -33,14 +33,16 @@ public:
 
 protected:
 	virtual void							SetDead() override final;
-    virtual void							Tick(float DeltaTime) override;
-	virtual void							PossessedBy(AController* NewController) override;
+    virtual void							Tick(float DeltaTime) override final;
+	virtual void							PossessedBy(AController* NewController) override final;
+    virtual void                            SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override final;
 
 	// RagdollInterface
 	virtual void							SetRagdoll(const bool bRagdoll, const FVector& Impulse = FVector::ZeroVector) override final;
 
 	// WeaponInterface
     virtual void                            EquipWeapon(AHDWeapon* NewWeapon) override final;
+    virtual AHDWeapon*                      GetWeapon() const override final;
 	virtual const float                     GetWeaponFireDelay() const override final;
 	virtual void							Attack(const bool bAttack) override final;
 	virtual const bool						ContinueFire() override final;

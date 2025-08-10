@@ -22,7 +22,7 @@ public:
 private:
 	UFUNCTION()
 	void									OnDelayCompleted();
-
+    
 	void									SetAbilityTimer();
 
 protected:

@@ -49,10 +49,6 @@ private:
     void                                    ChangeCharacterControlType();
     void                                    SetCharacterControl(const EHDCharacterControlType NewCharacterControlType);
 
-    void									CreatePlayerWidget(APawn* aPawn);
-	void									SetAbilitySystemComponentBindEventCall(UHDAbilitySystemComponent* ASC);
-    void                                    OnStratagemHUDChanged(const FGameplayEventData* Payload);
-
     void									Look(const FInputActionValue& Value);
     void									Move(const FInputActionValue& Value);
 
@@ -60,14 +56,6 @@ private:
 	UPROPERTY()
 	TObjectPtr<UHDAbilitySystemComponent>   AbilitySystemComponent;
 
-	// Widget Section
-	UPROPERTY(EditDefaultsOnly, Category = "UI")
-	TSubclassOf<UHDStratagemHUDUserWidget>	StratagemWidgetClass;
-	
-	UPROPERTY()
-	TObjectPtr<UHDStratagemHUDUserWidget>	StratagemWidget;
-
-    //Input
 	UPROPERTY(EditDefaultsOnly)
 	TObjectPtr<UHDInputData>			    AbilityInputData;
     

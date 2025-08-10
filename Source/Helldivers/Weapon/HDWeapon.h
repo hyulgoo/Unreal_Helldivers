@@ -4,10 +4,12 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
-#include "Weapon/WeaponTypes.h"
 #include "GameplayTagContainer.h"
+#include "Weapon/WeaponTypes.h"
 #include "GameData/HDWeaponData.h"
 #include "HDWeapon.generated.h"
+
+DECLARE_MULTICAST_DELEGATE_OneParam(FOnSpreadChanged, const float);
 
 UENUM(BlueprintType)
 enum class EHDWeaponAnimationType: uint8
@@ -19,11 +21,14 @@ enum class EHDWeaponAnimationType: uint8
    Count
 };
 
+
 class USphereComponent;
-class UHDWeaponAttributeSet;
 class UAnimationAsset;
+class UAbilitySystemComponent;
 class AHDCasing;
 class AHDProjectileBase;
+class UHDWeaponAttributeSet;
+struct FGameplayEventData;
 
 UCLASS()
 class HELLDIVERS_API AHDWeapon : public AActor
@@ -34,10 +39,11 @@ public:
     AHDWeapon(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
 
     void                                SetAutoFire(const bool bAutoFire);
-    void                                SetWeaponState(const EWeaponState NewState);
 
     USkeletalMeshComponent*             GetWeaponMesh() const;
-    USphereComponent*                   GetAreaSphere() const;
+    USphereComponent*                   GetAreaSphere() const; 
+
+    virtual void                        EquipWeapon(AActor* OwnerActor, UAbilitySystemComponent* ASC);
 
     virtual void                        Fire(const FVector& HitTarget, const bool bIsShoulder);
     const void                          TraceEndWithScatter(const FVector& HitTarget);
@@ -66,13 +72,18 @@ public:
 
 protected:
     virtual void                        BeginPlay() override;
+    void                                SpendRound();
 
     UFUNCTION()
     void                                OnSphereOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, const int32 OtherBodyIndex, const bool bFromSweep, const FHitResult& SweepResult);
 
 private:
-    void                                SpendRound();
+    void                                SetWeaponState(const EWeaponState NewState);
+    virtual void                        SpawnProjectile(const FGameplayEventData* Payload) {};
     void                                ReloadFinished();
+
+public:
+    FOnSpreadChanged                    OnSpreadChanged;
 
 protected:
     EHDFireType                         FireType = EHDFireType::Count;
@@ -117,5 +128,6 @@ protected:
     FHDWeaponUIData                     UIData;
 
     EWeaponState                        WeaponState = EWeaponState::Drop;
-    FTimerHandle                        ReloadTimer = FTimerHandle();
+    FTimerHandle                        ReloadTimer;
+    FVector                             CachedHitTarget;
 };

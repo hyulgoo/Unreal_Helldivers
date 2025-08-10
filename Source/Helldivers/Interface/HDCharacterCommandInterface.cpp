@@ -1,3 +1,0 @@
-
-#include "HDCharacterCommandInterface.h"
-

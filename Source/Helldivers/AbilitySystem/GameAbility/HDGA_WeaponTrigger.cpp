@@ -3,6 +3,7 @@
 #include "HDGA_WeaponTrigger.h"
 #include "Abilities/Tasks/AbilityTask_WaitDelay.h"
 #include "Interface/HDWeaponInterface.h"
+#include <Weapon\Projectile\HDProjectileBase.h>
 
 UHDGA_WeaponTrigger::UHDGA_WeaponTrigger(const FObjectInitializer& ObjectInitializer /*= FObjectInitializer::Get()*/)
     : Super(ObjectInitializer)

@@ -12,7 +12,10 @@ class AHDWeapon;
 class AHDStratagem;
 class UCharacterMovementComponent;
 class USpringArmComponent;
+class UAbilitySystemComponent;
 enum class EHDFireType :uint8;
+
+DECLARE_MULTICAST_DELEGATE_OneParam(FOnSpreadChanged, float);
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
 class HELLDIVERS_API UHDCombatComponent : public UActorComponent
@@ -26,7 +29,7 @@ public:
     const bool 				                CanFire() const;
 
     AHDWeapon*                              SpawnDefaultWeapon();
-    void                                    EquipWeapon(AHDWeapon* NewWeapon);
+    void                                    EquipWeapon(AHDWeapon* NewWeapon, UAbilitySystemComponent* ASC);
 
     USkeletalMeshComponent*                 GetWeaponMesh() const;
     void                                    SetWeaponActive(const bool bActive);
@@ -43,6 +46,7 @@ public:
     const bool                              NeedReload() const;
     const bool                              CanReload() const;
     void                                    Reload();
+    AHDWeapon*                              GetWeapon() const;
     const float                             GetWeaponReloadDelay(const bool bShoulder) const;
 
     const EHDCombatState                    GetCombatState() const;
@@ -87,6 +91,9 @@ private:
     UFUNCTION()
     void                                    OnSpringArmLengthUpdate(const float Value);
 
+public:
+    FOnSpreadChanged                        OnSpreadChanged;
+
 private:
     UPROPERTY()
     TObjectPtr<UCharacterMovementComponent> CharacterMovement;
@@ -121,6 +128,7 @@ private:
 	float					                ZoomInterpSpeed;
 
     float					                ErgonomicFactor                 = 0.f;
+    float 				                    CurrentSpread                   = 0.f;
     
     UPROPERTY()
 	TObjectPtr<AHDWeapon>	                Weapon;

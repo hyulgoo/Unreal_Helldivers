@@ -44,7 +44,7 @@ class HELLDIVERS_API UHDInputData : public UDataAsset
 	GENERATED_BODY()
 
 public:
-     UHDInputData(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
+    UHDInputData(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
 
     const FGameplayTag GetInputTagByTriggerTag(const FGameplayTag& TriggerTag);
     const FGameplayTag GetTriggerTagByInputTag(const FGameplayTag& InputTag);
