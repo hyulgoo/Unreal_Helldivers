@@ -79,6 +79,7 @@ DerivedDataCache/*
 *.pdb
 *.ipch
 
+Content/*
 Demos/*
 Content/Asset/CT_Components/Demos/*
 Content/Brushify/*
