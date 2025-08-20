@@ -3,6 +3,7 @@
 #include "HDAbilitySystemComponent.h"
 #include "Attribute/HDHealthAttributeSet.h"
 #include "Attribute/HDSpeedAttributeSet.h"
+#include "Attribute\HDWeaponAttributeSet.h"
 #include "GameData/HDCharacterAttributeData.h"
 #include "Define/HDDefine.h"
 
@@ -72,6 +73,7 @@ void UHDAbilitySystemComponent::InitAttributeSet()
 {
     AddSet<UHDHealthAttributeSet>();
     AddSet<UHDSpeedAttributeSet>();
+    AddSet<UHDWeaponAttributeSet>();
 }
 
 void UHDAbilitySystemComponent::SetAttributeSetStat(FHDCharacterAttributeData* StatData, TSubclassOf<UGameplayEffect> InitAttributeStatEffect)

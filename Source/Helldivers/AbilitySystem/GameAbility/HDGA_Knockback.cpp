@@ -48,7 +48,7 @@ void UHDGA_Knockback::CheckCharacterRagdollState()
         bRecoveryFromRagdoll = true;
 
         GetWorld()->GetTimerManager().ClearTimer(StateCheckTimerHandle);
-        const bool bIsDead = GetAbilitySystemComponentFromActorInfo()->HasMatchingGameplayTag(HDTAG_CHARACTER_STATE_ISDEAD);
+        const bool bIsDead = GetAbilitySystemComponentFromActorInfo()->HasMatchingGameplayTag(HDTAG_CHARACTER_STATE_DEAD);
         if (bIsDead == false)
         {
             GetWorld()->GetTimerManager().SetTimer(RecoveryFromRagdollTimerHandle, this, &UHDGA_Knockback::RecoveryFromRagdoll, 0.5f, false);

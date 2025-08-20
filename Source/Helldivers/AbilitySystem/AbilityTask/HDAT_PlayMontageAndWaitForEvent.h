@@ -8,7 +8,7 @@
 
 class UAnimMontage;
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FPlayMontageAndWaitGameplayEventDelegate, UAnimMontage*, Montage, FGameplayEventData, Payload);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FPlayMontageAndWaitGameplayEventDelegate, FGameplayEventData, Payload);
 
 UCLASS()
 class HELLDIVERS_API UHDAT_PlayMontageAndWaitForEvent : public UAbilityTask
@@ -16,31 +16,18 @@ class HELLDIVERS_API UHDAT_PlayMontageAndWaitForEvent : public UAbilityTask
 	GENERATED_BODY()
 	
 public:
-	UFUNCTION()
-    static UHDAT_PlayMontageAndWaitForEvent*    PlayMontageAndWaitEvent(UGameplayAbility* OwningAbility, UAnimMontage* MontageToPlay, const FGameplayTagContainer EventTagContainer, float Rate = 1.f, FName StartSection = NAME_None, const bool OnlyTriggerOnce = false, bool OnlyMatchExact = true);
-
-    UFUNCTION()
-	void                                        OnMontageBlendedIn(UAnimMontage* Montage);
-
-	UFUNCTION()
-	void                                        OnMontageBlendingOut(UAnimMontage* Montage, bool bInterrupted);
-
-	UFUNCTION()
-	void                                        OnGameplayAbilityCancelled();
-
-	UFUNCTION()
-	void                                        OnMontageEnded(UAnimMontage* Montage, bool bInterrupted);
-
-	virtual void                                ExternalCancel() override;
-
     virtual void                                Activate() override;
+    virtual void                                OnDestroy(bool AbilityEnded) override;
 
+	UFUNCTION()
+    static UHDAT_PlayMontageAndWaitForEvent*    PlayMontageAndWaitEvent(UGameplayAbility* OwningAbility, UAnimMontage* MontageToPlay, const FGameplayTagContainer EventTagContainer, float Rate = 1.f, FName StartSection = NAME_None, const bool EndTaskOnMontageEnded = true, const bool OnlyTriggerOnce = false, bool OnlyMatchExact = true);
+
+	void                                        OnMontageEnded(UAnimMontage* Montage, bool bInterrupted);
     virtual void                                GameplayEventCallback(const FGameplayEventData* Payload);
     virtual void                                GameplayEventContainerCallback(FGameplayTag MatchingTag, const FGameplayEventData* Payload);
 
-protected:
-    virtual void                                OnDestroy(bool AbilityEnded) override;
-
+    void                                        JumpToSection(const FName SectionName);
+    void                                        ResetMontage();
     bool                                        StopPlayingMontage();
 
 public:
@@ -48,23 +35,11 @@ public:
     FPlayMontageAndWaitGameplayEventDelegate	OnCompleted;
 
 	UPROPERTY(BlueprintAssignable)
-    FPlayMontageAndWaitGameplayEventDelegate	OnBlendedIn;
-
-	UPROPERTY(BlueprintAssignable)
-    FPlayMontageAndWaitGameplayEventDelegate	OnBlendOut;
-
-	UPROPERTY(BlueprintAssignable)
-    FPlayMontageAndWaitGameplayEventDelegate	OnCancelled;
-    
-	UPROPERTY(BlueprintAssignable)
     FPlayMontageAndWaitGameplayEventDelegate	OnEventReceived;
 
 protected:
     FDelegateHandle                             EventHandle;
-    FOnMontageBlendedInEnded                    BlendedInDelegate;
-    FOnMontageBlendingOutStarted                BlendingOutDelegate;
     FOnMontageEnded                             MontageEndedDelegate;
-    FDelegateHandle                             InterruptedHandle;
 
 	UPROPERTY()
 	TObjectPtr<UAnimMontage>                    MontageToPlay;
@@ -86,6 +61,7 @@ protected:
 
     uint8                                       bOnlyTriggerOnce : 1 = false;
     uint8                                       bOnlyMatchExact : 1 = false;
+    uint8                                       bEndTaskOnMontageEnded : 1 = false;
 
-    FGameplayTagContainer                       EventTags = FGameplayTagContainer();
+    FGameplayTagContainer                       EventTags;
 };

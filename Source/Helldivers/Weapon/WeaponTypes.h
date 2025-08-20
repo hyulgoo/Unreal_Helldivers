@@ -13,19 +13,6 @@ enum class EWeaponState : uint8
 };
 
 UENUM(BlueprintType)
-enum class EWeaponType : uint8
-{
-	AssaultRifle,
-	RocketLauncher,
-	Pistol,
-	SubmachineGun,
-	Shotgun,
-	SniperRifle,
-	GrenadeLauncher,
-	Count,
-};
-
-UENUM(BlueprintType)
 enum class EHDFireType : uint8
 {
 	HitScan,

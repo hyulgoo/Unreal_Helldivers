@@ -5,7 +5,7 @@
 UHDGA_Base::UHDGA_Base(const FObjectInitializer& ObjectInitializer)
     : Super(ObjectInitializer)
 {
-    TargetBlockedTags.AddTag(HDTAG_CHARACTER_STATE_ISDEAD);
+    TargetBlockedTags.AddTag(HDTAG_CHARACTER_STATE_DEAD);
 }
 
 bool UHDGA_Base::CanActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayTagContainer* SourceTags /*= nullptr*/, const FGameplayTagContainer* TargetTags /*= nullptr*/, OUT FGameplayTagContainer* OptionalRelevantTags /*= nullptr*/) const
@@ -17,7 +17,7 @@ bool UHDGA_Base::CanActivateAbility(const FGameplayAbilitySpecHandle Handle, con
 
 void UHDGA_Base::InputReleased(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo)
 {
-    const bool bReplicatedEndAbility = true;
+    const bool bReplicatedEndAbility = false;
     const bool bWasCancelled = true;
     EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, bReplicatedEndAbility, bWasCancelled);
 }

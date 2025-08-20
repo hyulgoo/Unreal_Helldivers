@@ -6,9 +6,7 @@
 #include "Character/HDCharacterBase.h"
 #include "InputActionValue.h"
 #include "Interface/HDCharacterMovementInterface.h"
-#include "Interface/HDCharacterCommandInterface.h"
 #include "Interface/HDWeaponInterface.h"
-#include "GameplayTagContainer.h"
 #include "HDCharacterPlayer.generated.h"
 
 class USpringArmComponent;
@@ -17,12 +15,12 @@ class UHDCombatComponent;
 class UHDMovementStateComponent;
 class UHDStratagemComponent;
 class UHDCharacterControlData;
-enum class EHDTurningInPlace : uint8;
+struct FGameplayEventData;
 enum class EHDCharacterMovementState : uint8;
 enum class EHDCharacterStanceState : uint8;
 
 UCLASS()
-class HELLDIVERS_API AHDCharacterPlayer : public AHDCharacterBase, public IHDCharacterMovementInterface, public IHDWeaponInterface, public IHDCharacterCommandInterface
+class HELLDIVERS_API AHDCharacterPlayer : public AHDCharacterBase, public IHDCharacterMovementInterface, public IHDWeaponInterface
 {
 	GENERATED_BODY()
 
@@ -42,16 +40,17 @@ protected:
 
 	// WeaponInterface
     virtual void                            EquipWeapon(AHDWeapon* NewWeapon) override final;
-    virtual AHDWeapon*                      GetWeapon() const override final;
+    virtual void                            Reload() override final;
+    virtual void                            SpawnProjectile() override final;
+    virtual UAnimMontage*                   GetCombatMontage(const EHDCombatMontage MontageType) const override final;
+    virtual void                            PlayWeaponMontage(const EHDCombatMontage MontageType) override final;
+    virtual const bool                      IsEquippedWeapon() const override final;
+    virtual const bool                      IsShoulder() const override final;
+    virtual const bool                      IsWeaponAutoFire() const override final;
 	virtual const float                     GetWeaponFireDelay() const override final;
-	virtual void							Attack(const bool bAttack) override final;
-	virtual const bool						ContinueFire() override final;
     virtual void							SetWeaponActive(const bool bActive) override final;
-	virtual const float						Reload() override final;
-	virtual void							ReloadFinished() override;
 
     void                                    SpawnDefaultWeapon(const FGameplayEventData* Payload);
-	void         							Fire();
 
 	// CharacterMovementInterface
 	virtual void							SetShouldering(const bool bSetAiming) override final;
@@ -59,13 +58,11 @@ protected:
 	virtual void							SetCharacterStanceState(const EHDCharacterStanceState NewState, const bool bForced = false);
 	virtual void							RestoreStanceState() override;
 
-	// CharacterCommandInterface
-	virtual void							DetachStratagemWhileThrow() override final;
-	virtual void							TryHoldStratagem() override final;
-	void									CancleStratagem();
+    void                                    OnStratagemEventReceived(const FGameplayEventData* Payload);
+	void							        TryHoldStratagem();
 
-    const float								GetMoveSpeedByState(const EHDCharacterStanceState StanceState, const EHDCharacterMovementState MoveState);
-        
+    void    								UpdateSpeed(const EHDCharacterStanceState StanceState, const EHDCharacterMovementState MoveState);
+    
 	UFUNCTION()
 	void									InputStratagemCommand(const FInputActionValue& Value);
 	
@@ -79,7 +76,7 @@ private:
 
 	UPROPERTY(EditDefaultsOnly)
 	TObjectPtr<UCameraComponent>			FollowCamera;
-			
+	
 	UPROPERTY(EditDefaultsOnly)
 	TObjectPtr<UHDCombatComponent>			Combat;
 
@@ -87,5 +84,8 @@ private:
 	TObjectPtr<UHDMovementStateComponent>	MovementStateComp;
 
 	UPROPERTY(EditDefaultsOnly)
-	TObjectPtr<UHDStratagemComponent>		Stratagem;    
+	TObjectPtr<UHDStratagemComponent>		Stratagem;
+    
+    UPROPERTY(EditAnywhere)
+    TSubclassOf<UGameplayEffect>            WeaponAttributeSetEffect;
 };

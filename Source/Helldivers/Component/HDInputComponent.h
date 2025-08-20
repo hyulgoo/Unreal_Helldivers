@@ -31,7 +31,7 @@ void UHDInputComponent::SetTaggedInputActionDataAsset(UHDInputData* DataAsset, U
         {
             if (TriggeredFunc)
             {
-                BindAction(InputAction.InputAction, ETriggerEvent::Triggered, Object, TriggeredFunc, InputAction.InputTag);
+                BindAction(InputAction.InputAction, ETriggerEvent::Started, Object, TriggeredFunc, InputAction.InputTag);
             }
 
             if (ReleasedFunc)

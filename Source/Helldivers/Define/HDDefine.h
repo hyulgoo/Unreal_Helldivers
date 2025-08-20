@@ -20,7 +20,7 @@ if(condition == false) \
 { \
     if (WITH_EDITOR && GIsEditor && GWorld && GWorld->IsPlayInEditor()) \
     { \
-        UE_LOG(LogTemp, Error, TEXT("[%s]!, At Function: %s (%s:%d)"), \
+        UE_LOG(LogTemp, Error, TEXT("[%s] is false!, At Function: %s (%s:%d)"), \
             TEXT(#condition), ANSI_TO_TCHAR(__FUNCTION__), ANSI_TO_TCHAR(SHORT_FILE_NAME), __LINE__); \
     } \
     return; \
@@ -31,7 +31,7 @@ if(condition == false) \
 { \
     if (WITH_EDITOR && GIsEditor && GWorld && GWorld->IsPlayInEditor()) \
     { \
-        UE_LOG(LogTemp, Error, TEXT("[%s]!, At Function: %s (%s:%d)"), \
+        UE_LOG(LogTemp, Error, TEXT("[%s] is false!, At Function: %s (%s:%d)"), \
             TEXT(#condition), ANSI_TO_TCHAR(__FUNCTION__), ANSI_TO_TCHAR(SHORT_FILE_NAME), __LINE__); \
     } \
     return ret; \

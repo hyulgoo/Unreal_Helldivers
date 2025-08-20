@@ -74,13 +74,14 @@ void UHDAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
         TurningInPlace      = Combat->GetTurnInPlace();
         AimOffset_Yaw       = bIsShouldering ? 0.f : Combat->GetAimOffset_Yaw();
         AimOffset_Pitch     = Combat->GetAimOffset_Pitch();
-        CombatState         = Combat->GetCombatState();
+        bIsEquipped         = Combat->IsEquippedWeapon();
 
-        if (CombatState != EHDCombatState::Unoccupied && CombatState != EHDCombatState::Fire && CombatState != EHDCombatState::Reloading)
-        {
-            HitTarget = Combat->GetHitTarget();
-        }
-        else if (USkeletalMeshComponent* WeaponMesh = Combat->GetWeaponMesh())
+        //if (CombatState != EHDCombatState::Unoccupied && CombatState != EHDCombatState::Fire && CombatState != EHDCombatState::Reloading)
+        //{
+        //    HitTarget = Combat->GetHitTarget();
+        //}
+        //else 
+            if (USkeletalMeshComponent* WeaponMesh = Combat->GetWeaponMesh())
         {
             LeftHandTransform = WeaponMesh->GetSocketTransform(HDSOCKETNAME_LEFTHAND, ERelativeTransformSpace::RTS_World);
             HitTarget = Combat->GetHitTarget();
@@ -95,7 +96,7 @@ void UHDAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
             //RightHandRotation = LookAtRotation;
         }
 
-        bUseFABRIK = (CombatState == EHDCombatState::Unoccupied || CombatState == EHDCombatState::Fire);
-        bIsUpperSlotValid = (CombatState == EHDCombatState::Fire || CombatState == EHDCombatState::Throwing);
+       //bUseFABRIK = (CombatState == EHDCombatState::Unoccupied || CombatState == EHDCombatState::Fire);
+       //bIsUpperSlotValid = (CombatState == EHDCombatState::Fire || CombatState == EHDCombatState::Throwing);
     }
 }

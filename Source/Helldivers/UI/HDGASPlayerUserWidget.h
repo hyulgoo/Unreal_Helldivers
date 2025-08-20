@@ -19,11 +19,9 @@ class HELLDIVERS_API UHDGASPlayerUserWidget : public UUserWidget
 
 public:
     void                        OnHealthAttributeChangeds(const FOnAttributeChangeData& ChangeData);
-    void                        OnWeaponInfoChanged(const FGameplayEventData* Payload);
+    void                        OnWeaponAttributeChangeds(const FOnAttributeChangeData& ChangeData);
 private:
 
-    void                        SetChangedWeaponAmmoCountInfo(const int32 NewAmmoCount, const int32 NewMaxAmmoCount);
-    void                        SetChangedWeaponCapacityCountInfo(const int32 NewCapacityCount, const int32 NewMaxCapacityCount);
     void                        SetGrenadeCountInfo(const int32 NewGrenadeCount, const int32 NewMaxGrenadeCount);
     void                        OnCapacityCountChanged(const int32 NewCapacityCount);
     void                        OnGrenadeCountChanged(const int32 NewGrenadeCount);

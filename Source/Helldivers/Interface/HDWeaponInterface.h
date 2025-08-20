@@ -7,7 +7,10 @@
 #include "HDWeaponInterface.generated.h"
 
 class AHDWeapon;
+class UAnimMontage;
+class AHDProjectileBase;
 enum class EHDCombatState : uint8;
+enum class EHDCombatMontage : uint8;
 
 UINTERFACE(MinimalAPI)
 class UHDWeaponInterface : public UInterface
@@ -20,15 +23,14 @@ class HELLDIVERS_API IHDWeaponInterface
 	GENERATED_BODY()
 
 public:
-    virtual void                EquipWeapon(AHDWeapon* NewWeapon) = 0;
-    virtual AHDWeapon*          GetWeapon() const = 0;
-	virtual const float	        GetWeaponFireDelay() const = 0;
-
-	virtual void		        Attack(const bool bAttack) = 0;
-	virtual const bool	        ContinueFire() = 0;
-
-	virtual void		        SetWeaponActive(const bool bActive) = 0;
-
-	virtual const float	        Reload() = 0;
-	virtual void		        ReloadFinished() = 0;
+    virtual void                            EquipWeapon(AHDWeapon* NewWeapon) = 0;
+    virtual void                            Reload() = 0;
+    virtual UAnimMontage*                   GetCombatMontage(const EHDCombatMontage MontageType) const = 0;
+    virtual void                            PlayWeaponMontage(const EHDCombatMontage MontageType) = 0;
+    virtual const bool                      IsEquippedWeapon() const = 0;
+    virtual const bool                      IsShoulder() const = 0;       
+    virtual const bool                      IsWeaponAutoFire() const = 0;
+    virtual void                            SpawnProjectile() = 0;
+	virtual const float	                    GetWeaponFireDelay() const = 0;
+	virtual void		                    SetWeaponActive(const bool bActive) = 0;
 };

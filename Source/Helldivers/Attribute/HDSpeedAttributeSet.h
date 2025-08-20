@@ -19,13 +19,13 @@ class HELLDIVERS_API UHDSpeedAttributeSet : public UAttributeSet
 	GENERATED_BODY()
 
 public:
-	ATTRIBUTE_ACCESSORS(UHDSpeedAttributeSet, CurrentSpeed);
-	ATTRIBUTE_ACCESSORS(UHDSpeedAttributeSet, CrawlingSpeed);
-	ATTRIBUTE_ACCESSORS(UHDSpeedAttributeSet, CrouchSpeed);
-	ATTRIBUTE_ACCESSORS(UHDSpeedAttributeSet, WalkSpeed);
-	ATTRIBUTE_ACCESSORS(UHDSpeedAttributeSet, SprintSpeed);
-	ATTRIBUTE_ACCESSORS(UHDSpeedAttributeSet, CurrentStamina);
-	ATTRIBUTE_ACCESSORS(UHDSpeedAttributeSet, MaxStamina);
+	ATTRIBUTE_ACCESSORS(ThisClass, CurrentSpeed);
+	ATTRIBUTE_ACCESSORS(ThisClass, CrawlingSpeed);
+	ATTRIBUTE_ACCESSORS(ThisClass, CrouchSpeed);
+	ATTRIBUTE_ACCESSORS(ThisClass, WalkSpeed);
+	ATTRIBUTE_ACCESSORS(ThisClass, SprintSpeed);
+	ATTRIBUTE_ACCESSORS(ThisClass, CurrentStamina);
+	ATTRIBUTE_ACCESSORS(ThisClass, MaxStamina);
 
 	virtual void            PreAttributeChange(const FGameplayAttribute& Attribute, float& NewValue) override;
     //virtual void            PostAttributeChange(const FGameplayAttribute& Attribute, float OldValue, float NewValue) override;

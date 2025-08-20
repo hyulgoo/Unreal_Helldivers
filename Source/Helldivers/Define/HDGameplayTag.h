@@ -3,14 +3,20 @@
 
 #include "GameplayTagContainer.h"
 
-#define HDTAG_CHARACTER_STATE_STRATAGEMINPUTMODE    FGameplayTag::RequestGameplayTag(FName("Character.State.IsStratagemInputMode"))
-#define HDTAG_CHARACTER_STATE_KNOCKBACK				FGameplayTag::RequestGameplayTag(FName("Character.State.Knockback"))
-#define HDTAG_CHARACTER_STATE_RAGDOLL				FGameplayTag::RequestGameplayTag(FName("Character.State.Ragdoll"))
-#define HDTAG_CHARACTER_STATE_ISAIMING				FGameplayTag::RequestGameplayTag(FName("Character.State.IsAiming"))
-#define HDTAG_CHARACTER_STATE_ISFIRING				FGameplayTag::RequestGameplayTag(FName("Character.State.IsFiring"))
-#define HDTAG_CHARACTER_STATE_ISSHOULDER			FGameplayTag::RequestGameplayTag(FName("Character.State.IsShoulder"))
-#define HDTAG_CHARACTER_STATE_ISSPRINT				FGameplayTag::RequestGameplayTag(FName("Character.State.IsSprint"))
-#define HDTAG_CHARACTER_STATE_ISDEAD				FGameplayTag::RequestGameplayTag(FName("Character.State.IsDead"))
+#define HDTAG_CHARACTER_ACTION_STRATAGEMINPUTMODE   FGameplayTag::RequestGameplayTag(FName("Character.Action.StratagemInputMode"))
+#define HDTAG_CHARACTER_ACTION_HOLDSTRATAGEM        FGameplayTag::RequestGameplayTag(FName("Character.Action.HoldStratagem"))
+#define HDTAG_CHARACTER_ACTION_DETACHSTRATAGEM      FGameplayTag::RequestGameplayTag(FName("Character.Action.DetachStratagem"))
+#define HDTAG_CHARACTER_ACTION_THROWEND             FGameplayTag::RequestGameplayTag(FName("Character.Action.ThrowEnd"))
+
+#define HDTAG_CHARACTER_STATE_DEAD				    FGameplayTag::RequestGameplayTag(FName("Character.State.Dead"))
+
+#define HDTAG_BLOCK_ALL					            FGameplayTag::RequestGameplayTag(FName("Block.All"))
+#define HDTAG_BLOCK_MOVE					        FGameplayTag::RequestGameplayTag(FName("Block.Move"))
+#define HDTAG_BLOCK_FIRE					        FGameplayTag::RequestGameplayTag(FName("Block.Fire"))
+#define HDTAG_BLOCK_RELOAD				            FGameplayTag::RequestGameplayTag(FName("Block.Reload"))
+#define HDTAG_BLOCK_GRENADE				            FGameplayTag::RequestGameplayTag(FName("Block.Grenade"))
+#define HDTAG_BLOCK_STRATAGEM				        FGameplayTag::RequestGameplayTag(FName("Block.Stratagem"))
+#define HDTAG_BLOCK_MINIMAP				            FGameplayTag::RequestGameplayTag(FName("Block.Minimap"))
 
 #define HDTAG_INPUT							        FGameplayTag::RequestGameplayTag(FName("Input"))
 
@@ -23,6 +29,7 @@
 #define HDTAG_TRIGGER_RELOAD						FGameplayTag::RequestGameplayTag(FName("Trigger.Reload"))
 #define HDTAG_TRIGGER_REGENSTAMINA                  FGameplayTag::RequestGameplayTag(FName("Trigger.RegenStamina"))
 #define HDTAG_TRIGGER_STRATAGEMINPUTMODE			FGameplayTag::RequestGameplayTag(FName("Trigger.StratagemInputMode"))
+#define HDTAG_TRIGGER_THROWSTRATAGEM			    FGameplayTag::RequestGameplayTag(FName("Trigger.ThrowStratagem"))
 
 #define HDTAG_EVENT_STRATAGEMHUD                    FGameplayTag::RequestGameplayTag(FName("Event.StratagemHUD"))
 #define HDTAG_EVENT_STRATAGEMHUD_APPEAR             FGameplayTag::RequestGameplayTag(FName("Event.StratagemHUD.Active"))
@@ -36,12 +43,17 @@
 #define HDTAG_EVENT_PLAYERHUD_INITIALIZE		    FGameplayTag::RequestGameplayTag(FName("Event.PlayerHUD.Initialize"))
 #define HDTAG_EVENT_PLAYERHUD_EQUIPWEAPON			FGameplayTag::RequestGameplayTag(FName("Event.PlayerHUD.EquipWeapon"))
 #define HDTAG_EVENT_SPAWN_PROJECTILE                FGameplayTag::RequestGameplayTag(FName("Event.Spawn.Projectile"))
+#define HDTAG_EVENT_RELOAD                          FGameplayTag::RequestGameplayTag(FName("Event.Reload"))
 
 #define HDTAG_DATA_DAMAGE_PROJECTILE                FGameplayTag::RequestGameplayTag(FName("Data.Damage.Projectile"))
 #define HDTAG_DATA_DOTDAMAGE_TICKDAMAGE             FGameplayTag::RequestGameplayTag(FName("Data.DotDamage.TickDamage"))
 #define HDTAG_DATA_DOTDAMAGE_DURATION               FGameplayTag::RequestGameplayTag(FName("Data.Projectile.StatusEffectDuration"))
 
 #define HDTAG_DATA_ATTRIBUTE                        FGameplayTag::RequestGameplayTag(FName("Data.Attribute"))
+#define HDTAG_DATA_ATTRIBUTE_AMMO                   FGameplayTag::RequestGameplayTag(FName("Data.Attribute.Ammo"))
+#define HDTAG_DATA_ATTRIBUTE_MAXAMMO                FGameplayTag::RequestGameplayTag(FName("Data.Attribute.MaxAmmo"))
+#define HDTAG_DATA_ATTRIBUTE_CAPACITY               FGameplayTag::RequestGameplayTag(FName("Data.Attribute.Capacity"))
+#define HDTAG_DATA_ATTRIBUTE_MAXCAPACITY            FGameplayTag::RequestGameplayTag(FName("Data.Attribute.MaxCapacity"))
 
 #define HDTAG_DATA_KNOCKBACK_HIT                    FGameplayTag::RequestGameplayTag(FName("Data.Knockback.Hit"))
 #define HDTAG_DATA_KNOCKBACK_RAGDOLL                FGameplayTag::RequestGameplayTag(FName("Data.Knockback.Ragdoll"))

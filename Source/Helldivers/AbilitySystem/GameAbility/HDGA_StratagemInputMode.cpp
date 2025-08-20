@@ -1,7 +1,6 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "HDGA_StratagemInputMode.h"
-#include "Interface/HDCharacterCommandInterface.h"
 #include "AbilitySystem/GameplayAbilityHelper.h"
 
 UHDGA_StratagemInputMode::UHDGA_StratagemInputMode(const FObjectInitializer& ObjectInitializer)
@@ -21,10 +20,6 @@ void UHDGA_StratagemInputMode::EndAbility(const FGameplayAbilitySpecHandle Handl
 {
     Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 
-    TScriptInterface<IHDCharacterCommandInterface> CommandInterface = ActorInfo->AvatarActor.Get();
-    NULL_CHECK(CommandInterface);
-
-    CommandInterface->TryHoldStratagem();
-
+    FGameplayAbilityHelper::SendGameplayEventToTarget(HDTAG_CHARACTER_ACTION_HOLDSTRATAGEM, CurrentActorInfo, ActorInfo);
     FGameplayAbilityHelper::SendGameplayEventToTarget(HDTAG_EVENT_STRATAGEMHUD_DISAPPEAR, CurrentActorInfo, ActorInfo);
 }

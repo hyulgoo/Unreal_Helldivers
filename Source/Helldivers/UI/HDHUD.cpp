@@ -4,6 +4,7 @@
 #include "UI/HDGASPlayerUserWidget.h"
 #include "AbilitySystemComponent.h"
 #include "Attribute/HDHealthAttributeSet.h"
+#include "Attribute/HDWeaponAttributeSet.h"
 #include "UI/HDReticleWidget.h"
 #include "Weapon/HDWeapon.h"
 #include "Define/HDDefine.h"
@@ -30,12 +31,12 @@ void AHDHUD::CreateDefaultWidget()
 
         AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(UHDHealthAttributeSet::GetCurrentHealthAttribute()).AddUObject(PlayerHUDWidget, &UHDGASPlayerUserWidget::OnHealthAttributeChangeds);
         AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(UHDHealthAttributeSet::GetMaxHealthAttribute()).AddUObject(PlayerHUDWidget, &UHDGASPlayerUserWidget::OnHealthAttributeChangeds);
-
-        const FGameplayTagContainer& PlayerHudTags = FGameplayAbilityHelper::GetAllChildTag(HDTAG_EVENT_PLAYERHUD);
-        for (const FGameplayTag& PlayerHudTag : PlayerHudTags)
-        {
-            AbilitySystemComponent->GenericGameplayEventCallbacks.FindOrAdd(PlayerHudTag).AddUObject(PlayerHUDWidget, &UHDGASPlayerUserWidget::OnWeaponInfoChanged);
-        }
+        AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(UHDWeaponAttributeSet::GetAmmoAttribute()).AddUObject(PlayerHUDWidget, &UHDGASPlayerUserWidget::OnWeaponAttributeChangeds);
+        AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(UHDWeaponAttributeSet::GetMaxAmmoAttribute()).AddUObject(PlayerHUDWidget, &UHDGASPlayerUserWidget::OnWeaponAttributeChangeds);
+        AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(UHDWeaponAttributeSet::GetCapacityAttribute()).AddUObject(PlayerHUDWidget, &UHDGASPlayerUserWidget::OnWeaponAttributeChangeds);
+        AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(UHDWeaponAttributeSet::GetMaxCapacityAttribute()).AddUObject(PlayerHUDWidget, &UHDGASPlayerUserWidget::OnWeaponAttributeChangeds);
+        AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(UHDWeaponAttributeSet::GetGrenadeAttribute()).AddUObject(PlayerHUDWidget, &UHDGASPlayerUserWidget::OnWeaponAttributeChangeds);
+        AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(UHDWeaponAttributeSet::GetMaxGrenadeAttribute()).AddUObject(PlayerHUDWidget, &UHDGASPlayerUserWidget::OnWeaponAttributeChangeds);
 
         PlayerHUDWidget->AddToViewport();
     }
@@ -80,9 +81,9 @@ void AHDHUD::OnEquipWeaponUIEventRecieved(const FGameplayEventData* Payload)
     TScriptInterface<IHDWeaponInterface> WeaponInterfae = PlayerOwner->GetPawn();
     NULL_CHECK(WeaponInterfae);
 
-    CurrentWeapon = WeaponInterfae->GetWeapon();
-    if (CurrentWeapon)
-    {
-        SpreadChangedHandle = CurrentWeapon->OnSpreadChanged.AddUObject(ReticleWidget, &UHDReticleWidget::UpdateCrosshair);
-    }
+    //CurrentWeapon = WeaponInterfae->GetWeapon();
+    //if (CurrentWeapon)
+    //{
+    //    SpreadChangedHandle = CurrentWeapon->OnSpreadChanged.AddUObject(ReticleWidget, &UHDReticleWidget::UpdateCrosshair);
+    //}
 }

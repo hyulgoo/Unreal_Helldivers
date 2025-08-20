@@ -104,7 +104,7 @@ private:
 	UPROPERTY();
 	TObjectPtr<AHDCharacterPlayer>		SpawnedCharacter;
 
-	FTimeline							SpawnCharacterTimeline      = FTimeline();
+    FTimeline							SpawnCharacterTimeline;
 
     UPROPERTY(EditDefaultsOnly, Category = "Hellpod|Spawn")
 	TObjectPtr<UCurveFloat>				SpawnCurveFloat;

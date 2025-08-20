@@ -17,19 +17,6 @@ enum class EHDCharacterControlType : uint8
 };
 
 UENUM(BlueprintType)
-enum class EHDCombatState : uint8
-{
-	Unoccupied,
-    Fire,
-	Reloading,
-	SwappingWeapons,
-	HoldStratagem,
-	Throwing,
-	Ragdoll,
-	Count
-};
-
-UENUM(BlueprintType)
 enum class EHDCommandInput : uint8
 {
     Up,

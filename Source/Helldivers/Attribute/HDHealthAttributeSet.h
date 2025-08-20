@@ -19,8 +19,8 @@ class HELLDIVERS_API UHDHealthAttributeSet : public UAttributeSet
 	GENERATED_BODY()
 	
 public:
-	ATTRIBUTE_ACCESSORS(UHDHealthAttributeSet, CurrentHealth);
-	ATTRIBUTE_ACCESSORS(UHDHealthAttributeSet, MaxHealth);
+	ATTRIBUTE_ACCESSORS(ThisClass, CurrentHealth);
+	ATTRIBUTE_ACCESSORS(ThisClass, MaxHealth);
 
 	virtual void			PreAttributeChange(const FGameplayAttribute& Attribute, float& NewValue) override;
 	virtual void			PostAttributeChange(const FGameplayAttribute& Attribute, float OldValue, float NewValue) override;

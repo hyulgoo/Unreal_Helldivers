@@ -40,7 +40,7 @@ private:
 	UPROPERTY(EditDefaultsOnly)
     TObjectPtr<UInputAction>	CommandInputAction;
 
-    FName						SelectedStratagemName           = FName();
+    FName						SelectedStratagemName;
     float						SelecteddStratagemActiveDelay   = 0.f;
 
 	TArray<EHDCommandInput>		CurrentInputCommandList;

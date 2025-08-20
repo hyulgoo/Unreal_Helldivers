@@ -1,9 +1,11 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "HDGA_WeaponTrigger.h"
-#include "Abilities/Tasks/AbilityTask_WaitDelay.h"
 #include "Interface/HDWeaponInterface.h"
-#include <Weapon\Projectile\HDProjectileBase.h>
+#include "Character/CharacterTypes/HDCharacterStateTypes.h"
+#include "AbilitySystem/AbilityTask/HDAT_PlayMontageAndWaitForEvent.h"
+#include "Define/HDMontageSectionNames.h"
+#include "Abilities/Tasks/AbilityTask_WaitDelay.h"
 
 UHDGA_WeaponTrigger::UHDGA_WeaponTrigger(const FObjectInitializer& ObjectInitializer /*= FObjectInitializer::Get()*/)
     : Super(ObjectInitializer)
@@ -11,75 +13,113 @@ UHDGA_WeaponTrigger::UHDGA_WeaponTrigger(const FObjectInitializer& ObjectInitial
     InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
 }
 
+bool UHDGA_WeaponTrigger::CanActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayTagContainer* SourceTags /*= nullptr*/, const FGameplayTagContainer* TargetTags /*= nullptr*/, OUT FGameplayTagContainer* OptionalRelevantTags /*= nullptr*/) const
+{
+    CONDITION_CHECK_WITH_RETURNTYPE_WITHOUT_LOG(Super::CanActivateAbility(Handle, ActorInfo, SourceTags, TargetTags, OptionalRelevantTags), false);
+
+    return CheckCost(Handle, ActorInfo);
+}
+
 void UHDGA_WeaponTrigger::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)
 {
-	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
+    Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
+
+    CONDITION_CHECK(Super::CheckCost(Handle, ActorInfo));
 
     const FGameplayTagContainer& CurrentTagContainer = GetAssetTags();
-	CONDITION_CHECK(CurrentTagContainer.IsValid());
+    CONDITION_CHECK(CurrentTagContainer.IsValid());
 
-	WeaponInterface = ActorInfo->AvatarActor.Get();
-	NULL_CHECK(WeaponInterface);
+    WeaponInterface = ActorInfo->AvatarActor.Get();
+    NULL_CHECK(WeaponInterface);
 
-	if (CurrentTagContainer.HasTagExact(HDTAG_TRIGGER_ATTACK))
-	{
-		WeaponInterface->Attack(true);
-        SavedDelay = WeaponInterface->GetWeaponFireDelay();
-		SetAbilityTimer();
-	}
-	else if (CurrentTagContainer.HasTagExact(HDTAG_TRIGGER_RELOAD))
-	{
-        SavedDelay = WeaponInterface->Reload();
-		SetAbilityTimer();
-	}
+    AutoFireDelay = WeaponInterface->GetWeaponFireDelay();
+    UAnimMontage* CombatMontage = nullptr;
+    FName SectionName = NAME_None;
+    bool bTaskEndOnMontageEnded = true;
+
+    if (CurrentTagContainer.HasTagExact(HDTAG_TRIGGER_ATTACK))
+    {
+        CombatMontage = WeaponInterface->GetCombatMontage(EHDCombatMontage::Fire);
+        WeaponInterface->PlayWeaponMontage(EHDCombatMontage::Fire);
+        SectionName = WeaponInterface->IsShoulder() ? HDMONTAGE_SECTIONNAME_RIFLE_AIM : HDMONTAGE_SECTIONNAME_RIFLE_HIP;
+        EventTags.AddTag(HDTAG_EVENT_SPAWN_PROJECTILE);
+        bTaskEndOnMontageEnded = false;
+    }
+    else if (CurrentTagContainer.HasTagExact(HDTAG_TRIGGER_THROWSTRATAGEM))
+    {
+        CombatMontage = WeaponInterface->GetCombatMontage(EHDCombatMontage::Throw);
+        EventTags.AddTag(HDTAG_CHARACTER_ACTION_THROWEND);
+        EventTags.AddTag(HDTAG_CHARACTER_ACTION_DETACHSTRATAGEM);
+    }
+    else if (CurrentTagContainer.HasTagExact(HDTAG_TRIGGER_RELOAD))
+    {
+        CombatMontage = WeaponInterface->GetCombatMontage(EHDCombatMontage::Reload);
+        WeaponInterface->PlayWeaponMontage(EHDCombatMontage::Reload);
+        EventTags.AddTag(HDTAG_EVENT_RELOAD);
+    }
+
+    NULL_CHECK(CombatMontage);
+    PlayMontageAndWaitEventTask = UHDAT_PlayMontageAndWaitForEvent::PlayMontageAndWaitEvent(
+        this,
+        CombatMontage,
+        EventTags,
+        1.f,
+        SectionName,
+        bTaskEndOnMontageEnded
+    );
+
+    PlayMontageAndWaitEventTask->OnEventReceived.AddDynamic(this, &UHDGA_WeaponTrigger::OnEventRecieved);
+    PlayMontageAndWaitEventTask->ReadyForActivation();
 }
 
 void UHDGA_WeaponTrigger::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled)
 {
-	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
-
-	const FGameplayTagContainer& CurrentTagContainer = GetAssetTags();
-	CONDITION_CHECK(CurrentTagContainer.IsValid());
-
-	NULL_CHECK(WeaponInterface);
-
-	if (CurrentTagContainer.HasTagExact(HDTAG_TRIGGER_ATTACK))
-	{
-		WeaponInterface->Attack(false);
-	}
-	else if (CurrentTagContainer.HasTagExact(HDTAG_TRIGGER_RELOAD))
-	{
-		WeaponInterface->ReloadFinished();
-	}
+    Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 
     WeaponInterface = nullptr;
+    AutoFireDelay = 0.f;
 }
 
-void UHDGA_WeaponTrigger::OnDelayCompleted()
+void UHDGA_WeaponTrigger::OnEventRecieved(FGameplayEventData Payload)
 {
-    const FGameplayTagContainer& CurrentTagContainer = GetAssetTags();
-	CONDITION_CHECK(CurrentTagContainer.IsValid());
+    NULL_CHECK(WeaponInterface);
 
-	NULL_CHECK(WeaponInterface);
+    if (Payload.EventTag == HDTAG_EVENT_SPAWN_PROJECTILE)
+    {
+        if(Super::CommitAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo))
+        {
+            WeaponInterface->SpawnProjectile();
 
-	if (CurrentTagContainer.HasTagExact(HDTAG_TRIGGER_ATTACK))
-	{
-		if (WeaponInterface->ContinueFire())
-		{
-			SetAbilityTimer();
-		}
-	}
-	else if (CurrentTagContainer.HasTagExact(HDTAG_TRIGGER_RELOAD))
-	{
-		const bool bReplicatedEndAbility = true;
-		const bool bWasCancelled = true;
-		EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, bReplicatedEndAbility, bWasCancelled);
-	}
+            if (WeaponInterface->IsWeaponAutoFire())
+            {
+                UAbilityTask_WaitDelay* Task = UAbilityTask_WaitDelay::WaitDelay(this, AutoFireDelay);
+                Task->OnFinish.AddDynamic(this, &UHDGA_WeaponTrigger::OnFireDelayCompleted);
+                Task->ReadyForActivation();
+
+                const FName SectionName = WeaponInterface->IsShoulder() ? HDMONTAGE_SECTIONNAME_RIFLE_AIM : HDMONTAGE_SECTIONNAME_RIFLE_HIP;
+                PlayMontageAndWaitEventTask->JumpToSection(SectionName);
+            }
+            else
+            {
+                EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, false, true);
+            }
+        }
+        else
+        {
+            EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, false, true);
+        }
+    }
+    else if (Payload.EventTag == HDTAG_EVENT_RELOAD)
+    {
+        WeaponInterface->Reload();
+    }
 }
 
-void UHDGA_WeaponTrigger::SetAbilityTimer()
+void UHDGA_WeaponTrigger::OnFireDelayCompleted()
 {
-	UAbilityTask_WaitDelay* DelayTask = UAbilityTask_WaitDelay::WaitDelay(this, SavedDelay);
-	DelayTask->OnFinish.AddDynamic(this, &UHDGA_WeaponTrigger::OnDelayCompleted);
-	DelayTask->ReadyForActivation();
+    NULL_CHECK(WeaponInterface);
+    WeaponInterface->PlayWeaponMontage(EHDCombatMontage::Fire);
+
+    NULL_CHECK(PlayMontageAndWaitEventTask);
+    PlayMontageAndWaitEventTask->ResetMontage();
 }

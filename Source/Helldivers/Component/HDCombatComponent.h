@@ -8,12 +8,15 @@
 #include "HDCombatComponent.generated.h"
 
 class UAnimMontage;
-class AHDWeapon;
-class AHDStratagem;
+class UAnimationAsset;
 class UCharacterMovementComponent;
 class USpringArmComponent;
 class UAbilitySystemComponent;
+class AHDWeapon;
+class AHDStratagem;
+class AHDProjectileBase;
 enum class EHDFireType :uint8;
+enum class EHDWeaponAnimationType : uint8;
 
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnSpreadChanged, float);
 
@@ -25,14 +28,14 @@ class HELLDIVERS_API UHDCombatComponent : public UActorComponent
 public:	
     UHDCombatComponent(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
 
-    const bool				                Fire();
-    const bool 				                CanFire() const;
-
     AHDWeapon*                              SpawnDefaultWeapon();
     void                                    EquipWeapon(AHDWeapon* NewWeapon, UAbilitySystemComponent* ASC);
+    void                                    SpawnProjectile();     
 
+    AHDWeapon*                              GetWeapon() const;
     USkeletalMeshComponent*                 GetWeaponMesh() const;
     void                                    SetWeaponActive(const bool bActive);
+    UAnimMontage*                           GetWeaponMontage() const;
     const EHDFireType                       GetWeaponFireType() const;
     const float                             GetWeaponFireDelay() const;
     const int32                             GetWeaponAmmoCount() const;
@@ -41,42 +44,26 @@ public:
     const int32                             GetWeaponMaxCapacityCount() const;
     const float                             GetWeaponZoomedFOV() const;
     const float                             GetWeaponZoomInterpSpeed() const;
-
-
-    const bool                              NeedReload() const;
-    const bool                              CanReload() const;
-    void                                    Reload();
-    AHDWeapon*                              GetWeapon() const;
-    const float                             GetWeaponReloadDelay(const bool bShoulder) const;
-
-    const EHDCombatState                    GetCombatState() const;
-    void                                    SetCombatState(const EHDCombatState State);
-
+    const bool                              IsWeaponAutoFire() const;
+    const bool                              IsEquippedWeapon() const;
     const bool                              IsShoulder() const;
     void                                    SetShoulder(const bool bShoudler);
-
-	const bool                              ContinueFire();
-	void                                    ReloadFinished();
 
     const float                             GetAimOffset_Yaw() const;
     const float                             GetAimOffset_Pitch() const;
 
     const FVector&                          GetHitTarget() const;
-    void                                    SetHitTarget(const FVector& NewHitTarget);
 
     const float                             GetCurrentFOV() const;
     void                                    SetCurrentFOV(const float NewFOV);
-
+    const float                             GetDefaultFOV() const;
     const float                             GetZoomInterpSpeed() const;
 
+    const bool                              IsUseRotateBone() const;
     const bool                              IsCharacterLookingViewport() const;
     void                                    SetSpringArmTargetLength(const float TargetArmLength);
 
     const EHDTurningInPlace                 GetTurnInPlace() const;
-
-    const float                             GetDefaultFOV() const;
-    const bool                              IsUseRotateBone() const;
-
     UAnimMontage*                           GetCombatMontage(const EHDCombatMontage MontageType);
 
 protected:
@@ -113,25 +100,15 @@ private:
 	float					                TurnThreshold;
 
 	EHDTurningInPlace		                TurningInPlace                  = EHDTurningInPlace::NotTurning;
-
     uint8					                bIsShoulder : 1                 = false;
-
-    EHDCombatState			                CombatState                     = EHDCombatState::Unoccupied;
+    uint8					                bIsEquipped : 1                 = false;
     FVector					                HitTarget                       = FVector::ZeroVector;
     float                                   DefaultFOV                      = 50.f;
     float					                CurrentFOV                      = 0.f;
-
-    UPROPERTY(EditAnywhere)
-	float					                ZoomedFOV;
-
-    UPROPERTY(EditAnywhere)
-	float					                ZoomInterpSpeed;
-
+	float					                ZoomedFOV                       = 0.f;
+	float					                ZoomInterpSpeed                 = 0.f;
     float					                ErgonomicFactor                 = 0.f;
     float 				                    CurrentSpread                   = 0.f;
-    
-    UPROPERTY()
-	TObjectPtr<AHDWeapon>	                Weapon;
     
     UPROPERTY(EditAnywhere)
 	TObjectPtr<UCurveFloat>	                DefaultCurve;
@@ -142,6 +119,9 @@ private:
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<AHDWeapon>					DefaultWeaponClass;
     
+    UPROPERTY()
+	TObjectPtr<AHDWeapon>	                Weapon;
+
     UPROPERTY(EditAnywhere)
     TMap<EHDCombatMontage,TObjectPtr<UAnimMontage>> CombatMontage;
 };
