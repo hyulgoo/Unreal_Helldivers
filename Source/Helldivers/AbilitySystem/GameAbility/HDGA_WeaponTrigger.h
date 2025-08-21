@@ -30,13 +30,14 @@ private:
 
 protected:
     UPROPERTY()
-	TScriptInterface<IHDWeaponInterface>	WeaponInterface;
-    
-    UPROPERTY(EditDefaultsOnly)
-	FGameplayTagContainer                   EventTags;
+    TObjectPtr<UHDAT_PlayMontageAndWaitForEvent> PlayMontageAndWaitEventTask;
     
     UPROPERTY()
-    TObjectPtr<UHDAT_PlayMontageAndWaitForEvent>        PlayMontageAndWaitEventTask;
+	TScriptInterface<IHDWeaponInterface>	WeaponInterface;
 
-    float                                   AutoFireDelay = 0.f;
+    UPROPERTY(EditDefaultsOnly)
+	FGameplayTagContainer                   EventTags;
+
+    float                                   AutoFireDelay   = 0.f;
+    FName                                   SectionName     = NAME_None;
 };

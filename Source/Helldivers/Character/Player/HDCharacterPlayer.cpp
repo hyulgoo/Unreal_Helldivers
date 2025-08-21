@@ -317,6 +317,9 @@ void AHDCharacterPlayer::TryHoldStratagem()
     {
         Stratagem->HoldStratagem(GetMesh(), Combat->GetHitTarget());
         SetWeaponActive(false);
+        UAbilitySystemComponent* ASC = GetAbilitySystemComponent();
+        NULL_CHECK(ASC);
+        ASC->AddLooseGameplayTag(HDTAG_CHARACTER_ACTION_HOLDSTRATAGEM);
     }
     else
     {

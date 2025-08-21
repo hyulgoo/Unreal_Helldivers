@@ -6,6 +6,7 @@
 #include "AbilitySystem/AbilityTask/HDAT_PlayMontageAndWaitForEvent.h"
 #include "Define/HDMontageSectionNames.h"
 #include "Abilities/Tasks/AbilityTask_WaitDelay.h"
+#include "Define/HDDefine.h"
 
 UHDGA_WeaponTrigger::UHDGA_WeaponTrigger(const FObjectInitializer& ObjectInitializer /*= FObjectInitializer::Get()*/)
     : Super(ObjectInitializer)
@@ -24,8 +25,6 @@ void UHDGA_WeaponTrigger::ActivateAbility(const FGameplayAbilitySpecHandle Handl
 {
     Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 
-    CONDITION_CHECK(Super::CheckCost(Handle, ActorInfo));
-
     const FGameplayTagContainer& CurrentTagContainer = GetAssetTags();
     CONDITION_CHECK(CurrentTagContainer.IsValid());
 
@@ -34,7 +33,6 @@ void UHDGA_WeaponTrigger::ActivateAbility(const FGameplayAbilitySpecHandle Handl
 
     AutoFireDelay = WeaponInterface->GetWeaponFireDelay();
     UAnimMontage* CombatMontage = nullptr;
-    FName SectionName = NAME_None;
     bool bTaskEndOnMontageEnded = true;
 
     if (CurrentTagContainer.HasTagExact(HDTAG_TRIGGER_ATTACK))
@@ -42,20 +40,16 @@ void UHDGA_WeaponTrigger::ActivateAbility(const FGameplayAbilitySpecHandle Handl
         CombatMontage = WeaponInterface->GetCombatMontage(EHDCombatMontage::Fire);
         WeaponInterface->PlayWeaponMontage(EHDCombatMontage::Fire);
         SectionName = WeaponInterface->IsShoulder() ? HDMONTAGE_SECTIONNAME_RIFLE_AIM : HDMONTAGE_SECTIONNAME_RIFLE_HIP;
-        EventTags.AddTag(HDTAG_EVENT_SPAWN_PROJECTILE);
         bTaskEndOnMontageEnded = false;
     }
     else if (CurrentTagContainer.HasTagExact(HDTAG_TRIGGER_THROWSTRATAGEM))
     {
         CombatMontage = WeaponInterface->GetCombatMontage(EHDCombatMontage::Throw);
-        EventTags.AddTag(HDTAG_CHARACTER_ACTION_THROWEND);
-        EventTags.AddTag(HDTAG_CHARACTER_ACTION_DETACHSTRATAGEM);
     }
     else if (CurrentTagContainer.HasTagExact(HDTAG_TRIGGER_RELOAD))
     {
         CombatMontage = WeaponInterface->GetCombatMontage(EHDCombatMontage::Reload);
         WeaponInterface->PlayWeaponMontage(EHDCombatMontage::Reload);
-        EventTags.AddTag(HDTAG_EVENT_RELOAD);
     }
 
     NULL_CHECK(CombatMontage);
@@ -86,7 +80,7 @@ void UHDGA_WeaponTrigger::OnEventRecieved(FGameplayEventData Payload)
 
     if (Payload.EventTag == HDTAG_EVENT_SPAWN_PROJECTILE)
     {
-        if(Super::CommitAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo))
+        if(CommitAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo))
         {
             WeaponInterface->SpawnProjectile();
 
@@ -96,7 +90,6 @@ void UHDGA_WeaponTrigger::OnEventRecieved(FGameplayEventData Payload)
                 Task->OnFinish.AddDynamic(this, &UHDGA_WeaponTrigger::OnFireDelayCompleted);
                 Task->ReadyForActivation();
 
-                const FName SectionName = WeaponInterface->IsShoulder() ? HDMONTAGE_SECTIONNAME_RIFLE_AIM : HDMONTAGE_SECTIONNAME_RIFLE_HIP;
                 PlayMontageAndWaitEventTask->JumpToSection(SectionName);
             }
             else
