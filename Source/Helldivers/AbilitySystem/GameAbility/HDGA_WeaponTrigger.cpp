@@ -42,10 +42,6 @@ void UHDGA_WeaponTrigger::ActivateAbility(const FGameplayAbilitySpecHandle Handl
         SectionName = WeaponInterface->IsShoulder() ? HDMONTAGE_SECTIONNAME_RIFLE_AIM : HDMONTAGE_SECTIONNAME_RIFLE_HIP;
         bTaskEndOnMontageEnded = false;
     }
-    else if (CurrentTagContainer.HasTagExact(HDTAG_TRIGGER_THROWSTRATAGEM))
-    {
-        CombatMontage = WeaponInterface->GetCombatMontage(EHDCombatMontage::Throw);
-    }
     else if (CurrentTagContainer.HasTagExact(HDTAG_TRIGGER_RELOAD))
     {
         CombatMontage = WeaponInterface->GetCombatMontage(EHDCombatMontage::Reload);

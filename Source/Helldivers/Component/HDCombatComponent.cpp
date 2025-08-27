@@ -293,6 +293,7 @@ void UHDCombatComponent::SetWeaponActive(const bool bActive)
     Weapon->SetActorTickEnabled(bActive);
     Weapon->SetActorHiddenInGame(bActive == false);
     Weapon->SetActorEnableCollision(bActive);
+    bIsEquipped = bActive;
 }
 
 UAnimMontage* UHDCombatComponent::GetWeaponMontage() const

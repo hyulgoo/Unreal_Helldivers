@@ -12,6 +12,7 @@ class UAnimationAsset;
 class UCharacterMovementComponent;
 class USpringArmComponent;
 class UAbilitySystemComponent;
+class UGameplayEffect;
 class AHDWeapon;
 class AHDStratagem;
 class AHDProjectileBase;
@@ -121,6 +122,9 @@ private:
     
     UPROPERTY()
 	TObjectPtr<AHDWeapon>	                Weapon;
+    
+    UPROPERTY()
+	TObjectPtr<UGameplayEffect>	            ReloadGameplayEffect;
 
     UPROPERTY(EditAnywhere)
     TMap<EHDCombatMontage,TObjectPtr<UAnimMontage>> CombatMontage;

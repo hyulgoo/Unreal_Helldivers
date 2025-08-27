@@ -19,7 +19,7 @@ public:
     virtual void                                Activate() override;
     virtual void                                OnDestroy(bool AbilityEnded) override;
 
-	UFUNCTION()
+	UFUNCTION(BlueprintCallable)
     static UHDAT_PlayMontageAndWaitForEvent*    PlayMontageAndWaitEvent(UGameplayAbility* OwningAbility, UAnimMontage* MontageToPlay, const FGameplayTagContainer EventTagContainer, float Rate = 1.f, FName StartSection = NAME_None, const bool EndTaskOnMontageEnded = true, const bool OnlyTriggerOnce = false, bool OnlyMatchExact = true);
 
 	void                                        OnMontageEnded(UAnimMontage* Montage, bool bInterrupted);

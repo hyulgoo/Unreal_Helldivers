@@ -12,7 +12,7 @@ class AHDProjectileBase;
 enum class EHDCombatState : uint8;
 enum class EHDCombatMontage : uint8;
 
-UINTERFACE(MinimalAPI)
+UINTERFACE(MinimalAPI, NotBlueprintable)
 class UHDWeaponInterface : public UInterface
 {
 	GENERATED_BODY()
@@ -24,13 +24,29 @@ class HELLDIVERS_API IHDWeaponInterface
 
 public:
     virtual void                            EquipWeapon(AHDWeapon* NewWeapon) = 0;
+
+    UFUNCTION(BlueprintCallable)
     virtual void                            Reload() = 0;
+    
+    UFUNCTION(BlueprintCallable)
     virtual UAnimMontage*                   GetCombatMontage(const EHDCombatMontage MontageType) const = 0;
+    
+    UFUNCTION(BlueprintCallable)
     virtual void                            PlayWeaponMontage(const EHDCombatMontage MontageType) = 0;
     virtual const bool                      IsEquippedWeapon() const = 0;
+    
+    UFUNCTION(BlueprintCallable)
     virtual const bool                      IsShoulder() const = 0;       
+
+    UFUNCTION(BlueprintCallable)
     virtual const bool                      IsWeaponAutoFire() const = 0;
+
+    UFUNCTION(BlueprintCallable)
     virtual void                            SpawnProjectile() = 0;
+    
+    UFUNCTION(BlueprintCallable)
 	virtual const float	                    GetWeaponFireDelay() const = 0;
+    
+    UFUNCTION(BlueprintCallable)
 	virtual void		                    SetWeaponActive(const bool bActive) = 0;
 };

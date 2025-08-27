@@ -108,7 +108,6 @@ void AHDCharacterPlayer::Reload()
 
     FGameplayEffectSpecHandle SpecHandle = ASC->MakeOutgoingSpec(WeaponAttributeSetEffect, 1.f, ASC->MakeEffectContext());
     CONDITION_CHECK(SpecHandle.IsValid());
-    SpecHandle.Data->SetSetByCallerMagnitude(HDTAG_DATA_ATTRIBUTE_AMMO, Combat->GetWeaponMaxAmmoCount());
 
     ASC->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data.Get());
 }

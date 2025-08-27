@@ -81,15 +81,19 @@ void UHDAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
         //    HitTarget = Combat->GetHitTarget();
         //}
         //else 
-            if (USkeletalMeshComponent* WeaponMesh = Combat->GetWeaponMesh())
+        if (bIsEquipped)
         {
-            LeftHandTransform = WeaponMesh->GetSocketTransform(HDSOCKETNAME_LEFTHAND, ERelativeTransformSpace::RTS_World);
-            HitTarget = Combat->GetHitTarget();
-            FVector OutPosition;
-            FRotator OutRotation;
-            CharacterMesh->TransformToBoneSpace(HDBONENAME_RIGHTHAND, LeftHandTransform.GetLocation(), FRotator::ZeroRotator, OutPosition, OutRotation);
-            LeftHandTransform.SetLocation(OutPosition);
-            LeftHandTransform.SetRotation(FQuat(OutRotation));
+            USkeletalMeshComponent* WeaponMesh = Combat->GetWeaponMesh();
+            if (WeaponMesh)
+            {
+                LeftHandTransform = WeaponMesh->GetSocketTransform(HDSOCKETNAME_LEFTHAND, ERelativeTransformSpace::RTS_World);
+                HitTarget = Combat->GetHitTarget();
+                FVector OutPosition;
+                FRotator OutRotation;
+                CharacterMesh->TransformToBoneSpace(HDBONENAME_RIGHTHAND, LeftHandTransform.GetLocation(), FRotator::ZeroRotator, OutPosition, OutRotation);
+                LeftHandTransform.SetLocation(OutPosition);
+                LeftHandTransform.SetRotation(FQuat(OutRotation));
+            }
 
             //const FTransform& MuzzleFlashSocketTransform = WeaponMesh->GetSocketTransform(HDSOCKETNAME_MUZZLEFLASH, ERelativeTransformSpace::RTS_World);
             //const FRotator LookAtRotation = UKismetMathLibrary::FindLookAtRotation(MuzzleFlashSocketTransform.GetLocation(), HitTarget);
