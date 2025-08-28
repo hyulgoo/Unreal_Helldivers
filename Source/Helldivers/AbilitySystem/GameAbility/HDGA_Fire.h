@@ -4,18 +4,18 @@
 
 #include "CoreMinimal.h"
 #include "AbilitySystem/GameAbility/HDGA_Base.h"
-#include "HDGA_WeaponTrigger.generated.h"
+#include "HDGA_Fire.generated.h"
 
 class IHDWeaponInterface;
 class UHDAT_PlayMontageAndWaitForEvent;
 
 UCLASS()
-class HELLDIVERS_API UHDGA_WeaponTrigger : public UHDGA_Base
+class HELLDIVERS_API UHDGA_Fire : public UHDGA_Base
 {
 	GENERATED_BODY()
 
 public:
-	 UHDGA_WeaponTrigger(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
+	 UHDGA_Fire(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
 
     virtual bool                            CanActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayTagContainer* SourceTags = nullptr, const FGameplayTagContainer* TargetTags = nullptr, OUT FGameplayTagContainer* OptionalRelevantTags = nullptr) const override;
 	virtual void							ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData) override final;
@@ -34,9 +34,6 @@ protected:
     
     UPROPERTY()
 	TScriptInterface<IHDWeaponInterface>	WeaponInterface;
-
-    UPROPERTY(EditDefaultsOnly)
-	FGameplayTagContainer                   EventTags;
 
     float                                   AutoFireDelay   = 0.f;
     FName                                   SectionName     = NAME_None;

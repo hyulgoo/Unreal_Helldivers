@@ -51,10 +51,10 @@ void AHDCharacterPlayer::PossessedBy(AController* NewController)
     UAbilitySystemComponent* ASC = GetAbilitySystemComponent();
     NULL_CHECK(ASC);
 
-    ASC->GenericGameplayEventCallbacks.FindOrAdd(HDTAG_EVENT_PLAYERHUD_INITIALIZE).AddUObject(this, &AHDCharacterPlayer::SpawnDefaultWeapon);
-    ASC->GenericGameplayEventCallbacks.FindOrAdd(HDTAG_CHARACTER_ACTION_HOLDSTRATAGEM).AddUObject(this, &AHDCharacterPlayer::OnStratagemEventReceived);
-    ASC->GenericGameplayEventCallbacks.FindOrAdd(HDTAG_CHARACTER_ACTION_THROWEND).AddUObject(this, &AHDCharacterPlayer::OnStratagemEventReceived);
-    ASC->GenericGameplayEventCallbacks.FindOrAdd(HDTAG_CHARACTER_ACTION_DETACHSTRATAGEM).AddUObject(this, &AHDCharacterPlayer::OnStratagemEventReceived);
+    ASC->GenericGameplayEventCallbacks.FindOrAdd(Tag_Event_PlayerHUD_Initialize).AddUObject(this, &AHDCharacterPlayer::SpawnDefaultWeapon);
+    ASC->GenericGameplayEventCallbacks.FindOrAdd(Tag_Character_Action_HoldStratagem).AddUObject(this, &AHDCharacterPlayer::OnStratagemEventReceived);
+    ASC->GenericGameplayEventCallbacks.FindOrAdd(Tag_Character_Action_ThrowEnd).AddUObject(this, &AHDCharacterPlayer::OnStratagemEventReceived);
+    ASC->GenericGameplayEventCallbacks.FindOrAdd(Tag_Character_Action_DetachStratagem).AddUObject(this, &AHDCharacterPlayer::OnStratagemEventReceived);
 }
 
 void AHDCharacterPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -93,21 +93,10 @@ void AHDCharacterPlayer::EquipWeapon(AHDWeapon* NewWeapon)
     FGameplayEffectSpecHandle SpecHandle = ASC->MakeOutgoingSpec(WeaponAttributeSetEffect, 1.f, ASC->MakeEffectContext());
     CONDITION_CHECK(SpecHandle.IsValid());
 
-    SpecHandle.Data->SetSetByCallerMagnitude(HDTAG_DATA_ATTRIBUTE_AMMO, Combat->GetWeaponAmmoCount());
-    SpecHandle.Data->SetSetByCallerMagnitude(HDTAG_DATA_ATTRIBUTE_MAXAMMO, Combat->GetWeaponMaxAmmoCount());
-    SpecHandle.Data->SetSetByCallerMagnitude(HDTAG_DATA_ATTRIBUTE_CAPACITY, Combat->GetWeaponCapacityCount());
-    SpecHandle.Data->SetSetByCallerMagnitude(HDTAG_DATA_ATTRIBUTE_MAXCAPACITY, Combat->GetWeaponMaxCapacityCount());
-
-    ASC->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data.Get());
-}
-
-void AHDCharacterPlayer::Reload()
-{
-    UAbilitySystemComponent* ASC = GetAbilitySystemComponent();
-    NULL_CHECK(ASC);
-
-    FGameplayEffectSpecHandle SpecHandle = ASC->MakeOutgoingSpec(WeaponAttributeSetEffect, 1.f, ASC->MakeEffectContext());
-    CONDITION_CHECK(SpecHandle.IsValid());
+    SpecHandle.Data->SetSetByCallerMagnitude(Tag_Data_Attribute_Ammo, Combat->GetWeaponAmmoCount());
+    SpecHandle.Data->SetSetByCallerMagnitude(Tag_Data_Attribute_MaxAmmo, Combat->GetWeaponMaxAmmoCount());
+    SpecHandle.Data->SetSetByCallerMagnitude(Tag_Data_Attribute_Capacity, Combat->GetWeaponCapacityCount());
+    SpecHandle.Data->SetSetByCallerMagnitude(Tag_Data_Attribute_MaxCapacity, Combat->GetWeaponMaxCapacityCount());
 
     ASC->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data.Get());
 }
@@ -127,13 +116,16 @@ void AHDCharacterPlayer::PlayWeaponMontage(const EHDCombatMontage MontageType)
     {
         SectionName = HDMONTAGE_SECTIONNAME_WEAPON_FIRE;
     }
-    else if (MovementStateComp->GetStanceState() == EHDCharacterStanceState::Prone)
+    else if (MontageType == EHDCombatMontage::Reload)
     {
-        SectionName = HDMONTAGE_SECTIONNAME_WEAPON_RELOAD_PRONE;
-    }
-    else
-    {
-        SectionName = Combat->IsShoulder() ? HDMONTAGE_SECTIONNAME_WEAPON_RELOAD_SHOULDER : HDMONTAGE_SECTIONNAME_WEAPON_RELOAD_HIP;
+        if(MovementStateComp->GetStanceState() == EHDCharacterStanceState::Prone)
+        {
+            SectionName = HDMONTAGE_SECTIONNAME_WEAPON_RELOAD_PRONE;
+        }
+        else
+        {
+            SectionName = Combat->IsShoulder() ? HDMONTAGE_SECTIONNAME_WEAPON_RELOAD_SHOULDER : HDMONTAGE_SECTIONNAME_WEAPON_RELOAD_HIP;
+        }
     }
 
     CONDITION_CHECK(SectionName != NAME_None);
@@ -141,9 +133,14 @@ void AHDCharacterPlayer::PlayWeaponMontage(const EHDCombatMontage MontageType)
     UAnimMontage* WeaponMontage = Combat->GetWeaponMontage();
     NULL_CHECK(WeaponMontage);
 
-    const int32 SectionIndex = WeaponMontage->GetSectionIndex(SectionName);
-    const float MontageLength = WeaponMontage->GetSectionLength(SectionIndex);
-    float PlayRate = MontageLength / Combat->GetWeaponFireDelay();
+    float PlayRate = 1.f;
+
+    if(MontageType == EHDCombatMontage::Fire)
+    {
+        const int32 SectionIndex = WeaponMontage->GetSectionIndex(SectionName);
+        const float MontageLength = WeaponMontage->GetSectionLength(SectionIndex); 
+        PlayRate = MontageLength / Combat->GetWeaponFireDelay();
+    }
 
     UAnimInstance* WeaponAnimInstance = WeaponMesh->GetAnimInstance();
     NULL_CHECK(WeaponAnimInstance);
@@ -152,17 +149,17 @@ void AHDCharacterPlayer::PlayWeaponMontage(const EHDCombatMontage MontageType)
     WeaponAnimInstance->Montage_JumpToSection(SectionName, WeaponMontage);
 }
 
-const bool AHDCharacterPlayer::IsEquippedWeapon() const
+bool AHDCharacterPlayer::IsEquippedWeapon() const
 {
     return Combat->IsEquippedWeapon();
 }
 
-const bool AHDCharacterPlayer::IsShoulder() const
+bool AHDCharacterPlayer::IsShoulder() const
 {
     return Combat->IsShoulder();
 }
 
-const bool AHDCharacterPlayer::IsWeaponAutoFire() const
+bool AHDCharacterPlayer::IsWeaponAutoFire() const
 {
     return Combat->IsWeaponAutoFire();
 }
@@ -185,7 +182,7 @@ void AHDCharacterPlayer::SpawnDefaultWeapon(const FGameplayEventData* Payload)
 
     UAbilitySystemComponent* ASC = GetAbilitySystemComponent();
     NULL_CHECK(ASC);
-    ASC->GenericGameplayEventCallbacks.Remove(HDTAG_EVENT_PLAYERHUD_INITIALIZE);
+    ASC->GenericGameplayEventCallbacks.Remove(Tag_Event_PlayerHUD_Initialize);
 }
 
 void AHDCharacterPlayer::SetShouldering(const bool bShoulder)
@@ -193,7 +190,7 @@ void AHDCharacterPlayer::SetShouldering(const bool bShoulder)
     Combat->SetShoulder(bShoulder);   
 }
 
-const float AHDCharacterPlayer::GetWeaponFireDelay() const
+float AHDCharacterPlayer::GetWeaponFireDelay() const
 {
     return Combat->GetWeaponFireDelay();
 }
@@ -250,7 +247,7 @@ void AHDCharacterPlayer::UpdateSpeed(const EHDCharacterStanceState StanceState, 
 void AHDCharacterPlayer::InputStratagemCommand(const FInputActionValue& Value)
 {
     UAbilitySystemComponent* ASC = GetAbilitySystemComponent();
-    if (ASC && ASC->HasMatchingGameplayTag(HDTAG_CHARACTER_ACTION_STRATAGEMINPUTMODE))
+    if (ASC && ASC->HasMatchingGameplayTag(Tag_Character_Action_StratagemInputMode))
     {
         EHDCommandInput NewCommand = EHDCommandInput::Count;
         const FVector2D NewInput = Value.Get<FVector2D>();
@@ -268,7 +265,7 @@ void AHDCharacterPlayer::InputStratagemCommand(const FInputActionValue& Value)
         Stratagem->AddStratagemCommand(NewCommand);
 
         // HUD ¿¬µ¿¿ë GAS Event
-        FGameplayAbilityHelper::SendGameplayEventToTarget(HDTAG_EVENT_STRATAGEMHUD_ADDCOMMAND, this, ASC);
+        FGameplayAbilityHelper::SendGameplayEventToTarget(Tag_Event_StratagemHUD_AddCommand, this, ASC);
     }
 }
 
@@ -295,15 +292,15 @@ void AHDCharacterPlayer::RestoreStanceState()
 
 void AHDCharacterPlayer::OnStratagemEventReceived(const FGameplayEventData* Payload)
 {
-    if (Payload->EventTag == HDTAG_CHARACTER_ACTION_HOLDSTRATAGEM)
+    if (Payload->EventTag == Tag_Character_Action_HoldStratagem)
     {
         TryHoldStratagem();
     }
-    else if (Payload->EventTag == HDTAG_CHARACTER_ACTION_DETACHSTRATAGEM)
+    else if (Payload->EventTag == Tag_Character_Action_DetachStratagem)
     {
         Stratagem->ThrowFinished();
     }
-    else if(Payload->EventTag == HDTAG_CHARACTER_ACTION_THROWEND)
+    else if(Payload->EventTag == Tag_Character_Action_ThrowEnd)
     {
         SetWeaponActive(true);
     }
@@ -318,7 +315,7 @@ void AHDCharacterPlayer::TryHoldStratagem()
         SetWeaponActive(false);
         UAbilitySystemComponent* ASC = GetAbilitySystemComponent();
         NULL_CHECK(ASC);
-        ASC->AddLooseGameplayTag(HDTAG_CHARACTER_ACTION_HOLDSTRATAGEM);
+        ASC->AddLooseGameplayTag(Tag_Character_Action_HoldStratagem);
     }
     else
     {

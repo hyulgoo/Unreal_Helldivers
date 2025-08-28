@@ -5,7 +5,7 @@
 UHDGA_Base::UHDGA_Base(const FObjectInitializer& ObjectInitializer)
     : Super(ObjectInitializer)
 {
-    TargetBlockedTags.AddTag(HDTAG_CHARACTER_STATE_DEAD);
+    TargetBlockedTags.AddTag(Tag_Character_Action_Dead);
 }
 
 bool UHDGA_Base::CanActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayTagContainer* SourceTags /*= nullptr*/, const FGameplayTagContainer* TargetTags /*= nullptr*/, OUT FGameplayTagContainer* OptionalRelevantTags /*= nullptr*/) const

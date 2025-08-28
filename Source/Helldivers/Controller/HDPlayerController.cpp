@@ -62,9 +62,9 @@ void AHDPlayerController::OnPossess(APawn* aPawn)
         HUD->SetAbilitySystemComponent(ASC);
         HUD->CreateDefaultWidget();
 
-        ASC->GenericGameplayEventCallbacks.FindOrAdd(HDTAG_EVENT_PLAYERHUD_EQUIPWEAPON).AddUObject(HUD, &AHDHUD::OnEquipWeaponUIEventRecieved);
+        ASC->GenericGameplayEventCallbacks.FindOrAdd(Tag_Event_PlayerHUD_EquipWeapon).AddUObject(HUD, &AHDHUD::OnEquipWeaponUIEventRecieved);
 
-        FGameplayAbilityHelper::SendGameplayEventToSelf(HDTAG_EVENT_PLAYERHUD_INITIALIZE, GetAbilitySystemComponent());
+        FGameplayAbilityHelper::SendGameplayEventToSelf(Tag_Event_PlayerHUD_Initialize, GetAbilitySystemComponent());
 
         ConsoleCommand(TEXT("showdebug abilitysystem"));
     }

@@ -15,7 +15,7 @@ FHDInputAction::FHDInputAction(UInputAction* NewInputAction, const FGameplayTag&
 UHDInputData::UHDInputData(const FObjectInitializer& ObjectInitializer)
     : Super(ObjectInitializer)
 {
-    const FGameplayTagContainer ChildTags = FGameplayAbilityHelper::GetAllChildTag(HDTAG_INPUT);
+    const FGameplayTagContainer ChildTags = FGameplayAbilityHelper::GetAllChildTag(Tag_Input);
     for (const FGameplayTag& ChildTag : ChildTags)
     {
         AbilityInputActions.Add(FHDInputAction(nullptr, ChildTag, FGameplayTag::EmptyTag, EHDTriggerType::None));

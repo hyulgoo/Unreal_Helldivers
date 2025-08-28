@@ -46,7 +46,7 @@ void AHDHUD::CreateDefaultWidget()
         StratagemWidget = CreateWidget<UHDStratagemHUDUserWidget>(GetWorld(), StratagemWidgetClass, FName("StratagemHUDWidget"));
         NULL_CHECK(StratagemWidget);
 
-        const FGameplayTagContainer& StratagemEventTags = FGameplayAbilityHelper::GetAllChildTag(HDTAG_EVENT_STRATAGEMHUD);
+        const FGameplayTagContainer& StratagemEventTags = FGameplayAbilityHelper::GetAllChildTag(Tag_Event_StratagemHUD);
         for (const FGameplayTag& StratagemEventTag : StratagemEventTags)
         {
             AbilitySystemComponent->GenericGameplayEventCallbacks.FindOrAdd(StratagemEventTag).AddUObject(StratagemWidget, &UHDStratagemHUDUserWidget::OnStratagemEventReceived);

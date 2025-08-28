@@ -40,14 +40,13 @@ protected:
 
 	// WeaponInterface
     virtual void                            EquipWeapon(AHDWeapon* NewWeapon) override final;
-    virtual void                            Reload() override final;
     virtual void                            SpawnProjectile() override final;
     virtual UAnimMontage*                   GetCombatMontage(const EHDCombatMontage MontageType) const override final;
     virtual void                            PlayWeaponMontage(const EHDCombatMontage MontageType) override final;
-    virtual const bool                      IsEquippedWeapon() const override final;
-    virtual const bool                      IsShoulder() const override final;
-    virtual const bool                      IsWeaponAutoFire() const override final;
-	virtual const float                     GetWeaponFireDelay() const override final;
+    virtual bool                            IsEquippedWeapon() const override final;
+    virtual bool                            IsShoulder() const override final;
+    virtual bool                            IsWeaponAutoFire() const override final;
+	virtual float                           GetWeaponFireDelay() const override final;
     virtual void							SetWeaponActive(const bool bActive) override final;
 
     void                                    SpawnDefaultWeapon(const FGameplayEventData* Payload);

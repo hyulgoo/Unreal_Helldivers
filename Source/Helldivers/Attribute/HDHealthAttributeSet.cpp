@@ -22,7 +22,7 @@ void UHDHealthAttributeSet::PostAttributeChange(const FGameplayAttribute& Attrib
 			UAbilitySystemComponent* ASC = GetOwningAbilitySystemComponent();
 			NULL_CHECK(ASC);
 
-			FGameplayAbilityHelper::AddTagToTarget(ASC, HDTAG_CHARACTER_STATE_DEAD);
+			FGameplayAbilityHelper::AddTagToTarget(ASC, Tag_Character_Action_Dead);
 		}
 	}
 }

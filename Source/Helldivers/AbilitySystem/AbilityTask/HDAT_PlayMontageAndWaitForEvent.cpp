@@ -148,7 +148,7 @@ void UHDAT_PlayMontageAndWaitForEvent::GameplayEventContainerCallback(FGameplayT
 
 void UHDAT_PlayMontageAndWaitForEvent::JumpToSection(const FName SectionName)
 {
-    if (AbilitySystemComponent.IsValid())
+    if (Ability && AbilitySystemComponent.IsValid())
     {
         const FGameplayAbilityActorInfo* ActorInfo = Ability->GetCurrentActorInfo();
         UAnimInstance* AnimInstance = ActorInfo->GetAnimInstance();

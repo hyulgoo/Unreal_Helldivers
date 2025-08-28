@@ -15,7 +15,7 @@ struct FHDCharacterAttributeData : public FTableRowBase
 public:
     FHDCharacterAttributeData()
     {
-        const FGameplayTagContainer ChildTags = FGameplayAbilityHelper::GetAllChildTag(HDTAG_DATA_ATTRIBUTE);
+        const FGameplayTagContainer ChildTags = FGameplayAbilityHelper::GetAllChildTag(Tag_Data_Attribute);
         for (const FGameplayTag& ChildTag : ChildTags)
         {
             Data.Add(ChildTag, 0.f);

@@ -171,7 +171,7 @@ void AHDProjectileBase::ApplyDamageGameEffect(UAbilitySystemComponent* SourceASC
 	const FGameplayEffectSpecHandle ImpactGameEffectSpecHandle = TargetASC->MakeOutgoingSpec(DamageGameEffect, 1.f, Context);
 	CONDITION_CHECK(ImpactGameEffectSpecHandle.IsValid());
 
-	ImpactGameEffectSpecHandle.Data->SetSetByCallerMagnitude(HDTAG_DATA_DAMAGE_PROJECTILE, -InterpImpactDamage);
+	ImpactGameEffectSpecHandle.Data->SetSetByCallerMagnitude(Tag_Data_Damage_Projectile, -InterpImpactDamage);
 	SourceASC->ApplyGameplayEffectSpecToTarget(*ImpactGameEffectSpecHandle.Data.Get(), TargetASC);
 
 	if (StatusEffect != EStatusEffect::None)
@@ -181,8 +181,8 @@ void AHDProjectileBase::ApplyDamageGameEffect(UAbilitySystemComponent* SourceASC
 		const FGameplayEffectSpecHandle StatusGameEffectSpecHandle = TargetASC->MakeOutgoingSpec(StatusGameEffect, 1.f, Context);
 		CONDITION_CHECK(StatusGameEffectSpecHandle.IsValid());
 
-		StatusGameEffectSpecHandle.Data->SetSetByCallerMagnitude(HDTAG_DATA_DOTDAMAGE_TICKDAMAGE, -DotDamage);
-		StatusGameEffectSpecHandle.Data->SetSetByCallerMagnitude(HDTAG_DATA_DOTDAMAGE_DURATION, StatusDuration);
+		StatusGameEffectSpecHandle.Data->SetSetByCallerMagnitude(Tag_Data_DotDamage_TickDamage, -DotDamage);
+		StatusGameEffectSpecHandle.Data->SetSetByCallerMagnitude(Tag_Data_Projectile_StatusEffectDuration, StatusDuration);
 		SourceASC->ApplyGameplayEffectSpecToTarget(*StatusGameEffectSpecHandle.Data.Get(), TargetASC);
 	}
 }

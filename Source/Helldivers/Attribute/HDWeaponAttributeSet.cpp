@@ -26,30 +26,30 @@ void UHDWeaponAttributeSet::PostAttributeChange(const FGameplayAttribute& Attrib
     {
         if (Attribute == GetAmmoAttribute())
         {
-            GetOwningAbilitySystemComponent()->AddLooseGameplayTag(HDTAG_BLOCK_FIRE);
+            GetOwningAbilitySystemComponent()->AddLooseGameplayTag(Tag_Block_Fire);
         }
         else if (Attribute == GetCapacityAttribute())
         {
-            GetOwningAbilitySystemComponent()->AddLooseGameplayTag(HDTAG_BLOCK_RELOAD);
+            GetOwningAbilitySystemComponent()->AddLooseGameplayTag(Tag_Block_Reload);
         }
         else if (Attribute == GetGrenadeAttribute())
         {
-            GetOwningAbilitySystemComponent()->AddLooseGameplayTag(HDTAG_BLOCK_GRENADE);
+            GetOwningAbilitySystemComponent()->AddLooseGameplayTag(Tag_Block_Grenade);
         }
     }
     else if (OldValue <= 0.f && NewValue > 0.f)
     {
         if (Attribute == GetAmmoAttribute())
         {
-            GetOwningAbilitySystemComponent()->RemoveLooseGameplayTag(HDTAG_BLOCK_FIRE);
+            GetOwningAbilitySystemComponent()->RemoveLooseGameplayTag(Tag_Block_Fire);
         }
         else if (Attribute == GetCapacityAttribute())
         {
-            GetOwningAbilitySystemComponent()->RemoveLooseGameplayTag(HDTAG_BLOCK_RELOAD);
+            GetOwningAbilitySystemComponent()->RemoveLooseGameplayTag(Tag_Block_Reload);
         }
         else if (Attribute == GetGrenadeAttribute())
         {
-            GetOwningAbilitySystemComponent()->RemoveLooseGameplayTag(HDTAG_BLOCK_GRENADE);
+            GetOwningAbilitySystemComponent()->RemoveLooseGameplayTag(Tag_Block_Grenade);
         }
         }
 }

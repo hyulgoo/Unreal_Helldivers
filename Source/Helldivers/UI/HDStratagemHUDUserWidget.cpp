@@ -91,15 +91,15 @@ void UHDStratagemHUDUserWidget::OnStratagemEventReceived(const FGameplayEventDat
 {
     NULL_CHECK(Payload);
 
-    if (Payload->EventTag == HDTAG_EVENT_STRATAGEMHUD_APPEAR)
+    if (Payload->EventTag == Tag_Event_StratagemHUD_Active)
     {
         WidgetAppear(true);
     }
-    else if (Payload->EventTag == HDTAG_EVENT_STRATAGEMHUD_DISAPPEAR)
+    else if (Payload->EventTag == Tag_Event_StratagemHUD_Deactive)
     {
         WidgetAppear(false);
     }
-    else if (Payload->EventTag == HDTAG_EVENT_STRATAGEMHUD_ADDCOMMAND)
+    else if (Payload->EventTag == Tag_Event_StratagemHUD_AddCommand)
     {
         NULL_CHECK(StratagemComponent);
 

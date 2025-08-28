@@ -14,11 +14,11 @@ void UHDGA_Knockback::ActivateAbility(const FGameplayAbilitySpecHandle Handle, c
 {
     Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 
-    if(TriggerEventData->EventTag == HDTAG_DATA_KNOCKBACK_HIT)
+    if(TriggerEventData->EventTag == Tag_Data_Knockback_Hit)
     {
         LOG(TEXT("Knockback GA called!"));
     }
-    else if (TriggerEventData->EventTag == HDTAG_DATA_KNOCKBACK_RAGDOLL)
+    else if (TriggerEventData->EventTag == Tag_Data_Knockback_Ragdoll)
     {
         // Character Ragdoll
         RagdollInterface = ActorInfo->AvatarActor.Get();
@@ -48,7 +48,7 @@ void UHDGA_Knockback::CheckCharacterRagdollState()
         bRecoveryFromRagdoll = true;
 
         GetWorld()->GetTimerManager().ClearTimer(StateCheckTimerHandle);
-        const bool bIsDead = GetAbilitySystemComponentFromActorInfo()->HasMatchingGameplayTag(HDTAG_CHARACTER_STATE_DEAD);
+        const bool bIsDead = GetAbilitySystemComponentFromActorInfo()->HasMatchingGameplayTag(Tag_Character_Action_Dead);
         if (bIsDead == false)
         {
             GetWorld()->GetTimerManager().SetTimer(RecoveryFromRagdollTimerHandle, this, &UHDGA_Knockback::RecoveryFromRagdoll, 0.5f, false);
